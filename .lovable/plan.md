@@ -1,127 +1,93 @@
 
 
-# Complete UI Overhaul: Cinematic, Attractive, Polished Design
+# Faculty Data & Detail Page Overhaul: Real Data, Correct Order, Rich Profiles
 
 ## Overview
-A sweeping visual overhaul of every public-facing page to create a cinematic, magazine-quality website with proper animations, visual elements, clear photo visibility, and simplified course cards (name only). Every section gets rethought for visual impact.
+Replace all placeholder faculty data with the real, comprehensive details provided. Reorder faculty, add 2 new members (without photos for now), expand the data model to support detailed experience/specialities, and update the detail page to display all rich content.
 
 ---
 
-## 1. Courses Page -- Simplified Cards (Name Only)
+## 1. Expand Data Model & Update Faculty Data (`src/data/facultyData.ts`)
 
-**Remove** from course cards: level badges, duration, teacher name, description, outcomes, "Enquire Now" button.
+**Expand the `FacultyMember` interface** to include:
+- `specialities: string[]` (distinct from specialization — these are detailed skill areas)
+- `experienceDetails: string[]` (rich list of career positions/roles)
 
-**New card design**: Full-bleed image card with only the course name overlaid at the bottom in elegant serif text. Hover reveals a subtle gold shimmer. Clean, minimal, magazine-style.
+**New faculty order** (as specified):
+1. Smt Revathi Ramachandran — Director, Nada Gurukulam / Dance - Bharatanatyam
+2. Ms Manasvini Korukkai Ramachandran — Dance - Bharatanatyam (NO photo yet, use placeholder)
+3. Dr Dundayya Pujer — Instrumental Music - Tabla (NO photo yet, use placeholder)
+4. Mr Srinivas Viswanadha — Vocal Music - Carnatic (NO photo yet, use existing placeholder)
+5. Mr Shreerama Bhat — Vocal Music - Carnatic
+6. Mr Prafulla Kumar Meher — Vocal Music - Hindustani
+7. Mr Abhirama Bode — Vocal Music - Carnatic
+8. Mr Pranav Kashyap — Vocal Music - Hindustani
+9. Mr Sujan H N — Vocal Music - Carnatic
+10. Mr Mangali Tirumala — Instrumental Music - Tabla
+11. Ms Shailaja Kumari A — Vocal Music - Carnatic
+12. Dr Neelam Patel — Vocal Music - Hindustani
+13. Ms Nayana Shivaram — Dance - Bharatanatyam
+14. Ms Ranjani Venkatesh — Vocal Music - Carnatic
 
-**Remove** methodology section entirely for simplicity, or keep it minimal.
+**All bios, education, experience, specialities, and awards** will be replaced with the real data provided by the user. Every field will contain the actual content — no placeholders.
 
----
+**Category updates:**
+- Revathi: `dance` (was `carnatic`)
+- Neelam Patel: `hindustani` (was `carnatic`)
+- Sujan H N: `carnatic` (was `instrumental`)
+- Shailaja Kumari: `carnatic` (was `bharatanatyam`)
+- Abhirama Bode: `carnatic` (was `instrumental`)
+- Mangali Tirumala: `instrumental` (stays)
+- New category value `dance` added for Bharatanatyam members
 
-## 2. Homepage (`Index.tsx`) -- Major Visual Upgrade
+**Categories array update:**
+```
+{ value: "dance", label: "Dance" }
+```
+replaces `{ value: "bharatanatyam", label: "Bharatanatyam" }`
 
-**Hero Section**:
-- Add animated golden mandala/ornamental SVG element rotating slowly behind the text
-- Stagger text animations more dramatically (letter-by-letter for "Nada Gurukulam")
-- Add a subtle grain/noise texture overlay for cinematic feel
-- Increase hero to `min-h-[90vh]` for more impact
-
-**Founder Section**:
-- Add decorative golden corner ornaments
-- Larger portrait with a warm vignette glow behind it
-- Add a subtle parallax scroll effect on the portrait
-
-**Course Cards on Homepage**:
-- Simplify to show only course name on image card (matching Courses page)
-- Remove level, teacher, description, button
-
-**Faculty Showcase**:
-- Fix image cropping with `object-position: center 15%` (slightly higher to capture faces better)
-- Add subtle golden frame border on hover
-
-**Campus Bento Grid**:
-- Increase row heights back to `180px` for better visibility
-- Add hover overlay with location name
-
-**Stats Section**:
-- Add animated counting numbers with gold shimmer
-- Add decorative separator lines between stats
-
-**Testimonials**:
-- Add decorative quotation marks (large, gold, serif)
-- More visual depth with layered backgrounds
-
-**CTA Section**:
-- Add floating animated musical note icons
-- More dramatic gradient
+**For new members without photos:** use a neutral placeholder (the logo or a generic silhouette). These will be replaced when photos arrive.
 
 ---
 
-## 3. Faculty Page -- Attractive Card Redesign
+## 2. Update Faculty Detail Page (`src/pages/FacultyDetail.tsx`)
 
-**Cards**:
-- Fix image cropping: `object-position: center 15%` to show faces clearly
-- Increase image height for better face visibility
-- Add golden bottom border accent
-- On hover: elegant lift + golden border glow + image zoom
-- Remove awards line from cards (keep on detail page only)
-- Ensure all 11 faculty members display properly
+Expand the detail page to show all the rich data:
 
-**Faculty Detail Page**:
-- Fix hero image `object-position: center 15%`
-- Add decorative gold ornamental dividers between sections
-- More visual polish on the sidebar photo
+**Current sections:** About, Education, Awards
+**New sections to add:**
+- **Experience** — rendered as a detailed list of career positions with descriptions
+- **Specialities** — rendered as styled tags/chips
 
----
+**Section order on detail page:**
+1. Hero banner with photo
+2. About/Bio (long paragraph)
+3. Education (bulleted list)
+4. Experience (detailed career timeline)
+5. Specialities (tag chips)
+6. Awards & Recognition (tag chips)
 
-## 4. About Page -- More Visual Impact
-
-- Add subtle parallax on hero background image
-- Founder portrait: add warm golden glow/vignette behind image
-- Vision/Mission/Values cards: add animated icon entrance
-- Campus bento: increase row heights for better visibility
-- Philosophy section: add animated decorative elements
+The experience section will use the `experienceDetails` string array, each item rendered as a list entry with a gold bullet.
 
 ---
 
-## 5. Gallery Page -- Visual Polish
+## 3. Faculty Listing Page (`src/pages/Faculty.tsx`)
 
-- Add hover animations with golden overlay shimmer
-- Improve lightbox with smoother transitions
-- Category badges more elegant
+**Minor update:** Show `title` (e.g., "Director, Nada Gurukulam") under the name for the Director card, and `specialization` for all others. No structural changes needed.
 
 ---
 
-## 6. Global CSS Enhancements (`index.css`)
+## 4. Homepage Faculty Showcase (`src/pages/Index.tsx`)
 
-Add new utility classes:
-- `.animate-float` -- gentle floating animation for decorative elements
-- `.animate-glow-pulse` -- pulsing golden glow for CTAs
-- `.ornament-gold` -- decorative SVG ornament styling
-- `.grain-overlay` -- cinematic film grain texture
-- Improve `.text-shimmer-gold` animation speed
+**Update** `facultyShowcase` to use `facultyMembers.slice(0, 5)` which will now correctly show the first 5 in the new order (Director, Manasvini, Dr Dundayya, Srinivas, Shreerama Bhat).
 
 ---
 
-## 7. Admissions & Contact Pages
+## Technical Details
 
-- Tighten visual consistency
-- Add animated decorative elements
-- Ensure no oversized cards
-
----
-
-## Files to Modify
-
-| File | Key Changes |
-|------|-------------|
-| `src/pages/Index.tsx` | Hero animation upgrade, simplified course cards (name only), fix image cropping, add decorative elements, floating particles enhanced |
-| `src/pages/Courses.tsx` | Simplified cards with name only, remove level/duration/teacher/outcomes/button |
-| `src/pages/Faculty.tsx` | Fix image cropping (`object-position: center 15%`), remove awards from cards, visual polish |
-| `src/pages/FacultyDetail.tsx` | Fix hero image position, add decorative elements |
-| `src/pages/About.tsx` | Fix image positions, add decorative elements, visual polish |
-| `src/pages/Gallery.tsx` | Hover effects, visual polish |
-| `src/pages/Admissions.tsx` | Visual consistency |
-| `src/pages/Contact.tsx` | Visual consistency |
-| `src/index.css` | New animation utilities, grain overlay, enhanced shimmer effects |
-| `src/components/SectionDivider.tsx` | Enhanced golden glow animation |
-
+| File | Changes |
+|------|---------|
+| `src/data/facultyData.ts` | Expand interface, reorder all 14 members, replace all data with real bios/education/awards/experience/specialities, add 3 new members (Manasvini, Dundayya, Srinivas), update categories |
+| `src/pages/FacultyDetail.tsx` | Add Experience and Specialities sections to detail layout |
+| `src/pages/Faculty.tsx` | Minor: update card info to show title for Director |
+| `src/pages/Index.tsx` | No code change needed (already uses `facultyMembers.slice(0, 5)`) |
