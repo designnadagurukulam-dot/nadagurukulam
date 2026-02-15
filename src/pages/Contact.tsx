@@ -10,6 +10,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import SectionDivider from "@/components/SectionDivider";
 
+import imgEnsemble from "@/assets/gallery/NGR6M_2124_R.webp";
+import imgMusic13 from "@/assets/gallery/NGMUSIC-13.webp";
+
 const Contact = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
@@ -28,7 +31,7 @@ const Contact = () => {
     <div>
       {/* Hero */}
       <section className="relative min-h-[45vh] flex items-center justify-center overflow-hidden">
-        <img src="https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=1920&q=80" alt="Contact" className="absolute inset-0 w-full h-full object-cover" />
+        <img src={imgEnsemble} alt="Contact" className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-br from-[hsl(0_69%_20%/0.88)] to-[hsl(345_75%_15%/0.8)]" />
         <div className="relative z-10 container mx-auto px-4 text-center">
           <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground mb-4">Contact Us</h1>
@@ -92,7 +95,7 @@ const Contact = () => {
             {/* Info + Image */}
             <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="lg:col-span-2 space-y-6">
               <div className="rounded-lg overflow-hidden shadow-md">
-                <img src="https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?w=600" alt="Campus" className="w-full h-48 object-cover" loading="lazy" />
+                <img src={imgMusic13} alt="Campus" className="w-full h-48 object-cover" loading="lazy" />
               </div>
               <div>
                 <h2 className="font-serif text-2xl font-bold mb-6">Get in Touch</h2>

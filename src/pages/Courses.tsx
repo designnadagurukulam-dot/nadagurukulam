@@ -7,20 +7,29 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SectionDivider from "@/components/SectionDivider";
 
+import imgMusic13 from "@/assets/gallery/NGMUSIC-13.webp";
+import imgVocal from "@/assets/gallery/NGZ6R_1512_R.webp";
+import imgBharatanatyam from "@/assets/gallery/NGZ6R_1931_R.webp";
+import imgPercussion from "@/assets/gallery/NGZ6R_6439_R.webp";
+import imgChorus from "@/assets/gallery/NGR6M_0933.webp";
+import imgConcert from "@/assets/gallery/NGR6_M1630.webp";
+import imgMusic6 from "@/assets/gallery/NGMUSIC-6.webp";
+import imgDancers from "@/assets/gallery/NGR6M_9613.webp";
+
 const allCourses = [
-  { name: "Carnatic Vocal", category: "vocal", img: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600", level: "Beginner to Advanced", duration: "3 Years", teacher: "Smt. Revathi Ramachandran", desc: "Master the melodic intricacies of South Indian classical music, from basic swaras to complex ragas and kritis.", outcomes: ["Swara knowledge & Shruti alignment", "Raga identification & Alapana", "Kriti rendition & Manodharma", "Stage performance readiness"] },
-  { name: "Hindustani Vocal", category: "vocal", img: "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=600", level: "Beginner to Advanced", duration: "3 Years", teacher: "Sri Raghunandan Panshikar", desc: "Explore the soulful ragas of North Indian classical music with authentic Guru-Shishya training.", outcomes: ["Raga & Taal fundamentals", "Khayal & Thumri rendition", "Bandish composition", "Concert performance skills"] },
-  { name: "Bharatanatyam", category: "dance", img: "https://images.unsplash.com/photo-1598387993441-a364f854c3e1?w=600", level: "Beginner to Advanced", duration: "4 Years", teacher: "Ms. Manasvini Ramachandran", desc: "Learn the ancient temple dance form with grace, precision, and devotion to this timeless art.", outcomes: ["Adavu mastery & footwork", "Abhinaya & expression", "Choreography & composition", "Arangetram preparation"] },
-  { name: "Mridangam", category: "instrumental", img: "https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=600", level: "Beginner to Intermediate", duration: "2 Years", teacher: "Sri Venkatesh Kumar", desc: "Explore the rhythmic heart of Carnatic music through traditional percussion training.", outcomes: ["Tala system mastery", "Solkattu & patterns", "Accompaniment techniques", "Concert readiness"] },
-  { name: "Tabla", category: "instrumental", img: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=600", level: "Beginner to Intermediate", duration: "2 Years", teacher: "Sri Abhishek Mishra", desc: "Master complex rhythmic patterns and compositions of Hindustani percussion.", outcomes: ["Bol system & Theka", "Kayda & Rela", "Solo & accompaniment", "Gharana traditions"] },
-  { name: "Flute", category: "instrumental", img: "https://images.unsplash.com/photo-1460723237483-7a6dc9d0b212?w=600", level: "Beginner to Advanced", duration: "3 Years", teacher: "Sri Shashank Subramanyam", desc: "Discover the divine sound of the bamboo flute in classical tradition.", outcomes: ["Breath control & embouchure", "Raga rendition on flute", "Gamakas & ornaments", "Stage performance"] },
+  { name: "Carnatic Vocal", category: "vocal", img: imgVocal, level: "Beginner to Advanced", duration: "3 Years", teacher: "Smt. Revathi Ramachandran", desc: "Master the melodic intricacies of South Indian classical music, from basic swaras to complex ragas and kritis.", outcomes: ["Swara knowledge & Shruti alignment", "Raga identification & Alapana", "Kriti rendition & Manodharma", "Stage performance readiness"] },
+  { name: "Hindustani Vocal", category: "vocal", img: imgChorus, level: "Beginner to Advanced", duration: "3 Years", teacher: "Sri Raghunandan Panshikar", desc: "Explore the soulful ragas of North Indian classical music with authentic Guru-Shishya training.", outcomes: ["Raga & Taal fundamentals", "Khayal & Thumri rendition", "Bandish composition", "Concert performance skills"] },
+  { name: "Bharatanatyam", category: "dance", img: imgBharatanatyam, level: "Beginner to Advanced", duration: "4 Years", teacher: "Ms. Manasvini Ramachandran", desc: "Learn the ancient temple dance form with grace, precision, and devotion to this timeless art.", outcomes: ["Adavu mastery & footwork", "Abhinaya & expression", "Choreography & composition", "Arangetram preparation"] },
+  { name: "Mridangam", category: "instrumental", img: imgPercussion, level: "Beginner to Intermediate", duration: "2 Years", teacher: "Sri Venkatesh Kumar", desc: "Explore the rhythmic heart of Carnatic music through traditional percussion training.", outcomes: ["Tala system mastery", "Solkattu & patterns", "Accompaniment techniques", "Concert readiness"] },
+  { name: "Tabla", category: "instrumental", img: imgPercussion, level: "Beginner to Intermediate", duration: "2 Years", teacher: "Sri Abhishek Mishra", desc: "Master complex rhythmic patterns and compositions of Hindustani percussion.", outcomes: ["Bol system & Theka", "Kayda & Rela", "Solo & accompaniment", "Gharana traditions"] },
+  { name: "Flute", category: "instrumental", img: imgMusic13, level: "Beginner to Advanced", duration: "3 Years", teacher: "Sri Shashank Subramanyam", desc: "Discover the divine sound of the bamboo flute in classical tradition.", outcomes: ["Breath control & embouchure", "Raga rendition on flute", "Gamakas & ornaments", "Stage performance"] },
 ];
 
 const methodology = [
-  { icon: BookOpen, title: "In-Person Classes", desc: "Traditional face-to-face sessions with personal guidance from Gurus.", img: "https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?w=400" },
-  { icon: Mic, title: "Online Live Sessions", desc: "Interactive live classes for students learning remotely.", img: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=400" },
-  { icon: Music, title: "Recorded Lessons", desc: "Comprehensive lesson library for self-paced practice.", img: "https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=400" },
-  { icon: CheckCircle, title: "Performance Opportunities", desc: "Regular recitals and concerts to build stage confidence.", img: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400" },
+  { icon: BookOpen, title: "In-Person Classes", desc: "Traditional face-to-face sessions with personal guidance from Gurus.", img: imgConcert },
+  { icon: Mic, title: "Online Live Sessions", desc: "Interactive live classes for students learning remotely.", img: imgMusic6 },
+  { icon: Music, title: "Recorded Lessons", desc: "Comprehensive lesson library for self-paced practice.", img: imgChorus },
+  { icon: CheckCircle, title: "Performance Opportunities", desc: "Regular recitals and concerts to build stage confidence.", img: imgDancers },
 ];
 
 const Courses = () => {
@@ -31,7 +40,7 @@ const Courses = () => {
     <div>
       {/* Hero */}
       <section className="relative min-h-[45vh] flex items-center justify-center overflow-hidden">
-        <img src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=1920&q=80" alt="Instruments" className="absolute inset-0 w-full h-full object-cover" />
+        <img src={imgMusic13} alt="Instruments" className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-br from-[hsl(0_69%_20%/0.88)] to-[hsl(345_75%_15%/0.8)]" />
         <div className="relative z-10 container mx-auto px-4 text-center">
           <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground mb-4">Our Programs</h1>

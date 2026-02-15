@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import logo from "@/assets/logo.png";
+import imgConcert from "@/assets/gallery/NGR6_M1630.webp";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -35,7 +36,7 @@ const Login = () => {
       {/* Left - decorative */}
       <div className="hidden lg:flex lg:w-1/2 relative hero-overlay">
         <img
-          src="https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=1200"
+          src={imgConcert}
           alt="Classical music"
           className="absolute inset-0 w-full h-full object-cover"
         />

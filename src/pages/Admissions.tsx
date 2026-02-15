@@ -6,6 +6,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import SectionDivider from "@/components/SectionDivider";
 
+import imgDancers from "@/assets/gallery/NGR6M_9613.webp";
+import imgDancePerf from "@/assets/gallery/NGR6M_9591.webp";
+
 const steps = [
   { num: 1, title: "Create Account", desc: "Register on our portal with your basic details." },
   { num: 2, title: "Fill Application", desc: "Complete the detailed application form for your chosen program." },
@@ -28,7 +31,7 @@ const Admissions = () => (
   <div>
     {/* Hero */}
     <section className="relative min-h-[45vh] flex items-center justify-center overflow-hidden">
-      <img src="https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?w=1920&q=80" alt="Students" className="absolute inset-0 w-full h-full object-cover" />
+      <img src={imgDancers} alt="Students" className="absolute inset-0 w-full h-full object-cover" />
       <div className="absolute inset-0 bg-gradient-to-br from-[hsl(0_69%_20%/0.88)] to-[hsl(345_75%_15%/0.8)]" />
       <div className="relative z-10 container mx-auto px-4 text-center">
         <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground mb-4">Admissions</h1>
@@ -118,7 +121,7 @@ const Admissions = () => (
 
     {/* Scholarships */}
     <section className="relative py-20 overflow-hidden">
-      <img src="https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=1920&q=80" alt="Celebration" className="absolute inset-0 w-full h-full object-cover" />
+      <img src={imgDancePerf} alt="Celebration" className="absolute inset-0 w-full h-full object-cover" />
       <div className="absolute inset-0 bg-gradient-to-br from-[hsl(0_69%_20%/0.9)] to-[hsl(345_75%_15%/0.85)]" />
       <div className="relative z-10 container mx-auto px-4 max-w-3xl text-center">
         <GraduationCap className="h-10 w-10 text-gold mx-auto mb-4" />

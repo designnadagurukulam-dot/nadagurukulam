@@ -4,22 +4,34 @@ import { X, ChevronLeft, ChevronRight, Play } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SectionDivider from "@/components/SectionDivider";
 
+import imgMusic13 from "@/assets/gallery/NGMUSIC-13.webp";
+import imgMusic6 from "@/assets/gallery/NGMUSIC-6.webp";
+import imgConcert from "@/assets/gallery/NGR6_M1630.webp";
+import imgBharatanatyam from "@/assets/gallery/NGZ6R_1931_R.webp";
+import imgDancers from "@/assets/gallery/NGR6M_9613.webp";
+import imgVocal from "@/assets/gallery/NGZ6R_1512_R.webp";
+import imgPercussion from "@/assets/gallery/NGZ6R_6439_R.webp";
+import imgChorus from "@/assets/gallery/NGR6M_0933.webp";
+import imgEnsemble from "@/assets/gallery/NGR6M_2124_R.webp";
+import imgDancePerf from "@/assets/gallery/NGR6M_9591.webp";
+
 const images = [
-  { src: "https://images.unsplash.com/photo-1598387993441-a364f854c3e1?w=600", cat: "performances", alt: "Classical dance performance" },
-  { src: "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=600", cat: "events", alt: "Music concert event" },
-  { src: "https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=600", cat: "workshops", alt: "Music workshop" },
-  { src: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600", cat: "performances", alt: "Stage performance" },
-  { src: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=600", cat: "campus", alt: "Music practice" },
-  { src: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=600", cat: "events", alt: "Cultural event" },
-  { src: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600", cat: "workshops", alt: "Dance workshop" },
-  { src: "https://images.unsplash.com/photo-1460723237483-7a6dc9d0b212?w=600", cat: "performances", alt: "Music performance" },
-  { src: "https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?w=600", cat: "campus", alt: "Campus life" },
+  { src: imgBharatanatyam, cat: "performances", alt: "Bharatanatyam group performance" },
+  { src: imgConcert, cat: "events", alt: "Grand stage concert" },
+  { src: imgPercussion, cat: "performances", alt: "Percussion ensemble" },
+  { src: imgVocal, cat: "performances", alt: "Vocal concert" },
+  { src: imgMusic13, cat: "campus", alt: "Student playing veena" },
+  { src: imgDancers, cat: "events", alt: "Dancers in magenta" },
+  { src: imgMusic6, cat: "campus", alt: "Students singing outdoors" },
+  { src: imgChorus, cat: "events", alt: "Vocal chorus" },
+  { src: imgEnsemble, cat: "workshops", alt: "Vocal ensemble" },
+  { src: imgDancePerf, cat: "performances", alt: "Dance performance" },
 ];
 
 const videos = [
-  { title: "Annual Day Carnatic Concert 2024", thumb: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=500" },
-  { title: "Bharatanatyam Arangetram Highlights", thumb: "https://images.unsplash.com/photo-1598387993441-a364f854c3e1?w=500" },
-  { title: "Guru Purnima Celebrations", thumb: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=500" },
+  { title: "Annual Day Carnatic Concert 2024", thumb: imgConcert },
+  { title: "Bharatanatyam Arangetram Highlights", thumb: imgBharatanatyam },
+  { title: "Guru Purnima Celebrations", thumb: imgChorus },
 ];
 
 const Gallery = () => {
@@ -36,7 +48,7 @@ const Gallery = () => {
     <div>
       {/* Hero */}
       <section className="relative min-h-[45vh] flex items-center justify-center overflow-hidden">
-        <img src="https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=1920&q=80" alt="Gallery" className="absolute inset-0 w-full h-full object-cover" />
+        <img src={imgDancers} alt="Gallery" className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-br from-[hsl(0_69%_20%/0.88)] to-[hsl(345_75%_15%/0.8)]" />
         <div className="relative z-10 container mx-auto px-4 text-center">
           <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground mb-4">Gallery</h1>
@@ -62,7 +74,7 @@ const Gallery = () => {
           <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4">
             {filtered.map((img, i) => (
               <motion.div
-                key={img.src}
+                key={`${img.alt}-${i}`}
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
                 viewport={{ once: true }}
@@ -135,7 +147,7 @@ const Gallery = () => {
               <ChevronRight className="h-8 w-8" />
             </button>
             <img
-              src={filtered[lightboxIdx].src.replace("w=600", "w=1200")}
+              src={filtered[lightboxIdx].src}
               alt={filtered[lightboxIdx].alt}
               className="max-w-full max-h-[90vh] rounded-lg"
               onClick={(e) => e.stopPropagation()}
