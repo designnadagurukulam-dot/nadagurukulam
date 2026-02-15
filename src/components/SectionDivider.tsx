@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 
 const SectionDivider = () => (
-  <div className="flex items-center justify-center py-8 overflow-hidden">
+  <div className="flex items-center justify-center py-5 overflow-hidden">
     <motion.div
       initial={{ scaleX: 0 }}
       whileInView={{ scaleX: 1 }}

@@ -96,7 +96,7 @@ const Contact = () => {
             <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="lg:col-span-3">
               <div className="rounded-2xl overflow-hidden shadow-xl bg-card border border-border/50">
                 <div className="h-1.5 shimmer-line" style={{ background: "linear-gradient(90deg, hsl(0 69% 33%), hsl(43 72% 52%), hsl(0 69% 33%))" }} />
-                <div className="p-8 md:p-10">
+                <div className="p-6 md:p-8">
                   <h2 className="font-serif text-2xl md:text-3xl font-bold mb-2">Send a Message</h2>
                   <p className="text-muted-foreground text-sm mb-8">Fill out the form below and we'll get back to you within 24 hours.</p>
 

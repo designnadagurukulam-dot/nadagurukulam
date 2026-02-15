@@ -103,7 +103,7 @@ const Courses = () => {
                   transition={{ delay: i * 0.08, duration: 0.4 }}
                   className="group"
                 >
-                  <div className="relative h-[480px] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 card-premium">
+                  <div className="relative h-[360px] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 card-premium">
                     <img src={c.img} alt={c.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" loading="lazy" />
                     <div className="absolute inset-0 bg-gradient-to-t from-[hsl(0_0%_0%/0.95)] via-[hsl(0_0%_0%/0.4)] to-transparent" />
 

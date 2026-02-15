@@ -27,7 +27,7 @@ const DashboardOverview = () => {
       {/* Welcome */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="font-serif text-3xl text-foreground">
-          Welcome back, {profile?.display_name || "Student"} 🎵
+          Welcome back, {profile?.display_name || "Student"}
         </h1>
         <p className="text-muted-foreground mt-1">Here's your learning overview</p>
       </motion.div>

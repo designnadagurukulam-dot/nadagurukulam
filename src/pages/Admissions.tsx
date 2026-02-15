@@ -53,7 +53,7 @@ const Admissions = () => (
     <SectionDivider />
 
     {/* ══════ WHAT WE OFFER ══════ */}
-    <section className="py-24 bg-background">
+    <section className="py-16 bg-background">
       <div className="container mx-auto px-4 max-w-5xl">
         <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="font-serif text-3xl md:text-5xl font-bold text-center mb-4">
           What We <span className="text-gradient-gold">Offer</span>
@@ -136,7 +136,7 @@ const Admissions = () => (
     </section>
 
     {/* ══════ CTA ══════ */}
-    <section className="relative py-28 overflow-hidden">
+    <section className="relative py-20 overflow-hidden">
       <div className="absolute inset-0 gradient-maroon" />
       <motion.div
         className="absolute inset-0 opacity-20"
