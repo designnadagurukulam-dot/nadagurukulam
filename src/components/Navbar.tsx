@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Menu, X, LogOut, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
 import logo from "@/assets/logo.png";
 
 const navLinks = [
@@ -18,12 +19,19 @@ const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
 
   useState(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   });
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
 
   return (
     <header className={`sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b transition-shadow duration-300 ${scrolled ? "shadow-md border-border" : "border-transparent shadow-none"}`}>
@@ -47,9 +55,20 @@ const Navbar = () => {
               {link.label}
             </Link>
           ))}
-          <Button variant="default" size="sm" className="ml-3">
-            Login
-          </Button>
+          {user ? (
+            <div className="flex items-center gap-2 ml-3">
+              <Button variant="outline" size="sm" onClick={() => navigate("/dashboard")} className="gap-1.5">
+                <LayoutDashboard className="h-4 w-4" /> Dashboard
+              </Button>
+              <Button variant="ghost" size="sm" onClick={handleSignOut} className="gap-1.5 text-muted-foreground">
+                <LogOut className="h-4 w-4" /> Sign Out
+              </Button>
+            </div>
+          ) : (
+            <Link to="/login">
+              <Button variant="default" size="sm" className="ml-3">Login</Button>
+            </Link>
+          )}
         </nav>
 
         {/* Mobile toggle */}
@@ -80,9 +99,22 @@ const Navbar = () => {
                 {link.label}
               </Link>
             ))}
-            <Button variant="default" size="sm" className="mt-2">
-              Login
-            </Button>
+            {user ? (
+              <>
+                <Link to="/dashboard" onClick={() => setMobileOpen(false)}>
+                  <Button variant="outline" size="sm" className="w-full mt-2 gap-1.5">
+                    <LayoutDashboard className="h-4 w-4" /> Dashboard
+                  </Button>
+                </Link>
+                <Button variant="ghost" size="sm" className="w-full mt-1 gap-1.5 text-muted-foreground" onClick={() => { handleSignOut(); setMobileOpen(false); }}>
+                  <LogOut className="h-4 w-4" /> Sign Out
+                </Button>
+              </>
+            ) : (
+              <Link to="/login" onClick={() => setMobileOpen(false)}>
+                <Button variant="default" size="sm" className="w-full mt-2">Login</Button>
+              </Link>
+            )}
           </nav>
         </div>
       )}
