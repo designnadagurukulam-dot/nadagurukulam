@@ -1,198 +1,67 @@
 
 
-# Complete UI Overhaul -- Modern, Flashy, Attractive Design
+# Update Founder's Message, Remove Admissions Process & Timeline
 
-## Problem
-The current design uses basic card layouts, plain backgrounds, uniform grids, and minimal visual effects. While functional, it lacks the striking visual appeal of a premium arts institution website. Cards are flat, sections are repetitive (same pattern of heading + grid), and there's no visual drama or "wow" moments.
-
-## Design Philosophy
-Transform every page into a magazine-quality, visually rich experience with:
-- **Layered depth** using gradients, overlays, and shadows
-- **Dynamic card designs** with glassmorphism, gradient borders, and animated hover states
-- **Visual variety** -- no two sections should look the same (alternating layouts, asymmetric grids, bento layouts)
-- **Micro-interactions** on every interactive element
-- **Bold typography** with decorative accents
-- **Cinematic hero sections** with parallax and animated text reveals
+## Overview
+Three key changes: (1) Replace the placeholder Founder's Message with the actual spiritual message provided, (2) Transform the Admissions page into a simple "Contact Us / Pre-Registration Inquiry" page (no application process, no open enrollment messaging), and (3) Remove the timeline section from the About page.
 
 ---
 
-## Changes by File
+## 1. About Page (`src/pages/About.tsx`)
 
-### 1. `tailwind.config.ts` -- New Animations & Utilities
-- Add keyframes: `tilt-in`, `reveal-up`, `gradient-shift`, `border-glow`, `text-reveal`
-- Add animation classes for staggered card entrances
-- Add `perspective` utility for 3D card transforms
+**Remove the Timeline section entirely** (lines 76-120 including the milestones data array and the "Our Journey" section with the vertical gold timeline).
 
-### 2. `src/index.css` -- Premium Utility Classes
-- `.card-premium` -- gradient border animation on hover (maroon-to-gold rotating border)
-- `.card-glass-gold` -- warm glassmorphism with gold-tinted blur
-- `.text-reveal` -- clip-path text reveal animation
-- `.section-dark` -- dark maroon background section variant for contrast
-- `.hover-3d` -- subtle 3D tilt on hover using CSS perspective
-- `.badge-gold` -- pill badge with gold shimmer effect
-- `.gradient-border` -- animated gradient border using pseudo-elements
-- Enhanced `.golden-frame` with animated glow on hover
+**Update Founder's Message** -- replace the current placeholder quote and description with the actual message:
 
-### 3. `src/components/SectionDivider.tsx` -- More Ornate
-- Larger, more detailed mandala SVG
-- Animated rotating inner ring
-- Longer gradient lines on either side
-- Subtle pulsing glow effect
+> *"nada brahma, says our scriptures. Sound is divine or 'paramesti', as it is called. And while the seven notes of music have been inspired by various sounds in creation or 'srsti', it is the singular privilege of humans or 'vyasti' to sing and play music. The music that comes from 'paramesti' to 'srsti' to 'vyasti' must take all of us -- samasti back to divinity. Indian classical music that originated in the samaveda and evolved into its current form over centuries has been designed to do just that.*
+>
+> *To practise, promote and propagate this rich cultural and spiritual Indian music tradition is the purpose of establishing the Department of Music and Performing Arts at the Sri Sathya Sai University for Human Excellence, so that the parampara of the divine knowledge of music is seamlessly passed on from the masters to the seekers."*
+>
+> -- Sadguru Sri Madhusudan Sai, Founder, Nada Gurukulam
 
-### 4. `src/pages/Index.tsx` -- Complete Homepage Overhaul
-
-**Hero Section:**
-- Add animated text reveal (words appearing one by one)
-- Floating musical note SVG particles in background
-- Larger, more dramatic gradient overlay with radial gradient center spotlight
-- Animated down-arrow with "Discover" text label
-
-**Features Section ("Why Nada Gurukulam"):**
-- Change from basic cards to **oversized image cards with overlapping text panels**
-- Each card: full-width image with a glassmorphism text overlay that slides up on hover
-- Staggered layout (alternating left/right image + text for variety)
-
-**Courses Section ("Our Programs"):**
-- Switch to a **horizontal scrolling carousel** with large cards (visible on desktop: 3 cards)
-- Each card: tall image with gradient overlay, course name in large bold text at bottom, gold ribbon badge for level
-- On hover: card lifts up, shadow intensifies, "Learn More" button slides in from bottom
-
-**Stats Section:**
-- Add decorative gold line separators between each stat
-- Animated gradient background (slow color shift)
-- Stats appear with a dramatic scale-up animation
-- Add a subtle particle/grain texture overlay
-
-**Faculty Showcase:**
-- Switch from small circles to **large rectangular portrait cards** with name overlay
-- 2-column layout on desktop: large featured cards for Founder and Director
-- Other faculty in smaller cards below
-- Gold accent line under each name
-- On hover: image slightly zooms, golden glow border appears
-
-**Campus Section:**
-- Switch to a **full-width auto-scrolling horizontal strip** (like a filmstrip) with campus images
-- Or: Bento grid with varied sizes (1 large hero image, 4 smaller surrounding)
-- Add text overlay labels on each image
-
-**Testimonials:**
-- Switch from plain cards to **large quote cards with background image (blurred)** 
-- Or: single large testimonial with prev/next navigation (carousel)
-- Large decorative quotation marks in gold
-- Star ratings with animated fill
-
-**CTA Section:**
-- Full-bleed section with moving gradient overlay
-- Large bold text with golden text-gradient effect
-- Animated pulsing "Apply Now" button with glow
-
-### 5. `src/pages/About.tsx` -- Major Redesign
-
-**Hero:** Add subtle animated grain texture overlay for cinematic feel
-
-**Timeline ("Our Journey"):**
-- Switch from simple cards to a **vertical timeline with alternating left/right cards**
-- Connecting line with animated fill (gold line that fills as you scroll)
-- Each milestone card has a circular year badge on the timeline line
-- Larger thumbnail images with rounded corners
-
-**Leadership (Founder & Director):**
-- **Full-width cinematic layout**: large portrait on one side, elegant typography message on the other
-- Gold decorative border frame around the portrait
-- Elegant serif quote styling for their message
-- Subtle parallax on the portrait image
-
-**Campus Bento Grid:**
-- Make it more dramatic: vary image sizes more
-- Add hover effects with image labels sliding in
-- One image should be extra large (spanning 2 cols + 2 rows)
-
-**Philosophy/Mission/Vision:**
-- Use icon-based cards with gradient backgrounds
-- Each card has a different accent color tint
-- Subtle background pattern
-
-### 6. `src/pages/Courses.tsx` -- Modern Course Cards
-
-**Hero:** Add animated badge count ("6 Programs Available")
-
-**Course Cards:**
-- Switch to **tall portrait-style cards** with the image taking 60% height
-- Gradient overlay at bottom with course info
-- Gold ribbon for level badge
-- On hover: card scales up slightly, image zooms, info panel expands with outcomes list
-- Filter tabs: styled as elegant pill buttons with active state animation
-
-**Methodology Section:**
-- Change to a **2x2 bento grid** with varied card sizes
-- Icon floating in a gold circle at top-left of each card
-- Full image background with dark overlay + white text
-
-### 7. `src/pages/Faculty.tsx` -- Premium Faculty Cards
-
-**Faculty Cards:**
-- Large rectangular cards with portrait-style images
-- Gradient overlay with name and specialization
-- On hover: overlay lifts to reveal full bio, awards, and education
-- Gold accent stripe at the left edge of each card
-- Active filter tab has animated gold underline
-
-**Profile Modal:**
-- More polished: larger image, better typography hierarchy
-- Add golden decorative dividers between sections
-
-### 8. `src/pages/Admissions.tsx` -- Step-by-Step Visual Flow
-
-**Application Steps:**
-- Switch from plain cards to a **connected horizontal timeline** (on desktop)
-- Each step is a numbered circle connected by animated lines
-- On mobile: vertical timeline
-- Active/completed states with gold fill
-
-**Scholarship Section:**
-- Full-width split layout: image on left, text on right
-- Glassmorphism overlay on the image
-
-**FAQ Section:**
-- Styled accordion with gold accent on the trigger
-- Subtle animation on open/close
-
-### 9. `src/pages/Gallery.tsx` -- Masonry with Lightbox Polish
-
-- True masonry layout with varied card heights (some tall, some wide)
-- Hover effect: image darkens, title and category badge appear
-- Lightbox: add blur background, smoother transitions
-- Category filter pills with count badges
-
-### 10. `src/pages/Contact.tsx` -- Modern Contact Form
-
-- Split layout: large map/image on left, form on right
-- Form inputs with floating labels and gold focus borders
-- Submit button with loading animation
-- Contact info cards with icon backgrounds
-
-### 11. `src/pages/Login.tsx` & `src/pages/Register.tsx`
-- Add subtle animated gradient on the image panel
-- Form side: add decorative gold accents, enhanced input styling
-- Logo with subtle glow animation
-
-### 12. `src/components/Navbar.tsx`
-- On scroll: navbar gets a more pronounced backdrop blur + subtle bottom gold line
-- Active link has animated gold underline that slides in
-- Mobile menu: full-screen overlay with staggered link animations
-
-### 13. `src/components/Footer.tsx`
-- Add subtle animated gradient stripe at top (gold shimmer line)
-- Social icons with animated hover (scale + color change)
-- Better grid spacing and section dividers
+The layout will be expanded to give the full message proper breathing room with elegant typography.
 
 ---
 
-## Technical Notes
+## 2. Admissions Page (`src/pages/Admissions.tsx`)
 
-- All animations use `framer-motion` (already installed) and CSS keyframes in Tailwind
-- No new dependencies required
-- All images remain the same -- only layout, styling, and interactions change
-- Every page gets unique section layouts to avoid visual monotony
-- Performance: all animations use `transform` and `opacity` for GPU acceleration, images keep `loading="lazy"`
+**Complete overhaul** -- remove the following sections:
+- Application Process timeline (6-step process)
+- Eligibility Criteria
+- Fee Structure table
+- "Apply for Admission" CTA button
+- "Applications are now open for 2025-26" messaging
+
+**Replace with** a refined page that:
+- Has a hero titled "Join Nada Gurukulam" (no mention of "open admissions")
+- Shows a brief description of what the institution offers
+- Keeps the Scholarships section (reworded subtly)
+- Keeps FAQs (updated to remove application-process questions)
+- Has a single CTA: "Contact Us for Inquiries" linking to the Contact page
+- Feels welcoming but exclusive -- for pre-registered / invited candidates only
+
+---
+
+## 3. Navbar & Homepage -- Remove "Apply Now" / "Admissions" references
+
+**Navbar (`src/components/Navbar.tsx`):**
+- Rename "Admissions" link to "Join Us" (or keep but link behavior stays the same -- the page itself is changed)
+
+**Homepage (`src/pages/Index.tsx`):**
+- Change "Apply Now" hero button to "Contact Us" linking to `/contact`
+- Change the CTA section at the bottom: "Apply for Admission" becomes "Get in Touch" linking to `/contact`
+- Remove any "Applications open" language
+
+**Contact page** -- no changes needed, it already serves as the primary inquiry form.
+
+---
+
+## Files to Modify
+
+| File | Changes |
+|------|---------|
+| `src/pages/About.tsx` | Remove timeline section + milestones data; update Founder's Message with real text |
+| `src/pages/Admissions.tsx` | Remove application process, eligibility, fees; replace with inquiry-focused page |
+| `src/pages/Index.tsx` | Change "Apply Now" buttons to "Contact Us"; update CTA section |
+| `src/components/Navbar.tsx` | Optionally rename "Admissions" nav link |
 
