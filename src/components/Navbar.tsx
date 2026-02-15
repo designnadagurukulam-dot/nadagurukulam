@@ -38,49 +38,56 @@ const Navbar = () => {
     <header
       className={`sticky top-0 z-50 transition-all duration-500 ${
         scrolled
-          ? "bg-background/90 backdrop-blur-2xl shadow-lg border-b border-border"
-          : "bg-background/60 backdrop-blur-xl border-b border-transparent"
+          ? "bg-background/95 backdrop-blur-2xl shadow-xl border-b border-border"
+          : "bg-background/50 backdrop-blur-xl border-b border-transparent"
       }`}
     >
-      {/* Gold accent line on scroll */}
+      {/* Gold accent line */}
       <div
-        className={`absolute bottom-0 left-0 right-0 h-[1px] transition-opacity duration-500 ${
+        className={`absolute bottom-0 left-0 right-0 h-[2px] transition-opacity duration-500 ${
           scrolled ? "opacity-100" : "opacity-0"
         }`}
-        style={{ background: "linear-gradient(90deg, transparent, hsl(43 72% 52% / 0.4), transparent)" }}
+        style={{ background: "linear-gradient(90deg, transparent, hsl(43 72% 52% / 0.5), hsl(43 72% 52% / 0.8), hsl(43 72% 52% / 0.5), transparent)" }}
       />
 
-      <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <Link to="/" className="flex items-center gap-2 group">
+      <div className="container mx-auto flex h-[72px] items-center justify-between px-4">
+        <Link to="/" className="flex items-center gap-3 group">
           <img src={logo} alt="Nada Gurukulam" className="h-12 w-auto transition-transform duration-300 group-hover:scale-105" />
+          <div className="hidden md:block">
+            <span className="font-serif text-lg font-bold text-foreground leading-tight block">Nada Gurukulam</span>
+            <span className="text-[10px] text-muted-foreground tracking-[0.2em] uppercase">Classical Arts Academy</span>
+          </div>
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden lg:flex items-center gap-0.5">
+        <nav className="hidden lg:flex items-center gap-1">
           {navLinks.map((link) => (
             <Link
               key={link.to}
               to={link.to}
-              className={`relative px-3 py-2 text-sm font-medium rounded-md transition-all duration-300 hover:text-primary ${
+              className={`relative px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-300 hover:text-primary ${
                 location.pathname === link.to
                   ? "text-primary font-semibold"
-                  : "text-foreground/70"
+                  : "text-foreground/65 hover:text-foreground"
               }`}
             >
               {link.label}
               {location.pathname === link.to && (
                 <motion.div
                   layoutId="nav-indicator"
-                  className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full"
-                  style={{ background: "linear-gradient(90deg, hsl(43 72% 52%), hsl(48 90% 60%))" }}
+                  className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] rounded-full"
+                  style={{ 
+                    width: "70%",
+                    background: "linear-gradient(90deg, hsl(43 72% 52%), hsl(48 90% 60%), hsl(43 72% 52%))" 
+                  }}
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 />
               )}
             </Link>
           ))}
           {user ? (
-            <div className="flex items-center gap-2 ml-3">
-              <Button variant="outline" size="sm" onClick={() => navigate("/dashboard")} className="gap-1.5">
+            <div className="flex items-center gap-2 ml-4">
+              <Button variant="outline" size="sm" onClick={() => navigate("/dashboard")} className="gap-1.5 border-secondary/30 hover:border-secondary hover:bg-secondary/5">
                 <LayoutDashboard className="h-4 w-4" /> Dashboard
               </Button>
               <Button variant="ghost" size="sm" onClick={handleSignOut} className="gap-1.5 text-muted-foreground">
@@ -89,7 +96,7 @@ const Navbar = () => {
             </div>
           ) : (
             <Link to="/login">
-              <Button size="sm" className="ml-3 bg-primary hover:bg-primary/90 shadow-md hover:shadow-lg transition-all">
+              <Button size="sm" className="ml-4 bg-primary hover:bg-primary/90 shadow-lg hover:shadow-xl transition-all px-6 font-semibold">
                 Login
               </Button>
             </Link>
@@ -98,7 +105,7 @@ const Navbar = () => {
 
         {/* Mobile toggle */}
         <button
-          className="lg:hidden p-2 rounded-md hover:bg-muted transition-colors"
+          className="lg:hidden p-2.5 rounded-lg hover:bg-muted transition-colors"
           onClick={() => setMobileOpen(!mobileOpen)}
           aria-label="Toggle menu"
         >
@@ -114,9 +121,11 @@ const Navbar = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="lg:hidden fixed inset-0 top-16 z-40 bg-background/98 backdrop-blur-2xl"
+            className="lg:hidden fixed inset-0 top-[72px] z-40 bg-background/98 backdrop-blur-2xl"
           >
-            <nav className="container mx-auto flex flex-col gap-1 p-6 pt-8">
+            {/* Brand colored header strip */}
+            <div className="h-1 w-full" style={{ background: "linear-gradient(90deg, hsl(0 69% 33%), hsl(43 72% 52%), hsl(0 69% 33%))" }} />
+            <nav className="container mx-auto flex flex-col gap-1 p-6 pt-6">
               {navLinks.map((link, i) => (
                 <motion.div
                   key={link.to}
@@ -146,7 +155,7 @@ const Navbar = () => {
                 {user ? (
                   <div className="space-y-3">
                     <Link to="/dashboard" onClick={() => setMobileOpen(false)}>
-                      <Button variant="outline" className="w-full gap-1.5 h-12 text-base">
+                      <Button variant="outline" className="w-full gap-1.5 h-12 text-base border-secondary/30">
                         <LayoutDashboard className="h-5 w-5" /> Dashboard
                       </Button>
                     </Link>
@@ -156,7 +165,7 @@ const Navbar = () => {
                   </div>
                 ) : (
                   <Link to="/login" onClick={() => setMobileOpen(false)}>
-                    <Button className="w-full h-12 text-base shadow-lg">Login</Button>
+                    <Button className="w-full h-12 text-base shadow-lg font-semibold">Login</Button>
                   </Link>
                 )}
               </motion.div>
