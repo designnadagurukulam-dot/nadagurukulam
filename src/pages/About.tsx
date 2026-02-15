@@ -19,14 +19,6 @@ import campusVerandah from "@/assets/campus/NGVerandah.jpg";
 import campusReception from "@/assets/campus/NGReception.jpg";
 import campusAmphyEntry from "@/assets/campus/NGAmphyEntry.jpg";
 
-const milestones = [
-  { year: "2015", title: "Foundation", desc: "Nada Gurukulam founded under Sri Sathya Sai University for Human Excellence.", img: imgPercussion },
-  { year: "2017", title: "First Graduates", desc: "First cohort of students complete the foundation program.", img: imgMusic6 },
-  { year: "2019", title: "International Reach", desc: "Students from 10+ countries enrolled in online programs.", img: imgChorus },
-  { year: "2021", title: "Advanced Programs", desc: "Launch of advanced diploma and degree-level programs.", img: imgVocal },
-  { year: "2023", title: "Global Performances", desc: "Students perform in prestigious venues across 30+ countries.", img: imgConcert },
-  { year: "2025", title: "Digital Campus", desc: "Full-featured online LMS launched for global learners.", img: imgMusic13 },
-];
 
 const campusGrid = [
   { src: campusAerial, alt: "Campus Aerial View", className: "col-span-2 row-span-2" },
@@ -68,52 +60,6 @@ const About = () => (
         >
           About Nada Gurukulam
         </motion.h1>
-      </div>
-    </section>
-
-    <SectionDivider />
-
-    {/* ══════ TIMELINE ══════ */}
-    <section className="py-24 bg-background">
-      <div className="container mx-auto px-4">
-        <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="font-serif text-3xl md:text-5xl font-bold text-center mb-16">
-          Our <span className="text-gradient-gold">Journey</span>
-        </motion.h2>
-        <div className="relative max-w-4xl mx-auto">
-          {/* Timeline line with gold gradient */}
-          <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-[2px] -translate-x-1/2"
-            style={{ background: "linear-gradient(180deg, hsl(43 72% 52% / 0.6), hsl(43 72% 52% / 0.2), transparent)" }}
-          />
-          {milestones.map((m, i) => (
-            <motion.div
-              key={m.year}
-              initial={{ opacity: 0, x: i % 2 === 0 ? -40 : 40 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1, duration: 0.6 }}
-              className={`relative flex items-start gap-6 mb-16 ${i % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"}`}
-            >
-              <div className="hidden md:block md:w-1/2" />
-              {/* Year badge */}
-              <div className="absolute left-4 md:left-1/2 -translate-x-1/2 z-10">
-                <div className="w-10 h-10 rounded-full gradient-gold flex items-center justify-center shadow-lg shadow-secondary/20">
-                  <span className="text-secondary-foreground text-[10px] font-bold">{m.year}</span>
-                </div>
-              </div>
-              <div className="pl-14 md:pl-0 md:w-1/2">
-                <div className="card-glass-gold rounded-xl p-5 shadow-md hover:shadow-xl transition-all duration-500 hover:-translate-y-1">
-                  <div className="flex items-start gap-4">
-                    <img src={m.img} alt={m.title} className="w-20 h-20 rounded-xl object-cover shadow-md hidden sm:block" loading="lazy" />
-                    <div>
-                      <h3 className="font-serif text-xl font-bold mb-1">{m.title}</h3>
-                      <p className="text-muted-foreground text-sm leading-relaxed">{m.desc}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
       </div>
     </section>
 
@@ -178,13 +124,14 @@ const About = () => (
           <div className="md:col-span-3">
             <span className="text-secondary text-xs tracking-[0.3em] uppercase font-semibold">Founder's Message</span>
             <h2 className="font-serif text-3xl md:text-4xl font-bold mt-2 mb-2">Sadguru Sri Madhusudan Sai</h2>
+            <p className="text-muted-foreground text-sm mb-2">Founder, Nada Gurukulam</p>
             <div className="w-12 h-0.5 bg-secondary rounded-full mb-6" />
-            <blockquote className="border-l-4 border-secondary/40 pl-6 italic text-foreground/70 mb-6 leading-relaxed text-lg">
-              "Music is the language of the soul. At Nada Gurukulam, we don't just teach notes and rhythms — we awaken the divinity within through the sacred vibrations of Nada Brahma."
+            <blockquote className="border-l-4 border-secondary/40 pl-6 italic text-foreground/70 mb-4 leading-relaxed text-base md:text-lg">
+              "nāda brahma, says our scriptures. Sound is divine or 'parameṣṭi', as it is called. And while the seven notes of music have been inspired by various sounds in creation or 'sṛṣṭi', it is the singular privilege of humans or 'vyaṣṭi' to sing and play music. The music that comes from 'parameṣṭi' to 'sṛṣṭi' to 'vyaṣṭi' must take all of us – samaṣṭi back to divinity. Indian classical music that originated in the sāmaveda and evolved into its current form over centuries has been designed to do just that."
             </blockquote>
-            <p className="text-muted-foreground text-sm leading-relaxed">
-              Under the guidance of Sadguru Sri Madhusudan Sai, Nada Gurukulam was established with the vision of creating a haven for classical arts — where the ancient Guru-Shishya tradition thrives alongside modern educational excellence.
-            </p>
+            <blockquote className="border-l-4 border-secondary/40 pl-6 italic text-foreground/70 leading-relaxed text-base md:text-lg">
+              "To practise, promote and propagate this rich cultural and spiritual Indian music tradition is the purpose of establishing the Department of Music and Performing Arts at the Sri Sathya Sai University for Human Excellence, so that the paramparā of the divine knowledge of music is seamlessly passed on from the masters to the seekers."
+            </blockquote>
           </div>
         </motion.div>
       </div>

@@ -11,7 +11,7 @@ const navLinks = [
   { label: "About", to: "/about" },
   { label: "Courses", to: "/courses" },
   { label: "Faculty", to: "/faculty" },
-  { label: "Admissions", to: "/admissions" },
+  { label: "Join Us", to: "/admissions" },
   { label: "Gallery", to: "/gallery" },
   { label: "Contact", to: "/contact" },
 ];
