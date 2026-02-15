@@ -88,28 +88,17 @@ const Gallery = () => {
   return (
     <div>
       {/* ══════ HERO ══════ */}
-      <section className="relative min-h-[55vh] flex items-center justify-center overflow-hidden grain-overlay">
+      <section className="relative min-h-[55vh] flex items-center justify-center overflow-hidden">
         <motion.img
           src={imgDanceRecital}
           alt="Gallery"
           className="absolute inset-0 w-full h-full object-cover"
-          initial={{ scale: 1.1 }}
+          initial={{ scale: 1.15 }}
           animate={{ scale: 1 }}
-          transition={{ duration: 1.5, ease: "easeOut" }}
+          transition={{ duration: 2, ease: "easeOut" }}
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(0_69%_10%/0.94)] via-[hsl(0_69%_18%/0.88)] to-[hsl(345_75%_12%/0.82)]" />
-
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {[...Array(5)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute rounded-full bg-secondary/25"
-              style={{ width: `${3 + i % 3 * 2}px`, height: `${3 + i % 3 * 2}px`, left: `${10 + i * 20}%`, top: `${20 + (i * 15) % 55}%` }}
-              animate={{ y: [0, -20, 0], opacity: [0.1, 0.4, 0.1] }}
-              transition={{ repeat: Infinity, duration: 3 + i * 0.5, delay: i * 0.3, ease: "easeInOut" }}
-            />
-          ))}
-        </div>
+        <div className="absolute inset-0 bg-gradient-to-b from-[hsl(0_69%_6%/0.93)] via-[hsl(0_69%_14%/0.87)] to-[hsl(345_75%_10%/0.92)]" />
+        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 60%, hsl(43 72% 52% / 0.08) 0%, transparent 50%)" }} />
 
         <div className="relative z-10 container mx-auto px-4 text-center">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
@@ -117,15 +106,15 @@ const Gallery = () => {
               कला दर्शन
             </motion.p>
             <h1
-              className="font-serif text-5xl md:text-7xl lg:text-8xl font-bold text-primary-foreground mb-4"
+              className="font-serif text-5xl md:text-7xl lg:text-8xl font-extrabold text-primary-foreground mb-5"
               style={{ textShadow: "0 4px 40px hsl(0 0% 0% / 0.5)" }}
             >
               Gallery
             </h1>
-            <p className="text-primary-foreground/55 max-w-2xl mx-auto text-lg">
+            <p className="text-primary-foreground/50 max-w-2xl mx-auto text-lg">
               Moments of artistry, devotion, and celebration from Nada Gurukulam.
             </p>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="mt-5">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="mt-6">
               <span className="badge-gold inline-flex items-center gap-1.5 text-xs">
                 <Sparkles className="h-3 w-3" /> {images.length} Photos
               </span>
@@ -137,22 +126,30 @@ const Gallery = () => {
       <SectionDivider />
 
       {/* ══════ FILTER + MASONRY ══════ */}
-      <section className="py-20 bg-background">
+      <section className="py-24 bg-background">
         <div className="container mx-auto px-4">
-          <div className="flex flex-wrap justify-center gap-2 mb-14">
+          <div className="flex flex-wrap justify-center gap-3 mb-16">
             {tabs.map((t) => {
               const count = t.value === "all" ? images.length : images.filter(img => img.cat === t.value).length;
               return (
                 <button
                   key={t.value}
                   onClick={() => setTab(t.value)}
-                  className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
+                  className={`relative px-6 py-3 rounded-full text-sm font-semibold transition-all duration-400 ${
                     tab === t.value
-                      ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
-                      : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
+                      ? "bg-primary text-primary-foreground shadow-xl shadow-primary/25"
+                      : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground border border-border"
                   }`}
                 >
-                  {t.label} <span className="text-[10px] opacity-60 ml-1">({count})</span>
+                  {t.label} <span className="text-[10px] opacity-50 ml-1">({count})</span>
+                  {tab === t.value && (
+                    <motion.div
+                      layoutId="gallery-tab-indicator"
+                      className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-8 h-1 rounded-full"
+                      style={{ background: "linear-gradient(90deg, hsl(43 72% 52%), hsl(48 90% 60%))" }}
+                      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                    />
+                  )}
                 </button>
               );
             })}
@@ -182,14 +179,12 @@ const Gallery = () => {
                     className="w-full rounded-2xl shadow-md group-hover:scale-105 transition-transform duration-700"
                     loading="lazy"
                   />
-                  {/* Golden shimmer overlay on hover */}
-                  <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                    <div className="absolute inset-0 bg-gradient-to-t from-[hsl(0_0%_0%/0.7)] via-[hsl(43_72%_52%/0.05)] to-transparent" />
-                  </div>
-                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-[hsl(0_0%_0%/0.7)] via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-5">
+                  {/* Golden frame border on hover */}
+                  <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-secondary/40 transition-all duration-500 pointer-events-none" />
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-[hsl(0_0%_0%/0.75)] via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-5">
                     <div>
                       <span className="badge-gold text-[9px] mb-2 inline-block">{img.cat}</span>
-                      <p className="text-sm font-semibold text-primary-foreground" style={{ textShadow: "0 1px 4px hsl(0 0% 0% / 0.5)" }}>{img.alt}</p>
+                      <p className="text-sm font-serif font-semibold text-primary-foreground" style={{ textShadow: "0 1px 4px hsl(0 0% 0% / 0.5)" }}>{img.alt}</p>
                     </div>
                   </div>
                 </motion.div>
@@ -202,12 +197,12 @@ const Gallery = () => {
       <SectionDivider />
 
       {/* ══════ VIDEO GALLERY ══════ */}
-      <section className="py-20 bg-muted/30">
+      <section className="py-24 section-glass">
         <div className="container mx-auto px-4">
-          <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="font-serif text-3xl md:text-5xl font-bold text-center mb-14">
+          <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="font-serif text-4xl md:text-5xl font-extrabold text-center mb-16">
             Video Gallery
           </motion.h2>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {videos.map((v, i) => (
               <motion.div
                 key={v.title}
@@ -217,15 +212,17 @@ const Gallery = () => {
                 transition={{ delay: i * 0.1, duration: 0.5 }}
                 className="group cursor-pointer"
               >
-                <div className="relative rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-700 hover:-translate-y-2">
-                  <img src={v.thumb} alt={v.title} className="w-full h-52 object-cover group-hover:scale-110 transition-transform duration-700" loading="lazy" />
+                <div className="relative rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-700 hover-magnetic">
+                  <img src={v.thumb} alt={v.title} className="w-full h-56 object-cover group-hover:scale-110 transition-transform duration-700" loading="lazy" />
                   <div className="absolute inset-0 bg-primary/20 flex items-center justify-center group-hover:bg-primary/40 transition-colors duration-300">
-                    <div className="w-16 h-16 rounded-full bg-secondary/90 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-xl shadow-secondary/30">
+                    <div className="w-16 h-16 rounded-full bg-secondary/90 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-xl shadow-secondary/30 animate-glow-pulse">
                       <Play className="h-7 w-7 text-secondary-foreground ml-0.5" />
                     </div>
                   </div>
+                  {/* Golden border on hover */}
+                  <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-secondary/30 transition-all duration-500" />
                 </div>
-                <p className="mt-4 font-serif font-semibold text-sm">{v.title}</p>
+                <p className="mt-4 font-serif font-bold text-sm">{v.title}</p>
               </motion.div>
             ))}
           </div>
@@ -239,20 +236,20 @@ const Gallery = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-[hsl(0_0%_0%/0.95)] backdrop-blur-md flex items-center justify-center p-4"
+            className="fixed inset-0 z-50 bg-[hsl(0_0%_0%/0.96)] backdrop-blur-xl flex items-center justify-center p-4"
             onClick={() => setLightboxIdx(null)}
           >
-            <button className="absolute top-6 right-6 w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center text-primary-foreground hover:bg-primary-foreground/20 transition-colors" onClick={() => setLightboxIdx(null)}>
+            <button className="absolute top-6 right-6 w-12 h-12 rounded-full bg-primary-foreground/10 flex items-center justify-center text-primary-foreground hover:bg-primary-foreground/20 transition-colors" onClick={() => setLightboxIdx(null)}>
               <X className="h-6 w-6" />
             </button>
             <button
-              className="absolute left-6 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center text-primary-foreground hover:bg-primary-foreground/20 transition-colors"
+              className="absolute left-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-primary-foreground/10 flex items-center justify-center text-primary-foreground hover:bg-primary-foreground/20 transition-colors"
               onClick={(e) => { e.stopPropagation(); navigate(-1); }}
             >
               <ChevronLeft className="h-6 w-6" />
             </button>
             <button
-              className="absolute right-6 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center text-primary-foreground hover:bg-primary-foreground/20 transition-colors"
+              className="absolute right-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-primary-foreground/10 flex items-center justify-center text-primary-foreground hover:bg-primary-foreground/20 transition-colors"
               onClick={(e) => { e.stopPropagation(); navigate(1); }}
             >
               <ChevronRight className="h-6 w-6" />
@@ -269,7 +266,7 @@ const Gallery = () => {
               onClick={(e) => e.stopPropagation()}
             />
             <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-center">
-              <p className="text-primary-foreground/80 text-sm font-medium">{filtered[lightboxIdx].alt}</p>
+              <p className="text-primary-foreground/80 text-sm font-serif font-semibold">{filtered[lightboxIdx].alt}</p>
               <p className="text-primary-foreground/40 text-xs mt-1">{lightboxIdx + 1} / {filtered.length}</p>
             </div>
           </motion.div>

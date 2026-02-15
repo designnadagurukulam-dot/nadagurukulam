@@ -113,6 +113,7 @@
 }
 
 @layer utilities {
+  /* ─── Gradients ─── */
   .gradient-maroon {
     background: linear-gradient(135deg, hsl(0 69% 33%) 0%, hsl(345 75% 24%) 100%);
   }
@@ -132,6 +133,7 @@
     background-clip: text;
   }
 
+  /* ─── Hero overlay ─── */
   .hero-overlay {
     position: relative;
   }
@@ -143,6 +145,7 @@
     z-index: 1;
   }
 
+  /* ─── Borders ─── */
   .golden-border {
     border: 3px solid hsl(43 72% 52%);
     box-shadow: 0 0 0 4px hsl(43 72% 52% / 0.15);
@@ -153,6 +156,7 @@
     box-shadow: 0 0 0 6px hsl(43 72% 52% / 0.12), 0 0 30px hsl(43 72% 52% / 0.15);
   }
 
+  /* ─── Image zoom ─── */
   .img-zoom {
     overflow: hidden;
   }
@@ -163,6 +167,7 @@
     transform: scale(1.08);
   }
 
+  /* ─── Glass cards ─── */
   .glass-card {
     background: hsl(0 0% 100% / 0.08);
     backdrop-filter: blur(16px);
@@ -177,7 +182,14 @@
     border: 1px solid hsl(43 72% 52% / 0.15);
   }
 
-  /* ─── Premium card with animated gradient border ─── */
+  /* ─── Section glass (frosted warm tint) ─── */
+  .section-glass {
+    background: hsl(39 100% 97% / 0.6);
+    backdrop-filter: blur(20px) saturate(1.2);
+    -webkit-backdrop-filter: blur(20px) saturate(1.2);
+  }
+
+  /* ─── Premium card ─── */
   .card-premium {
     position: relative;
     background: hsl(var(--card));
@@ -233,7 +245,7 @@
     box-shadow: 0 2px 8px hsl(43 72% 52% / 0.3);
   }
 
-  /* ─── Section dark variant ─── */
+  /* ─── Section dark ─── */
   .section-dark {
     background: linear-gradient(135deg, hsl(0 69% 15%) 0%, hsl(345 75% 12%) 100%);
     color: hsl(39 100% 97%);
@@ -267,7 +279,7 @@
     pointer-events: none;
   }
 
-  /* ─── Animated gradient border ─── */
+  /* ─── Gradient border ─── */
   .gradient-border {
     position: relative;
   }
@@ -282,17 +294,17 @@
     z-index: -1;
   }
 
-  /* ─── Floating animation ─── */
+  /* ─── Float ─── */
   .animate-float {
     animation: float 4s ease-in-out infinite;
   }
 
-  /* ─── Glow pulse for CTAs ─── */
+  /* ─── Glow pulse ─── */
   .animate-glow-pulse {
     animation: glow-pulse 2.5s ease-in-out infinite;
   }
 
-  /* ─── Film grain overlay ─── */
+  /* ─── Grain overlay ─── */
   .grain-overlay {
     position: relative;
   }
@@ -305,13 +317,13 @@
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
   }
 
-  /* ─── Decorative gold ornament ─── */
+  /* ─── Ornament gold ─── */
   .ornament-gold {
     color: hsl(43 72% 52%);
     filter: drop-shadow(0 2px 8px hsl(43 72% 52% / 0.3));
   }
 
-  /* ─── Golden vignette behind portraits ─── */
+  /* ─── Vignette gold ─── */
   .vignette-gold {
     position: relative;
   }
@@ -324,7 +336,7 @@
     z-index: -1;
   }
 
-  /* ─── Stagger reveal helper ─── */
+  /* ─── Reveal up ─── */
   .reveal-up {
     opacity: 0;
     transform: translateY(30px);
@@ -334,8 +346,70 @@
     opacity: 1;
     transform: translateY(0);
   }
+
+  /* ─── Text outline gold ─── */
+  .text-outline-gold {
+    -webkit-text-stroke: 2px hsl(43 72% 52%);
+    color: transparent;
+  }
+
+  /* ─── Hover magnetic ─── */
+  .hover-magnetic {
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .hover-magnetic:hover {
+    transform: translateY(-6px) scale(1.03);
+  }
+
+  /* ─── Golden sweep ─── */
+  .golden-sweep {
+    position: relative;
+    overflow: hidden;
+  }
+  .golden-sweep::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, hsl(43 72% 52% / 0.08), transparent);
+    animation: golden-sweep 4s ease-in-out infinite;
+  }
+
+  /* ─── Marquee strip ─── */
+  .marquee-strip {
+    display: flex;
+    overflow: hidden;
+    white-space: nowrap;
+    gap: 0;
+  }
+  .marquee-strip .marquee-content {
+    display: flex;
+    align-items: center;
+    animation: marquee 30s linear infinite;
+    will-change: transform;
+  }
+  .marquee-strip .marquee-content-reverse {
+    display: flex;
+    align-items: center;
+    animation: marquee-reverse 35s linear infinite;
+    will-change: transform;
+  }
+
+  /* ─── Gold ring portrait ─── */
+  .portrait-gold-ring {
+    border: 3px solid hsl(43 72% 52%);
+    box-shadow: 0 0 0 6px hsl(43 72% 52% / 0.12), 0 0 25px hsl(43 72% 52% / 0.15);
+    transition: box-shadow 0.4s ease, transform 0.4s ease;
+  }
+  .portrait-gold-ring:hover {
+    box-shadow: 0 0 0 8px hsl(43 72% 52% / 0.2), 0 0 40px hsl(43 72% 52% / 0.25);
+    transform: scale(1.05);
+  }
 }
 
+/* ─── Keyframes ─── */
 @keyframes shimmer {
   0% { left: -100%; }
   100% { left: 100%; }
@@ -378,7 +452,33 @@
   100% { transform: scale(0.9); opacity: 0.6; }
 }
 
-/* ─── Animated text shimmer for headings ─── */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes marquee-reverse {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes golden-sweep {
+  0% { left: -50%; }
+  50% { left: 100%; }
+  100% { left: 100%; }
+}
+
+@keyframes reveal-up {
+  0% { opacity: 0; transform: translateY(40px); filter: blur(8px); }
+  100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+@keyframes scroll-pulse {
+  0%, 100% { transform: translateY(0) scale(1); opacity: 0.6; }
+  50% { transform: translateY(8px) scale(1.1); opacity: 1; }
+}
+
+/* ─── Text shimmer gold ─── */
 .text-shimmer-gold {
   background: linear-gradient(90deg, hsl(43 72% 52%), hsl(48 90% 70%), hsl(43 72% 52%));
   background-size: 200% auto;
