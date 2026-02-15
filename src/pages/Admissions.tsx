@@ -1,9 +1,10 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { CheckCircle, FileText, GraduationCap, HelpCircle, IndianRupee } from "lucide-react";
+import { CheckCircle, GraduationCap, HelpCircle, IndianRupee } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import SectionDivider from "@/components/SectionDivider";
 
 const steps = [
   { num: 1, title: "Create Account", desc: "Register on our portal with your basic details." },
@@ -15,23 +16,27 @@ const steps = [
 ];
 
 const faqs = [
-  { q: "What is the minimum age for admission?", a: "Students of all ages are welcome. For children under 12, parental consent is required. Each program may have specific age guidelines." },
+  { q: "What is the minimum age for admission?", a: "Students of all ages are welcome. For children under 12, parental consent is required." },
   { q: "Is prior musical training required?", a: "Not for beginner-level programs. Intermediate and advanced programs require prior training and may include an audition." },
-  { q: "Are online classes available?", a: "Yes, we offer online live sessions for students who cannot attend in person. Our LMS provides recorded lessons and practice materials." },
-  { q: "What is the duration of the programs?", a: "Programs range from 2 to 4 years depending on the discipline and level. Certificate, diploma, and degree options are available." },
-  { q: "Are scholarships available?", a: "Yes, merit-based and need-based scholarships are available. Apply through the financial aid section of your application." },
-  { q: "Can I enroll in multiple courses?", a: "Students may enroll in up to two programs simultaneously, subject to schedule compatibility and faculty approval." },
+  { q: "Are online classes available?", a: "Yes, we offer online live sessions for students who cannot attend in person." },
+  { q: "What is the duration of the programs?", a: "Programs range from 2 to 4 years depending on the discipline and level." },
+  { q: "Are scholarships available?", a: "Yes, merit-based and need-based scholarships are available." },
+  { q: "Can I enroll in multiple courses?", a: "Students may enroll in up to two programs simultaneously, subject to schedule compatibility." },
 ];
 
 const Admissions = () => (
   <div>
     {/* Hero */}
-    <section className="gradient-maroon py-20 md:py-28">
-      <div className="container mx-auto px-4 text-center">
+    <section className="relative min-h-[45vh] flex items-center justify-center overflow-hidden">
+      <img src="https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?w=1920&q=80" alt="Students" className="absolute inset-0 w-full h-full object-cover" />
+      <div className="absolute inset-0 bg-gradient-to-br from-[hsl(0_69%_20%/0.88)] to-[hsl(345_75%_15%/0.8)]" />
+      <div className="relative z-10 container mx-auto px-4 text-center">
         <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground mb-4">Admissions</h1>
         <p className="text-primary-foreground/70 max-w-2xl mx-auto">Begin your journey into Indian classical arts. Applications are now open for the 2025–26 academic year.</p>
       </div>
     </section>
+
+    <SectionDivider />
 
     {/* Application Process */}
     <section className="py-16 bg-background">
@@ -40,9 +45,9 @@ const Admissions = () => (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {steps.map((s, i) => (
             <motion.div key={s.num} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08, duration: 0.4 }}>
-              <Card className="h-full border-border/50 hover:shadow-lg transition-shadow">
+              <Card className="h-full border-border/50 hover:shadow-lg transition-shadow hover:border-secondary/30 group">
                 <CardContent className="p-6">
-                  <div className="w-10 h-10 rounded-full gradient-maroon flex items-center justify-center text-primary-foreground font-bold text-sm mb-3">{s.num}</div>
+                  <div className="w-12 h-12 rounded-full gradient-gold flex items-center justify-center text-secondary-foreground font-bold text-lg mb-4 group-hover:scale-110 transition-transform">{s.num}</div>
                   <h3 className="font-semibold mb-1">{s.title}</h3>
                   <p className="text-muted-foreground text-sm">{s.desc}</p>
                 </CardContent>
@@ -52,6 +57,8 @@ const Admissions = () => (
         </div>
       </div>
     </section>
+
+    <SectionDivider />
 
     {/* Eligibility */}
     <section className="py-16 bg-muted/40">
@@ -80,12 +87,12 @@ const Admissions = () => (
         <h2 className="font-serif text-3xl font-bold text-center mb-8">
           <IndianRupee className="inline h-7 w-7 mb-1" /> Fee Structure
         </h2>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm border border-border rounded-lg overflow-hidden">
-            <thead className="gradient-maroon text-primary-foreground">
-              <tr>
-                <th className="text-left p-4">Fee Component</th>
-                <th className="text-right p-4">Amount</th>
+        <div className="overflow-x-auto rounded-lg shadow-md">
+          <table className="w-full text-sm overflow-hidden">
+            <thead>
+              <tr className="gradient-gold">
+                <th className="text-left p-4 font-semibold text-secondary-foreground">Fee Component</th>
+                <th className="text-right p-4 font-semibold text-secondary-foreground">Amount</th>
               </tr>
             </thead>
             <tbody>
@@ -95,7 +102,7 @@ const Admissions = () => (
                 ["Examination Fee", "₹2,000"],
                 ["Library & Resources", "₹1,000"],
               ].map(([label, amt], i) => (
-                <tr key={label} className={i % 2 === 0 ? "bg-card" : "bg-muted/30"}>
+                <tr key={label} className={`${i % 2 === 0 ? "bg-card" : "bg-muted/30"} hover:bg-secondary/5 transition-colors`}>
                   <td className="p-4 text-foreground/80">{label}</td>
                   <td className="p-4 text-right font-semibold">{amt}</td>
                 </tr>
@@ -107,15 +114,19 @@ const Admissions = () => (
       </div>
     </section>
 
+    <SectionDivider />
+
     {/* Scholarships */}
-    <section className="py-16 bg-muted/40">
-      <div className="container mx-auto px-4 max-w-3xl text-center">
-        <GraduationCap className="h-10 w-10 text-secondary mx-auto mb-4" />
-        <h2 className="font-serif text-3xl font-bold mb-4">Scholarships & Financial Aid</h2>
-        <p className="text-muted-foreground mb-6 leading-relaxed">
-          Nada Gurukulam is committed to making classical arts education accessible to all deserving students. Merit-based scholarships cover up to 100% of tuition fees for exceptional talent. Need-based financial aid is also available.
+    <section className="relative py-20 overflow-hidden">
+      <img src="https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=1920&q=80" alt="Celebration" className="absolute inset-0 w-full h-full object-cover" />
+      <div className="absolute inset-0 bg-gradient-to-br from-[hsl(0_69%_20%/0.9)] to-[hsl(345_75%_15%/0.85)]" />
+      <div className="relative z-10 container mx-auto px-4 max-w-3xl text-center">
+        <GraduationCap className="h-10 w-10 text-gold mx-auto mb-4" />
+        <h2 className="font-serif text-3xl font-bold mb-4 text-primary-foreground">Scholarships & Financial Aid</h2>
+        <p className="text-primary-foreground/70 mb-6 leading-relaxed">
+          Nada Gurukulam is committed to making classical arts education accessible to all deserving students. Merit-based scholarships cover up to 100% of tuition fees.
         </p>
-        <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground">
+        <Button variant="outline" className="border-primary-foreground/40 text-primary-foreground hover:bg-primary-foreground/10">
           Learn About Scholarships
         </Button>
       </div>

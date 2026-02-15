@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
-import { Target, Eye, BookOpen, Heart } from "lucide-react";
+import { Target, Eye } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import SectionDivider from "@/components/SectionDivider";
 
 const Section = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
   <motion.section
@@ -15,31 +16,35 @@ const Section = ({ children, className = "" }: { children: React.ReactNode; clas
 );
 
 const milestones = [
-  { year: "2015", title: "Foundation", desc: "Nada Gurukulam founded under Sri Sathya Sai University for Human Excellence." },
-  { year: "2017", title: "First Graduates", desc: "First cohort of students complete the foundation program." },
-  { year: "2019", title: "International Reach", desc: "Students from 10+ countries enrolled in online programs." },
-  { year: "2021", title: "Advanced Programs", desc: "Launch of advanced diploma and degree-level programs." },
-  { year: "2023", title: "Global Performances", desc: "Students perform in prestigious venues across 30+ countries." },
-  { year: "2025", title: "Digital Campus", desc: "Full-featured online LMS launched for global learners." },
+  { year: "2015", title: "Foundation", desc: "Nada Gurukulam founded under Sri Sathya Sai University for Human Excellence.", img: "https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=200" },
+  { year: "2017", title: "First Graduates", desc: "First cohort of students complete the foundation program.", img: "https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?w=200" },
+  { year: "2019", title: "International Reach", desc: "Students from 10+ countries enrolled in online programs.", img: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=200" },
+  { year: "2021", title: "Advanced Programs", desc: "Launch of advanced diploma and degree-level programs.", img: "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=200" },
+  { year: "2023", title: "Global Performances", desc: "Students perform in prestigious venues across 30+ countries.", img: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200" },
+  { year: "2025", title: "Digital Campus", desc: "Full-featured online LMS launched for global learners.", img: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=200" },
 ];
 
 const About = () => (
   <div>
     {/* Hero */}
-    <section className="gradient-maroon py-20 md:py-28">
-      <div className="container mx-auto px-4 text-center">
+    <section className="relative min-h-[50vh] flex items-center justify-center overflow-hidden">
+      <img src="https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?w=1920&q=80" alt="Campus" className="absolute inset-0 w-full h-full object-cover" />
+      <div className="absolute inset-0 bg-gradient-to-br from-[hsl(0_69%_20%/0.88)] to-[hsl(345_75%_15%/0.8)]" />
+      <div className="relative z-10 container mx-auto px-4 text-center">
         <p className="font-devanagari text-xl md:text-2xl text-gold mb-3">नादो उपासना</p>
         <p className="text-primary-foreground/60 italic text-sm mb-6">"Worship through Sound"</p>
         <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground">About Nada Gurukulam</h1>
       </div>
     </section>
 
+    <SectionDivider />
+
     {/* Story timeline */}
     <Section className="py-20 bg-background">
       <div className="container mx-auto px-4">
         <h2 className="font-serif text-3xl md:text-4xl font-bold text-center mb-14">Our Journey</h2>
         <div className="relative max-w-3xl mx-auto">
-          <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-0.5 bg-border -translate-x-1/2" />
+          <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-0.5 bg-secondary/30 -translate-x-1/2" />
           {milestones.map((m, i) => (
             <motion.div
               key={m.year}
@@ -47,20 +52,27 @@ const About = () => (
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1, duration: 0.5 }}
-              className={`relative flex items-start gap-6 mb-10 ${i % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"}`}
+              className={`relative flex items-start gap-6 mb-12 ${i % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"}`}
             >
               <div className="hidden md:block md:w-1/2" />
-              <div className="absolute left-4 md:left-1/2 w-4 h-4 rounded-full bg-primary border-4 border-background -translate-x-1/2 z-10 mt-1" />
+              <div className="absolute left-4 md:left-1/2 w-5 h-5 rounded-full bg-secondary border-4 border-background -translate-x-1/2 z-10 mt-1" />
               <div className="pl-10 md:pl-0 md:w-1/2">
-                <span className="text-secondary font-bold text-sm">{m.year}</span>
-                <h3 className="font-serif text-lg font-semibold mt-1">{m.title}</h3>
-                <p className="text-muted-foreground text-sm mt-1">{m.desc}</p>
+                <div className="flex items-start gap-3">
+                  <img src={m.img} alt={m.title} className="w-14 h-14 rounded-lg object-cover shadow-sm hidden sm:block" loading="lazy" />
+                  <div>
+                    <span className="text-secondary font-bold text-sm">{m.year}</span>
+                    <h3 className="font-serif text-lg font-semibold mt-1">{m.title}</h3>
+                    <p className="text-muted-foreground text-sm mt-1">{m.desc}</p>
+                  </div>
+                </div>
               </div>
             </motion.div>
           ))}
         </div>
       </div>
     </Section>
+
+    <SectionDivider />
 
     {/* Vision & Mission */}
     <Section className="py-20 bg-muted/40">
@@ -95,21 +107,26 @@ const About = () => (
       </div>
     </Section>
 
+    <SectionDivider />
+
     {/* Founder's Message */}
     <Section className="py-20 bg-background">
       <div className="container mx-auto px-4 max-w-5xl">
         <div className="grid md:grid-cols-5 gap-10 items-center">
           <div className="md:col-span-2 flex justify-center">
-            <div className="w-52 h-52 rounded-full gradient-maroon flex items-center justify-center">
-              <Heart className="h-16 w-16 text-primary-foreground/40" />
+            <div className="w-52 h-52 rounded-full overflow-hidden golden-border shadow-xl">
+              <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400" alt="Founder" className="w-full h-full object-cover" loading="lazy" />
             </div>
           </div>
           <div className="md:col-span-3">
             <h2 className="font-serif text-3xl font-bold mb-2">Founder's Message</h2>
             <p className="text-secondary font-medium mb-4">Sadguru Sri Madhusudan Sai</p>
-            <blockquote className="border-l-4 border-secondary pl-4 italic text-muted-foreground mb-4 leading-relaxed">
-              "Music is the language of the soul. At Nada Gurukulam, we don't just teach notes and rhythms — we awaken the divinity within through the sacred vibrations of Nada Brahma."
-            </blockquote>
+            <div className="relative">
+              <span className="absolute -top-4 -left-2 text-6xl text-secondary/15 font-serif leading-none">"</span>
+              <blockquote className="border-l-4 border-secondary pl-4 italic text-muted-foreground mb-4 leading-relaxed">
+                "Music is the language of the soul. At Nada Gurukulam, we don't just teach notes and rhythms — we awaken the divinity within through the sacred vibrations of Nada Brahma."
+              </blockquote>
+            </div>
             <p className="text-muted-foreground text-sm leading-relaxed">
               Under the guidance of Sadguru Sri Madhusudan Sai, Nada Gurukulam was established with the vision of creating a haven for classical arts — where the ancient Guru-Shishya tradition thrives alongside modern educational excellence.
             </p>
@@ -125,35 +142,42 @@ const About = () => (
           <div className="md:col-span-3 order-2 md:order-1">
             <h2 className="font-serif text-3xl font-bold mb-2">Director's Message</h2>
             <p className="text-secondary font-medium mb-4">Smt. Revathi Ramachandran</p>
-            <blockquote className="border-l-4 border-primary pl-4 italic text-muted-foreground mb-4 leading-relaxed">
-              "Every student who walks through our doors carries within them the potential for artistic greatness. Our duty is to nurture that seed with patience, love, and rigorous training."
-            </blockquote>
+            <div className="relative">
+              <span className="absolute -top-4 -left-2 text-6xl text-primary/15 font-serif leading-none">"</span>
+              <blockquote className="border-l-4 border-primary pl-4 italic text-muted-foreground mb-4 leading-relaxed">
+                "Every student who walks through our doors carries within them the potential for artistic greatness. Our duty is to nurture that seed with patience, love, and rigorous training."
+              </blockquote>
+            </div>
             <p className="text-muted-foreground text-sm leading-relaxed">
               With decades of experience in Carnatic music and a deep commitment to the Guru-Shishya tradition, Smt. Revathi Ramachandran leads Nada Gurukulam with a unique blend of artistic excellence and administrative vision.
             </p>
           </div>
           <div className="md:col-span-2 flex justify-center order-1 md:order-2">
-            <div className="w-52 h-52 rounded-full gradient-gold flex items-center justify-center">
-              <BookOpen className="h-16 w-16 text-secondary-foreground/40" />
+            <div className="w-52 h-52 rounded-full overflow-hidden golden-border shadow-xl">
+              <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400" alt="Director" className="w-full h-full object-cover" loading="lazy" />
             </div>
           </div>
         </div>
       </div>
     </Section>
 
+    <SectionDivider />
+
     {/* Philosophy */}
-    <Section className="py-20 bg-background">
-      <div className="container mx-auto px-4 max-w-3xl text-center">
-        <h2 className="font-serif text-3xl md:text-4xl font-bold mb-6">Our Philosophy</h2>
-        <h3 className="font-serif text-xl text-secondary font-semibold mb-4">The Guru-Shishya Parampara</h3>
-        <p className="text-muted-foreground leading-relaxed mb-6">
+    <section className="relative py-24 overflow-hidden">
+      <img src="https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=1920&q=80" alt="Guru-Shishya" className="absolute inset-0 w-full h-full object-cover" />
+      <div className="absolute inset-0 bg-gradient-to-br from-[hsl(0_69%_20%/0.9)] to-[hsl(345_75%_15%/0.85)]" />
+      <div className="relative z-10 container mx-auto px-4 max-w-3xl text-center">
+        <h2 className="font-serif text-3xl md:text-4xl font-bold mb-6 text-primary-foreground">Our Philosophy</h2>
+        <h3 className="font-serif text-xl text-gold font-semibold mb-4">The Guru-Shishya Parampara</h3>
+        <p className="text-primary-foreground/80 leading-relaxed mb-6">
           At the heart of Nada Gurukulam lies the time-honored Guru-Shishya tradition — a sacred bond between teacher and student that goes beyond mere instruction. This ancient system of knowledge transfer has preserved Indian classical arts for millennia.
         </p>
-        <p className="text-muted-foreground leading-relaxed">
-          We believe that true learning happens not just through technique and practice, but through the transformative relationship with a Guru who imparts not only skill but wisdom, discipline, and devotion. Every student at Nada Gurukulam is guided on a deeply personal journey of artistic and spiritual growth.
+        <p className="text-primary-foreground/70 leading-relaxed">
+          We believe that true learning happens not just through technique and practice, but through the transformative relationship with a Guru who imparts not only skill but wisdom, discipline, and devotion.
         </p>
       </div>
-    </Section>
+    </section>
   </div>
 );
 

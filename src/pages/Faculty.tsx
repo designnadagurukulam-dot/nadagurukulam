@@ -1,18 +1,19 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Award, BookOpen, Calendar, X } from "lucide-react";
+import { Award, BookOpen, Calendar } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import SectionDivider from "@/components/SectionDivider";
 
 const faculty = [
-  { name: "Smt. Revathi Ramachandran", spec: "Carnatic Vocal", cat: "carnatic", role: "Director & Lead Faculty", exp: "25+ years", awards: ["Sangeet Natak Akademi Award", "Kalaimamani Title"], bio: "A distinguished Carnatic vocalist and educator, Smt. Revathi has dedicated her life to preserving and propagating the rich tradition of South Indian classical music. Trained under legendary masters, she brings both depth and accessibility to her teaching.", education: ["B.A. Music — University of Madras", "M.A. Carnatic Music — Sri Venkateswara University", "Ph.D. — Musicology"] },
-  { name: "Sri Raghunandan Panshikar", spec: "Hindustani Vocal", cat: "hindustani", role: "Senior Faculty", exp: "20+ years", awards: ["Kumar Gandharva Samman", "Tansen Award Nominee"], bio: "A powerful Hindustani vocalist trained in the Gwalior Gharana tradition, Sri Raghunandan brings the depth of khayal gayaki to students with clarity and passion.", education: ["Sangeet Visharad — Gandharva Mahavidyalaya", "M.A. Music — SNDT University"] },
-  { name: "Ms. Manasvini Ramachandran", spec: "Bharatanatyam", cat: "bharatanatyam", role: "Lead Dance Faculty", exp: "15+ years", awards: ["Natya Shiromani Award", "Young Artist Fellowship"], bio: "A graceful and technically brilliant Bharatanatyam artist, Ms. Manasvini combines traditional Tanjore-style Bharatanatyam with contemporary choreographic sensibility.", education: ["B.F.A. Bharatanatyam — Kalakshetra", "M.A. Dance — University of Hyderabad"] },
-  { name: "Sri Venkatesh Kumar", spec: "Mridangam", cat: "instrumental", role: "Percussion Faculty", exp: "18+ years", awards: ["Best Accompanist Award — Music Academy", "CCRT Fellowship"], bio: "A consummate mridangam artist known for his rhythmic precision and innovative approach. Sri Venkatesh has accompanied many leading Carnatic musicians.", education: ["Diploma in Mridangam — Karnataka College of Percussion", "M.Mus — University of Mysore"] },
-  { name: "Sri Shashank Subramanyam", spec: "Flute", cat: "instrumental", role: "Flute Faculty", exp: "22+ years", awards: ["Padma Shri Nominee", "A-Grade Artist — All India Radio"], bio: "A flautist of extraordinary caliber, Sri Shashank has redefined Carnatic flute playing with his unique tonal quality and cross-genre collaborations.", education: ["Child prodigy — trained under Sri T.R. Mahalingam's lineage", "Honorary Doctorate — University of Mysore"] },
-  { name: "Sri Abhishek Mishra", spec: "Tabla", cat: "instrumental", role: "Tabla Faculty", exp: "12+ years", awards: ["Ustad Bismillah Khan Yuva Puraskar"], bio: "A dynamic young tabla maestro of the Benares Gharana, Sri Abhishek brings energy and innovation to traditional tabla pedagogy.", education: ["B.Mus Tabla — Banaras Hindu University", "M.Mus — Delhi University"] },
+  { name: "Smt. Revathi Ramachandran", spec: "Carnatic Vocal", cat: "carnatic", role: "Director & Lead Faculty", exp: "25+ years", img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400", awards: ["Sangeet Natak Akademi Award", "Kalaimamani Title"], bio: "A distinguished Carnatic vocalist and educator, Smt. Revathi has dedicated her life to preserving and propagating the rich tradition of South Indian classical music.", education: ["B.A. Music — University of Madras", "M.A. Carnatic Music — Sri Venkateswara University", "Ph.D. — Musicology"] },
+  { name: "Sri Raghunandan Panshikar", spec: "Hindustani Vocal", cat: "hindustani", role: "Senior Faculty", exp: "20+ years", img: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400", awards: ["Kumar Gandharva Samman", "Tansen Award Nominee"], bio: "A powerful Hindustani vocalist trained in the Gwalior Gharana tradition, bringing depth of khayal gayaki to students with clarity and passion.", education: ["Sangeet Visharad — Gandharva Mahavidyalaya", "M.A. Music — SNDT University"] },
+  { name: "Ms. Manasvini Ramachandran", spec: "Bharatanatyam", cat: "bharatanatyam", role: "Lead Dance Faculty", exp: "15+ years", img: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400", awards: ["Natya Shiromani Award", "Young Artist Fellowship"], bio: "A graceful and technically brilliant Bharatanatyam artist, combining traditional Tanjore-style Bharatanatyam with contemporary choreographic sensibility.", education: ["B.F.A. Bharatanatyam — Kalakshetra", "M.A. Dance — University of Hyderabad"] },
+  { name: "Sri Venkatesh Kumar", spec: "Mridangam", cat: "instrumental", role: "Percussion Faculty", exp: "18+ years", img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400", awards: ["Best Accompanist Award — Music Academy", "CCRT Fellowship"], bio: "A consummate mridangam artist known for rhythmic precision and innovative approach. Has accompanied many leading Carnatic musicians.", education: ["Diploma in Mridangam — Karnataka College of Percussion", "M.Mus — University of Mysore"] },
+  { name: "Sri Shashank Subramanyam", spec: "Flute", cat: "instrumental", role: "Flute Faculty", exp: "22+ years", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400", awards: ["Padma Shri Nominee", "A-Grade Artist — All India Radio"], bio: "A flautist of extraordinary caliber who has redefined Carnatic flute playing with unique tonal quality and cross-genre collaborations.", education: ["Trained under Sri T.R. Mahalingam's lineage", "Honorary Doctorate — University of Mysore"] },
+  { name: "Sri Abhishek Mishra", spec: "Tabla", cat: "instrumental", role: "Tabla Faculty", exp: "12+ years", img: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400", awards: ["Ustad Bismillah Khan Yuva Puraskar"], bio: "A dynamic young tabla maestro of the Benares Gharana, bringing energy and innovation to traditional tabla pedagogy.", education: ["B.Mus Tabla — Banaras Hindu University", "M.Mus — Delhi University"] },
 ];
 
 const Faculty = () => {
@@ -23,12 +24,16 @@ const Faculty = () => {
   return (
     <div>
       {/* Hero */}
-      <section className="gradient-maroon py-20 md:py-28">
-        <div className="container mx-auto px-4 text-center">
+      <section className="relative min-h-[45vh] flex items-center justify-center overflow-hidden">
+        <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=1920&q=80" alt="Faculty" className="absolute inset-0 w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(0_69%_20%/0.88)] to-[hsl(345_75%_15%/0.8)]" />
+        <div className="relative z-10 container mx-auto px-4 text-center">
           <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground mb-4">Meet Our Esteemed Gurus</h1>
           <p className="text-primary-foreground/70 max-w-2xl mx-auto">Masters of their art, dedicated to nurturing the next generation.</p>
         </div>
       </section>
+
+      <SectionDivider />
 
       {/* Filter + Grid */}
       <section className="py-16 bg-background">
@@ -46,13 +51,12 @@ const Faculty = () => {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {filtered.map((f, i) => (
               <motion.div key={f.name} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08, duration: 0.4 }}>
-                <Card className="h-full hover:shadow-xl transition-shadow overflow-hidden group">
-                  <div className="h-48 gradient-maroon flex items-center justify-center">
-                    <div className="w-24 h-24 rounded-full bg-primary-foreground/10 flex items-center justify-center text-primary-foreground text-3xl font-serif font-bold">
-                      {f.name.split(" ").pop()?.[0]}
-                    </div>
+                <Card className="h-full hover:shadow-xl transition-all overflow-hidden group hover:border-secondary/50">
+                  <div className="h-52 img-zoom relative">
+                    <img src={f.img} alt={f.name} className="w-full h-full object-cover" loading="lazy" />
+                    <div className="absolute bottom-0 inset-x-0 h-20 bg-gradient-to-t from-background to-transparent" />
                   </div>
-                  <CardContent className="p-6">
+                  <CardContent className="p-6 -mt-4 relative z-10">
                     <h3 className="font-serif text-lg font-semibold">{f.name}</h3>
                     <p className="text-secondary text-sm font-medium">{f.spec}</p>
                     <p className="text-xs text-muted-foreground mt-1">{f.role} · {f.exp}</p>
@@ -77,6 +81,9 @@ const Faculty = () => {
         <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
           {selected && (
             <>
+              <div className="w-full h-48 -mt-6 -mx-6 mb-4 overflow-hidden rounded-t-lg" style={{ width: "calc(100% + 3rem)" }}>
+                <img src={selected.img.replace("w=400", "w=800")} alt={selected.name} className="w-full h-full object-cover" />
+              </div>
               <DialogHeader>
                 <DialogTitle className="font-serif text-2xl">{selected.name}</DialogTitle>
                 <p className="text-secondary font-medium text-sm">{selected.spec} · {selected.role}</p>
