@@ -205,7 +205,7 @@ const Index = () => {
               </Link>
             </Button>
             <Button asChild size="lg" variant="outline" className="border-primary-foreground/25 text-primary-foreground hover:bg-primary-foreground/10 text-base px-10 backdrop-blur-sm h-13">
-              <Link to="/admissions">Apply Now</Link>
+              <Link to="/contact">Contact Us</Link>
             </Button>
           </motion.div>
         </motion.div>
@@ -542,10 +542,10 @@ const Index = () => {
               <span className="text-shimmer-gold">Journey Today</span>
             </h2>
             <p className="text-primary-foreground/60 max-w-xl mx-auto mb-12 text-lg leading-relaxed">
-              Join hundreds of students who have discovered the joy of Indian classical arts at Nada Gurukulam.
+              Discover the joy of Indian classical arts at Nada Gurukulam. Reach out to learn more.
             </p>
             <Button asChild size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 text-lg px-14 h-14 shadow-2xl hover:shadow-secondary/30 transition-all hover:-translate-y-1 animate-glow-pulse">
-              <Link to="/admissions">Apply for Admission</Link>
+              <Link to="/contact">Get in Touch</Link>
             </Button>
           </motion.div>
         </div>
