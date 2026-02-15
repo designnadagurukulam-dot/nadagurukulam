@@ -1,56 +1,123 @@
 
 
-# Replace All Stock Images with Your Real Photos
+# Major Design Upgrade + New Campus & Founder Photos
 
 ## Overview
-Remove every Unsplash stock image across the entire site and replace them with your 10 uploaded photos, strategically placed to match the context of each section.
+This is a comprehensive update that (1) adds 9 new uploaded images to the project, (2) places the founder, director, and campus photos in their correct locations, and (3) significantly upgrades the visual design across every page with modern animations, richer layouts, and more polished aesthetics.
 
 ---
 
-## Image Mapping
+## New Images to Add
 
-Here is how each uploaded photo will be used across the site:
-
-| Photo | Description | Where it will be placed |
-|-------|-------------|------------------------|
-| `NGMUSIC-13.webp` | Student playing veena on lawn | **Homepage hero background**, Courses page hero, Veena/instrumental course card |
-| `NGR6_M1630.webp` | Grand stage concert with backdrop | **About page hero**, Homepage stats parallax background, Login page left panel |
-| `NGZ6R_1931_R.webp` | Bharatanatyam group (Krishna theme) | Bharatanatyam course card, Dance feature card, Gallery |
-| `NGR6M_9613.webp` | Dancers in pink/magenta | Admissions hero, Dance-related sections |
-| `NGZ6R_1512_R.webp` | Vocal concert (singer in blue saree) | Carnatic Vocal course card, Faculty hero |
-| `NGZ6R_6439_R.webp` | Tabla/percussion ensemble | Mridangam/Tabla course cards, Percussion sections |
-| `NGR6M_0933.webp` | Vocal chorus in purple sarees | Homepage CTA background, Vocal ensemble sections |
-| `NGR6M_2124_R.webp` | Large vocal ensemble in cream | Contact page hero, About philosophy background |
-| `NGR6M_9591.webp` | Dance performance (sitting + standing) | Gallery, Admissions scholarship section |
-| `NGMUSIC-6.webp` | Students singing outdoors with tanpura | Features "Traditional Excellence" card, Register page, Homepage testimonials background |
+| Image | Identity | Placement |
+|-------|----------|-----------|
+| `Sadguru-Sri-Madhusudan-Sai.jpg` | Founder portrait | About page Founder's Message section, Homepage faculty showcase |
+| `NGSmt-Revathi-Ramachandran.webp` | Director portrait | About page Director's Message, Faculty page card, Homepage faculty showcase |
+| `Director.webp` | Founder + Director together | About page (new "Leadership" section) |
+| `NGReception.jpg` | Campus reception 3D render | Contact page info panel, About page |
+| `NGSaiGramamMusicAndDanceSchoolExterior3dModelAerialView01.jpg` | Campus aerial 3D render | About page "Our Campus" new section, Homepage feature |
+| `NGSaiGramamMusicAndDanceSchoolExterior3dModelCenterAmphitheatreView02.jpg` | Amphitheatre view | Gallery campus category, Admissions page |
+| `NGSaiGramamMusicAndDanceSchoolExterior3dModelVaultPassage.jpg` | Vault/corridor render | Login page left panel, Gallery |
+| `NGVerandah.jpg` | Verandah walkway | Register page left panel, Gallery |
+| `NGAmphy-theatre-entry.jpg` | Amphitheatre entry | Gallery, About page campus section |
 
 ---
 
-## Files to Modify
+## Design Upgrades
 
-### New Asset Files (copy uploads into project)
-All 10 images copied to `src/assets/gallery/` folder for proper bundling.
+### 1. Enhanced Animations (tailwind.config.ts + index.css)
+- Add new keyframe animations: `float`, `shimmer`, `slide-up`, `blur-in`, `glow-pulse`
+- Add a subtle gold shimmer line animation for section dividers
+- Add smooth parallax scroll effect utility class
+- Add glassmorphism card variant class
+- Add text gradient utility for golden shimmering headings
+- Add staggered entrance animations for grid items
 
-### Pages to Update
+### 2. Upgraded Section Divider (SectionDivider.tsx)
+- Replace simple line + diamond with animated ornamental mandala SVG pattern
+- Subtle gold shimmer animation on the ornament
+- Wider decorative lines with gradient fade
 
-1. **`src/pages/Index.tsx`** -- Replace all Unsplash URLs in: hero background, features array, courses array, testimonials section (remove stock portraits, use music photos), faculty showcase (use performance photos), stats parallax background, CTA background
-2. **`src/pages/About.tsx`** -- Replace: hero background, timeline milestone thumbnails, founder/director photos (use performance shots), philosophy background
-3. **`src/pages/Courses.tsx`** -- Replace: hero background, all 6 course card images
-4. **`src/pages/Faculty.tsx`** -- Replace: hero background, faculty card photos (use performance images)
-5. **`src/pages/Admissions.tsx`** -- Replace: hero background, scholarship section image
-6. **`src/pages/Gallery.tsx`** -- Replace all Unsplash gallery images with the 10 real photos
-7. **`src/pages/Contact.tsx`** -- Replace: hero background
-8. **`src/pages/Login.tsx`** -- Replace left panel Unsplash image
-9. **`src/pages/Register.tsx`** -- Replace left panel Unsplash image
-10. **`src/pages/dashboard/DashboardCourses.tsx`** -- Replace course card images
+### 3. Homepage (Index.tsx) -- Major Overhaul
+- **Hero**: Add animated particle/floating notes effect behind text, stronger gradient, text shadow for drama
+- **Features**: Upgrade to glassmorphism cards with icon overlays and hover lift+glow effects
+- **Courses**: Add "ribbon" badge for level, hover card flip or tilt effect
+- **Stats**: Add animated counting with suffix, glowing number effect
+- **Faculty Showcase**: Use REAL founder/director photos -- Sadguru Sri Madhusudan Sai photo and Smt. Revathi Ramachandran photo in proper circular frames
+- **Testimonials**: Add star rating animation, subtle card floating effect
+- **CTA**: Full-bleed with animated gradient overlay
+- **New Section**: Add a "Our Campus" showcase section with the 3D renders (aerial view, amphitheatre, reception) in an auto-scrolling carousel or staggered grid
+
+### 4. About Page (About.tsx) -- Major Overhaul
+- **Hero**: Use campus aerial view as background
+- **Timeline**: Add connecting animated line that fills as you scroll, larger milestone thumbnails
+- **Founder's Message**: Use actual `Sadguru-Sri-Madhusudan-Sai.jpg` portrait with elegant golden frame
+- **Director's Message**: Use actual `NGSmt-Revathi-Ramachandran.webp` portrait
+- **New "Our Leadership" Section**: Show the `Director.webp` (together photo) as a wide banner
+- **New "Our Campus" Section**: Showcase 3D campus renders (aerial, amphitheatre, vault passage, verandah, reception) in a visually striking bento grid layout
+- **Philosophy**: Use vault passage image as background for atmospheric effect
+
+### 5. Faculty Page (Faculty.tsx)
+- Use `NGSmt-Revathi-Ramachandran.webp` for Smt. Revathi's card instead of generic performance shot
+- Enhanced card design with gradient border on hover, smoother image transitions
+
+### 6. Gallery Page (Gallery.tsx)
+- Add new campus 3D renders to the gallery under a new "Campus" category
+- Enhanced masonry layout with varied card sizes (some large, some small)
+- Smoother lightbox transitions
+
+### 7. Login Page (Login.tsx)
+- Replace left panel image with `NGSaiGramamMusicAndDanceSchoolExterior3dModelVaultPassage.jpg` (atmospheric corridor)
+- Add subtle floating animation to the logo
+
+### 8. Register Page (Register.tsx)
+- Replace left panel image with `NGVerandah.jpg` (campus verandah walkway)
+
+### 9. Contact Page (Contact.tsx)
+- Use reception image in the info sidebar
+- Add campus aerial view as hero background
+
+### 10. Admissions Page (Admissions.tsx)
+- Use amphitheatre view as hero background for fresh visual
+
+### 11. Navbar (Navbar.tsx)
+- Add subtle backdrop blur enhancement
+- Smoother mobile drawer animation with framer-motion slide-in
+
+### 12. Footer (Footer.tsx)
+- Add subtle pattern overlay on the maroon gradient
+- Slightly enhanced spacing and hover effects on links
 
 ---
 
-## Technical Approach
+## Technical Details
 
-- Copy all 10 images to `src/assets/gallery/` using proper file copy
-- Import them as ES6 modules in each page component
-- Remove every `https://images.unsplash.com/...` URL
-- Some images will be reused across multiple pages in different contexts (hero backgrounds vs. card thumbnails)
-- All existing animations, overlays, and hover effects remain unchanged
+### Files to Create (asset copies)
+- `src/assets/campus/NGReception.jpg`
+- `src/assets/campus/NGCampusAerial.jpg`
+- `src/assets/campus/NGAmphitheatre.jpg`
+- `src/assets/campus/NGVaultPassage.jpg`
+- `src/assets/campus/NGVerandah.jpg`
+- `src/assets/campus/NGAmphyEntry.jpg`
+- `src/assets/founders/SadguruSriMadhusudanSai.jpg`
+- `src/assets/founders/Director.webp`
+- `src/assets/founders/SmtRevathiRamachandran.webp`
+
+### Files to Modify
+1. `tailwind.config.ts` -- Add new keyframes and animation utilities
+2. `src/index.css` -- Add glassmorphism, text-gradient, pattern overlay, and floating animation classes
+3. `src/components/SectionDivider.tsx` -- Redesign with animated ornament
+4. `src/pages/Index.tsx` -- Full redesign with campus section, real founder photos, enhanced animations
+5. `src/pages/About.tsx` -- Add campus section, real founder/director photos, leadership banner
+6. `src/pages/Faculty.tsx` -- Use real director photo, enhanced cards
+7. `src/pages/Gallery.tsx` -- Add campus images, improved layout
+8. `src/pages/Login.tsx` -- New left panel image (vault passage)
+9. `src/pages/Register.tsx` -- New left panel image (verandah)
+10. `src/pages/Contact.tsx` -- Reception image, aerial hero
+11. `src/pages/Admissions.tsx` -- Amphitheatre hero
+12. `src/components/Navbar.tsx` -- Framer-motion mobile drawer
+13. `src/components/Footer.tsx` -- Pattern overlay, enhanced styling
+
+### Dependencies
+- No new dependencies needed; framer-motion already installed covers all animation needs
 
