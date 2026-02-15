@@ -14,9 +14,19 @@ import imgPercussion from "@/assets/gallery/NGZ6R_6439_R.webp";
 import imgChorus from "@/assets/gallery/NGR6M_0933.webp";
 import imgEnsemble from "@/assets/gallery/NGR6M_2124_R.webp";
 import imgDancePerf from "@/assets/gallery/NGR6M_9591.webp";
+import imgDanceGroup from "@/assets/gallery/NGDSC_7428.webp";
+import imgMaleChorus from "@/assets/gallery/NGDSC_8160.webp";
+import imgVocalClose from "@/assets/gallery/NGIMG_2141.webp";
+import imgSitar from "@/assets/gallery/NGMUSIC-2.webp";
+import imgGuruShishya from "@/assets/gallery/NGDANCE-3.webp";
+import imgDanceRecital from "@/assets/gallery/NGDANCE-RECITAL-4.webp";
+import imgDanceSolo from "@/assets/gallery/NGDANCE.webp";
+import imgDancePink from "@/assets/gallery/NGDSC_0238.webp";
+import imgDanceRed from "@/assets/gallery/NGDSC_0608_R.webp";
+import imgDance2 from "@/assets/gallery/NGDANCE-2.webp";
 
 const images = [
-  { src: imgBharatanatyam, cat: "performances", alt: "Bharatanatyam group performance" },
+  { src: imgDanceGroup, cat: "performances", alt: "Bharatanatyam group pose" },
   { src: imgConcert, cat: "events", alt: "Grand stage concert" },
   { src: imgPercussion, cat: "performances", alt: "Percussion ensemble" },
   { src: imgVocal, cat: "performances", alt: "Vocal concert" },
@@ -26,12 +36,22 @@ const images = [
   { src: imgChorus, cat: "events", alt: "Vocal chorus" },
   { src: imgEnsemble, cat: "workshops", alt: "Vocal ensemble" },
   { src: imgDancePerf, cat: "performances", alt: "Dance performance" },
+  { src: imgMaleChorus, cat: "events", alt: "Male vocal ensemble on stage" },
+  { src: imgVocalClose, cat: "performances", alt: "Vocalists close-up" },
+  { src: imgSitar, cat: "campus", alt: "Sitar player on campus lawn" },
+  { src: imgGuruShishya, cat: "workshops", alt: "Guru-Shishya dance training" },
+  { src: imgDanceRecital, cat: "performances", alt: "Spectacular dance recital" },
+  { src: imgDanceSolo, cat: "performances", alt: "Bharatanatyam solo dancer" },
+  { src: imgDancePink, cat: "performances", alt: "Dancers in pink costumes" },
+  { src: imgDanceRed, cat: "performances", alt: "Dance formation with red lighting" },
+  { src: imgDance2, cat: "performances", alt: "Bharatanatyam group reaching upward" },
+  { src: imgBharatanatyam, cat: "performances", alt: "Bharatanatyam Krishna theme" },
 ];
 
 const videos = [
   { title: "Annual Day Carnatic Concert 2024", thumb: imgConcert },
-  { title: "Bharatanatyam Arangetram Highlights", thumb: imgBharatanatyam },
-  { title: "Guru Purnima Celebrations", thumb: imgChorus },
+  { title: "Bharatanatyam Arangetram Highlights", thumb: imgDanceRecital },
+  { title: "Guru Purnima Celebrations", thumb: imgDanceRed },
 ];
 
 const Gallery = () => {
@@ -48,7 +68,7 @@ const Gallery = () => {
     <div>
       {/* Hero */}
       <section className="relative min-h-[45vh] flex items-center justify-center overflow-hidden">
-        <img src={imgDancers} alt="Gallery" className="absolute inset-0 w-full h-full object-cover" />
+        <img src={imgDanceRecital} alt="Gallery" className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-br from-[hsl(0_69%_20%/0.88)] to-[hsl(345_75%_15%/0.8)]" />
         <div className="relative z-10 container mx-auto px-4 text-center">
           <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground mb-4">Gallery</h1>

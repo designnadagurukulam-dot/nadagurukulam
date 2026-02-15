@@ -9,27 +9,29 @@ import SectionDivider from "@/components/SectionDivider";
 
 import imgMusic13 from "@/assets/gallery/NGMUSIC-13.webp";
 import imgVocal from "@/assets/gallery/NGZ6R_1512_R.webp";
-import imgBharatanatyam from "@/assets/gallery/NGZ6R_1931_R.webp";
 import imgPercussion from "@/assets/gallery/NGZ6R_6439_R.webp";
 import imgChorus from "@/assets/gallery/NGR6M_0933.webp";
 import imgConcert from "@/assets/gallery/NGR6_M1630.webp";
-import imgMusic6 from "@/assets/gallery/NGMUSIC-6.webp";
-import imgDancers from "@/assets/gallery/NGR6M_9613.webp";
+import imgDanceGroup from "@/assets/gallery/NGDSC_7428.webp";
+import imgMaleChorus from "@/assets/gallery/NGDSC_8160.webp";
+import imgSitar from "@/assets/gallery/NGMUSIC-2.webp";
+import imgGuruShishya from "@/assets/gallery/NGDANCE-3.webp";
+import imgDancePink from "@/assets/gallery/NGDSC_0238.webp";
 
 const allCourses = [
   { name: "Carnatic Vocal", category: "vocal", img: imgVocal, level: "Beginner to Advanced", duration: "3 Years", teacher: "Smt. Revathi Ramachandran", desc: "Master the melodic intricacies of South Indian classical music, from basic swaras to complex ragas and kritis.", outcomes: ["Swara knowledge & Shruti alignment", "Raga identification & Alapana", "Kriti rendition & Manodharma", "Stage performance readiness"] },
-  { name: "Hindustani Vocal", category: "vocal", img: imgChorus, level: "Beginner to Advanced", duration: "3 Years", teacher: "Sri Raghunandan Panshikar", desc: "Explore the soulful ragas of North Indian classical music with authentic Guru-Shishya training.", outcomes: ["Raga & Taal fundamentals", "Khayal & Thumri rendition", "Bandish composition", "Concert performance skills"] },
-  { name: "Bharatanatyam", category: "dance", img: imgBharatanatyam, level: "Beginner to Advanced", duration: "4 Years", teacher: "Ms. Manasvini Ramachandran", desc: "Learn the ancient temple dance form with grace, precision, and devotion to this timeless art.", outcomes: ["Adavu mastery & footwork", "Abhinaya & expression", "Choreography & composition", "Arangetram preparation"] },
+  { name: "Hindustani Vocal", category: "vocal", img: imgMaleChorus, level: "Beginner to Advanced", duration: "3 Years", teacher: "Sri Raghunandan Panshikar", desc: "Explore the soulful ragas of North Indian classical music with authentic Guru-Shishya training.", outcomes: ["Raga & Taal fundamentals", "Khayal & Thumri rendition", "Bandish composition", "Concert performance skills"] },
+  { name: "Bharatanatyam", category: "dance", img: imgDanceGroup, level: "Beginner to Advanced", duration: "4 Years", teacher: "Ms. Manasvini Ramachandran", desc: "Learn the ancient temple dance form with grace, precision, and devotion to this timeless art.", outcomes: ["Adavu mastery & footwork", "Abhinaya & expression", "Choreography & composition", "Arangetram preparation"] },
   { name: "Mridangam", category: "instrumental", img: imgPercussion, level: "Beginner to Intermediate", duration: "2 Years", teacher: "Sri Venkatesh Kumar", desc: "Explore the rhythmic heart of Carnatic music through traditional percussion training.", outcomes: ["Tala system mastery", "Solkattu & patterns", "Accompaniment techniques", "Concert readiness"] },
   { name: "Tabla", category: "instrumental", img: imgPercussion, level: "Beginner to Intermediate", duration: "2 Years", teacher: "Sri Abhishek Mishra", desc: "Master complex rhythmic patterns and compositions of Hindustani percussion.", outcomes: ["Bol system & Theka", "Kayda & Rela", "Solo & accompaniment", "Gharana traditions"] },
-  { name: "Flute", category: "instrumental", img: imgMusic13, level: "Beginner to Advanced", duration: "3 Years", teacher: "Sri Shashank Subramanyam", desc: "Discover the divine sound of the bamboo flute in classical tradition.", outcomes: ["Breath control & embouchure", "Raga rendition on flute", "Gamakas & ornaments", "Stage performance"] },
+  { name: "Sitar", category: "instrumental", img: imgSitar, level: "Beginner to Advanced", duration: "3 Years", teacher: "Sri Shashank Subramanyam", desc: "Discover the divine sound of the sitar in classical tradition.", outcomes: ["String technique & tuning", "Raga rendition on sitar", "Gamakas & ornaments", "Stage performance"] },
 ];
 
 const methodology = [
-  { icon: BookOpen, title: "In-Person Classes", desc: "Traditional face-to-face sessions with personal guidance from Gurus.", img: imgConcert },
-  { icon: Mic, title: "Online Live Sessions", desc: "Interactive live classes for students learning remotely.", img: imgMusic6 },
-  { icon: Music, title: "Recorded Lessons", desc: "Comprehensive lesson library for self-paced practice.", img: imgChorus },
-  { icon: CheckCircle, title: "Performance Opportunities", desc: "Regular recitals and concerts to build stage confidence.", img: imgDancers },
+  { icon: BookOpen, title: "In-Person Classes", desc: "Traditional face-to-face sessions with personal guidance from Gurus.", img: imgGuruShishya },
+  { icon: Mic, title: "Online Live Sessions", desc: "Interactive live classes for students learning remotely.", img: imgChorus },
+  { icon: Music, title: "Recorded Lessons", desc: "Comprehensive lesson library for self-paced practice.", img: imgConcert },
+  { icon: CheckCircle, title: "Performance Opportunities", desc: "Regular recitals and concerts to build stage confidence.", img: imgDancePink },
 ];
 
 const Courses = () => {
