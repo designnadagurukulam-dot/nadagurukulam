@@ -1,9 +1,17 @@
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, BookOpen, Award, Calendar, GraduationCap } from "lucide-react";
+import { ArrowLeft, BookOpen, Award, Calendar, GraduationCap, Briefcase, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { facultyMembers } from "@/data/facultyData";
 import SectionDivider from "@/components/SectionDivider";
+
+const GoldDivider = () => (
+  <div className="flex items-center gap-3">
+    <div className="flex-1 h-px bg-gradient-to-r from-transparent via-secondary/30 to-transparent" />
+    <div className="w-2 h-2 rounded-full bg-secondary/40" />
+    <div className="flex-1 h-px bg-gradient-to-r from-transparent via-secondary/30 to-transparent" />
+  </div>
+);
 
 const FacultyDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -34,24 +42,12 @@ const FacultyDetail = () => {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[hsl(0_69%_10%/0.97)] via-[hsl(0_0%_0%/0.4)] to-[hsl(0_0%_0%/0.1)]" />
         <div className="relative z-10 container mx-auto px-4 pb-12 pt-28">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-          >
-            <Button
-              asChild
-              variant="ghost"
-              size="sm"
-              className="text-primary-foreground/70 hover:text-primary-foreground hover:bg-primary-foreground/10 mb-6"
-            >
+          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
+            <Button asChild variant="ghost" size="sm" className="text-primary-foreground/70 hover:text-primary-foreground hover:bg-primary-foreground/10 mb-6">
               <Link to="/faculty"><ArrowLeft className="h-4 w-4 mr-2" />Back to Faculty</Link>
             </Button>
             <div className="w-14 h-0.5 bg-secondary rounded-full mb-4" />
-            <h1
-              className="font-serif text-4xl md:text-6xl font-bold text-primary-foreground mb-2"
-              style={{ textShadow: "0 4px 20px hsl(0 0% 0% / 0.5)" }}
-            >
+            <h1 className="font-serif text-4xl md:text-6xl font-bold text-primary-foreground mb-2" style={{ textShadow: "0 4px 20px hsl(0 0% 0% / 0.5)" }}>
               {faculty.name}
             </h1>
             <p className="text-secondary text-lg font-semibold mb-1">{faculty.specialization}</p>
@@ -67,19 +63,10 @@ const FacultyDetail = () => {
         <div className="container mx-auto px-4 max-w-4xl">
           <div className="grid md:grid-cols-3 gap-10">
             {/* Left — Photo + Quick Info */}
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2, duration: 0.6 }}
-              className="md:col-span-1"
-            >
+            <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2, duration: 0.6 }} className="md:col-span-1">
               <div className="relative vignette-gold">
                 <div className="rounded-2xl overflow-hidden shadow-2xl border-2 border-secondary/15 mb-6">
-                  <img
-                    src={faculty.image}
-                    alt={faculty.name}
-                    className="w-full aspect-[3/4] object-cover object-[center_15%]"
-                  />
+                  <img src={faculty.image} alt={faculty.name} className="w-full aspect-[3/4] object-cover object-[center_15%]" />
                 </div>
               </div>
               <div className="space-y-4">
@@ -98,13 +85,8 @@ const FacultyDetail = () => {
               </div>
             </motion.div>
 
-            {/* Right — Bio, Education, Awards */}
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3, duration: 0.6 }}
-              className="md:col-span-2 space-y-10"
-            >
+            {/* Right — Bio, Education, Experience, Specialities, Awards */}
+            <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3, duration: 0.6 }} className="md:col-span-2 space-y-10">
               {/* About */}
               <div>
                 <div className="flex items-center gap-3 mb-5">
@@ -116,12 +98,7 @@ const FacultyDetail = () => {
                 <p className="text-muted-foreground leading-relaxed">{faculty.bio}</p>
               </div>
 
-              {/* Gold ornamental divider */}
-              <div className="flex items-center gap-3">
-                <div className="flex-1 h-px bg-gradient-to-r from-transparent via-secondary/30 to-transparent" />
-                <div className="w-2 h-2 rounded-full bg-secondary/40" />
-                <div className="flex-1 h-px bg-gradient-to-r from-transparent via-secondary/30 to-transparent" />
-              </div>
+              <GoldDivider />
 
               {/* Education */}
               <div>
@@ -141,33 +118,74 @@ const FacultyDetail = () => {
                 </ul>
               </div>
 
-              {/* Gold ornamental divider */}
-              <div className="flex items-center gap-3">
-                <div className="flex-1 h-px bg-gradient-to-r from-transparent via-secondary/30 to-transparent" />
-                <div className="w-2 h-2 rounded-full bg-secondary/40" />
-                <div className="flex-1 h-px bg-gradient-to-r from-transparent via-secondary/30 to-transparent" />
-              </div>
+              {/* Experience */}
+              {faculty.experienceDetails.length > 0 && (
+                <>
+                  <GoldDivider />
+                  <div>
+                    <div className="flex items-center gap-3 mb-5">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-md">
+                        <Briefcase className="h-5 w-5 text-primary-foreground" />
+                      </div>
+                      <h2 className="font-serif text-xl font-bold">Experience</h2>
+                    </div>
+                    <ul className="space-y-4">
+                      {faculty.experienceDetails.map((exp, i) => (
+                        <li key={i} className="flex items-start gap-3">
+                          <div className="w-2 h-2 rounded-full bg-secondary mt-2 shrink-0" />
+                          <span className="text-muted-foreground leading-relaxed">{exp}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </>
+              )}
+
+              {/* Specialities */}
+              {faculty.specialities.length > 0 && (
+                <>
+                  <GoldDivider />
+                  <div>
+                    <div className="flex items-center gap-3 mb-5">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-secondary to-accent flex items-center justify-center shadow-md">
+                        <Sparkles className="h-5 w-5 text-secondary-foreground" />
+                      </div>
+                      <h2 className="font-serif text-xl font-bold">Specialities</h2>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {faculty.specialities.map((spec) => (
+                        <span key={spec} className="inline-flex items-center gap-1.5 text-sm px-4 py-2 rounded-full bg-secondary/10 text-secondary border border-secondary/20 hover:bg-secondary/15 transition-colors">
+                          <Sparkles className="h-3.5 w-3.5" />
+                          {spec}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
 
               {/* Awards */}
-              <div>
-                <div className="flex items-center gap-3 mb-5">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-md">
-                    <Award className="h-5 w-5 text-primary-foreground" />
+              {faculty.awards.length > 0 && (
+                <>
+                  <GoldDivider />
+                  <div>
+                    <div className="flex items-center gap-3 mb-5">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-md">
+                        <Award className="h-5 w-5 text-primary-foreground" />
+                      </div>
+                      <h2 className="font-serif text-xl font-bold">Awards & Recognition</h2>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {faculty.awards.map((award) => (
+                        <span key={award} className="inline-flex items-center gap-1.5 text-sm px-4 py-2 rounded-full bg-secondary/10 text-secondary border border-secondary/20 hover:bg-secondary/15 transition-colors">
+                          <Award className="h-3.5 w-3.5" />
+                          {award}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                  <h2 className="font-serif text-xl font-bold">Awards & Recognition</h2>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {faculty.awards.map((award) => (
-                    <span
-                      key={award}
-                      className="inline-flex items-center gap-1.5 text-sm px-4 py-2 rounded-full bg-secondary/10 text-secondary border border-secondary/20 hover:bg-secondary/15 transition-colors"
-                    >
-                      <Award className="h-3.5 w-3.5" />
-                      {award}
-                    </span>
-                  ))}
-                </div>
-              </div>
+                </>
+              )}
             </motion.div>
           </div>
         </div>

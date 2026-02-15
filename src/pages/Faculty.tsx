@@ -119,8 +119,8 @@ const Faculty = () => {
                       {/* Info panel */}
                       <div className="p-5 border-t-2 border-secondary/25 group-hover:border-secondary/50 transition-colors duration-500">
                         <h3 className="font-serif text-base font-bold truncate mb-0.5">{f.name}</h3>
-                        <p className="text-secondary text-xs font-semibold">{f.specialization}</p>
-                        <p className="text-muted-foreground text-xs mt-1">{f.title} · {f.experience}</p>
+                        <p className="text-secondary text-xs font-semibold">{f.id === "revathi-ramachandran" ? f.title : f.specialization}</p>
+                        <p className="text-muted-foreground text-xs mt-1">{f.experience}</p>
                       </div>
                     </div>
                   </Link>
