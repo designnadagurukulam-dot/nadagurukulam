@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ChevronLeft, ChevronRight, Play } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Play, Sparkles } from "lucide-react";
 import SectionDivider from "@/components/SectionDivider";
 
 import imgMusic13 from "@/assets/gallery/NGMUSIC-13.webp";
@@ -88,36 +88,57 @@ const Gallery = () => {
   return (
     <div>
       {/* ══════ HERO ══════ */}
-      <section className="relative min-h-[55vh] flex items-center justify-center overflow-hidden">
-        <img src={imgDanceRecital} alt="Gallery" className="absolute inset-0 w-full h-full object-cover" />
+      <section className="relative min-h-[55vh] flex items-center justify-center overflow-hidden grain-overlay">
+        <motion.img
+          src={imgDanceRecital}
+          alt="Gallery"
+          className="absolute inset-0 w-full h-full object-cover"
+          initial={{ scale: 1.1 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 1.5, ease: "easeOut" }}
+        />
         <div className="absolute inset-0 bg-gradient-to-br from-[hsl(0_69%_10%/0.94)] via-[hsl(0_69%_18%/0.88)] to-[hsl(345_75%_12%/0.82)]" />
+
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {[...Array(5)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute rounded-full bg-secondary/25"
+              style={{ width: `${3 + i % 3 * 2}px`, height: `${3 + i % 3 * 2}px`, left: `${10 + i * 20}%`, top: `${20 + (i * 15) % 55}%` }}
+              animate={{ y: [0, -20, 0], opacity: [0.1, 0.4, 0.1] }}
+              transition={{ repeat: Infinity, duration: 3 + i * 0.5, delay: i * 0.3, ease: "easeInOut" }}
+            />
+          ))}
+        </div>
+
         <div className="relative z-10 container mx-auto px-4 text-center">
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-            className="font-serif text-4xl md:text-6xl lg:text-7xl font-bold text-primary-foreground mb-4"
-            style={{ textShadow: "0 4px 40px hsl(0 0% 0% / 0.5)" }}
-          >
-            Gallery
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="text-primary-foreground/60 max-w-2xl mx-auto"
-          >
-            Moments of artistry, devotion, and celebration from Nada Gurukulam.
-          </motion.p>
+          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
+            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="font-devanagari text-xl text-shimmer-gold mb-3">
+              कला दर्शन
+            </motion.p>
+            <h1
+              className="font-serif text-5xl md:text-7xl lg:text-8xl font-bold text-primary-foreground mb-4"
+              style={{ textShadow: "0 4px 40px hsl(0 0% 0% / 0.5)" }}
+            >
+              Gallery
+            </h1>
+            <p className="text-primary-foreground/55 max-w-2xl mx-auto text-lg">
+              Moments of artistry, devotion, and celebration from Nada Gurukulam.
+            </p>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="mt-5">
+              <span className="badge-gold inline-flex items-center gap-1.5 text-xs">
+                <Sparkles className="h-3 w-3" /> {images.length} Photos
+              </span>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
       <SectionDivider />
 
       {/* ══════ FILTER + MASONRY ══════ */}
-      <section className="py-16 bg-background">
+      <section className="py-20 bg-background">
         <div className="container mx-auto px-4">
-          {/* Custom pill tabs with count */}
           <div className="flex flex-wrap justify-center gap-2 mb-14">
             {tabs.map((t) => {
               const count = t.value === "all" ? images.length : images.filter(img => img.cat === t.value).length;
@@ -125,7 +146,7 @@ const Gallery = () => {
                 <button
                   key={t.value}
                   onClick={() => setTab(t.value)}
-                  className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                  className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
                     tab === t.value
                       ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
                       : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
@@ -161,6 +182,10 @@ const Gallery = () => {
                     className="w-full rounded-2xl shadow-md group-hover:scale-105 transition-transform duration-700"
                     loading="lazy"
                   />
+                  {/* Golden shimmer overlay on hover */}
+                  <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                    <div className="absolute inset-0 bg-gradient-to-t from-[hsl(0_0%_0%/0.7)] via-[hsl(43_72%_52%/0.05)] to-transparent" />
+                  </div>
                   <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-[hsl(0_0%_0%/0.7)] via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-5">
                     <div>
                       <span className="badge-gold text-[9px] mb-2 inline-block">{img.cat}</span>
@@ -177,7 +202,7 @@ const Gallery = () => {
       <SectionDivider />
 
       {/* ══════ VIDEO GALLERY ══════ */}
-      <section className="py-16 bg-muted/30">
+      <section className="py-20 bg-muted/30">
         <div className="container mx-auto px-4">
           <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="font-serif text-3xl md:text-5xl font-bold text-center mb-14">
             Video Gallery
@@ -186,13 +211,13 @@ const Gallery = () => {
             {videos.map((v, i) => (
               <motion.div
                 key={v.title}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
+                transition={{ delay: i * 0.1, duration: 0.5 }}
                 className="group cursor-pointer"
               >
-                <div className="relative rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500">
+                <div className="relative rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-700 hover:-translate-y-2">
                   <img src={v.thumb} alt={v.title} className="w-full h-52 object-cover group-hover:scale-110 transition-transform duration-700" loading="lazy" />
                   <div className="absolute inset-0 bg-primary/20 flex items-center justify-center group-hover:bg-primary/40 transition-colors duration-300">
                     <div className="w-16 h-16 rounded-full bg-secondary/90 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-xl shadow-secondary/30">
@@ -243,7 +268,6 @@ const Gallery = () => {
               className="max-w-full max-h-[85vh] rounded-2xl shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             />
-            {/* Image title */}
             <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-center">
               <p className="text-primary-foreground/80 text-sm font-medium">{filtered[lightboxIdx].alt}</p>
               <p className="text-primary-foreground/40 text-xs mt-1">{lightboxIdx + 1} / {filtered.length}</p>
