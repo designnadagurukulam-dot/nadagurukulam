@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import SectionDivider from "@/components/SectionDivider";
 
 const Contact = () => {
   const { toast } = useToast();
@@ -26,12 +27,16 @@ const Contact = () => {
   return (
     <div>
       {/* Hero */}
-      <section className="gradient-maroon py-20 md:py-28">
-        <div className="container mx-auto px-4 text-center">
+      <section className="relative min-h-[45vh] flex items-center justify-center overflow-hidden">
+        <img src="https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=1920&q=80" alt="Contact" className="absolute inset-0 w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(0_69%_20%/0.88)] to-[hsl(345_75%_15%/0.8)]" />
+        <div className="relative z-10 container mx-auto px-4 text-center">
           <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground mb-4">Contact Us</h1>
           <p className="text-primary-foreground/70 max-w-2xl mx-auto">We'd love to hear from you. Reach out with any questions about our programs.</p>
         </div>
       </section>
+
+      <SectionDivider />
 
       {/* Form + Info */}
       <section className="py-16 bg-background">
@@ -39,7 +44,8 @@ const Contact = () => {
           <div className="grid lg:grid-cols-5 gap-10 max-w-5xl mx-auto">
             {/* Form */}
             <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="lg:col-span-3">
-              <Card className="border-none shadow-lg">
+              <Card className="border-none shadow-lg overflow-hidden">
+                <div className="h-3 gradient-gold" />
                 <CardContent className="p-8">
                   <h2 className="font-serif text-2xl font-bold mb-6">Send a Message</h2>
                   <form onSubmit={handleSubmit} className="space-y-5">
@@ -83,8 +89,11 @@ const Contact = () => {
               </Card>
             </motion.div>
 
-            {/* Info */}
+            {/* Info + Image */}
             <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="lg:col-span-2 space-y-6">
+              <div className="rounded-lg overflow-hidden shadow-md">
+                <img src="https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?w=600" alt="Campus" className="w-full h-48 object-cover" loading="lazy" />
+              </div>
               <div>
                 <h2 className="font-serif text-2xl font-bold mb-6">Get in Touch</h2>
                 <div className="space-y-5">
