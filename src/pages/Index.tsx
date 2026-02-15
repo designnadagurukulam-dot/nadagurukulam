@@ -6,6 +6,17 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import SectionDivider from "@/components/SectionDivider";
 
+import imgMusic13 from "@/assets/gallery/NGMUSIC-13.webp";
+import imgMusic6 from "@/assets/gallery/NGMUSIC-6.webp";
+import imgConcert from "@/assets/gallery/NGR6_M1630.webp";
+import imgBharatanatyam from "@/assets/gallery/NGZ6R_1931_R.webp";
+import imgVocal from "@/assets/gallery/NGZ6R_1512_R.webp";
+import imgPercussion from "@/assets/gallery/NGZ6R_6439_R.webp";
+import imgChorus from "@/assets/gallery/NGR6M_0933.webp";
+import imgEnsemble from "@/assets/gallery/NGR6M_2124_R.webp";
+import imgDancers from "@/assets/gallery/NGR6M_9613.webp";
+import imgDancePerf from "@/assets/gallery/NGR6M_9591.webp";
+
 /* ─── Animated counter hook ─── */
 const useCounter = (end: number, duration = 2000) => {
   const [count, setCount] = useState(0);
@@ -53,24 +64,24 @@ const Section = ({ children, className = "" }: { children: React.ReactNode; clas
 
 /* ─── Data ─── */
 const features = [
-  { img: "https://images.unsplash.com/photo-1598387993441-a364f854c3e1?w=600", title: "Traditional Excellence", desc: "50+ Years of Combined Teaching Experience rooted in authentic Guru-Shishya Parampara", link: "/faculty" },
-  { img: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=600", title: "Modern Learning", desc: "State-of-the-art Online & Offline Training with interactive tools and personalized feedback", link: "/courses" },
-  { img: "https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?w=600", title: "Global Recognition", desc: "Students performing and teaching across 30+ countries around the world", link: "/about" },
+  { img: imgMusic6, title: "Traditional Excellence", desc: "50+ Years of Combined Teaching Experience rooted in authentic Guru-Shishya Parampara", link: "/faculty" },
+  { img: imgMusic13, title: "Modern Learning", desc: "State-of-the-art Online & Offline Training with interactive tools and personalized feedback", link: "/courses" },
+  { img: imgConcert, title: "Global Recognition", desc: "Students performing and teaching across 30+ countries around the world", link: "/about" },
 ];
 
 const courses = [
-  { name: "Carnatic Vocal", img: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600", desc: "Master the melodic intricacies of South Indian classical music tradition.", teacher: "Smt. Revathi Ramachandran", level: "Beginner–Advanced" },
-  { name: "Bharatanatyam", img: "https://images.unsplash.com/photo-1598387993441-a364f854c3e1?w=600", desc: "Learn the ancient temple dance form with grace, precision, and devotion.", teacher: "Ms. Manasvini Ramachandran", level: "Beginner–Advanced" },
-  { name: "Mridangam", img: "https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=600", desc: "Explore the rhythmic heart of Carnatic music with traditional percussion.", teacher: "Sri Venkatesh Kumar", level: "Beginner–Intermediate" },
-  { name: "Hindustani Vocal", img: "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=600", desc: "Dive into the soulful ragas of North Indian classical music.", teacher: "Sri Raghunandan Panshikar", level: "Beginner–Advanced" },
-  { name: "Flute", img: "https://images.unsplash.com/photo-1460723237483-7a6dc9d0b212?w=600", desc: "Discover the divine sound of the bamboo flute in classical tradition.", teacher: "Sri Shashank Subramanyam", level: "Beginner–Advanced" },
-  { name: "Tabla", img: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=600", desc: "Master complex rhythmic patterns of Hindustani percussion.", teacher: "Sri Abhishek Mishra", level: "Beginner–Intermediate" },
+  { name: "Carnatic Vocal", img: imgVocal, desc: "Master the melodic intricacies of South Indian classical music tradition.", teacher: "Smt. Revathi Ramachandran", level: "Beginner–Advanced" },
+  { name: "Bharatanatyam", img: imgBharatanatyam, desc: "Learn the ancient temple dance form with grace, precision, and devotion.", teacher: "Ms. Manasvini Ramachandran", level: "Beginner–Advanced" },
+  { name: "Mridangam", img: imgPercussion, desc: "Explore the rhythmic heart of Carnatic music with traditional percussion.", teacher: "Sri Venkatesh Kumar", level: "Beginner–Intermediate" },
+  { name: "Hindustani Vocal", img: imgChorus, desc: "Dive into the soulful ragas of North Indian classical music.", teacher: "Sri Raghunandan Panshikar", level: "Beginner–Advanced" },
+  { name: "Flute", img: imgMusic13, desc: "Discover the divine sound of the bamboo flute in classical tradition.", teacher: "Sri Shashank Subramanyam", level: "Beginner–Advanced" },
+  { name: "Tabla", img: imgPercussion, desc: "Master complex rhythmic patterns of Hindustani percussion.", teacher: "Sri Abhishek Mishra", level: "Beginner–Intermediate" },
 ];
 
 const testimonials = [
-  { name: "Priya Sharma", img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200", text: "Nada Gurukulam transformed my understanding of Carnatic music. The personal attention from Gurus is unmatched.", course: "Carnatic Vocal" },
-  { name: "Arun Krishnan", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200", text: "The Guru-Shishya system here is authentic and life-changing. I found my true musical voice.", course: "Mridangam" },
-  { name: "Meera Nair", img: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200", text: "Learning Bharatanatyam here connects you to something timeless. Every class is a spiritual experience.", course: "Bharatanatyam" },
+  { name: "Priya Sharma", img: imgVocal, text: "Nada Gurukulam transformed my understanding of Carnatic music. The personal attention from Gurus is unmatched.", course: "Carnatic Vocal" },
+  { name: "Arun Krishnan", img: imgPercussion, text: "The Guru-Shishya system here is authentic and life-changing. I found my true musical voice.", course: "Mridangam" },
+  { name: "Meera Nair", img: imgBharatanatyam, text: "Learning Bharatanatyam here connects you to something timeless. Every class is a spiritual experience.", course: "Bharatanatyam" },
 ];
 
 const stats = [
@@ -81,10 +92,10 @@ const stats = [
 ];
 
 const facultyShowcase = [
-  { name: "Smt. Revathi Ramachandran", spec: "Carnatic Vocal", img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300" },
-  { name: "Sri Raghunandan Panshikar", spec: "Hindustani Vocal", img: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300" },
-  { name: "Ms. Manasvini Ramachandran", spec: "Bharatanatyam", img: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=300" },
-  { name: "Sri Venkatesh Kumar", spec: "Mridangam", img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300" },
+  { name: "Smt. Revathi Ramachandran", spec: "Carnatic Vocal", img: imgVocal },
+  { name: "Sri Raghunandan Panshikar", spec: "Hindustani Vocal", img: imgChorus },
+  { name: "Ms. Manasvini Ramachandran", spec: "Bharatanatyam", img: imgBharatanatyam },
+  { name: "Sri Venkatesh Kumar", spec: "Mridangam", img: imgPercussion },
 ];
 
 /* ─── Page ─── */
@@ -94,7 +105,7 @@ const Index = () => {
       {/* ══════ Hero ══════ */}
       <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden">
         <img
-          src="https://images.unsplash.com/photo-1598387993441-a364f854c3e1?w=1920&q=80"
+          src={imgMusic13}
           alt="Classical performance"
           className="absolute inset-0 w-full h-full object-cover"
         />
@@ -240,7 +251,7 @@ const Index = () => {
       {/* ══════ Stats ══════ */}
       <section className="relative py-20 overflow-hidden">
         <img
-          src="https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?w=1920&q=80"
+          src={imgConcert}
           alt="Performance"
           className="absolute inset-0 w-full h-full object-cover"
         />
@@ -345,7 +356,7 @@ const Index = () => {
       {/* ══════ CTA ══════ */}
       <section className="relative py-24 overflow-hidden">
         <img
-          src="https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=1920&q=80"
+          src={imgChorus}
           alt="Music"
           className="absolute inset-0 w-full h-full object-cover"
         />

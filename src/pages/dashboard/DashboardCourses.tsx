@@ -4,10 +4,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 
+import imgVocal from "@/assets/gallery/NGZ6R_1512_R.webp";
+import imgBharatanatyam from "@/assets/gallery/NGZ6R_1931_R.webp";
+import imgPercussion from "@/assets/gallery/NGZ6R_6439_R.webp";
+
 const enrolledCourses = [
-  { title: "Carnatic Vocal - Basics", instructor: "Smt. Lakshmi Devi", duration: "6 months", progress: 65, level: "Beginner", image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600" },
-  { title: "Bharatanatyam - Adavus", instructor: "Smt. Meenakshi Iyer", duration: "8 months", progress: 40, level: "Beginner", image: "https://images.unsplash.com/photo-1547153760-18fc86c083c8?w=600" },
-  { title: "Mridangam Foundations", instructor: "Sri. Ramesh Kumar", duration: "12 months", progress: 25, level: "Beginner", image: "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=600" },
+  { title: "Carnatic Vocal - Basics", instructor: "Smt. Lakshmi Devi", duration: "6 months", progress: 65, level: "Beginner", image: imgVocal },
+  { title: "Bharatanatyam - Adavus", instructor: "Smt. Meenakshi Iyer", duration: "8 months", progress: 40, level: "Beginner", image: imgBharatanatyam },
+  { title: "Mridangam Foundations", instructor: "Sri. Ramesh Kumar", duration: "12 months", progress: 25, level: "Beginner", image: imgPercussion },
 ];
 
 const DashboardCourses = () => (

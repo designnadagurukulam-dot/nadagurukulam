@@ -3,6 +3,14 @@ import { Target, Eye } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import SectionDivider from "@/components/SectionDivider";
 
+import imgConcert from "@/assets/gallery/NGR6_M1630.webp";
+import imgPercussion from "@/assets/gallery/NGZ6R_6439_R.webp";
+import imgMusic13 from "@/assets/gallery/NGMUSIC-13.webp";
+import imgChorus from "@/assets/gallery/NGR6M_0933.webp";
+import imgVocal from "@/assets/gallery/NGZ6R_1512_R.webp";
+import imgEnsemble from "@/assets/gallery/NGR6M_2124_R.webp";
+import imgMusic6 from "@/assets/gallery/NGMUSIC-6.webp";
+
 const Section = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
   <motion.section
     initial={{ opacity: 0, y: 30 }}
@@ -16,19 +24,19 @@ const Section = ({ children, className = "" }: { children: React.ReactNode; clas
 );
 
 const milestones = [
-  { year: "2015", title: "Foundation", desc: "Nada Gurukulam founded under Sri Sathya Sai University for Human Excellence.", img: "https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=200" },
-  { year: "2017", title: "First Graduates", desc: "First cohort of students complete the foundation program.", img: "https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?w=200" },
-  { year: "2019", title: "International Reach", desc: "Students from 10+ countries enrolled in online programs.", img: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=200" },
-  { year: "2021", title: "Advanced Programs", desc: "Launch of advanced diploma and degree-level programs.", img: "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=200" },
-  { year: "2023", title: "Global Performances", desc: "Students perform in prestigious venues across 30+ countries.", img: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200" },
-  { year: "2025", title: "Digital Campus", desc: "Full-featured online LMS launched for global learners.", img: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=200" },
+  { year: "2015", title: "Foundation", desc: "Nada Gurukulam founded under Sri Sathya Sai University for Human Excellence.", img: imgPercussion },
+  { year: "2017", title: "First Graduates", desc: "First cohort of students complete the foundation program.", img: imgMusic6 },
+  { year: "2019", title: "International Reach", desc: "Students from 10+ countries enrolled in online programs.", img: imgChorus },
+  { year: "2021", title: "Advanced Programs", desc: "Launch of advanced diploma and degree-level programs.", img: imgVocal },
+  { year: "2023", title: "Global Performances", desc: "Students perform in prestigious venues across 30+ countries.", img: imgConcert },
+  { year: "2025", title: "Digital Campus", desc: "Full-featured online LMS launched for global learners.", img: imgMusic13 },
 ];
 
 const About = () => (
   <div>
     {/* Hero */}
     <section className="relative min-h-[50vh] flex items-center justify-center overflow-hidden">
-      <img src="https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?w=1920&q=80" alt="Campus" className="absolute inset-0 w-full h-full object-cover" />
+      <img src={imgConcert} alt="Campus" className="absolute inset-0 w-full h-full object-cover" />
       <div className="absolute inset-0 bg-gradient-to-br from-[hsl(0_69%_20%/0.88)] to-[hsl(345_75%_15%/0.8)]" />
       <div className="relative z-10 container mx-auto px-4 text-center">
         <p className="font-devanagari text-xl md:text-2xl text-gold mb-3">नादो उपासना</p>
@@ -115,7 +123,7 @@ const About = () => (
         <div className="grid md:grid-cols-5 gap-10 items-center">
           <div className="md:col-span-2 flex justify-center">
             <div className="w-52 h-52 rounded-full overflow-hidden golden-border shadow-xl">
-              <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400" alt="Founder" className="w-full h-full object-cover" loading="lazy" />
+              <img src={imgConcert} alt="Founder" className="w-full h-full object-cover" loading="lazy" />
             </div>
           </div>
           <div className="md:col-span-3">
@@ -154,7 +162,7 @@ const About = () => (
           </div>
           <div className="md:col-span-2 flex justify-center order-1 md:order-2">
             <div className="w-52 h-52 rounded-full overflow-hidden golden-border shadow-xl">
-              <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400" alt="Director" className="w-full h-full object-cover" loading="lazy" />
+              <img src={imgVocal} alt="Director" className="w-full h-full object-cover" loading="lazy" />
             </div>
           </div>
         </div>
@@ -165,7 +173,7 @@ const About = () => (
 
     {/* Philosophy */}
     <section className="relative py-24 overflow-hidden">
-      <img src="https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=1920&q=80" alt="Guru-Shishya" className="absolute inset-0 w-full h-full object-cover" />
+      <img src={imgEnsemble} alt="Guru-Shishya" className="absolute inset-0 w-full h-full object-cover" />
       <div className="absolute inset-0 bg-gradient-to-br from-[hsl(0_69%_20%/0.9)] to-[hsl(345_75%_15%/0.85)]" />
       <div className="relative z-10 container mx-auto px-4 max-w-3xl text-center">
         <h2 className="font-serif text-3xl md:text-4xl font-bold mb-6 text-primary-foreground">Our Philosophy</h2>

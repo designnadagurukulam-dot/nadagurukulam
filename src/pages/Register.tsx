@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import logo from "@/assets/logo.png";
+import imgMusic6 from "@/assets/gallery/NGMUSIC-6.webp";
 
 const Register = () => {
   const [displayName, setDisplayName] = useState("");
@@ -45,7 +46,7 @@ const Register = () => {
       {/* Left - decorative */}
       <div className="hidden lg:flex lg:w-1/2 relative hero-overlay">
         <img
-          src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=1200"
+          src={imgMusic6}
           alt="Musical instruments"
           className="absolute inset-0 w-full h-full object-cover"
         />
