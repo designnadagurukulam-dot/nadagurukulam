@@ -18,6 +18,7 @@ import imgGuruShishya from "@/assets/gallery/NGDANCE-3.webp";
 
 import founderImg from "@/assets/founders/SadguruSriMadhusudanSai.jpg";
 import directorImg from "@/assets/founders/SmtRevathiRamachandran.webp";
+import { facultyMembers } from "@/data/facultyData";
 import campusAerial from "@/assets/campus/NGCampusAerial.jpg";
 import campusAmphitheatre from "@/assets/campus/NGAmphitheatre.jpg";
 import campusReception from "@/assets/campus/NGReception.jpg";
@@ -85,12 +86,8 @@ const stats = [
   { value: 10, label: "Years of Legacy", suffix: "+" },
 ];
 
-const facultyShowcase = [
-  { name: "Sadguru Sri Madhusudan Sai", spec: "Founder & Visionary", img: founderImg },
-  { name: "Smt. Revathi Ramachandran", spec: "Director & Carnatic Vocal", img: directorImg },
-  { name: "Ms. Manasvini Ramachandran", spec: "Bharatanatyam", img: imgGuruShishya },
-  { name: "Sri Venkatesh Kumar", spec: "Mridangam", img: imgPercussion },
-];
+// Use first 5 real faculty members for showcase
+const facultyShowcase = facultyMembers.slice(0, 5);
 
 const campusImages = [
   { src: campusAerial, alt: "Campus Aerial View", className: "col-span-2 row-span-2" },
@@ -352,7 +349,7 @@ const Index = () => {
             className="group mb-6"
           >
             <div className="relative h-[300px] rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500">
-              <img src={founderImg} alt="Sadguru Sri Madhusudan Sai" className="absolute inset-0 w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700" loading="lazy" />
+              <img src={founderImg} alt="Sadguru Sri Madhusudan Sai" className="absolute inset-0 w-full h-full object-cover object-[center_20%] group-hover:scale-105 transition-transform duration-700" loading="lazy" />
               <div className="absolute inset-0 bg-gradient-to-t from-[hsl(0_69%_10%/0.95)] via-[hsl(0_0%_0%/0.2)] to-transparent" />
               <div className="absolute bottom-0 inset-x-0 p-6">
                 <div className="w-12 h-0.5 bg-secondary mb-3 rounded-full" />
@@ -363,25 +360,27 @@ const Index = () => {
             </div>
           </motion.div>
 
-          {/* Director + other faculty */}
-          <div className="grid grid-cols-3 gap-5">
-            {facultyShowcase.slice(1).map((f, i) => (
+          {/* Faculty showcase grid */}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            {facultyShowcase.map((f, i) => (
               <motion.div
-                key={f.name}
+                key={f.id}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.1, duration: 0.5 }}
-                className="group"
+                transition={{ delay: i * 0.08, duration: 0.5 }}
               >
-                <div className="relative h-[200px] rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-500">
-                  <img src={f.img} alt={f.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[hsl(0_0%_0%/0.85)] to-transparent" />
-                  <div className="absolute bottom-0 inset-x-0 p-4">
-                    <h3 className="font-serif text-sm font-bold text-primary-foreground">{f.name}</h3>
-                    <p className="text-secondary text-xs font-medium">{f.spec}</p>
+                <Link to={`/faculty/${f.id}`} className="group block">
+                  <div className="relative h-[200px] rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-1">
+                    <img src={f.image} alt={f.name} className="absolute inset-0 w-full h-full object-cover object-[center_20%] group-hover:scale-105 transition-transform duration-700" loading="lazy" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[hsl(0_0%_0%/0.85)] to-transparent" />
+                    <div className="absolute bottom-0 inset-x-0 p-3">
+                      <h3 className="font-serif text-xs font-bold text-primary-foreground">{f.name}</h3>
+                      <p className="text-secondary text-[10px] font-medium">{f.specialization}</p>
+                    </div>
+                    <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-secondary/30 transition-colors duration-500" />
                   </div>
-                </div>
+                </Link>
               </motion.div>
             ))}
           </div>
