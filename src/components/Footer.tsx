@@ -9,7 +9,7 @@ const Footer = () => {
       <div className="h-[2px] shimmer-line" style={{ background: "linear-gradient(90deg, hsl(0 69% 33%), hsl(43 72% 52%), hsl(0 69% 33%))" }} />
 
       <div className="gradient-maroon text-primary-foreground pattern-overlay relative">
-        <div className="container mx-auto px-4 py-16 relative z-10">
+        <div className="container mx-auto px-4 py-12 relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
             {/* About */}
             <div>

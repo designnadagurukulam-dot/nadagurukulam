@@ -115,7 +115,7 @@ const Gallery = () => {
       <SectionDivider />
 
       {/* ══════ FILTER + MASONRY ══════ */}
-      <section className="py-20 bg-background">
+      <section className="py-16 bg-background">
         <div className="container mx-auto px-4">
           {/* Custom pill tabs with count */}
           <div className="flex flex-wrap justify-center gap-2 mb-14">
@@ -177,7 +177,7 @@ const Gallery = () => {
       <SectionDivider />
 
       {/* ══════ VIDEO GALLERY ══════ */}
-      <section className="py-20 bg-muted/30">
+      <section className="py-16 bg-muted/30">
         <div className="container mx-auto px-4">
           <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="font-serif text-3xl md:text-5xl font-bold text-center mb-14">
             Video Gallery
