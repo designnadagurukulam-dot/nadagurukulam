@@ -23,18 +23,21 @@ const FacultyDetail = () => {
   return (
     <div>
       {/* Hero Banner */}
-      <section className="relative min-h-[50vh] flex items-end overflow-hidden">
-        <img
+      <section className="relative min-h-[55vh] flex items-end overflow-hidden grain-overlay">
+        <motion.img
           src={faculty.image}
           alt={faculty.name}
-          className="absolute inset-0 w-full h-full object-cover object-[center_20%]"
+          className="absolute inset-0 w-full h-full object-cover object-[center_15%]"
+          initial={{ scale: 1.1 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 1.2, ease: "easeOut" }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[hsl(0_69%_10%/0.95)] via-[hsl(0_0%_0%/0.4)] to-[hsl(0_0%_0%/0.1)]" />
-        <div className="relative z-10 container mx-auto px-4 pb-10 pt-24">
+        <div className="absolute inset-0 bg-gradient-to-t from-[hsl(0_69%_10%/0.97)] via-[hsl(0_0%_0%/0.4)] to-[hsl(0_0%_0%/0.1)]" />
+        <div className="relative z-10 container mx-auto px-4 pb-12 pt-28">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.7 }}
           >
             <Button
               asChild
@@ -44,14 +47,14 @@ const FacultyDetail = () => {
             >
               <Link to="/faculty"><ArrowLeft className="h-4 w-4 mr-2" />Back to Faculty</Link>
             </Button>
-            <div className="w-12 h-0.5 bg-secondary rounded-full mb-4" />
+            <div className="w-14 h-0.5 bg-secondary rounded-full mb-4" />
             <h1
-              className="font-serif text-3xl md:text-5xl font-bold text-primary-foreground mb-2"
+              className="font-serif text-4xl md:text-6xl font-bold text-primary-foreground mb-2"
               style={{ textShadow: "0 4px 20px hsl(0 0% 0% / 0.5)" }}
             >
               {faculty.name}
             </h1>
-            <p className="text-secondary text-lg font-medium mb-1">{faculty.specialization}</p>
+            <p className="text-secondary text-lg font-semibold mb-1">{faculty.specialization}</p>
             <p className="text-primary-foreground/50 text-sm">{faculty.title}</p>
           </motion.div>
         </div>
@@ -65,25 +68,31 @@ const FacultyDetail = () => {
           <div className="grid md:grid-cols-3 gap-10">
             {/* Left — Photo + Quick Info */}
             <motion.div
-              initial={{ opacity: 0, x: -20 }}
+              initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2, duration: 0.5 }}
+              transition={{ delay: 0.2, duration: 0.6 }}
               className="md:col-span-1"
             >
-              <div className="rounded-2xl overflow-hidden shadow-xl border-2 border-secondary/10 mb-6">
-                <img
-                  src={faculty.image}
-                  alt={faculty.name}
-                  className="w-full aspect-[3/4] object-cover object-[center_20%]"
-                />
+              <div className="relative vignette-gold">
+                <div className="rounded-2xl overflow-hidden shadow-2xl border-2 border-secondary/15 mb-6">
+                  <img
+                    src={faculty.image}
+                    alt={faculty.name}
+                    className="w-full aspect-[3/4] object-cover object-[center_15%]"
+                  />
+                </div>
               </div>
               <div className="space-y-4">
                 <div className="flex items-center gap-3 text-sm">
-                  <Calendar className="h-4 w-4 text-secondary shrink-0" />
+                  <div className="w-9 h-9 rounded-xl bg-secondary/10 flex items-center justify-center shrink-0">
+                    <Calendar className="h-4 w-4 text-secondary" />
+                  </div>
                   <span className="text-muted-foreground">{faculty.experience} of experience</span>
                 </div>
                 <div className="flex items-center gap-3 text-sm">
-                  <GraduationCap className="h-4 w-4 text-secondary shrink-0" />
+                  <div className="w-9 h-9 rounded-xl bg-secondary/10 flex items-center justify-center shrink-0">
+                    <GraduationCap className="h-4 w-4 text-secondary" />
+                  </div>
                   <span className="text-muted-foreground">{faculty.specialization}</span>
                 </div>
               </div>
@@ -91,26 +100,37 @@ const FacultyDetail = () => {
 
             {/* Right — Bio, Education, Awards */}
             <motion.div
-              initial={{ opacity: 0, x: 20 }}
+              initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3, duration: 0.5 }}
-              className="md:col-span-2 space-y-8"
+              transition={{ delay: 0.3, duration: 0.6 }}
+              className="md:col-span-2 space-y-10"
             >
               {/* About */}
               <div>
-                <h2 className="font-serif text-xl font-bold mb-4 flex items-center gap-2">
-                  <BookOpen className="h-5 w-5 text-secondary" /> About
-                </h2>
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-md">
+                    <BookOpen className="h-5 w-5 text-primary-foreground" />
+                  </div>
+                  <h2 className="font-serif text-xl font-bold">About</h2>
+                </div>
                 <p className="text-muted-foreground leading-relaxed">{faculty.bio}</p>
               </div>
 
-              <div className="w-full h-px bg-border" />
+              {/* Gold ornamental divider */}
+              <div className="flex items-center gap-3">
+                <div className="flex-1 h-px bg-gradient-to-r from-transparent via-secondary/30 to-transparent" />
+                <div className="w-2 h-2 rounded-full bg-secondary/40" />
+                <div className="flex-1 h-px bg-gradient-to-r from-transparent via-secondary/30 to-transparent" />
+              </div>
 
               {/* Education */}
               <div>
-                <h2 className="font-serif text-xl font-bold mb-4 flex items-center gap-2">
-                  <GraduationCap className="h-5 w-5 text-secondary" /> Education
-                </h2>
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-secondary to-accent flex items-center justify-center shadow-md">
+                    <GraduationCap className="h-5 w-5 text-secondary-foreground" />
+                  </div>
+                  <h2 className="font-serif text-xl font-bold">Education</h2>
+                </div>
                 <ul className="space-y-3">
                   {faculty.education.map((edu) => (
                     <li key={edu} className="flex items-start gap-3">
@@ -121,18 +141,26 @@ const FacultyDetail = () => {
                 </ul>
               </div>
 
-              <div className="w-full h-px bg-border" />
+              {/* Gold ornamental divider */}
+              <div className="flex items-center gap-3">
+                <div className="flex-1 h-px bg-gradient-to-r from-transparent via-secondary/30 to-transparent" />
+                <div className="w-2 h-2 rounded-full bg-secondary/40" />
+                <div className="flex-1 h-px bg-gradient-to-r from-transparent via-secondary/30 to-transparent" />
+              </div>
 
               {/* Awards */}
               <div>
-                <h2 className="font-serif text-xl font-bold mb-4 flex items-center gap-2">
-                  <Award className="h-5 w-5 text-secondary" /> Awards & Recognition
-                </h2>
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-md">
+                    <Award className="h-5 w-5 text-primary-foreground" />
+                  </div>
+                  <h2 className="font-serif text-xl font-bold">Awards & Recognition</h2>
+                </div>
                 <div className="flex flex-wrap gap-2">
                   {faculty.awards.map((award) => (
                     <span
                       key={award}
-                      className="inline-flex items-center gap-1.5 text-sm px-4 py-2 rounded-full bg-secondary/10 text-secondary border border-secondary/20"
+                      className="inline-flex items-center gap-1.5 text-sm px-4 py-2 rounded-full bg-secondary/10 text-secondary border border-secondary/20 hover:bg-secondary/15 transition-colors"
                     >
                       <Award className="h-3.5 w-3.5" />
                       {award}

@@ -26,59 +26,82 @@ const faqs = [
 const Admissions = () => (
   <div>
     {/* ══════ HERO ══════ */}
-    <section className="relative min-h-[55vh] flex items-center justify-center overflow-hidden">
-      <img src={campusAmphitheatre} alt="Campus Amphitheatre" className="absolute inset-0 w-full h-full object-cover" />
+    <section className="relative min-h-[55vh] flex items-center justify-center overflow-hidden grain-overlay">
+      <motion.img
+        src={campusAmphitheatre}
+        alt="Campus Amphitheatre"
+        className="absolute inset-0 w-full h-full object-cover"
+        initial={{ scale: 1.1 }}
+        animate={{ scale: 1 }}
+        transition={{ duration: 1.5, ease: "easeOut" }}
+      />
       <div className="absolute inset-0 bg-gradient-to-br from-[hsl(0_69%_10%/0.94)] via-[hsl(0_69%_18%/0.88)] to-[hsl(345_75%_12%/0.82)]" />
+
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {[...Array(5)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute rounded-full bg-secondary/25"
+            style={{ width: `${3 + i % 3 * 2}px`, height: `${3 + i % 3 * 2}px`, left: `${12 + i * 18}%`, top: `${22 + (i * 14) % 50}%` }}
+            animate={{ y: [0, -20, 0], opacity: [0.1, 0.4, 0.1] }}
+            transition={{ repeat: Infinity, duration: 3 + i * 0.5, delay: i * 0.3, ease: "easeInOut" }}
+          />
+        ))}
+      </div>
+
       <div className="relative z-10 container mx-auto px-4 text-center">
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
-          className="font-serif text-4xl md:text-6xl lg:text-7xl font-bold text-primary-foreground mb-4"
-          style={{ textShadow: "0 4px 40px hsl(0 0% 0% / 0.5)" }}
-        >
-          Join Nada Gurukulam
-        </motion.h1>
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="text-primary-foreground/60 max-w-2xl mx-auto text-lg"
-        >
-          Embark on a transformative journey into the sacred world of Indian classical music and dance.
-        </motion.p>
+        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="font-devanagari text-xl text-shimmer-gold mb-3">
+            शिक्षा परम् धर्मम्
+          </motion.p>
+          <h1
+            className="font-serif text-5xl md:text-7xl lg:text-8xl font-bold text-primary-foreground mb-4"
+            style={{ textShadow: "0 4px 40px hsl(0 0% 0% / 0.5)" }}
+          >
+            Join Nada Gurukulam
+          </h1>
+          <p className="text-primary-foreground/55 max-w-2xl mx-auto text-lg">
+            Embark on a transformative journey into the sacred world of Indian classical music and dance.
+          </p>
+        </motion.div>
       </div>
     </section>
 
     <SectionDivider />
 
     {/* ══════ WHAT WE OFFER ══════ */}
-    <section className="py-16 bg-background">
+    <section className="py-20 bg-background">
       <div className="container mx-auto px-4 max-w-5xl">
         <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="font-serif text-3xl md:text-5xl font-bold text-center mb-4">
           What We <span className="text-gradient-gold">Offer</span>
         </motion.h2>
         <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.2 }} className="text-center text-muted-foreground max-w-2xl mx-auto mb-16">
-          Nada Gurukulam provides a nurturing environment for serious seekers of Indian classical arts, combining timeless traditions with holistic education.
+          Nada Gurukulam provides a nurturing environment for serious seekers of Indian classical arts.
         </motion.p>
 
-        <div className="grid sm:grid-cols-2 gap-8">
+        <div className="grid sm:grid-cols-2 gap-6">
           {highlights.map((h, i) => (
             <motion.div
               key={h.title}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.1, duration: 0.5 }}
+              transition={{ delay: i * 0.1, duration: 0.6 }}
               className="group"
             >
-              <div className="relative h-full rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-card">
+              <div className="relative h-full rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-700 hover:-translate-y-3 bg-card">
                 <div className="h-1.5 bg-gradient-to-r from-primary to-secondary" />
-                <div className="p-8">
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                <div className="p-7">
+                  <motion.div
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    whileInView={{ scale: 1, opacity: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.2 + i * 0.1, type: "spring" }}
+                    className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center mb-5 shadow-lg group-hover:scale-110 transition-transform duration-500"
+                  >
                     <h.icon className="h-7 w-7 text-primary-foreground" />
-                  </div>
-                  <h3 className="font-serif text-2xl font-bold mb-3">{h.title}</h3>
+                  </motion.div>
+                  <h3 className="font-serif text-xl font-bold mb-3">{h.title}</h3>
                   <p className="text-muted-foreground text-sm leading-relaxed">{h.desc}</p>
                 </div>
               </div>
@@ -94,6 +117,19 @@ const Admissions = () => (
     <section className="relative py-28 overflow-hidden">
       <img src={imgDancePerf} alt="Celebration" className="absolute inset-0 w-full h-full object-cover" />
       <div className="absolute inset-0 bg-gradient-to-br from-[hsl(0_69%_10%/0.95)] to-[hsl(345_75%_12%/0.90)]" />
+
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {[...Array(3)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute rounded-full bg-secondary/20"
+            style={{ width: `${4 + i * 2}px`, height: `${4 + i * 2}px`, left: `${25 + i * 25}%`, top: `${30 + (i * 15) % 40}%` }}
+            animate={{ y: [0, -15, 0], opacity: [0.1, 0.3, 0.1] }}
+            transition={{ repeat: Infinity, duration: 3.5 + i, delay: i * 0.5, ease: "easeInOut" }}
+          />
+        ))}
+      </div>
+
       <div className="relative z-10 container mx-auto px-4 max-w-3xl text-center">
         <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
           <GraduationCap className="h-12 w-12 text-secondary mx-auto mb-6" />
@@ -113,19 +149,19 @@ const Admissions = () => (
     <section className="py-20 bg-background">
       <div className="container mx-auto px-4 max-w-3xl">
         <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="font-serif text-3xl md:text-5xl font-bold text-center mb-12">
-          <HelpCircle className="inline h-8 w-8 mb-1 mr-2" />
+          <HelpCircle className="inline h-8 w-8 mb-1 mr-2 text-secondary" />
           Frequently Asked Questions
         </motion.h2>
         <Accordion type="single" collapsible className="space-y-3">
           {faqs.map((faq, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 15 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.05 }}
+              transition={{ delay: i * 0.06, duration: 0.4 }}
             >
-              <AccordionItem value={`faq-${i}`} className="bg-card rounded-xl border border-border/50 px-6 hover:shadow-md transition-all duration-300 hover:border-secondary/20">
+              <AccordionItem value={`faq-${i}`} className="bg-card rounded-xl border border-border/50 px-6 hover:shadow-lg transition-all duration-500 hover:border-secondary/20">
                 <AccordionTrigger className="text-sm font-medium text-left py-5 hover:text-primary transition-colors">{faq.q}</AccordionTrigger>
                 <AccordionContent className="text-sm text-muted-foreground pb-5">{faq.a}</AccordionContent>
               </AccordionItem>
@@ -136,18 +172,34 @@ const Admissions = () => (
     </section>
 
     {/* ══════ CTA ══════ */}
-    <section className="relative py-20 overflow-hidden">
+    <section className="relative py-24 overflow-hidden">
       <div className="absolute inset-0 gradient-maroon" />
       <motion.div
-        className="absolute inset-0 opacity-20"
+        className="absolute inset-0 opacity-25"
         animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
         transition={{ repeat: Infinity, duration: 8, ease: "easeInOut" }}
         style={{ background: "linear-gradient(135deg, hsl(43 72% 52% / 0.15), transparent, hsl(43 72% 52% / 0.15))", backgroundSize: "200% 200%" }}
       />
+
+      {/* Floating musical notes */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {["♪", "♫", "♩"].map((note, i) => (
+          <motion.span
+            key={i}
+            className="absolute text-secondary/12 text-3xl font-serif"
+            style={{ left: `${20 + i * 28}%`, top: `${25 + (i * 20) % 45}%` }}
+            animate={{ y: [0, -25, 0], rotate: [0, 10, -10, 0], opacity: [0.08, 0.2, 0.08] }}
+            transition={{ repeat: Infinity, duration: 4 + i, delay: i * 0.7, ease: "easeInOut" }}
+          >
+            {note}
+          </motion.span>
+        ))}
+      </div>
+
       <div className="container mx-auto px-4 text-center relative z-10">
         <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
           <h2 className="font-serif text-4xl md:text-6xl font-bold text-primary-foreground mb-4">Interested in Joining?</h2>
-          <p className="text-primary-foreground/60 mb-10 max-w-lg mx-auto text-lg">We'd love to hear from you. Reach out to us to learn more about our programs and how to begin your journey.</p>
+          <p className="text-primary-foreground/55 mb-12 max-w-lg mx-auto text-lg">We'd love to hear from you. Reach out to learn more about our programs.</p>
           <Button asChild size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 text-lg px-14 h-14 shadow-2xl hover:shadow-secondary/30 transition-all hover:-translate-y-1 animate-glow-pulse">
             <Link to="/contact">
               <ArrowRight className="h-5 w-5 mr-2" />

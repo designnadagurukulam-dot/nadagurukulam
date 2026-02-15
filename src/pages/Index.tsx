@@ -14,10 +14,8 @@ import imgChorus from "@/assets/gallery/NGR6M_0933.webp";
 import imgDanceGroup from "@/assets/gallery/NGDSC_7428.webp";
 import imgMaleChorus from "@/assets/gallery/NGDSC_8160.webp";
 import imgSitar from "@/assets/gallery/NGMUSIC-2.webp";
-import imgGuruShishya from "@/assets/gallery/NGDANCE-3.webp";
 
 import founderImg from "@/assets/founders/SadguruSriMadhusudanSai.jpg";
-import directorImg from "@/assets/founders/SmtRevathiRamachandran.webp";
 import { facultyMembers } from "@/data/facultyData";
 import campusAerial from "@/assets/campus/NGCampusAerial.jpg";
 import campusAmphitheatre from "@/assets/campus/NGAmphitheatre.jpg";
@@ -65,12 +63,12 @@ const features = [
 ];
 
 const courses = [
-  { name: "Carnatic Vocal", img: imgVocal, desc: "Master the melodic intricacies of South Indian classical music tradition.", teacher: "Smt. Revathi Ramachandran", level: "Beginner–Advanced" },
-  { name: "Bharatanatyam", img: imgDanceGroup, desc: "Learn the ancient temple dance form with grace, precision, and devotion.", teacher: "Ms. Manasvini Ramachandran", level: "Beginner–Advanced" },
-  { name: "Mridangam", img: imgPercussion, desc: "Explore the rhythmic heart of Carnatic music with traditional percussion.", teacher: "Sri Venkatesh Kumar", level: "Beginner–Intermediate" },
-  { name: "Hindustani Vocal", img: imgMaleChorus, desc: "Dive into the soulful ragas of North Indian classical music.", teacher: "Sri Raghunandan Panshikar", level: "Beginner–Advanced" },
-  { name: "Sitar", img: imgSitar, desc: "Discover the divine sound of the sitar in classical tradition.", teacher: "Sri Shashank Subramanyam", level: "Beginner–Advanced" },
-  { name: "Tabla", img: imgPercussion, desc: "Master complex rhythmic patterns of Hindustani percussion.", teacher: "Sri Abhishek Mishra", level: "Beginner–Intermediate" },
+  { name: "Carnatic Vocal", img: imgVocal },
+  { name: "Bharatanatyam", img: imgDanceGroup },
+  { name: "Mridangam", img: imgPercussion },
+  { name: "Hindustani Vocal", img: imgMaleChorus },
+  { name: "Sitar", img: imgSitar },
+  { name: "Tabla", img: imgPercussion },
 ];
 
 const testimonials = [
@@ -86,7 +84,6 @@ const stats = [
   { value: 10, label: "Years of Legacy", suffix: "+" },
 ];
 
-// Use first 5 real faculty members for showcase
 const facultyShowcase = facultyMembers.slice(0, 5);
 
 const campusImages = [
@@ -96,6 +93,29 @@ const campusImages = [
   { src: campusVault, alt: "Heritage Passage", className: "" },
   { src: campusVerandah, alt: "Verandah Walkway", className: "col-span-2" },
 ];
+
+/* ─── Mandala SVG Ornament ─── */
+const GoldenMandala = () => (
+  <motion.div
+    className="absolute pointer-events-none opacity-[0.06]"
+    style={{ width: "700px", height: "700px", top: "50%", left: "50%", x: "-50%", y: "-50%" }}
+    animate={{ rotate: 360 }}
+    transition={{ repeat: Infinity, duration: 60, ease: "linear" }}
+  >
+    <svg viewBox="0 0 200 200" fill="none" className="w-full h-full text-secondary">
+      <circle cx="100" cy="100" r="95" stroke="currentColor" strokeWidth="0.3" />
+      <circle cx="100" cy="100" r="75" stroke="currentColor" strokeWidth="0.3" />
+      <circle cx="100" cy="100" r="55" stroke="currentColor" strokeWidth="0.3" />
+      <circle cx="100" cy="100" r="35" stroke="currentColor" strokeWidth="0.3" />
+      {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((angle) => (
+        <line key={angle} x1="100" y1="5" x2="100" y2="40" stroke="currentColor" strokeWidth="0.4" transform={`rotate(${angle} 100 100)`} />
+      ))}
+      {[0, 45, 90, 135, 180, 225, 270, 315].map((angle) => (
+        <path key={`p-${angle}`} d="M100 10 L103 45 L100 38 L97 45 Z" fill="currentColor" opacity="0.5" transform={`rotate(${angle} 100 100)`} />
+      ))}
+    </svg>
+  </motion.div>
+);
 
 /* ─── Page ─── */
 const Index = () => {
@@ -107,30 +127,37 @@ const Index = () => {
   return (
     <div>
       {/* ══════ HERO ══════ */}
-      <section ref={heroRef} className="relative min-h-[85vh] flex items-center justify-center overflow-hidden">
+      <section ref={heroRef} className="relative min-h-[90vh] flex items-center justify-center overflow-hidden grain-overlay">
         <motion.img
           src={imgMusic13}
           alt="Classical performance"
           className="absolute inset-0 w-full h-full object-cover"
           style={{ y: heroY }}
+          initial={{ scale: 1.15 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 2, ease: "easeOut" }}
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(0_69%_10%/0.94)] via-[hsl(0_69%_18%/0.88)] to-[hsl(345_75%_12%/0.82)]" />
-        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at center, hsl(43 72% 52% / 0.06) 0%, transparent 60%)" }} />
+        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(0_69%_10%/0.94)] via-[hsl(0_69%_18%/0.88)] to-[hsl(345_75%_12%/0.80)]" />
+        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at center, hsl(43 72% 52% / 0.08) 0%, transparent 60%)" }} />
+
+        {/* Rotating mandala behind text */}
+        <GoldenMandala />
 
         {/* Floating particles */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {[...Array(8)].map((_, i) => (
+          {[...Array(12)].map((_, i) => (
             <motion.div
               key={i}
-              className="absolute rounded-full bg-secondary/20"
+              className="absolute rounded-full"
               style={{
-                width: `${4 + (i % 3) * 3}px`,
-                height: `${4 + (i % 3) * 3}px`,
-                left: `${10 + i * 12}%`,
-                top: `${20 + (i * 17) % 60}%`,
+                width: `${3 + (i % 4) * 2}px`,
+                height: `${3 + (i % 4) * 2}px`,
+                left: `${5 + i * 8}%`,
+                top: `${15 + (i * 19) % 65}%`,
+                background: i % 3 === 0 ? "hsl(43 72% 52% / 0.4)" : "hsl(0 0% 100% / 0.2)",
               }}
-              animate={{ y: [0, -20, 0], opacity: [0.2, 0.5, 0.2] }}
-              transition={{ repeat: Infinity, duration: 3 + i * 0.5, delay: i * 0.3, ease: "easeInOut" }}
+              animate={{ y: [0, -30, 0], opacity: [0.15, 0.55, 0.15] }}
+              transition={{ repeat: Infinity, duration: 3 + i * 0.4, delay: i * 0.25, ease: "easeInOut" }}
             />
           ))}
         </div>
@@ -139,24 +166,30 @@ const Index = () => {
           <motion.p initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="font-devanagari text-3xl md:text-5xl mb-4 text-shimmer-gold">
             रसो वै सः
           </motion.p>
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3, duration: 0.8 }} className="text-primary-foreground/50 italic text-sm md:text-base mb-8 tracking-[0.3em] uppercase">
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3, duration: 0.8 }} className="text-primary-foreground/45 italic text-sm md:text-base mb-10 tracking-[0.3em] uppercase">
             "He is the essence of all Rasa"
           </motion.p>
 
-          <motion.h1 className="font-serif text-5xl md:text-7xl lg:text-8xl font-bold text-primary-foreground leading-tight mb-6" style={{ textShadow: "0 4px 40px hsl(0 0% 0% / 0.5)" }}>
-            {"Nada Gurukulam".split(" ").map((word, i) => (
-              <motion.span key={i} initial={{ opacity: 0, y: 40, filter: "blur(10px)" }} animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} transition={{ delay: 0.5 + i * 0.2, duration: 0.8, ease: "easeOut" }} className="inline-block mr-4">
-                {word}
+          <motion.h1 className="font-serif text-5xl md:text-7xl lg:text-[5.5rem] font-bold text-primary-foreground leading-tight mb-7" style={{ textShadow: "0 4px 40px hsl(0 0% 0% / 0.5)" }}>
+            {"Nada Gurukulam".split("").map((char, i) => (
+              <motion.span
+                key={i}
+                initial={{ opacity: 0, y: 40, filter: "blur(10px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                transition={{ delay: 0.5 + i * 0.04, duration: 0.6, ease: "easeOut" }}
+                className="inline-block"
+              >
+                {char === " " ? "\u00A0" : char}
               </motion.span>
             ))}
           </motion.h1>
 
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1, duration: 0.8 }} className="text-primary-foreground/65 text-lg md:text-xl mb-14 max-w-2xl mx-auto leading-relaxed">
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2, duration: 0.8 }} className="text-primary-foreground/60 text-lg md:text-xl mb-14 max-w-2xl mx-auto leading-relaxed">
             Traditional Guru-Shishya System meets Modern Education in Indian Classical Music & Dance
           </motion.p>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.3, duration: 0.6 }} className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 text-base px-10 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-1 h-13">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.5, duration: 0.6 }} className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button asChild size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 text-base px-10 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-1 h-13 animate-glow-pulse">
               <Link to="/courses"><Sparkles className="h-4 w-4 mr-2" />Explore Courses</Link>
             </Button>
             <Button asChild size="lg" variant="outline" className="border-primary-foreground/25 text-primary-foreground hover:bg-primary-foreground/10 text-base px-10 backdrop-blur-sm h-13">
@@ -173,8 +206,8 @@ const Index = () => {
 
       <SectionDivider />
 
-      {/* ══════ FOUNDER'S MESSAGE — Priority section ══════ */}
-      <section className="py-16 bg-background">
+      {/* ══════ FOUNDER'S MESSAGE ══════ */}
+      <section className="py-20 bg-background">
         <div className="container mx-auto px-4 max-w-5xl">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -184,19 +217,27 @@ const Index = () => {
             className="grid md:grid-cols-5 gap-10 items-center"
           >
             <div className="md:col-span-2 flex justify-center">
-              <div className="relative">
-                <div className="w-56 h-56 md:w-64 md:h-64 rounded-2xl overflow-hidden shadow-2xl border-2 border-secondary/20">
-                  <img src={founderImg} alt="Sadguru Sri Madhusudan Sai" className="w-full h-full object-cover" />
-                </div>
-                <div className="absolute -top-3 -left-3 w-10 h-10 border-t-2 border-l-2 border-secondary rounded-tl-lg" />
-                <div className="absolute -bottom-3 -right-3 w-10 h-10 border-b-2 border-r-2 border-secondary rounded-br-lg" />
+              <div className="relative vignette-gold">
+                <motion.div
+                  className="w-60 h-60 md:w-72 md:h-72 rounded-2xl overflow-hidden shadow-2xl border-2 border-secondary/25"
+                  whileInView={{ scale: [0.95, 1] }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.8 }}
+                >
+                  <img src={founderImg} alt="Sadguru Sri Madhusudan Sai" className="w-full h-full object-cover object-[center_15%]" />
+                </motion.div>
+                {/* Corner ornaments */}
+                <div className="absolute -top-4 -left-4 w-12 h-12 border-t-2 border-l-2 border-secondary rounded-tl-xl" />
+                <div className="absolute -bottom-4 -right-4 w-12 h-12 border-b-2 border-r-2 border-secondary rounded-br-xl" />
+                <div className="absolute -top-4 -right-4 w-6 h-6 border-t-2 border-r-2 border-secondary/30 rounded-tr-lg" />
+                <div className="absolute -bottom-4 -left-4 w-6 h-6 border-b-2 border-l-2 border-secondary/30 rounded-bl-lg" />
               </div>
             </div>
             <div className="md:col-span-3">
               <span className="text-secondary text-xs tracking-[0.3em] uppercase font-semibold">Founder's Message</span>
               <h2 className="font-serif text-2xl md:text-3xl font-bold mt-2 mb-1">Sadguru Sri Madhusudan Sai</h2>
               <p className="text-muted-foreground text-sm mb-2">Founder, Nada Gurukulam</p>
-              <div className="w-10 h-0.5 bg-secondary rounded-full mb-4" />
+              <div className="w-12 h-0.5 bg-secondary rounded-full mb-5" />
               <blockquote className="border-l-4 border-secondary/40 pl-5 italic text-foreground/70 leading-relaxed text-sm md:text-base mb-3">
                 "nāda brahma, says our scriptures. Sound is divine or 'parameṣṭi', as it is called. And while the seven notes of music have been inspired by various sounds in creation or 'sṛṣṭi', it is the singular privilege of humans or 'vyaṣṭi' to sing and play music. The music that comes from 'parameṣṭi' to 'sṛṣṭi' to 'vyaṣṭi' must take all of us – samaṣṭi back to divinity."
               </blockquote>
@@ -210,34 +251,33 @@ const Index = () => {
 
       <SectionDivider />
 
-      {/* ══════ FEATURES — Compact 3-column grid ══════ */}
-      <section className="py-16 bg-muted/30">
+      {/* ══════ FEATURES ══════ */}
+      <section className="py-20 bg-muted/30">
         <div className="container mx-auto px-4">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
             <h2 className="font-serif text-3xl md:text-4xl font-bold text-center mb-3">
               Why <span className="text-gradient-gold">Nada Gurukulam</span>?
             </h2>
-            <p className="text-center text-muted-foreground max-w-2xl mx-auto mb-10 text-sm">
+            <p className="text-center text-muted-foreground max-w-2xl mx-auto mb-12 text-sm">
               Blending centuries-old tradition with contemporary pedagogy to create extraordinary artists.
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-5 max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {features.map((f, i) => (
               <motion.div
                 key={f.title}
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.1, duration: 0.5 }}
+                transition={{ delay: i * 0.15, duration: 0.6 }}
                 className="group"
               >
-                <div className="relative h-full rounded-2xl bg-card shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-1 overflow-hidden">
-                  {/* Left gold accent on hover */}
-                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-secondary rounded-r-full scale-y-0 group-hover:scale-y-100 transition-transform duration-500 origin-center" />
-                  <div className="p-6">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-secondary/20 to-secondary/5 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                      <f.icon className="h-6 w-6 text-secondary" />
+                <div className="relative h-full rounded-2xl bg-card shadow-lg hover:shadow-2xl transition-all duration-700 hover:-translate-y-2 overflow-hidden">
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-secondary rounded-r-full scale-y-0 group-hover:scale-y-100 transition-transform duration-700 origin-center" />
+                  <div className="p-7">
+                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-secondary/20 to-secondary/5 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-500">
+                      <f.icon className="h-7 w-7 text-secondary" />
                     </div>
                     <h3 className="font-serif text-lg font-bold mb-2">{f.title}</h3>
                     <p className="text-muted-foreground text-sm leading-relaxed">{f.desc}</p>
@@ -251,12 +291,12 @@ const Index = () => {
 
       <SectionDivider />
 
-      {/* ══════ COURSES — Portrait cards ══════ */}
-      <section className="py-16 bg-background">
+      {/* ══════ COURSES — Full-bleed name-only cards ══════ */}
+      <section className="py-20 bg-background">
         <div className="container mx-auto px-4">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
             <h2 className="font-serif text-3xl md:text-4xl font-bold text-center mb-3">Our Programs</h2>
-            <p className="text-center text-muted-foreground max-w-2xl mx-auto mb-10 text-sm">
+            <p className="text-center text-muted-foreground max-w-2xl mx-auto mb-12 text-sm">
               Comprehensive programs in vocal, instrumental, and dance traditions.
             </p>
           </motion.div>
@@ -265,32 +305,28 @@ const Index = () => {
             {courses.map((c, i) => (
               <motion.div
                 key={c.name}
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.08, duration: 0.5 }}
                 className="group"
               >
-                <div className="relative h-[320px] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 card-premium">
-                  <img src={c.img} alt={c.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" loading="lazy" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[hsl(0_0%_0%/0.9)] via-[hsl(0_0%_0%/0.3)] to-transparent" />
-                  <div className="absolute top-3 right-3">
-                    <span className="badge-gold text-[10px]">{c.level}</span>
+                <Link to="/courses" className="block">
+                  <div className="relative h-[320px] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-700 hover:-translate-y-2 card-premium">
+                    <img src={c.img} alt={c.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-[1s]" loading="lazy" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[hsl(0_0%_0%/0.9)] via-[hsl(0_0%_0%/0.2)] to-transparent" />
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 bg-gradient-to-t from-[hsl(43_72%_52%/0.1)] via-transparent to-transparent" />
+                    <div className="absolute bottom-0 inset-x-0 p-6">
+                      <div className="w-8 h-0.5 bg-secondary rounded-full mb-3 group-hover:w-14 transition-all duration-500" />
+                      <h3 className="font-serif text-2xl font-bold text-primary-foreground" style={{ textShadow: "0 2px 15px hsl(0 0% 0% / 0.6)" }}>{c.name}</h3>
+                    </div>
                   </div>
-                  <div className="absolute bottom-0 inset-x-0 p-5 translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
-                    <h3 className="font-serif text-xl font-bold text-primary-foreground mb-0.5" style={{ textShadow: "0 2px 10px hsl(0 0% 0% / 0.5)" }}>{c.name}</h3>
-                    <p className="text-primary-foreground/60 text-xs mb-2">{c.teacher}</p>
-                    <p className="text-primary-foreground/50 text-xs leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-500 mb-3">{c.desc}</p>
-                    <Button asChild size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 opacity-0 group-hover:opacity-100 transition-all duration-500 shadow-lg text-xs h-8">
-                      <Link to="/courses">Learn More</Link>
-                    </Button>
-                  </div>
-                </div>
+                </Link>
               </motion.div>
             ))}
           </div>
 
-          <div className="text-center mt-10">
+          <div className="text-center mt-12">
             <Button asChild variant="outline" size="lg" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground px-10">
               <Link to="/courses">View All Courses</Link>
             </Button>
@@ -299,12 +335,12 @@ const Index = () => {
       </section>
 
       {/* ══════ STATS ══════ */}
-      <section className="relative py-16 overflow-hidden">
+      <section className="relative py-20 overflow-hidden">
         <img src={imgConcert} alt="Performance" className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-br from-[hsl(0_69%_10%/0.95)] to-[hsl(345_75%_12%/0.92)]" />
         <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E\")" }} />
         <div className="container mx-auto px-4 relative z-10">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((s, i) => {
               const { count, ref } = useCounter(s.value);
               return (
@@ -317,9 +353,10 @@ const Index = () => {
                   transition={{ delay: i * 0.15, duration: 0.5 }}
                   className={`text-center relative ${i < 3 ? "md:border-r md:border-primary-foreground/10" : ""}`}
                 >
-                  <p className="font-serif text-4xl md:text-5xl font-bold text-shimmer-gold mb-1">
+                  <p className="font-serif text-5xl md:text-6xl font-bold text-shimmer-gold mb-2">
                     {count}{s.suffix}
                   </p>
+                  <div className="w-8 h-px bg-secondary/30 mx-auto mb-2" />
                   <p className="text-primary-foreground/50 text-xs tracking-[0.2em] uppercase">{s.label}</p>
                 </motion.div>
               );
@@ -330,12 +367,12 @@ const Index = () => {
 
       <SectionDivider />
 
-      {/* ══════ FACULTY — Portrait cards ══════ */}
-      <section className="py-16 bg-background">
+      {/* ══════ FACULTY ══════ */}
+      <section className="py-20 bg-background">
         <div className="container mx-auto px-4">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
             <h2 className="font-serif text-3xl md:text-4xl font-bold text-center mb-3">Our Esteemed <span className="text-gradient-gold">Gurus</span></h2>
-            <p className="text-center text-muted-foreground max-w-2xl mx-auto mb-10 text-sm">
+            <p className="text-center text-muted-foreground max-w-2xl mx-auto mb-12 text-sm">
               Learn from masters who have dedicated their lives to classical arts.
             </p>
           </motion.div>
@@ -348,15 +385,15 @@ const Index = () => {
             transition={{ duration: 0.6 }}
             className="group mb-6"
           >
-            <div className="relative h-[300px] rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500">
-              <img src={founderImg} alt="Sadguru Sri Madhusudan Sai" className="absolute inset-0 w-full h-full object-cover object-[center_20%] group-hover:scale-105 transition-transform duration-700" loading="lazy" />
+            <div className="relative h-[320px] rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-700">
+              <img src={founderImg} alt="Sadguru Sri Madhusudan Sai" className="absolute inset-0 w-full h-full object-cover object-[center_15%] group-hover:scale-105 transition-transform duration-[1s]" loading="lazy" />
               <div className="absolute inset-0 bg-gradient-to-t from-[hsl(0_69%_10%/0.95)] via-[hsl(0_0%_0%/0.2)] to-transparent" />
-              <div className="absolute bottom-0 inset-x-0 p-6">
-                <div className="w-12 h-0.5 bg-secondary mb-3 rounded-full" />
-                <h3 className="font-serif text-2xl font-bold text-primary-foreground mb-1" style={{ textShadow: "0 2px 10px hsl(0 0% 0% / 0.5)" }}>Sadguru Sri Madhusudan Sai</h3>
-                <p className="text-secondary text-sm font-medium">Founder & Visionary</p>
+              <div className="absolute bottom-0 inset-x-0 p-7">
+                <div className="w-14 h-0.5 bg-secondary mb-3 rounded-full" />
+                <h3 className="font-serif text-2xl md:text-3xl font-bold text-primary-foreground mb-1" style={{ textShadow: "0 2px 10px hsl(0 0% 0% / 0.5)" }}>Sadguru Sri Madhusudan Sai</h3>
+                <p className="text-secondary text-sm font-semibold">Founder & Visionary</p>
               </div>
-              <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-secondary/30 transition-colors duration-500" />
+              <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-secondary/30 transition-all duration-700" />
             </div>
           </motion.div>
 
@@ -365,27 +402,27 @@ const Index = () => {
             {facultyShowcase.map((f, i) => (
               <motion.div
                 key={f.id}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.08, duration: 0.5 }}
               >
                 <Link to={`/faculty/${f.id}`} className="group block">
-                  <div className="relative h-[200px] rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-1">
-                    <img src={f.image} alt={f.name} className="absolute inset-0 w-full h-full object-cover object-[center_20%] group-hover:scale-105 transition-transform duration-700" loading="lazy" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[hsl(0_0%_0%/0.85)] to-transparent" />
+                  <div className="relative h-[220px] rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-700 hover:-translate-y-2">
+                    <img src={f.image} alt={f.name} className="absolute inset-0 w-full h-full object-cover object-[center_15%] group-hover:scale-105 transition-transform duration-[1s]" loading="lazy" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[hsl(0_0%_0%/0.88)] to-transparent" />
                     <div className="absolute bottom-0 inset-x-0 p-3">
                       <h3 className="font-serif text-xs font-bold text-primary-foreground">{f.name}</h3>
                       <p className="text-secondary text-[10px] font-medium">{f.specialization}</p>
                     </div>
-                    <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-secondary/30 transition-colors duration-500" />
+                    <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-secondary/30 transition-all duration-700" />
                   </div>
                 </Link>
               </motion.div>
             ))}
           </div>
 
-          <div className="text-center mt-10">
+          <div className="text-center mt-12">
             <Button asChild variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground px-8">
               <Link to="/faculty">Meet All Gurus</Link>
             </Button>
@@ -396,9 +433,9 @@ const Index = () => {
       <SectionDivider />
 
       {/* ══════ CAMPUS — Bento grid ══════ */}
-      <section className="py-16 bg-muted/30">
+      <section className="py-20 bg-muted/30">
         <div className="container mx-auto px-4">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-10">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
             <div className="flex items-center justify-center gap-3 mb-3">
               <Building2 className="h-5 w-5 text-secondary" />
               <h2 className="font-serif text-3xl md:text-4xl font-bold">Our Campus</h2>
@@ -408,7 +445,7 @@ const Index = () => {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-3 gap-3 max-w-5xl mx-auto auto-rows-[160px]">
+          <div className="grid grid-cols-3 gap-3 max-w-5xl mx-auto auto-rows-[180px]">
             {campusImages.map((img, i) => (
               <motion.div
                 key={img.alt}
@@ -419,7 +456,7 @@ const Index = () => {
                 className={`${img.className} rounded-2xl overflow-hidden shadow-lg group relative cursor-pointer`}
               >
                 <img src={img.src} alt={img.alt} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" loading="lazy" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[hsl(0_0%_0%/0.7)] via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-4">
+                <div className="absolute inset-0 bg-gradient-to-t from-[hsl(0_0%_0%/0.75)] via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-4">
                   <span className="text-primary-foreground text-xs font-semibold" style={{ textShadow: "0 1px 4px hsl(0 0% 0% / 0.5)" }}>{img.alt}</span>
                 </div>
               </motion.div>
@@ -431,11 +468,11 @@ const Index = () => {
       <SectionDivider />
 
       {/* ══════ TESTIMONIALS ══════ */}
-      <section className="py-16 bg-background">
+      <section className="py-20 bg-background">
         <div className="container mx-auto px-4">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
             <h2 className="font-serif text-3xl md:text-4xl font-bold text-center mb-3">What Our Students Say</h2>
-            <p className="text-center text-muted-foreground max-w-2xl mx-auto mb-10 text-sm">
+            <p className="text-center text-muted-foreground max-w-2xl mx-auto mb-12 text-sm">
               Hear from those who have walked the path of musical excellence.
             </p>
           </motion.div>
@@ -444,20 +481,22 @@ const Index = () => {
             {testimonials.map((t, i) => (
               <motion.div
                 key={t.name}
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.15, duration: 0.5 }}
+                transition={{ delay: i * 0.15, duration: 0.6 }}
                 className="group"
               >
-                <div className="relative h-full rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
+                <div className="relative h-full rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-700 hover:-translate-y-2">
                   <div className="absolute inset-0">
-                    <img src={t.img} alt="" className="w-full h-full object-cover opacity-20 group-hover:opacity-25 transition-opacity duration-500" />
+                    <img src={t.img} alt="" className="w-full h-full object-cover opacity-15 group-hover:opacity-20 transition-opacity duration-500" />
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-br from-card/95 to-card/85" />
-                  <div className="relative p-6">
-                    <Quote className="h-8 w-8 text-secondary/30 mb-3" />
-                    <p className="text-foreground/80 text-sm leading-relaxed mb-6 italic">"{t.text}"</p>
+                  <div className="relative p-7">
+                    {/* Large decorative quote */}
+                    <span className="quote-decorative">"</span>
+                    <Quote className="h-7 w-7 text-secondary/25 mb-4 relative z-10" />
+                    <p className="text-foreground/80 text-sm leading-relaxed mb-6 italic relative z-10">"{t.text}"</p>
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-secondary/30">
                         <img src={t.img} alt={t.name} className="w-full h-full object-cover" />
@@ -483,26 +522,42 @@ const Index = () => {
       </section>
 
       {/* ══════ CTA ══════ */}
-      <section className="relative py-20 overflow-hidden">
+      <section className="relative py-24 overflow-hidden">
         <img src={imgChorus} alt="Music" className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-br from-[hsl(0_69%_10%/0.95)] to-[hsl(345_75%_12%/0.90)]" />
         <motion.div
           className="absolute inset-0 opacity-30"
           animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
           transition={{ repeat: Infinity, duration: 8, ease: "easeInOut" }}
-          style={{ background: "linear-gradient(135deg, hsl(43 72% 52% / 0.1), transparent, hsl(0 69% 33% / 0.1))", backgroundSize: "200% 200%" }}
+          style={{ background: "linear-gradient(135deg, hsl(43 72% 52% / 0.12), transparent, hsl(0 69% 33% / 0.12))", backgroundSize: "200% 200%" }}
         />
+
+        {/* Floating musical notes */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {["♪", "♫", "♩", "♬"].map((note, i) => (
+            <motion.span
+              key={i}
+              className="absolute text-secondary/15 text-3xl font-serif"
+              style={{ left: `${15 + i * 22}%`, top: `${20 + (i * 20) % 50}%` }}
+              animate={{ y: [0, -30, 0], rotate: [0, 15, -15, 0], opacity: [0.1, 0.25, 0.1] }}
+              transition={{ repeat: Infinity, duration: 4 + i, delay: i * 0.7, ease: "easeInOut" }}
+            >
+              {note}
+            </motion.span>
+          ))}
+        </div>
+
         <div className="relative z-10 container mx-auto px-4 text-center">
           <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}>
-            <Music className="h-8 w-8 text-secondary/60 mx-auto mb-5" />
-            <h2 className="font-serif text-3xl md:text-5xl font-bold text-primary-foreground mb-4 leading-tight">
+            <Music className="h-8 w-8 text-secondary/50 mx-auto mb-5" />
+            <h2 className="font-serif text-4xl md:text-6xl font-bold text-primary-foreground mb-4 leading-tight">
               Begin Your Musical<br />
               <span className="text-shimmer-gold">Journey Today</span>
             </h2>
-            <p className="text-primary-foreground/60 max-w-xl mx-auto mb-10 text-base leading-relaxed">
+            <p className="text-primary-foreground/55 max-w-xl mx-auto mb-12 text-base leading-relaxed">
               Discover the joy of Indian classical arts at Nada Gurukulam. Reach out to learn more.
             </p>
-            <Button asChild size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 text-base px-12 h-13 shadow-2xl hover:shadow-secondary/30 transition-all hover:-translate-y-1 animate-glow-pulse">
+            <Button asChild size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 text-base px-14 h-14 shadow-2xl hover:shadow-secondary/30 transition-all hover:-translate-y-1 animate-glow-pulse">
               <Link to="/contact">Get in Touch</Link>
             </Button>
           </motion.div>
