@@ -4,8 +4,8 @@ import logo from "@/assets/logo.png";
 
 const Footer = () => {
   return (
-    <footer className="gradient-maroon text-primary-foreground">
-      <div className="container mx-auto px-4 py-16">
+    <footer className="gradient-maroon text-primary-foreground pattern-overlay relative">
+      <div className="container mx-auto px-4 py-16 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* About */}
           <div>
@@ -15,7 +15,7 @@ const Footer = () => {
             </p>
             <div className="flex gap-3 mt-5">
               {[Youtube, Instagram, Facebook, Linkedin].map((Icon, i) => (
-                <a key={i} href="#" className="p-2 rounded-full bg-primary-foreground/10 hover:bg-primary-foreground/20 transition-colors">
+                <a key={i} href="#" className="p-2.5 rounded-full bg-primary-foreground/10 hover:bg-secondary/30 hover:scale-110 transition-all duration-300">
                   <Icon className="h-4 w-4" />
                 </a>
               ))}
@@ -24,8 +24,8 @@ const Footer = () => {
 
           {/* Quick Links */}
           <div>
-            <h4 className="font-serif text-lg font-semibold mb-4">Quick Links</h4>
-            <ul className="space-y-2 text-sm text-primary-foreground/80">
+            <h4 className="font-serif text-lg font-semibold mb-5">Quick Links</h4>
+            <ul className="space-y-2.5 text-sm text-primary-foreground/80">
               {[
                 { label: "Home", to: "/" },
                 { label: "About Us", to: "/about" },
@@ -35,7 +35,7 @@ const Footer = () => {
                 { label: "Contact", to: "/contact" },
               ].map((link) => (
                 <li key={link.to}>
-                  <Link to={link.to} className="hover:text-primary-foreground transition-colors">
+                  <Link to={link.to} className="hover:text-primary-foreground hover:pl-1 transition-all duration-300">
                     {link.label}
                   </Link>
                 </li>
@@ -45,11 +45,11 @@ const Footer = () => {
 
           {/* Courses */}
           <div>
-            <h4 className="font-serif text-lg font-semibold mb-4">Our Courses</h4>
-            <ul className="space-y-2 text-sm text-primary-foreground/80">
+            <h4 className="font-serif text-lg font-semibold mb-5">Our Courses</h4>
+            <ul className="space-y-2.5 text-sm text-primary-foreground/80">
               {["Carnatic Vocal", "Hindustani Vocal", "Bharatanatyam", "Mridangam", "Tabla", "Flute"].map((c) => (
                 <li key={c}>
-                  <Link to="/courses" className="hover:text-primary-foreground transition-colors">
+                  <Link to="/courses" className="hover:text-primary-foreground hover:pl-1 transition-all duration-300">
                     {c}
                   </Link>
                 </li>
@@ -59,30 +59,30 @@ const Footer = () => {
 
           {/* Contact */}
           <div>
-            <h4 className="font-serif text-lg font-semibold mb-4">Contact Us</h4>
-            <ul className="space-y-3 text-sm text-primary-foreground/80">
+            <h4 className="font-serif text-lg font-semibold mb-5">Contact Us</h4>
+            <ul className="space-y-3.5 text-sm text-primary-foreground/80">
               <li className="flex items-start gap-2">
-                <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
+                <MapPin className="h-4 w-4 mt-0.5 shrink-0 text-secondary" />
                 <span>Sathya Sai Grama, Muddenahalli, Chikkaballapur, Karnataka - 562101</span>
               </li>
               <li className="flex items-center gap-2">
-                <Mail className="h-4 w-4 shrink-0" />
+                <Mail className="h-4 w-4 shrink-0 text-secondary" />
                 <a href="mailto:info.nadagurukulam@sssuhe.ac.in" className="hover:text-primary-foreground transition-colors">
                   info.nadagurukulam@sssuhe.ac.in
                 </a>
               </li>
               <li className="flex items-center gap-2">
-                <Phone className="h-4 w-4 shrink-0" />
+                <Phone className="h-4 w-4 shrink-0 text-secondary" />
                 <span>+91 80 1234 5678</span>
               </li>
             </ul>
           </div>
         </div>
       </div>
-      <div className="border-t border-primary-foreground/10">
+      <div className="border-t border-primary-foreground/10 relative z-10">
         <div className="container mx-auto px-4 py-5 flex flex-col md:flex-row items-center justify-between text-xs text-primary-foreground/60">
           <p>© {new Date().getFullYear()} Nada Gurukulam. All rights reserved.</p>
-          <p>Sri Sathya Sai University for Human Excellence</p>
+          <p className="mt-1 md:mt-0">Sri Sathya Sai University for Human Excellence</p>
         </div>
       </div>
     </footer>

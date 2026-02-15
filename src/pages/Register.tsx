@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import logo from "@/assets/logo.png";
-import imgMusic6 from "@/assets/gallery/NGMUSIC-6.webp";
+import campusVerandah from "@/assets/campus/NGVerandah.jpg";
 
 const Register = () => {
   const [displayName, setDisplayName] = useState("");
@@ -46,13 +46,19 @@ const Register = () => {
       {/* Left - decorative */}
       <div className="hidden lg:flex lg:w-1/2 relative hero-overlay">
         <img
-          src={imgMusic6}
-          alt="Musical instruments"
+          src={campusVerandah}
+          alt="Campus verandah walkway"
           className="absolute inset-0 w-full h-full object-cover"
         />
         <div className="relative z-10 flex flex-col justify-center items-center p-12 text-center">
-          <img src={logo} alt="Nada Gurukulam" className="h-24 mb-8" />
-          <h2 className="font-serif text-3xl text-primary-foreground mb-4">Begin Your Musical Journey</h2>
+          <motion.img
+            src={logo}
+            alt="Nada Gurukulam"
+            className="h-24 mb-8"
+            animate={{ y: [0, -5, 0] }}
+            transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+          />
+          <h2 className="font-serif text-3xl text-primary-foreground mb-4" style={{ textShadow: "0 2px 20px hsl(0 0% 0% / 0.4)" }}>Begin Your Musical Journey</h2>
           <p className="text-primary-foreground/80 text-lg max-w-md">
             Join a community of passionate learners and master the art of Indian classical music and dance.
           </p>

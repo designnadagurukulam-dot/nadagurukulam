@@ -7,7 +7,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SectionDivider from "@/components/SectionDivider";
 
-import imgVocal from "@/assets/gallery/NGZ6R_1512_R.webp";
 import imgPercussion from "@/assets/gallery/NGZ6R_6439_R.webp";
 import imgSitar from "@/assets/gallery/NGMUSIC-2.webp";
 import imgGuruShishya from "@/assets/gallery/NGDANCE-3.webp";
@@ -15,8 +14,10 @@ import imgMaleChorus from "@/assets/gallery/NGDSC_8160.webp";
 import imgVocalClose from "@/assets/gallery/NGIMG_2141.webp";
 import imgDanceRed from "@/assets/gallery/NGDSC_0608_R.webp";
 
+import directorImg from "@/assets/founders/SmtRevathiRamachandran.webp";
+
 const faculty = [
-  { name: "Smt. Revathi Ramachandran", spec: "Carnatic Vocal", cat: "carnatic", role: "Director & Lead Faculty", exp: "25+ years", img: imgVocal, awards: ["Sangeet Natak Akademi Award", "Kalaimamani Title"], bio: "A distinguished Carnatic vocalist and educator, Smt. Revathi has dedicated her life to preserving and propagating the rich tradition of South Indian classical music.", education: ["B.A. Music — University of Madras", "M.A. Carnatic Music — Sri Venkateswara University", "Ph.D. — Musicology"] },
+  { name: "Smt. Revathi Ramachandran", spec: "Carnatic Vocal", cat: "carnatic", role: "Director & Lead Faculty", exp: "25+ years", img: directorImg, awards: ["Sangeet Natak Akademi Award", "Kalaimamani Title"], bio: "A distinguished Carnatic vocalist and educator, Smt. Revathi has dedicated her life to preserving and propagating the rich tradition of South Indian classical music.", education: ["B.A. Music — University of Madras", "M.A. Carnatic Music — Sri Venkateswara University", "Ph.D. — Musicology"] },
   { name: "Sri Raghunandan Panshikar", spec: "Hindustani Vocal", cat: "hindustani", role: "Senior Faculty", exp: "20+ years", img: imgMaleChorus, awards: ["Kumar Gandharva Samman", "Tansen Award Nominee"], bio: "A powerful Hindustani vocalist trained in the Gwalior Gharana tradition, bringing depth of khayal gayaki to students with clarity and passion.", education: ["Sangeet Visharad — Gandharva Mahavidyalaya", "M.A. Music — SNDT University"] },
   { name: "Ms. Manasvini Ramachandran", spec: "Bharatanatyam", cat: "bharatanatyam", role: "Lead Dance Faculty", exp: "15+ years", img: imgGuruShishya, awards: ["Natya Shiromani Award", "Young Artist Fellowship"], bio: "A graceful and technically brilliant Bharatanatyam artist, combining traditional Tanjore-style Bharatanatyam with contemporary choreographic sensibility.", education: ["B.F.A. Bharatanatyam — Kalakshetra", "M.A. Dance — University of Hyderabad"] },
   { name: "Sri Venkatesh Kumar", spec: "Mridangam", cat: "instrumental", role: "Percussion Faculty", exp: "18+ years", img: imgPercussion, awards: ["Best Accompanist Award — Music Academy", "CCRT Fellowship"], bio: "A consummate mridangam artist known for rhythmic precision and innovative approach. Has accompanied many leading Carnatic musicians.", education: ["Diploma in Mridangam — Karnataka College of Percussion", "M.Mus — University of Mysore"] },
@@ -32,12 +33,27 @@ const Faculty = () => {
   return (
     <div>
       {/* Hero */}
-      <section className="relative min-h-[45vh] flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-[50vh] flex items-center justify-center overflow-hidden">
         <img src={imgDanceRed} alt="Faculty" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(0_69%_20%/0.88)] to-[hsl(345_75%_15%/0.8)]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(0_69%_15%/0.92)] via-[hsl(0_69%_20%/0.85)] to-[hsl(345_75%_15%/0.8)]" />
         <div className="relative z-10 container mx-auto px-4 text-center">
-          <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground mb-4">Meet Our Esteemed Gurus</h1>
-          <p className="text-primary-foreground/70 max-w-2xl mx-auto">Masters of their art, dedicated to nurturing the next generation.</p>
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7 }}
+            className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground mb-4"
+            style={{ textShadow: "0 4px 30px hsl(0 0% 0% / 0.3)" }}
+          >
+            Meet Our Esteemed Gurus
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.6 }}
+            className="text-primary-foreground/70 max-w-2xl mx-auto"
+          >
+            Masters of their art, dedicated to nurturing the next generation.
+          </motion.p>
         </div>
       </section>
 
@@ -59,12 +75,12 @@ const Faculty = () => {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {filtered.map((f, i) => (
               <motion.div key={f.name} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08, duration: 0.4 }}>
-                <Card className="h-full hover:shadow-xl transition-all overflow-hidden group hover:border-secondary/50">
-                  <div className="h-52 img-zoom relative">
+                <Card className="h-full hover:shadow-2xl transition-all duration-500 overflow-hidden group hover:border-secondary/50 hover:-translate-y-1">
+                  <div className="h-56 img-zoom relative">
                     <img src={f.img} alt={f.name} className="w-full h-full object-cover" loading="lazy" />
-                    <div className="absolute bottom-0 inset-x-0 h-20 bg-gradient-to-t from-background to-transparent" />
+                    <div className="absolute bottom-0 inset-x-0 h-24 bg-gradient-to-t from-background to-transparent" />
                   </div>
-                  <CardContent className="p-6 -mt-4 relative z-10">
+                  <CardContent className="p-6 -mt-6 relative z-10">
                     <h3 className="font-serif text-lg font-semibold">{f.name}</h3>
                     <p className="text-secondary text-sm font-medium">{f.spec}</p>
                     <p className="text-xs text-muted-foreground mt-1">{f.role} · {f.exp}</p>
@@ -75,7 +91,7 @@ const Faculty = () => {
                         </span>
                       ))}
                     </div>
-                    <Button variant="outline" size="sm" className="mt-4 w-full" onClick={() => setSelected(f)}>View Profile</Button>
+                    <Button variant="outline" size="sm" className="mt-4 w-full hover:bg-primary hover:text-primary-foreground transition-colors" onClick={() => setSelected(f)}>View Profile</Button>
                   </CardContent>
                 </Card>
               </motion.div>

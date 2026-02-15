@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import logo from "@/assets/logo.png";
-import imgConcert from "@/assets/gallery/NGR6_M1630.webp";
+import campusVault from "@/assets/campus/NGVaultPassage.jpg";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -36,13 +36,19 @@ const Login = () => {
       {/* Left - decorative */}
       <div className="hidden lg:flex lg:w-1/2 relative hero-overlay">
         <img
-          src={imgConcert}
-          alt="Classical music"
+          src={campusVault}
+          alt="Campus heritage passage"
           className="absolute inset-0 w-full h-full object-cover"
         />
         <div className="relative z-10 flex flex-col justify-center items-center p-12 text-center">
-          <img src={logo} alt="Nada Gurukulam" className="h-24 mb-8" />
-          <h2 className="font-serif text-3xl text-primary-foreground mb-4">Welcome to Nada Gurukulam</h2>
+          <motion.img
+            src={logo}
+            alt="Nada Gurukulam"
+            className="h-24 mb-8"
+            animate={{ y: [0, -5, 0] }}
+            transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+          />
+          <h2 className="font-serif text-3xl text-primary-foreground mb-4" style={{ textShadow: "0 2px 20px hsl(0 0% 0% / 0.4)" }}>Welcome to Nada Gurukulam</h2>
           <p className="text-primary-foreground/80 text-lg max-w-md">
             Your journey into the divine world of Indian classical arts begins here.
           </p>

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ChevronRight, Quote, Star } from "lucide-react";
+import { ChevronRight, Quote, Star, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import SectionDivider from "@/components/SectionDivider";
@@ -13,17 +13,17 @@ import imgBharatanatyam from "@/assets/gallery/NGZ6R_1931_R.webp";
 import imgVocal from "@/assets/gallery/NGZ6R_1512_R.webp";
 import imgPercussion from "@/assets/gallery/NGZ6R_6439_R.webp";
 import imgChorus from "@/assets/gallery/NGR6M_0933.webp";
-import imgEnsemble from "@/assets/gallery/NGR6M_2124_R.webp";
-import imgDancers from "@/assets/gallery/NGR6M_9613.webp";
-import imgDancePerf from "@/assets/gallery/NGR6M_9591.webp";
 import imgDanceGroup from "@/assets/gallery/NGDSC_7428.webp";
 import imgMaleChorus from "@/assets/gallery/NGDSC_8160.webp";
 import imgSitar from "@/assets/gallery/NGMUSIC-2.webp";
 import imgGuruShishya from "@/assets/gallery/NGDANCE-3.webp";
 import imgDanceRecital from "@/assets/gallery/NGDANCE-RECITAL-4.webp";
-import imgDanceSolo from "@/assets/gallery/NGDANCE.webp";
-import imgDancePink from "@/assets/gallery/NGDSC_0238.webp";
-import imgDanceRed from "@/assets/gallery/NGDSC_0608_R.webp";
+
+import founderImg from "@/assets/founders/SadguruSriMadhusudanSai.jpg";
+import directorImg from "@/assets/founders/SmtRevathiRamachandran.webp";
+import campusAerial from "@/assets/campus/NGCampusAerial.jpg";
+import campusAmphitheatre from "@/assets/campus/NGAmphitheatre.jpg";
+import campusReception from "@/assets/campus/NGReception.jpg";
 
 /* ─── Animated counter hook ─── */
 const useCounter = (end: number, duration = 2000) => {
@@ -87,9 +87,9 @@ const courses = [
 ];
 
 const testimonials = [
-  { name: "Priya Sharma", img: imgVocal, text: "Nada Gurukulam transformed my understanding of Carnatic music. The personal attention from Gurus is unmatched.", course: "Carnatic Vocal" },
-  { name: "Arun Krishnan", img: imgPercussion, text: "The Guru-Shishya system here is authentic and life-changing. I found my true musical voice.", course: "Mridangam" },
-  { name: "Meera Nair", img: imgBharatanatyam, text: "Learning Bharatanatyam here connects you to something timeless. Every class is a spiritual experience.", course: "Bharatanatyam" },
+  { name: "Priya Sharma", text: "Nada Gurukulam transformed my understanding of Carnatic music. The personal attention from Gurus is unmatched.", course: "Carnatic Vocal" },
+  { name: "Arun Krishnan", text: "The Guru-Shishya system here is authentic and life-changing. I found my true musical voice.", course: "Mridangam" },
+  { name: "Meera Nair", text: "Learning Bharatanatyam here connects you to something timeless. Every class is a spiritual experience.", course: "Bharatanatyam" },
 ];
 
 const stats = [
@@ -100,10 +100,16 @@ const stats = [
 ];
 
 const facultyShowcase = [
-  { name: "Smt. Revathi Ramachandran", spec: "Carnatic Vocal", img: imgVocal },
-  { name: "Sri Raghunandan Panshikar", spec: "Hindustani Vocal", img: imgMaleChorus },
+  { name: "Sadguru Sri Madhusudan Sai", spec: "Founder", img: founderImg },
+  { name: "Smt. Revathi Ramachandran", spec: "Director & Carnatic Vocal", img: directorImg },
   { name: "Ms. Manasvini Ramachandran", spec: "Bharatanatyam", img: imgGuruShishya },
   { name: "Sri Venkatesh Kumar", spec: "Mridangam", img: imgPercussion },
+];
+
+const campusImages = [
+  { src: campusAerial, alt: "Campus Aerial View", span: "col-span-2 row-span-2" },
+  { src: campusAmphitheatre, alt: "Amphitheatre", span: "col-span-1" },
+  { src: campusReception, alt: "Reception Hall", span: "col-span-1" },
 ];
 
 /* ─── Page ─── */
@@ -117,13 +123,20 @@ const Index = () => {
           alt="Classical performance"
           className="absolute inset-0 w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(0_69%_20%/0.88)] to-[hsl(345_75%_15%/0.8)]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(0_69%_15%/0.92)] via-[hsl(0_69%_20%/0.85)] to-[hsl(345_75%_15%/0.8)]" />
+        {/* Floating decorative elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-1/4 left-10 w-2 h-2 rounded-full bg-secondary/30 animate-float" style={{ animationDelay: "0s" }} />
+          <div className="absolute top-1/3 right-20 w-3 h-3 rounded-full bg-secondary/20 animate-float" style={{ animationDelay: "1s" }} />
+          <div className="absolute bottom-1/3 left-1/4 w-1.5 h-1.5 rounded-full bg-secondary/25 animate-float" style={{ animationDelay: "2s" }} />
+          <div className="absolute top-1/2 right-1/3 w-2 h-2 rounded-full bg-secondary/20 animate-float" style={{ animationDelay: "0.5s" }} />
+        </div>
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
           <motion.p
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="font-devanagari text-2xl md:text-4xl text-gold mb-4"
+            className="font-devanagari text-3xl md:text-5xl text-gradient-gold mb-4"
           >
             रसो वै सः
           </motion.p>
@@ -131,7 +144,7 @@ const Index = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.8 }}
-            className="text-primary-foreground/70 italic text-sm md:text-base mb-8"
+            className="text-primary-foreground/60 italic text-sm md:text-base mb-8 tracking-wider"
           >
             "He is the essence of all Rasa"
           </motion.p>
@@ -139,7 +152,8 @@ const Index = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.8 }}
-            className="font-serif text-4xl md:text-6xl lg:text-7xl font-bold text-primary-foreground leading-tight mb-4"
+            className="font-serif text-5xl md:text-7xl lg:text-8xl font-bold text-primary-foreground leading-tight mb-4"
+            style={{ textShadow: "0 4px 30px hsl(0 0% 0% / 0.3)" }}
           >
             Nada Gurukulam
           </motion.h1>
@@ -147,7 +161,7 @@ const Index = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8, duration: 0.8 }}
-            className="text-primary-foreground/80 text-lg md:text-xl mb-10 max-w-2xl mx-auto"
+            className="text-primary-foreground/75 text-lg md:text-xl mb-12 max-w-2xl mx-auto leading-relaxed"
           >
             Traditional Guru-Shishya System meets Modern Education in Indian Classical Music & Dance
           </motion.p>
@@ -157,10 +171,10 @@ const Index = () => {
             transition={{ delay: 1, duration: 0.6 }}
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
-            <Button asChild size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 text-base px-8">
+            <Button asChild size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 text-base px-8 shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5">
               <Link to="/courses">Explore Courses</Link>
             </Button>
-            <Button asChild size="lg" variant="outline" className="border-primary-foreground/40 text-primary-foreground hover:bg-primary-foreground/10 text-base px-8">
+            <Button asChild size="lg" variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 text-base px-8 backdrop-blur-sm">
               <Link to="/admissions">Apply Now</Link>
             </Button>
           </motion.div>
@@ -192,15 +206,15 @@ const Index = () => {
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.15, duration: 0.5 }}
               >
-                <Card className="text-center h-full border-none shadow-lg hover:shadow-xl transition-all group overflow-hidden">
-                  <div className="h-48 img-zoom relative">
+                <Card className="text-center h-full border-none shadow-lg hover:shadow-2xl transition-all duration-500 group overflow-hidden hover:-translate-y-1">
+                  <div className="h-52 img-zoom relative">
                     <img src={f.img} alt={f.title} className="w-full h-full object-cover" loading="lazy" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-background/90 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
                   </div>
-                  <CardContent className="pt-6 pb-8 px-6 -mt-8 relative z-10">
+                  <CardContent className="pt-6 pb-8 px-6 -mt-10 relative z-10">
                     <h3 className="font-serif text-xl font-semibold mb-3">{f.title}</h3>
                     <p className="text-muted-foreground text-sm leading-relaxed mb-4">{f.desc}</p>
-                    <Link to={f.link} className="text-primary text-sm font-medium hover:underline inline-flex items-center gap-1">
+                    <Link to={f.link} className="text-primary text-sm font-medium hover:underline inline-flex items-center gap-1 group-hover:gap-2 transition-all">
                       Learn More <ChevronRight className="h-3 w-3" />
                     </Link>
                   </CardContent>
@@ -229,15 +243,15 @@ const Index = () => {
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1, duration: 0.4 }}
               >
-                <Card className="overflow-hidden group hover:shadow-xl transition-all border-border/50">
+                <Card className="overflow-hidden group hover:shadow-2xl transition-all duration-500 border-border/50 hover:-translate-y-1">
                   <div className="h-44 img-zoom relative">
                     <img src={c.img} alt={c.name} className="w-full h-full object-cover" loading="lazy" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-4">
-                      <Button asChild size="sm" variant="secondary">
+                    <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
+                      <Button asChild size="sm" variant="secondary" className="shadow-lg">
                         <Link to="/courses">Learn More</Link>
                       </Button>
                     </div>
-                    <span className="absolute top-3 right-3 text-[10px] font-semibold px-2 py-1 rounded-full bg-secondary/90 text-secondary-foreground">{c.level}</span>
+                    <span className="absolute top-3 right-3 text-[10px] font-semibold px-2.5 py-1 rounded-full bg-secondary/90 text-secondary-foreground backdrop-blur-sm">{c.level}</span>
                   </div>
                   <CardContent className="p-5">
                     <h3 className="font-serif text-lg font-semibold mb-1">{c.name}</h3>
@@ -257,23 +271,23 @@ const Index = () => {
       </Section>
 
       {/* ══════ Stats ══════ */}
-      <section className="relative py-20 overflow-hidden">
+      <section className="relative py-24 overflow-hidden">
         <img
           src={imgConcert}
           alt="Performance"
           className="absolute inset-0 w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(0_69%_20%/0.9)] to-[hsl(345_75%_15%/0.85)]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(0_69%_15%/0.92)] to-[hsl(345_75%_15%/0.88)]" />
         <div className="container mx-auto px-4 relative z-10">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((s) => {
               const { count, ref } = useCounter(s.value);
               return (
                 <div key={s.label} ref={ref} className="text-center">
-                  <p className="font-serif text-4xl md:text-5xl font-bold text-secondary">
+                  <p className="font-serif text-5xl md:text-6xl font-bold text-gradient-gold" style={{ WebkitTextFillColor: "unset", color: "hsl(43 72% 52%)" }}>
                     {count}{s.suffix}
                   </p>
-                  <p className="text-primary-foreground/70 mt-1 text-sm">{s.label}</p>
+                  <p className="text-primary-foreground/60 mt-2 text-sm tracking-wider uppercase">{s.label}</p>
                 </div>
               );
             })}
@@ -300,11 +314,11 @@ const Index = () => {
                 transition={{ delay: i * 0.1, duration: 0.4 }}
                 className="text-center group"
               >
-                <div className="w-32 h-32 md:w-40 md:h-40 mx-auto rounded-full overflow-hidden golden-border mb-4 group-hover:shadow-lg transition-shadow">
-                  <img src={f.img} alt={f.name} className="w-full h-full object-cover" loading="lazy" />
+                <div className="w-36 h-36 md:w-44 md:h-44 mx-auto rounded-full overflow-hidden golden-frame mb-5 group-hover:animate-glow-pulse transition-all duration-500">
+                  <img src={f.img} alt={f.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" loading="lazy" />
                 </div>
                 <h3 className="font-serif text-sm md:text-base font-semibold">{f.name}</h3>
-                <p className="text-xs text-secondary">{f.spec}</p>
+                <p className="text-xs text-secondary mt-0.5">{f.spec}</p>
               </motion.div>
             ))}
           </div>
@@ -318,8 +332,42 @@ const Index = () => {
 
       <SectionDivider />
 
-      {/* ══════ Testimonials ══════ */}
+      {/* ══════ Campus ══════ */}
       <Section className="py-20 bg-muted/40">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <Building2 className="h-6 w-6 text-secondary" />
+            <h2 className="font-serif text-3xl md:text-4xl font-bold text-center">Our Campus</h2>
+          </div>
+          <p className="text-center text-muted-foreground max-w-2xl mx-auto mb-14">
+            A world-class campus designed to inspire creativity and foster the classical arts.
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto">
+            {campusImages.map((img, i) => (
+              <motion.div
+                key={img.alt}
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.15, duration: 0.5 }}
+                className={`${img.span} rounded-xl overflow-hidden shadow-lg img-zoom group`}
+              >
+                <div className="relative w-full h-full min-h-[200px]">
+                  <img src={img.src} alt={img.alt} className="w-full h-full object-cover" loading="lazy" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[hsl(0_0%_0%/0.5)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+                    <span className="text-primary-foreground text-sm font-medium">{img.alt}</span>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </Section>
+
+      <SectionDivider />
+
+      {/* ══════ Testimonials ══════ */}
+      <Section className="py-20 bg-background">
         <div className="container mx-auto px-4">
           <h2 className="font-serif text-3xl md:text-4xl font-bold text-center mb-4">What Our Students Say</h2>
           <p className="text-center text-muted-foreground max-w-2xl mx-auto mb-14">
@@ -334,19 +382,16 @@ const Index = () => {
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.15, duration: 0.5 }}
               >
-                <Card className="h-full border-none shadow-md bg-card relative overflow-hidden">
+                <Card className="h-full border-none shadow-md hover:shadow-xl transition-all duration-500 bg-card relative overflow-hidden hover:-translate-y-1">
                   <div className="absolute top-4 right-4 text-secondary/10">
                     <Quote className="h-16 w-16" />
                   </div>
                   <CardContent className="p-6 relative z-10">
                     <Quote className="h-8 w-8 text-secondary/50 mb-4" />
-                    <p className="text-foreground/80 text-sm leading-relaxed mb-5 italic">"{t.text}"</p>
-                    <div className="flex items-center gap-3">
-                      <img src={t.img} alt={t.name} className="w-12 h-12 rounded-full object-cover golden-border" loading="lazy" />
-                      <div>
-                        <p className="font-semibold text-sm">{t.name}</p>
-                        <p className="text-xs text-muted-foreground">{t.course}</p>
-                      </div>
+                    <p className="text-foreground/80 text-sm leading-relaxed mb-6 italic">"{t.text}"</p>
+                    <div>
+                      <p className="font-semibold text-sm">{t.name}</p>
+                      <p className="text-xs text-muted-foreground">{t.course}</p>
                     </div>
                     <div className="flex gap-0.5 mt-3">
                       {[...Array(5)].map((_, j) => (
@@ -362,21 +407,26 @@ const Index = () => {
       </Section>
 
       {/* ══════ CTA ══════ */}
-      <section className="relative py-24 overflow-hidden">
+      <section className="relative py-28 overflow-hidden">
         <img
           src={imgChorus}
           alt="Music"
           className="absolute inset-0 w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(0_69%_20%/0.9)] to-[hsl(345_75%_15%/0.85)]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(0_69%_15%/0.92)] to-[hsl(345_75%_15%/0.88)]" />
         <div className="relative z-10 container mx-auto px-4 text-center">
-          <h2 className="font-serif text-3xl md:text-4xl font-bold text-primary-foreground mb-4">
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="font-serif text-3xl md:text-5xl font-bold text-primary-foreground mb-6"
+          >
             Begin Your Musical Journey Today
-          </h2>
-          <p className="text-primary-foreground/70 max-w-xl mx-auto mb-8 text-lg">
+          </motion.h2>
+          <p className="text-primary-foreground/70 max-w-xl mx-auto mb-10 text-lg leading-relaxed">
             Join hundreds of students who have discovered the joy of Indian classical arts at Nada Gurukulam.
           </p>
-          <Button asChild size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 text-base px-10">
+          <Button asChild size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 text-base px-12 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-0.5">
             <Link to="/admissions">Apply for Admission</Link>
           </Button>
         </div>
