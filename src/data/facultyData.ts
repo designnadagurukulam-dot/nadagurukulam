@@ -9,7 +9,9 @@ import msShailajaKumari from "@/assets/faculty/Ms-Shailaja-Kumari-A.jpg";
 import mrAbhiramaBode from "@/assets/faculty/Mr-Abhirama-Bode.jpg";
 import mrPrafullaKumar from "@/assets/faculty/Mr-Prafulla-Kumar-Meher.jpg";
 import mrShreeramaBhat from "@/assets/faculty/Mr-Shreerama-Bhat.jpg";
-import logoPlaceholder from "@/assets/logo.png";
+import msManasvini from "@/assets/faculty/Ms-Manasvini-Ramachandran.webp";
+import drDundayya from "@/assets/faculty/Dr-Dundayya-Pujer.jpg";
+import mrSrinivas from "@/assets/faculty/Mr-Srinivas-Viswanadha.webp";
 
 export interface FacultyMember {
   id: string;
@@ -105,7 +107,7 @@ export const facultyMembers: FacultyMember[] = [
       "Bala Saraswathy Award – Krishna Gana Sabha (2007)",
       "Doordarshan Graded Artist; ICCR Empanelled Artist",
     ],
-    image: logoPlaceholder,
+    image: msManasvini,
   },
   {
     id: "dundayya-pujer",
@@ -139,7 +141,7 @@ export const facultyMembers: FacultyMember[] = [
       "Pt Basavaraj Bendigeri Gold Medal (2007) – Outstanding Performance in Music Studies",
       "Best Performer Award (2009) – Narayan Tabla Institute, Belgaum",
     ],
-    image: logoPlaceholder,
+    image: drDundayya,
   },
   {
     id: "srinivas-viswanadha",
@@ -174,7 +176,7 @@ export const facultyMembers: FacultyMember[] = [
       "Multiple prizes in cultural competitions during schooling",
       "Prize-winning performances at Andhra University Youth Festivals (2007–2011)",
     ],
-    image: logoPlaceholder,
+    image: mrSrinivas,
   },
   {
     id: "shreerama-bhat",
