@@ -10,8 +10,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import SectionDivider from "@/components/SectionDivider";
 
-import imgEnsemble from "@/assets/gallery/NGR6M_2124_R.webp";
-import imgMusic13 from "@/assets/gallery/NGMUSIC-13.webp";
+import campusAerial from "@/assets/campus/NGCampusAerial.jpg";
+import campusReception from "@/assets/campus/NGReception.jpg";
 
 const Contact = () => {
   const { toast } = useToast();
@@ -30,12 +30,27 @@ const Contact = () => {
   return (
     <div>
       {/* Hero */}
-      <section className="relative min-h-[45vh] flex items-center justify-center overflow-hidden">
-        <img src={imgEnsemble} alt="Contact" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(0_69%_20%/0.88)] to-[hsl(345_75%_15%/0.8)]" />
+      <section className="relative min-h-[50vh] flex items-center justify-center overflow-hidden">
+        <img src={campusAerial} alt="Campus" className="absolute inset-0 w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(0_69%_15%/0.92)] via-[hsl(0_69%_20%/0.85)] to-[hsl(345_75%_15%/0.8)]" />
         <div className="relative z-10 container mx-auto px-4 text-center">
-          <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground mb-4">Contact Us</h1>
-          <p className="text-primary-foreground/70 max-w-2xl mx-auto">We'd love to hear from you. Reach out with any questions about our programs.</p>
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7 }}
+            className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground mb-4"
+            style={{ textShadow: "0 4px 30px hsl(0 0% 0% / 0.3)" }}
+          >
+            Contact Us
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="text-primary-foreground/70 max-w-2xl mx-auto"
+          >
+            We'd love to hear from you. Reach out with any questions about our programs.
+          </motion.p>
         </div>
       </section>
 
@@ -47,8 +62,8 @@ const Contact = () => {
           <div className="grid lg:grid-cols-5 gap-10 max-w-5xl mx-auto">
             {/* Form */}
             <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="lg:col-span-3">
-              <Card className="border-none shadow-lg overflow-hidden">
-                <div className="h-3 gradient-gold" />
+              <Card className="border-none shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-500">
+                <div className="h-3 gradient-gold shimmer-line" />
                 <CardContent className="p-8">
                   <h2 className="font-serif text-2xl font-bold mb-6">Send a Message</h2>
                   <form onSubmit={handleSubmit} className="space-y-5">
@@ -94,8 +109,8 @@ const Contact = () => {
 
             {/* Info + Image */}
             <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="lg:col-span-2 space-y-6">
-              <div className="rounded-lg overflow-hidden shadow-md">
-                <img src={imgMusic13} alt="Campus" className="w-full h-48 object-cover" loading="lazy" />
+              <div className="rounded-xl overflow-hidden shadow-lg img-zoom">
+                <img src={campusReception} alt="Campus Reception" className="w-full h-48 object-cover" loading="lazy" />
               </div>
               <div>
                 <h2 className="font-serif text-2xl font-bold mb-6">Get in Touch</h2>

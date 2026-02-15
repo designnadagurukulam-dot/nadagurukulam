@@ -25,6 +25,13 @@ import imgDancePink from "@/assets/gallery/NGDSC_0238.webp";
 import imgDanceRed from "@/assets/gallery/NGDSC_0608_R.webp";
 import imgDance2 from "@/assets/gallery/NGDANCE-2.webp";
 
+import campusAerial from "@/assets/campus/NGCampusAerial.jpg";
+import campusAmphitheatre from "@/assets/campus/NGAmphitheatre.jpg";
+import campusVault from "@/assets/campus/NGVaultPassage.jpg";
+import campusVerandah from "@/assets/campus/NGVerandah.jpg";
+import campusReception from "@/assets/campus/NGReception.jpg";
+import campusAmphyEntry from "@/assets/campus/NGAmphyEntry.jpg";
+
 const images = [
   { src: imgDanceGroup, cat: "performances", alt: "Bharatanatyam group pose" },
   { src: imgConcert, cat: "events", alt: "Grand stage concert" },
@@ -46,6 +53,12 @@ const images = [
   { src: imgDanceRed, cat: "performances", alt: "Dance formation with red lighting" },
   { src: imgDance2, cat: "performances", alt: "Bharatanatyam group reaching upward" },
   { src: imgBharatanatyam, cat: "performances", alt: "Bharatanatyam Krishna theme" },
+  { src: campusAerial, cat: "campus-renders", alt: "Campus Aerial View (3D)" },
+  { src: campusAmphitheatre, cat: "campus-renders", alt: "Central Amphitheatre (3D)" },
+  { src: campusVault, cat: "campus-renders", alt: "Heritage Vault Passage (3D)" },
+  { src: campusVerandah, cat: "campus-renders", alt: "Verandah Walkway (3D)" },
+  { src: campusReception, cat: "campus-renders", alt: "Reception Hall (3D)" },
+  { src: campusAmphyEntry, cat: "campus-renders", alt: "Amphitheatre Entry (3D)" },
 ];
 
 const videos = [
@@ -67,12 +80,27 @@ const Gallery = () => {
   return (
     <div>
       {/* Hero */}
-      <section className="relative min-h-[45vh] flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-[50vh] flex items-center justify-center overflow-hidden">
         <img src={imgDanceRecital} alt="Gallery" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(0_69%_20%/0.88)] to-[hsl(345_75%_15%/0.8)]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(0_69%_15%/0.92)] via-[hsl(0_69%_20%/0.85)] to-[hsl(345_75%_15%/0.8)]" />
         <div className="relative z-10 container mx-auto px-4 text-center">
-          <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground mb-4">Gallery</h1>
-          <p className="text-primary-foreground/70 max-w-2xl mx-auto">Moments of artistry, devotion, and celebration from Nada Gurukulam.</p>
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7 }}
+            className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground mb-4"
+            style={{ textShadow: "0 4px 30px hsl(0 0% 0% / 0.3)" }}
+          >
+            Gallery
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="text-primary-foreground/70 max-w-2xl mx-auto"
+          >
+            Moments of artistry, devotion, and celebration from Nada Gurukulam.
+          </motion.p>
         </div>
       </section>
 
@@ -82,12 +110,13 @@ const Gallery = () => {
       <section className="py-16 bg-background">
         <div className="container mx-auto px-4">
           <Tabs value={tab} onValueChange={setTab} className="mb-10">
-            <TabsList className="mx-auto flex w-fit">
+            <TabsList className="mx-auto flex w-fit flex-wrap gap-1">
               <TabsTrigger value="all">All</TabsTrigger>
               <TabsTrigger value="events">Events</TabsTrigger>
               <TabsTrigger value="performances">Performances</TabsTrigger>
               <TabsTrigger value="workshops">Workshops</TabsTrigger>
               <TabsTrigger value="campus">Campus Life</TabsTrigger>
+              <TabsTrigger value="campus-renders">Campus (3D)</TabsTrigger>
             </TabsList>
           </Tabs>
 
@@ -98,18 +127,18 @@ const Gallery = () => {
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.05, duration: 0.3 }}
-                className="break-inside-avoid cursor-pointer group relative img-zoom rounded-lg overflow-hidden"
+                transition={{ delay: i * 0.04, duration: 0.3 }}
+                className="break-inside-avoid cursor-pointer group relative img-zoom rounded-xl overflow-hidden"
                 onClick={() => setLightboxIdx(i)}
               >
                 <img
                   src={img.src}
                   alt={img.alt}
-                  className="w-full rounded-lg shadow-md"
+                  className="w-full rounded-xl shadow-md"
                   loading="lazy"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
-                  <span className="text-sm font-medium text-foreground">{img.alt}</span>
+                <div className="absolute inset-0 bg-gradient-to-t from-[hsl(0_0%_0%/0.6)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+                  <span className="text-sm font-medium text-primary-foreground">{img.alt}</span>
                 </div>
               </motion.div>
             ))}
@@ -126,10 +155,10 @@ const Gallery = () => {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {videos.map((v) => (
               <div key={v.title} className="group cursor-pointer">
-                <div className="relative rounded-lg overflow-hidden img-zoom shadow-md">
+                <div className="relative rounded-xl overflow-hidden img-zoom shadow-lg">
                   <img src={v.thumb} alt={v.title} className="w-full h-48 object-cover" loading="lazy" />
-                  <div className="absolute inset-0 bg-primary/30 flex items-center justify-center group-hover:bg-primary/50 transition-colors">
-                    <div className="w-14 h-14 rounded-full bg-secondary/90 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <div className="absolute inset-0 bg-primary/30 flex items-center justify-center group-hover:bg-primary/50 transition-colors duration-300">
+                    <div className="w-14 h-14 rounded-full bg-secondary/90 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
                       <Play className="h-6 w-6 text-secondary-foreground ml-0.5" />
                     </div>
                   </div>
@@ -148,25 +177,30 @@ const Gallery = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-[hsl(0_0%_0%/0.92)] flex items-center justify-center p-4"
+            className="fixed inset-0 z-50 bg-[hsl(0_0%_0%/0.95)] flex items-center justify-center p-4"
             onClick={() => setLightboxIdx(null)}
           >
-            <button className="absolute top-4 right-4 text-primary-foreground p-2 hover:bg-primary-foreground/10 rounded-full" onClick={() => setLightboxIdx(null)}>
+            <button className="absolute top-4 right-4 text-primary-foreground p-2 hover:bg-primary-foreground/10 rounded-full transition-colors" onClick={() => setLightboxIdx(null)}>
               <X className="h-8 w-8" />
             </button>
             <button
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-primary-foreground p-2 hover:bg-primary-foreground/10 rounded-full"
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-primary-foreground p-2 hover:bg-primary-foreground/10 rounded-full transition-colors"
               onClick={(e) => { e.stopPropagation(); navigate(-1); }}
             >
               <ChevronLeft className="h-8 w-8" />
             </button>
             <button
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-primary-foreground p-2 hover:bg-primary-foreground/10 rounded-full"
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-primary-foreground p-2 hover:bg-primary-foreground/10 rounded-full transition-colors"
               onClick={(e) => { e.stopPropagation(); navigate(1); }}
             >
               <ChevronRight className="h-8 w-8" />
             </button>
-            <img
+            <motion.img
+              key={lightboxIdx}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ duration: 0.3 }}
               src={filtered[lightboxIdx].src}
               alt={filtered[lightboxIdx].alt}
               className="max-w-full max-h-[90vh] rounded-lg"
