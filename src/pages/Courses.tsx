@@ -1,10 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import { CheckCircle, BookOpen, Mic, Music } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { CheckCircle, BookOpen, Mic, Music, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SectionDivider from "@/components/SectionDivider";
 
 import imgMusic13 from "@/assets/gallery/NGMUSIC-13.webp";
@@ -34,81 +32,126 @@ const methodology = [
   { icon: CheckCircle, title: "Performance Opportunities", desc: "Regular recitals and concerts to build stage confidence.", img: imgDancePink },
 ];
 
+const tabs = [
+  { value: "all", label: "All Programs" },
+  { value: "vocal", label: "Vocal" },
+  { value: "instrumental", label: "Instrumental" },
+  { value: "dance", label: "Dance" },
+];
+
 const Courses = () => {
   const [tab, setTab] = useState("all");
   const filtered = tab === "all" ? allCourses : allCourses.filter((c) => c.category === tab);
 
   return (
     <div>
-      {/* Hero */}
-      <section className="relative min-h-[45vh] flex items-center justify-center overflow-hidden">
+      {/* ══════ HERO ══════ */}
+      <section className="relative min-h-[50vh] flex items-center justify-center overflow-hidden">
         <img src={imgMusic13} alt="Instruments" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(0_69%_20%/0.88)] to-[hsl(345_75%_15%/0.8)]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(0_69%_10%/0.94)] via-[hsl(0_69%_18%/0.88)] to-[hsl(345_75%_12%/0.82)]" />
         <div className="relative z-10 container mx-auto px-4 text-center">
-          <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground mb-4">Our Programs</h1>
-          <p className="text-primary-foreground/70 max-w-2xl mx-auto">
-            Comprehensive programs rooted in tradition, designed for the modern learner.
-          </p>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
+            <h1 className="font-serif text-4xl md:text-6xl lg:text-7xl font-bold text-primary-foreground mb-4" style={{ textShadow: "0 4px 40px hsl(0 0% 0% / 0.5)" }}>
+              Our Programs
+            </h1>
+            <p className="text-primary-foreground/60 max-w-2xl mx-auto mb-6">
+              Comprehensive programs rooted in tradition, designed for the modern learner.
+            </p>
+            <span className="badge-gold inline-flex items-center gap-1.5">
+              <Sparkles className="h-3 w-3" /> {allCourses.length} Programs Available
+            </span>
+          </motion.div>
         </div>
       </section>
 
       <SectionDivider />
 
-      {/* Filter + Grid */}
-      <section className="py-16 bg-background">
+      {/* ══════ FILTER + GRID ══════ */}
+      <section className="py-20 bg-background">
         <div className="container mx-auto px-4">
-          <Tabs value={tab} onValueChange={setTab} className="mb-10">
-            <TabsList className="mx-auto flex w-fit">
-              <TabsTrigger value="all">All</TabsTrigger>
-              <TabsTrigger value="vocal">Vocal</TabsTrigger>
-              <TabsTrigger value="instrumental">Instrumental</TabsTrigger>
-              <TabsTrigger value="dance">Dance</TabsTrigger>
-            </TabsList>
-          </Tabs>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filtered.map((c, i) => (
-              <motion.div
-                key={c.name}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.08, duration: 0.4 }}
+          {/* Custom pill tabs */}
+          <div className="flex flex-wrap justify-center gap-2 mb-14">
+            {tabs.map((t) => (
+              <button
+                key={t.value}
+                onClick={() => setTab(t.value)}
+                className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
+                  tab === t.value
+                    ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+                    : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
+                }`}
               >
-                <Card className="h-full hover:shadow-xl transition-all overflow-hidden group">
-                  <div className="h-44 img-zoom relative">
-                    <img src={c.img} alt={c.name} className="w-full h-full object-cover" loading="lazy" />
-                    <span className="absolute top-3 left-3 text-[10px] font-semibold px-2 py-1 rounded-full bg-secondary/90 text-secondary-foreground">{c.level}</span>
-                    <span className="absolute top-3 right-3 text-[10px] font-semibold px-2 py-1 rounded-full bg-primary/90 text-primary-foreground">{c.duration}</span>
-                  </div>
-                  <CardContent className="p-6">
-                    <h3 className="font-serif text-xl font-semibold mb-1">{c.name}</h3>
-                    <p className="text-muted-foreground text-sm mb-3 leading-relaxed">{c.desc}</p>
-                    <p className="text-xs text-muted-foreground mb-4">Instructor: <span className="font-medium text-foreground">{c.teacher}</span></p>
-
-                    <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground/60 mb-2">Learning Outcomes</h4>
-                    <ul className="space-y-1 mb-5">
-                      {c.outcomes.map((o) => (
-                        <li key={o} className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <CheckCircle className="h-3 w-3 text-secondary shrink-0" /> {o}
-                        </li>
-                      ))}
-                    </ul>
-                    <Button size="sm" className="w-full">Enquire Now</Button>
-                  </CardContent>
-                </Card>
-              </motion.div>
+                {t.label}
+              </button>
             ))}
           </div>
+
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={tab}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
+            >
+              {filtered.map((c, i) => (
+                <motion.div
+                  key={c.name}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.08, duration: 0.4 }}
+                  className="group"
+                >
+                  <div className="relative h-[480px] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 card-premium">
+                    <img src={c.img} alt={c.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" loading="lazy" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[hsl(0_0%_0%/0.95)] via-[hsl(0_0%_0%/0.4)] to-transparent" />
+
+                    {/* Badges */}
+                    <div className="absolute top-4 left-4 flex gap-2">
+                      <span className="badge-gold">{c.level}</span>
+                    </div>
+                    <div className="absolute top-4 right-4">
+                      <span className="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-primary/80 text-primary-foreground backdrop-blur-sm">{c.duration}</span>
+                    </div>
+
+                    {/* Content */}
+                    <div className="absolute bottom-0 inset-x-0 p-6">
+                      <h3 className="font-serif text-2xl font-bold text-primary-foreground mb-1" style={{ textShadow: "0 2px 10px hsl(0 0% 0% / 0.5)" }}>{c.name}</h3>
+                      <p className="text-primary-foreground/60 text-sm mb-3">by {c.teacher}</p>
+                      <p className="text-primary-foreground/50 text-xs leading-relaxed mb-4 line-clamp-2 group-hover:line-clamp-none transition-all">{c.desc}</p>
+
+                      {/* Outcomes — reveal on hover */}
+                      <div className="max-h-0 group-hover:max-h-40 overflow-hidden transition-all duration-500 mb-3">
+                        <div className="space-y-1 pt-2 border-t border-primary-foreground/10">
+                          {c.outcomes.map((o) => (
+                            <div key={o} className="flex items-center gap-2 text-[11px] text-primary-foreground/60">
+                              <CheckCircle className="h-3 w-3 text-secondary shrink-0" /> {o}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <Button size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 opacity-0 group-hover:opacity-100 transition-all duration-500 shadow-lg">
+                        Enquire Now
+                      </Button>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          </AnimatePresence>
         </div>
       </section>
 
       <SectionDivider />
 
-      {/* Methodology */}
-      <section className="py-16 bg-muted/40">
+      {/* ══════ METHODOLOGY — Bento grid ══════ */}
+      <section className="py-20 bg-muted/30">
         <div className="container mx-auto px-4 max-w-5xl">
-          <h2 className="font-serif text-3xl font-bold text-center mb-10">Learning Methodology</h2>
+          <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="font-serif text-3xl md:text-5xl font-bold text-center mb-16">
+            Learning <span className="text-gradient-gold">Methodology</span>
+          </motion.h2>
           <div className="grid sm:grid-cols-2 gap-6">
             {methodology.map((m, i) => (
               <motion.div
@@ -116,19 +159,22 @@ const Courses = () => {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.1, duration: 0.4 }}
+                transition={{ delay: i * 0.1, duration: 0.5 }}
+                className="group"
               >
-                <Card className="border-none shadow-md overflow-hidden group">
-                  <div className="flex">
-                    <div className="w-28 h-28 shrink-0 img-zoom">
-                      <img src={m.img} alt={m.title} className="w-full h-full object-cover" loading="lazy" />
+                <div className="relative h-48 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500">
+                  <img src={m.img} alt={m.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" loading="lazy" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[hsl(0_0%_0%/0.85)] via-[hsl(0_0%_0%/0.4)] to-transparent" />
+                  <div className="absolute bottom-0 inset-x-0 p-6 flex items-end gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-secondary/20 backdrop-blur-sm flex items-center justify-center shrink-0">
+                      <m.icon className="h-6 w-6 text-secondary" />
                     </div>
-                    <CardContent className="p-4 flex flex-col justify-center">
-                      <h3 className="font-semibold text-sm mb-1">{m.title}</h3>
-                      <p className="text-muted-foreground text-xs leading-relaxed">{m.desc}</p>
-                    </CardContent>
+                    <div>
+                      <h3 className="font-serif text-lg font-bold text-primary-foreground mb-0.5">{m.title}</h3>
+                      <p className="text-primary-foreground/60 text-xs leading-relaxed">{m.desc}</p>
+                    </div>
                   </div>
-                </Card>
+                </div>
               </motion.div>
             ))}
           </div>
