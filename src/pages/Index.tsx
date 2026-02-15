@@ -16,6 +16,14 @@ import imgChorus from "@/assets/gallery/NGR6M_0933.webp";
 import imgEnsemble from "@/assets/gallery/NGR6M_2124_R.webp";
 import imgDancers from "@/assets/gallery/NGR6M_9613.webp";
 import imgDancePerf from "@/assets/gallery/NGR6M_9591.webp";
+import imgDanceGroup from "@/assets/gallery/NGDSC_7428.webp";
+import imgMaleChorus from "@/assets/gallery/NGDSC_8160.webp";
+import imgSitar from "@/assets/gallery/NGMUSIC-2.webp";
+import imgGuruShishya from "@/assets/gallery/NGDANCE-3.webp";
+import imgDanceRecital from "@/assets/gallery/NGDANCE-RECITAL-4.webp";
+import imgDanceSolo from "@/assets/gallery/NGDANCE.webp";
+import imgDancePink from "@/assets/gallery/NGDSC_0238.webp";
+import imgDanceRed from "@/assets/gallery/NGDSC_0608_R.webp";
 
 /* ─── Animated counter hook ─── */
 const useCounter = (end: number, duration = 2000) => {
@@ -71,10 +79,10 @@ const features = [
 
 const courses = [
   { name: "Carnatic Vocal", img: imgVocal, desc: "Master the melodic intricacies of South Indian classical music tradition.", teacher: "Smt. Revathi Ramachandran", level: "Beginner–Advanced" },
-  { name: "Bharatanatyam", img: imgBharatanatyam, desc: "Learn the ancient temple dance form with grace, precision, and devotion.", teacher: "Ms. Manasvini Ramachandran", level: "Beginner–Advanced" },
+  { name: "Bharatanatyam", img: imgDanceGroup, desc: "Learn the ancient temple dance form with grace, precision, and devotion.", teacher: "Ms. Manasvini Ramachandran", level: "Beginner–Advanced" },
   { name: "Mridangam", img: imgPercussion, desc: "Explore the rhythmic heart of Carnatic music with traditional percussion.", teacher: "Sri Venkatesh Kumar", level: "Beginner–Intermediate" },
-  { name: "Hindustani Vocal", img: imgChorus, desc: "Dive into the soulful ragas of North Indian classical music.", teacher: "Sri Raghunandan Panshikar", level: "Beginner–Advanced" },
-  { name: "Flute", img: imgMusic13, desc: "Discover the divine sound of the bamboo flute in classical tradition.", teacher: "Sri Shashank Subramanyam", level: "Beginner–Advanced" },
+  { name: "Hindustani Vocal", img: imgMaleChorus, desc: "Dive into the soulful ragas of North Indian classical music.", teacher: "Sri Raghunandan Panshikar", level: "Beginner–Advanced" },
+  { name: "Sitar", img: imgSitar, desc: "Discover the divine sound of the sitar in classical tradition.", teacher: "Sri Shashank Subramanyam", level: "Beginner–Advanced" },
   { name: "Tabla", img: imgPercussion, desc: "Master complex rhythmic patterns of Hindustani percussion.", teacher: "Sri Abhishek Mishra", level: "Beginner–Intermediate" },
 ];
 
@@ -93,8 +101,8 @@ const stats = [
 
 const facultyShowcase = [
   { name: "Smt. Revathi Ramachandran", spec: "Carnatic Vocal", img: imgVocal },
-  { name: "Sri Raghunandan Panshikar", spec: "Hindustani Vocal", img: imgChorus },
-  { name: "Ms. Manasvini Ramachandran", spec: "Bharatanatyam", img: imgBharatanatyam },
+  { name: "Sri Raghunandan Panshikar", spec: "Hindustani Vocal", img: imgMaleChorus },
+  { name: "Ms. Manasvini Ramachandran", spec: "Bharatanatyam", img: imgGuruShishya },
   { name: "Sri Venkatesh Kumar", spec: "Mridangam", img: imgPercussion },
 ];
 

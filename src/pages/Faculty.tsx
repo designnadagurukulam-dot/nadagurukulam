@@ -8,19 +8,20 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SectionDivider from "@/components/SectionDivider";
 
 import imgVocal from "@/assets/gallery/NGZ6R_1512_R.webp";
-import imgChorus from "@/assets/gallery/NGR6M_0933.webp";
-import imgBharatanatyam from "@/assets/gallery/NGZ6R_1931_R.webp";
 import imgPercussion from "@/assets/gallery/NGZ6R_6439_R.webp";
-import imgMusic13 from "@/assets/gallery/NGMUSIC-13.webp";
-import imgConcert from "@/assets/gallery/NGR6_M1630.webp";
+import imgSitar from "@/assets/gallery/NGMUSIC-2.webp";
+import imgGuruShishya from "@/assets/gallery/NGDANCE-3.webp";
+import imgMaleChorus from "@/assets/gallery/NGDSC_8160.webp";
+import imgVocalClose from "@/assets/gallery/NGIMG_2141.webp";
+import imgDanceRed from "@/assets/gallery/NGDSC_0608_R.webp";
 
 const faculty = [
   { name: "Smt. Revathi Ramachandran", spec: "Carnatic Vocal", cat: "carnatic", role: "Director & Lead Faculty", exp: "25+ years", img: imgVocal, awards: ["Sangeet Natak Akademi Award", "Kalaimamani Title"], bio: "A distinguished Carnatic vocalist and educator, Smt. Revathi has dedicated her life to preserving and propagating the rich tradition of South Indian classical music.", education: ["B.A. Music — University of Madras", "M.A. Carnatic Music — Sri Venkateswara University", "Ph.D. — Musicology"] },
-  { name: "Sri Raghunandan Panshikar", spec: "Hindustani Vocal", cat: "hindustani", role: "Senior Faculty", exp: "20+ years", img: imgChorus, awards: ["Kumar Gandharva Samman", "Tansen Award Nominee"], bio: "A powerful Hindustani vocalist trained in the Gwalior Gharana tradition, bringing depth of khayal gayaki to students with clarity and passion.", education: ["Sangeet Visharad — Gandharva Mahavidyalaya", "M.A. Music — SNDT University"] },
-  { name: "Ms. Manasvini Ramachandran", spec: "Bharatanatyam", cat: "bharatanatyam", role: "Lead Dance Faculty", exp: "15+ years", img: imgBharatanatyam, awards: ["Natya Shiromani Award", "Young Artist Fellowship"], bio: "A graceful and technically brilliant Bharatanatyam artist, combining traditional Tanjore-style Bharatanatyam with contemporary choreographic sensibility.", education: ["B.F.A. Bharatanatyam — Kalakshetra", "M.A. Dance — University of Hyderabad"] },
+  { name: "Sri Raghunandan Panshikar", spec: "Hindustani Vocal", cat: "hindustani", role: "Senior Faculty", exp: "20+ years", img: imgMaleChorus, awards: ["Kumar Gandharva Samman", "Tansen Award Nominee"], bio: "A powerful Hindustani vocalist trained in the Gwalior Gharana tradition, bringing depth of khayal gayaki to students with clarity and passion.", education: ["Sangeet Visharad — Gandharva Mahavidyalaya", "M.A. Music — SNDT University"] },
+  { name: "Ms. Manasvini Ramachandran", spec: "Bharatanatyam", cat: "bharatanatyam", role: "Lead Dance Faculty", exp: "15+ years", img: imgGuruShishya, awards: ["Natya Shiromani Award", "Young Artist Fellowship"], bio: "A graceful and technically brilliant Bharatanatyam artist, combining traditional Tanjore-style Bharatanatyam with contemporary choreographic sensibility.", education: ["B.F.A. Bharatanatyam — Kalakshetra", "M.A. Dance — University of Hyderabad"] },
   { name: "Sri Venkatesh Kumar", spec: "Mridangam", cat: "instrumental", role: "Percussion Faculty", exp: "18+ years", img: imgPercussion, awards: ["Best Accompanist Award — Music Academy", "CCRT Fellowship"], bio: "A consummate mridangam artist known for rhythmic precision and innovative approach. Has accompanied many leading Carnatic musicians.", education: ["Diploma in Mridangam — Karnataka College of Percussion", "M.Mus — University of Mysore"] },
-  { name: "Sri Shashank Subramanyam", spec: "Flute", cat: "instrumental", role: "Flute Faculty", exp: "22+ years", img: imgMusic13, awards: ["Padma Shri Nominee", "A-Grade Artist — All India Radio"], bio: "A flautist of extraordinary caliber who has redefined Carnatic flute playing with unique tonal quality and cross-genre collaborations.", education: ["Trained under Sri T.R. Mahalingam's lineage", "Honorary Doctorate — University of Mysore"] },
-  { name: "Sri Abhishek Mishra", spec: "Tabla", cat: "instrumental", role: "Tabla Faculty", exp: "12+ years", img: imgConcert, awards: ["Ustad Bismillah Khan Yuva Puraskar"], bio: "A dynamic young tabla maestro of the Benares Gharana, bringing energy and innovation to traditional tabla pedagogy.", education: ["B.Mus Tabla — Banaras Hindu University", "M.Mus — Delhi University"] },
+  { name: "Sri Shashank Subramanyam", spec: "Sitar", cat: "instrumental", role: "Sitar Faculty", exp: "22+ years", img: imgSitar, awards: ["Padma Shri Nominee", "A-Grade Artist — All India Radio"], bio: "A sitarist of extraordinary caliber who has redefined classical sitar playing with unique tonal quality and cross-genre collaborations.", education: ["Trained under legendary sitar lineage", "Honorary Doctorate — University of Mysore"] },
+  { name: "Sri Abhishek Mishra", spec: "Tabla", cat: "instrumental", role: "Tabla Faculty", exp: "12+ years", img: imgVocalClose, awards: ["Ustad Bismillah Khan Yuva Puraskar"], bio: "A dynamic young tabla maestro of the Benares Gharana, bringing energy and innovation to traditional tabla pedagogy.", education: ["B.Mus Tabla — Banaras Hindu University", "M.Mus — Delhi University"] },
 ];
 
 const Faculty = () => {
@@ -32,7 +33,7 @@ const Faculty = () => {
     <div>
       {/* Hero */}
       <section className="relative min-h-[45vh] flex items-center justify-center overflow-hidden">
-        <img src={imgVocal} alt="Faculty" className="absolute inset-0 w-full h-full object-cover" />
+        <img src={imgDanceRed} alt="Faculty" className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-br from-[hsl(0_69%_20%/0.88)] to-[hsl(345_75%_15%/0.8)]" />
         <div className="relative z-10 container mx-auto px-4 text-center">
           <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground mb-4">Meet Our Esteemed Gurus</h1>
