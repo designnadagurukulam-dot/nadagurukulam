@@ -33,33 +33,39 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex">
-      {/* Left - decorative */}
-      <div className="hidden lg:flex lg:w-1/2 relative hero-overlay">
-        <img
-          src={campusVault}
-          alt="Campus heritage passage"
-          className="absolute inset-0 w-full h-full object-cover"
+      {/* Left — decorative */}
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
+        <img src={campusVault} alt="Campus heritage passage" className="absolute inset-0 w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(0_69%_10%/0.92)] via-[hsl(0_69%_18%/0.85)] to-[hsl(345_75%_12%/0.8)]" />
+        {/* Animated gradient overlay */}
+        <motion.div
+          className="absolute inset-0 opacity-20"
+          animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
+          transition={{ repeat: Infinity, duration: 10, ease: "easeInOut" }}
+          style={{ background: "linear-gradient(135deg, hsl(43 72% 52% / 0.15), transparent, hsl(43 72% 52% / 0.15))", backgroundSize: "200% 200%" }}
         />
-        <div className="relative z-10 flex flex-col justify-center items-center p-12 text-center">
+        <div className="relative z-10 flex flex-col justify-center items-center p-12 text-center w-full">
           <motion.img
             src={logo}
             alt="Nada Gurukulam"
-            className="h-24 mb-8"
-            animate={{ y: [0, -5, 0] }}
+            className="h-24 mb-10"
+            animate={{ y: [0, -6, 0] }}
             transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
           />
-          <h2 className="font-serif text-3xl text-primary-foreground mb-4" style={{ textShadow: "0 2px 20px hsl(0 0% 0% / 0.4)" }}>Welcome to Nada Gurukulam</h2>
-          <p className="text-primary-foreground/80 text-lg max-w-md">
+          <h2 className="font-serif text-3xl text-primary-foreground mb-4" style={{ textShadow: "0 2px 20px hsl(0 0% 0% / 0.5)" }}>
+            Welcome to<br /><span className="text-shimmer-gold">Nada Gurukulam</span>
+          </h2>
+          <p className="text-primary-foreground/65 text-lg max-w-md leading-relaxed">
             Your journey into the divine world of Indian classical arts begins here.
           </p>
-          <div className="mt-8 flex items-center gap-2 text-secondary">
+          <div className="mt-10 flex items-center gap-3 text-secondary/80">
             <Music className="h-5 w-5" />
             <span className="font-devanagari text-xl">रसो वै सः</span>
           </div>
         </div>
       </div>
 
-      {/* Right - form */}
+      {/* Right — form */}
       <div className="flex-1 flex items-center justify-center p-6 bg-background">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -82,6 +88,7 @@ const Login = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                className="h-12 rounded-xl border-border/50 focus:border-secondary focus:ring-secondary/20"
               />
             </div>
             <div>
@@ -93,29 +100,30 @@ const Login = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  className="h-12 rounded-xl border-border/50 focus:border-secondary focus:ring-secondary/20"
                 />
                 <button
                   type="button"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                   onClick={() => setShowPass(!showPass)}
                 >
                   {showPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full h-12 rounded-xl text-base shadow-lg hover:shadow-xl transition-all" disabled={loading}>
               {loading ? "Signing in..." : "Sign In"}
             </Button>
           </form>
 
-          <p className="text-center text-sm text-muted-foreground mt-6">
+          <p className="text-center text-sm text-muted-foreground mt-8">
             Don't have an account?{" "}
             <Link to="/register" className="text-primary font-medium hover:underline">
               Create Account
             </Link>
           </p>
-          <p className="text-center text-sm mt-2">
-            <Link to="/" className="text-muted-foreground hover:text-primary">
+          <p className="text-center text-sm mt-3">
+            <Link to="/" className="text-muted-foreground hover:text-primary transition-colors">
               ← Back to Home
             </Link>
           </p>

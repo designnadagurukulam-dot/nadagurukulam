@@ -177,6 +177,68 @@
     border: 1px solid hsl(43 72% 52% / 0.15);
   }
 
+  /* ─── Premium card with animated gradient border ─── */
+  .card-premium {
+    position: relative;
+    background: hsl(var(--card));
+    border-radius: 1rem;
+    overflow: hidden;
+  }
+  .card-premium::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    padding: 2px;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, hsl(0 69% 33%), hsl(43 72% 52%), hsl(0 69% 33%), hsl(43 72% 52%));
+    background-size: 300% 300%;
+    animation: gradient-shift 6s ease infinite;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+  .card-premium:hover::before {
+    opacity: 1;
+  }
+
+  /* ─── Gold glass card ─── */
+  .card-glass-gold {
+    background: linear-gradient(145deg, hsl(39 100% 97% / 0.9), hsl(43 72% 52% / 0.05));
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid hsl(43 72% 52% / 0.2);
+    box-shadow: 0 8px 32px hsl(43 72% 52% / 0.08), inset 0 1px 0 hsl(0 0% 100% / 0.5);
+  }
+
+  /* ─── 3D hover tilt ─── */
+  .hover-3d {
+    perspective: 1000px;
+    transform-style: preserve-3d;
+    transition: transform 0.5s ease;
+  }
+  .hover-3d:hover {
+    transform: rotateY(2deg) rotateX(-2deg) scale(1.02);
+  }
+
+  /* ─── Gold badge ─── */
+  .badge-gold {
+    background: linear-gradient(135deg, hsl(43 72% 52%), hsl(48 90% 60%));
+    color: hsl(16 27% 19%);
+    font-weight: 600;
+    font-size: 0.65rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    box-shadow: 0 2px 8px hsl(43 72% 52% / 0.3);
+  }
+
+  /* ─── Section dark variant ─── */
+  .section-dark {
+    background: linear-gradient(135deg, hsl(0 69% 15%) 0%, hsl(345 75% 12%) 100%);
+    color: hsl(39 100% 97%);
+  }
+
   .shimmer-line {
     position: relative;
     overflow: hidden;
@@ -204,6 +266,21 @@
     background-size: 40px 40px;
     pointer-events: none;
   }
+
+  /* ─── Animated gradient border ─── */
+  .gradient-border {
+    position: relative;
+  }
+  .gradient-border::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    background: linear-gradient(135deg, hsl(0 69% 33%), hsl(43 72% 52%), hsl(48 90% 60%), hsl(0 69% 33%));
+    background-size: 400% 400%;
+    animation: gradient-shift 4s ease infinite;
+    z-index: -1;
+  }
 }
 
 @keyframes shimmer {
@@ -219,4 +296,30 @@
 @keyframes glow-pulse {
   0%, 100% { box-shadow: 0 0 20px hsl(43 72% 52% / 0.2); }
   50% { box-shadow: 0 0 40px hsl(43 72% 52% / 0.4); }
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes border-glow {
+  0%, 100% { box-shadow: 0 0 0 2px hsl(43 72% 52% / 0.2), 0 0 20px hsl(43 72% 52% / 0.1); }
+  50% { box-shadow: 0 0 0 2px hsl(43 72% 52% / 0.5), 0 0 30px hsl(43 72% 52% / 0.2); }
+}
+
+@keyframes text-shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+/* ─── Animated text shimmer for headings ─── */
+.text-shimmer-gold {
+  background: linear-gradient(90deg, hsl(43 72% 52%), hsl(48 90% 70%), hsl(43 72% 52%));
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: text-shimmer 4s linear infinite;
 }
