@@ -1,11 +1,14 @@
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, BookOpen, ClipboardList, Calendar, Award, User, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  LayoutDashboard, BookOpen, ClipboardList, Calendar, Award, User, LogOut,
+  ChevronLeft, ChevronRight, PlusCircle, Settings, Users, BarChart3, CheckSquare, Tag, Ticket
+} from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import logo from "@/assets/logo.png";
 
-const navItems = [
+const studentNav = [
   { label: "Overview", to: "/dashboard", icon: LayoutDashboard },
   { label: "My Courses", to: "/dashboard/courses", icon: BookOpen },
   { label: "Assignments", to: "/dashboard/assignments", icon: ClipboardList },
@@ -14,15 +17,38 @@ const navItems = [
   { label: "Profile", to: "/dashboard/profile", icon: User },
 ];
 
+const instructorNav = [
+  { label: "Overview", to: "/dashboard", icon: LayoutDashboard },
+  { label: "My Courses", to: "/dashboard/instructor/courses", icon: BookOpen },
+  { label: "Create Course", to: "/dashboard/instructor/create", icon: PlusCircle },
+  { label: "Submissions", to: "/dashboard/instructor/submissions", icon: CheckSquare },
+  { label: "Profile", to: "/dashboard/profile", icon: User },
+];
+
+const adminNav = [
+  { label: "Overview", to: "/dashboard/admin", icon: LayoutDashboard },
+  { label: "Course Approvals", to: "/dashboard/admin/approvals", icon: CheckSquare },
+  { label: "All Courses", to: "/dashboard/admin/courses", icon: BookOpen },
+  { label: "Students", to: "/dashboard/admin/students", icon: Users },
+  { label: "Categories", to: "/dashboard/admin/categories", icon: Tag },
+  { label: "Coupons", to: "/dashboard/admin/coupons", icon: Ticket },
+  { label: "Analytics", to: "/dashboard/admin/analytics", icon: BarChart3 },
+  { label: "Settings", to: "/dashboard/admin/settings", icon: Settings },
+];
+
 const DashboardSidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
-  const { signOut, profile } = useAuth();
+  const { signOut, profile, role } = useAuth();
+
+  const navItems = role === "admin" ? adminNav : role === "instructor" ? instructorNav : studentNav;
 
   const isActive = (path: string) =>
-    path === "/dashboard"
-      ? location.pathname === "/dashboard"
+    path === "/dashboard" || path === "/dashboard/admin"
+      ? location.pathname === path
       : location.pathname.startsWith(path);
+
+  const roleLabel = role === "admin" ? "Admin" : role === "instructor" ? "Instructor" : "Student";
 
   return (
     <aside
@@ -45,6 +71,13 @@ const DashboardSidebar = () => {
           {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
         </button>
       </div>
+
+      {/* Role badge */}
+      {!collapsed && (
+        <div className="px-4 py-2 border-b border-sidebar-border">
+          <span className="text-[10px] uppercase tracking-widest font-bold text-primary/80">{roleLabel} Dashboard</span>
+        </div>
+      )}
 
       {/* Nav */}
       <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
