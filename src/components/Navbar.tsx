@@ -10,6 +10,7 @@ const navLinks = [
   { label: "Home", to: "/" },
   { label: "About", to: "/about" },
   { label: "Courses", to: "/courses" },
+  { label: "Catalog", to: "/catalog" },
   { label: "Faculty", to: "/faculty" },
   { label: "Join Us", to: "/admissions" },
   { label: "Gallery", to: "/gallery" },
@@ -50,9 +51,9 @@ const Navbar = () => {
         style={{ background: "linear-gradient(90deg, transparent, hsl(43 72% 52% / 0.5), hsl(43 72% 52% / 0.8), hsl(43 72% 52% / 0.5), transparent)" }}
       />
 
-      <div className="container mx-auto flex h-[72px] items-center justify-between px-4">
+      <div className="container mx-auto flex h-[76px] items-center justify-between px-4">
         <Link to="/" className="flex items-center gap-3 group">
-          <img src={logo} alt="Nada Gurukulam" className="h-12 w-auto transition-transform duration-300 group-hover:scale-105" />
+          <img src={logo} alt="Nada Gurukulam" className="h-13 w-auto transition-transform duration-300 group-hover:scale-105" />
           <div className="hidden md:block">
             <span className="font-serif text-lg font-bold text-foreground leading-tight block">Nada Gurukulam</span>
             <span className="text-[10px] text-muted-foreground tracking-[0.2em] uppercase">Classical Arts Academy</span>
@@ -77,10 +78,10 @@ const Navbar = () => {
                   layoutId="nav-indicator"
                   className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] rounded-full"
                   style={{ 
-                    width: "70%",
-                    background: "linear-gradient(90deg, hsl(43 72% 52%), hsl(48 90% 60%), hsl(43 72% 52%))" 
+                    width: "80%",
+                    background: "linear-gradient(90deg, hsl(43 72% 52%), hsl(48 90% 65%), hsl(43 72% 52%))" 
                   }}
-                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  transition={{ type: "spring", stiffness: 350, damping: 28 }}
                 />
               )}
             </Link>
@@ -121,7 +122,7 @@ const Navbar = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="lg:hidden fixed inset-0 top-[72px] z-40 bg-background/98 backdrop-blur-2xl"
+            className="lg:hidden fixed inset-0 top-[76px] z-40 bg-background/98 backdrop-blur-2xl"
           >
             {/* Brand colored header strip */}
             <div className="h-1 w-full" style={{ background: "linear-gradient(90deg, hsl(0 69% 33%), hsl(43 72% 52%), hsl(0 69% 33%))" }} />
