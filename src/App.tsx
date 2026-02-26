@@ -24,6 +24,16 @@ import DashboardAssignments from "./pages/dashboard/DashboardAssignments";
 import DashboardSchedule from "./pages/dashboard/DashboardSchedule";
 import DashboardCertificates from "./pages/dashboard/DashboardCertificates";
 import DashboardProfile from "./pages/dashboard/DashboardProfile";
+import InstructorCourses from "./pages/instructor/InstructorCourses";
+import CreateCourse from "./pages/instructor/CreateCourse";
+import InstructorSubmissions from "./pages/instructor/InstructorSubmissions";
+import AdminOverview from "./pages/admin/AdminOverview";
+import AdminApprovals from "./pages/admin/AdminApprovals";
+import AdminCourses from "./pages/admin/AdminCourses";
+import AdminStudents from "./pages/admin/AdminStudents";
+import AdminCategories from "./pages/admin/AdminCategories";
+import AdminCoupons from "./pages/admin/AdminCoupons";
+import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -47,17 +57,32 @@ const App = () => (
             <Route path="/gallery" element={<Layout><Gallery /></Layout>} />
             <Route path="/contact" element={<Layout><Contact /></Layout>} />
 
-            {/* Auth pages (no layout) */}
+            {/* Auth pages */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
 
-            {/* Dashboard (protected) */}
+            {/* Student Dashboard */}
             <Route path="/dashboard" element={<ProtectedRoute><DashboardLayout><DashboardOverview /></DashboardLayout></ProtectedRoute>} />
             <Route path="/dashboard/courses" element={<ProtectedRoute><DashboardLayout><DashboardCourses /></DashboardLayout></ProtectedRoute>} />
             <Route path="/dashboard/assignments" element={<ProtectedRoute><DashboardLayout><DashboardAssignments /></DashboardLayout></ProtectedRoute>} />
             <Route path="/dashboard/schedule" element={<ProtectedRoute><DashboardLayout><DashboardSchedule /></DashboardLayout></ProtectedRoute>} />
             <Route path="/dashboard/certificates" element={<ProtectedRoute><DashboardLayout><DashboardCertificates /></DashboardLayout></ProtectedRoute>} />
             <Route path="/dashboard/profile" element={<ProtectedRoute><DashboardLayout><DashboardProfile /></DashboardLayout></ProtectedRoute>} />
+
+            {/* Instructor Dashboard */}
+            <Route path="/dashboard/instructor/courses" element={<ProtectedRoute><DashboardLayout><InstructorCourses /></DashboardLayout></ProtectedRoute>} />
+            <Route path="/dashboard/instructor/create" element={<ProtectedRoute><DashboardLayout><CreateCourse /></DashboardLayout></ProtectedRoute>} />
+            <Route path="/dashboard/instructor/edit/:id" element={<ProtectedRoute><DashboardLayout><CreateCourse /></DashboardLayout></ProtectedRoute>} />
+            <Route path="/dashboard/instructor/submissions" element={<ProtectedRoute><DashboardLayout><InstructorSubmissions /></DashboardLayout></ProtectedRoute>} />
+
+            {/* Admin Dashboard */}
+            <Route path="/dashboard/admin" element={<ProtectedRoute><DashboardLayout><AdminOverview /></DashboardLayout></ProtectedRoute>} />
+            <Route path="/dashboard/admin/approvals" element={<ProtectedRoute><DashboardLayout><AdminApprovals /></DashboardLayout></ProtectedRoute>} />
+            <Route path="/dashboard/admin/courses" element={<ProtectedRoute><DashboardLayout><AdminCourses /></DashboardLayout></ProtectedRoute>} />
+            <Route path="/dashboard/admin/students" element={<ProtectedRoute><DashboardLayout><AdminStudents /></DashboardLayout></ProtectedRoute>} />
+            <Route path="/dashboard/admin/categories" element={<ProtectedRoute><DashboardLayout><AdminCategories /></DashboardLayout></ProtectedRoute>} />
+            <Route path="/dashboard/admin/coupons" element={<ProtectedRoute><DashboardLayout><AdminCoupons /></DashboardLayout></ProtectedRoute>} />
+            <Route path="/dashboard/admin/analytics" element={<ProtectedRoute><DashboardLayout><AdminAnalytics /></DashboardLayout></ProtectedRoute>} />
 
             <Route path="*" element={<Layout><NotFound /></Layout>} />
           </Routes>
