@@ -11,6 +11,9 @@ import ScrollToTop from "./components/ScrollToTop";
 import Index from "./pages/Index";
 import About from "./pages/About";
 import Courses from "./pages/Courses";
+import CourseCatalog from "./pages/CourseCatalog";
+import CourseDetail from "./pages/CourseDetail";
+import LessonPlayer from "./pages/LessonPlayer";
 import Faculty from "./pages/Faculty";
 import FacultyDetail from "./pages/FacultyDetail";
 import Admissions from "./pages/Admissions";
@@ -51,6 +54,9 @@ const App = () => (
             <Route path="/" element={<Layout><Index /></Layout>} />
             <Route path="/about" element={<Layout><About /></Layout>} />
             <Route path="/courses" element={<Layout><Courses /></Layout>} />
+            <Route path="/catalog" element={<Layout><CourseCatalog /></Layout>} />
+            <Route path="/course/:id" element={<Layout><CourseDetail /></Layout>} />
+            <Route path="/course/:courseId/lesson/:lessonId" element={<LessonPlayer />} />
             <Route path="/faculty" element={<Layout><Faculty /></Layout>} />
             <Route path="/faculty/:id" element={<Layout><FacultyDetail /></Layout>} />
             <Route path="/admissions" element={<Layout><Admissions /></Layout>} />
