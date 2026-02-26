@@ -1,9 +1,9 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, BookOpen, ClipboardList, Calendar, Award, User, LogOut,
-  ChevronLeft, ChevronRight, PlusCircle, Settings, Users, BarChart3, CheckSquare, Tag, Ticket, Menu
+  ChevronLeft, ChevronRight, PlusCircle, Settings, Users, BarChart3, CheckSquare, Tag, Ticket, Menu, X
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import logo from "@/assets/logo.png";
@@ -45,6 +45,21 @@ const DashboardSidebar = () => {
 
   const navItems = role === "admin" ? adminNav : role === "instructor" ? instructorNav : studentNav;
 
+  // Close mobile sidebar on route change
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [location.pathname]);
+
+  // Prevent body scroll when mobile sidebar is open
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [mobileOpen]);
+
   const isActive = (path: string) =>
     path === "/dashboard" || path === "/dashboard/admin"
       ? location.pathname === path
@@ -61,36 +76,41 @@ const DashboardSidebar = () => {
     navigate("/");
   };
 
-  const sidebarContent = (
+  const sidebarContent = (isMobile = false) => (
     <>
       {/* Logo area */}
       <div className="flex items-center justify-between p-4 border-b border-secondary/10">
-        {!collapsed && (
+        {(!collapsed || isMobile) ? (
           <Link to="/" className="flex items-center gap-2.5">
             <img src={logo} alt="Logo" className="h-9" />
             <span className="font-serif text-sm font-bold text-foreground">Nada Gurukulam</span>
           </Link>
-        )}
-        {collapsed && (
+        ) : (
           <Link to="/" className="mx-auto">
             <img src={logo} alt="Logo" className="h-8" />
           </Link>
         )}
-        <button
-          onClick={() => setCollapsed(!collapsed)}
-          className="p-1.5 rounded-lg hover:bg-secondary/10 text-muted-foreground hidden lg:block"
-        >
-          {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-        </button>
+        {isMobile ? (
+          <button onClick={() => setMobileOpen(false)} className="p-1.5 rounded-lg hover:bg-secondary/10 text-muted-foreground">
+            <X className="h-5 w-5" />
+          </button>
+        ) : (
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="p-1.5 rounded-lg hover:bg-secondary/10 text-muted-foreground hidden lg:block"
+          >
+            {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+          </button>
+        )}
       </div>
 
       {/* User avatar + role badge */}
-      <div className={`border-b border-secondary/10 ${collapsed ? "p-3" : "px-4 py-4"}`}>
-        <div className={`flex items-center ${collapsed ? "justify-center" : "gap-3"}`}>
+      <div className={`border-b border-secondary/10 ${(collapsed && !isMobile) ? "p-3" : "px-4 py-4"}`}>
+        <div className={`flex items-center ${(collapsed && !isMobile) ? "justify-center" : "gap-3"}`}>
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center text-primary-foreground font-bold text-xs shrink-0 shadow-md">
             {initials}
           </div>
-          {!collapsed && (
+          {(!collapsed || isMobile) && (
             <div className="min-w-0">
               <p className="text-sm font-semibold text-foreground truncate">{profile?.display_name || "User"}</p>
               <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-secondary">{roleLabel}</span>
@@ -105,20 +125,18 @@ const DashboardSidebar = () => {
           <Link
             key={item.to}
             to={item.to}
-            onClick={() => setMobileOpen(false)}
             className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 group ${
               isActive(item.to)
                 ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
                 : "text-muted-foreground hover:bg-secondary/8 hover:text-foreground"
             }`}
-            title={collapsed ? item.label : undefined}
+            title={(collapsed && !isMobile) ? item.label : undefined}
           >
-            {/* Golden left accent for active item */}
             {isActive(item.to) && (
               <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 rounded-r-full bg-secondary shadow-sm shadow-secondary/50" />
             )}
             <item.icon className="h-5 w-5 shrink-0" />
-            {!collapsed && <span>{item.label}</span>}
+            {(!collapsed || isMobile) && <span>{item.label}</span>}
           </Link>
         ))}
       </nav>
@@ -132,7 +150,7 @@ const DashboardSidebar = () => {
           onClick={handleSignOut}
         >
           <LogOut className="h-4 w-4 shrink-0" />
-          {!collapsed && <span>Sign Out</span>}
+          {(!collapsed || isMobile) && <span>Sign Out</span>}
         </Button>
       </div>
     </>
@@ -140,22 +158,28 @@ const DashboardSidebar = () => {
 
   return (
     <>
-      {/* Mobile toggle */}
-      <button
-        onClick={() => setMobileOpen(true)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2.5 rounded-xl bg-card shadow-lg border border-border"
-      >
-        <Menu className="h-5 w-5" />
-      </button>
+      {/* Mobile toggle - only show when sidebar is closed */}
+      {!mobileOpen && (
+        <button
+          onClick={() => setMobileOpen(true)}
+          className="lg:hidden fixed top-3 left-3 z-50 p-2.5 rounded-xl bg-card shadow-lg border border-border"
+          aria-label="Open menu"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+      )}
 
-      {/* Mobile overlay */}
+      {/* Mobile overlay + sidebar */}
       {mobileOpen && (
-        <div className="lg:hidden fixed inset-0 z-40 bg-foreground/30 backdrop-blur-sm" onClick={() => setMobileOpen(false)}>
+        <div
+          className="lg:hidden fixed inset-0 z-50 bg-foreground/30 backdrop-blur-sm animate-in fade-in duration-200"
+          onClick={() => setMobileOpen(false)}
+        >
           <aside
-            className="w-72 h-full flex flex-col bg-card shadow-2xl border-r border-border"
+            className="w-72 max-w-[85vw] h-full flex flex-col bg-card shadow-2xl border-r border-border animate-in slide-in-from-left duration-300"
             onClick={(e) => e.stopPropagation()}
           >
-            {sidebarContent}
+            {sidebarContent(true)}
           </aside>
         </div>
       )}
@@ -166,7 +190,7 @@ const DashboardSidebar = () => {
           collapsed ? "w-[72px]" : "w-64"
         }`}
       >
-        {sidebarContent}
+        {sidebarContent(false)}
       </aside>
     </>
   );
