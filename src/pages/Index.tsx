@@ -253,7 +253,7 @@ const Index = () => {
             <Button asChild size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 text-base px-12 shadow-2xl hover:shadow-secondary/30 transition-all hover:-translate-y-1 h-14 animate-glow-pulse font-semibold">
               <Link to="/courses"><Sparkles className="h-4 w-4 mr-2" />Explore Courses</Link>
             </Button>
-            <Button asChild size="lg" variant="outline" className="border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10 text-base px-12 backdrop-blur-md h-14 font-medium">
+            <Button asChild size="lg" className="bg-white text-black hover:bg-white/90 text-base px-12 h-14 font-medium shadow-lg">
               <Link to="/contact">Contact Us</Link>
             </Button>
           </motion.div>
