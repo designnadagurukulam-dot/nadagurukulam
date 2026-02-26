@@ -22,6 +22,8 @@ const instructorNav = [
   { label: "My Courses", to: "/dashboard/instructor/courses", icon: BookOpen },
   { label: "Create Course", to: "/dashboard/instructor/create", icon: PlusCircle },
   { label: "Submissions", to: "/dashboard/instructor/submissions", icon: CheckSquare },
+  { label: "My Students", to: "/dashboard/instructor/students", icon: Users },
+  { label: "Analytics", to: "/dashboard/instructor/analytics", icon: BarChart3 },
   { label: "Profile", to: "/dashboard/profile", icon: User },
 ];
 

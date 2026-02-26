@@ -30,6 +30,8 @@ import DashboardProfile from "./pages/dashboard/DashboardProfile";
 import InstructorCourses from "./pages/instructor/InstructorCourses";
 import CreateCourse from "./pages/instructor/CreateCourse";
 import InstructorSubmissions from "./pages/instructor/InstructorSubmissions";
+import InstructorStudents from "./pages/instructor/InstructorStudents";
+import InstructorAnalytics from "./pages/instructor/InstructorAnalytics";
 import AdminOverview from "./pages/admin/AdminOverview";
 import AdminApprovals from "./pages/admin/AdminApprovals";
 import AdminCourses from "./pages/admin/AdminCourses";
@@ -80,7 +82,8 @@ const App = () => (
             <Route path="/dashboard/instructor/create" element={<ProtectedRoute><DashboardLayout><CreateCourse /></DashboardLayout></ProtectedRoute>} />
             <Route path="/dashboard/instructor/edit/:id" element={<ProtectedRoute><DashboardLayout><CreateCourse /></DashboardLayout></ProtectedRoute>} />
             <Route path="/dashboard/instructor/submissions" element={<ProtectedRoute><DashboardLayout><InstructorSubmissions /></DashboardLayout></ProtectedRoute>} />
-
+            <Route path="/dashboard/instructor/students" element={<ProtectedRoute><DashboardLayout><InstructorStudents /></DashboardLayout></ProtectedRoute>} />
+            <Route path="/dashboard/instructor/analytics" element={<ProtectedRoute><DashboardLayout><InstructorAnalytics /></DashboardLayout></ProtectedRoute>} />
             {/* Admin Dashboard */}
             <Route path="/dashboard/admin" element={<ProtectedRoute><DashboardLayout><AdminOverview /></DashboardLayout></ProtectedRoute>} />
             <Route path="/dashboard/admin/approvals" element={<ProtectedRoute><DashboardLayout><AdminApprovals /></DashboardLayout></ProtectedRoute>} />
