@@ -94,8 +94,8 @@ export default {
           "100%": { opacity: "1", filter: "blur(0)" },
         },
         "glow-pulse": {
-          "0%, 100%": { boxShadow: "0 0 20px hsl(43 72% 52% / 0.2)" },
-          "50%": { boxShadow: "0 0 40px hsl(43 72% 52% / 0.4)" },
+          "0%, 100%": { boxShadow: "0 0 20px hsl(42 100% 50% / 0.2)" },
+          "50%": { boxShadow: "0 0 40px hsl(42 100% 50% / 0.4)" },
         },
         "marquee": {
           "0%": { transform: "translateX(0)" },
