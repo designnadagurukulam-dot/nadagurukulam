@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Filter, Clock, BarChart3, IndianRupee, Sparkles } from "lucide-react";
+import { getCourseImage } from "@/lib/courseImages";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
@@ -137,7 +138,7 @@ const CourseCatalog = () => {
                   >
                     <Link to={`/course/${course.id}`} className="group block">
                       <div className="relative h-[360px] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 card-premium hover-magnetic border border-border">
-                        {course.thumbnail_url || course.image_url ? (
+                        {(course.thumbnail_url?.startsWith("http") || course.image_url?.startsWith("http")) ? (
                           <img
                             src={course.thumbnail_url || course.image_url || ""}
                             alt={course.title}
@@ -145,7 +146,12 @@ const CourseCatalog = () => {
                             loading="lazy"
                           />
                         ) : (
-                          <div className="absolute inset-0 gradient-maroon" />
+                          <img
+                            src={getCourseImage(course)}
+                            alt={course.title}
+                            className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                            loading="lazy"
+                          />
                         )}
                         <div className="absolute inset-0 bg-gradient-to-t from-[hsl(0_0%_0%/0.9)] via-[hsl(0_0%_0%/0.3)] to-transparent" />
 
