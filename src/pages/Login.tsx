@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, Music } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
+import { getRoleDashboardPath } from "@/components/RoleProtectedRoute";
 import { useToast } from "@/hooks/use-toast";
 import logo from "@/assets/logo.png";
 import campusVault from "@/assets/campus/NGVaultPassage.jpg";
@@ -14,9 +15,17 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { signIn } = useAuth();
+  const [loginSuccess, setLoginSuccess] = useState(false);
+  const { signIn, role, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Redirect after login once role is loaded
+  useEffect(() => {
+    if (loginSuccess && user && role) {
+      navigate(getRoleDashboardPath(role), { replace: true });
+    }
+  }, [loginSuccess, user, role, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,7 +36,7 @@ const Login = () => {
       toast({ title: "Login failed", description: error, variant: "destructive" });
     } else {
       toast({ title: "Welcome back!" });
-      navigate("/dashboard");
+      setLoginSuccess(true);
     }
   };
 
