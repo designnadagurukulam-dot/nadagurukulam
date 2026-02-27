@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ChevronDown, Quote, Star, Building2, Music, Sparkles, Lightbulb, Globe, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -17,6 +19,7 @@ import imgSitar from "@/assets/gallery/NGMUSIC-2.webp";
 
 import founderImg from "@/assets/founders/SadguruSriMadhusudanSai.jpg";
 import { facultyMembers } from "@/data/facultyData";
+import { getCourseImage } from "@/lib/courseImages";
 import campusAerial from "@/assets/campus/NGCampusAerial.jpg";
 import campusAmphitheatre from "@/assets/campus/NGAmphitheatre.jpg";
 import campusReception from "@/assets/campus/NGReception.jpg";
@@ -72,14 +75,7 @@ const features = [
   { title: "Global Recognition", desc: "Students performing and teaching across 30+ countries around the world.", icon: Globe },
 ];
 
-const courses = [
-  { name: "Carnatic Vocal", img: imgVocal },
-  { name: "Bharatanatyam", img: imgDanceGroup },
-  { name: "Mridangam", img: imgPercussion },
-  { name: "Hindustani Vocal", img: imgMaleChorus },
-  { name: "Sitar", img: imgSitar },
-  { name: "Tabla", img: imgPercussion },
-];
+// Static courses removed — fetched from DB in component
 
 const testimonials = [
   { name: "Priya Sharma", text: "Nada Gurukulam transformed my understanding of Carnatic music. The personal attention from Gurus is unmatched.", course: "Carnatic Vocal" },
@@ -155,6 +151,19 @@ const FloatingOrnament = ({ style, delay }: { style: React.CSSProperties; delay:
 const Index = () => {
   const heroRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
+
+  const { data: dbCourses = [] } = useQuery({
+    queryKey: ["homepage-courses"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("courses")
+        .select("id, title, slug, image_url, thumbnail_url")
+        .eq("status", "approved")
+        .order("created_at", { ascending: true });
+      if (error) throw error;
+      return data;
+    },
+  });
   const heroY = useTransform(scrollYProgress, [0, 1], [0, 200]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
   const activeTestimonial = useAutoRotate(testimonials.length);
@@ -417,10 +426,10 @@ const Index = () => {
         <div className="relative overflow-hidden">
           <div className="marquee-strip">
             <div className="marquee-content" style={{ animationDuration: "40s" }}>
-              {[...courses, ...courses].map((c, i) => (
-                <Link to="/courses" key={i} className="group inline-block mx-3 flex-shrink-0">
+              {[...dbCourses, ...dbCourses].map((c: any, i: number) => (
+                <Link to={`/programs/${c.slug || c.id}`} key={i} className="group inline-block mx-3 flex-shrink-0">
                   <div className="relative w-[280px] sm:w-[320px] h-[400px] rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-700 card-premium">
-                    <img src={c.img} alt={c.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-[1.2s]" loading="lazy" />
+                    <img src={getCourseImage(c)} alt={c.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-[1.2s]" loading="lazy" />
                     <div className="absolute inset-0 bg-gradient-to-t from-[hsl(0_0%_0%/0.92)] via-[hsl(0_0%_0%/0.3)] to-transparent" />
                     <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 bg-gradient-to-t from-[hsl(43_72%_52%/0.12)] via-transparent to-transparent" />
                     {/* Golden corner ornaments */}
@@ -428,7 +437,7 @@ const Index = () => {
                     <div className="absolute bottom-20 right-4 w-8 h-8 border-b-2 border-r-2 border-secondary/40 rounded-br-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     <div className="absolute bottom-0 inset-x-0 p-6">
                       <div className="w-10 h-0.5 bg-secondary rounded-full mb-3 group-hover:w-16 transition-all duration-500" />
-                      <h3 className="font-serif text-2xl font-bold text-primary-foreground" style={{ textShadow: "0 3px 20px hsl(0 0% 0% / 0.7)" }}>{c.name}</h3>
+                      <h3 className="font-serif text-2xl font-bold text-primary-foreground" style={{ textShadow: "0 3px 20px hsl(0 0% 0% / 0.7)" }}>{c.title}</h3>
                     </div>
                   </div>
                 </Link>

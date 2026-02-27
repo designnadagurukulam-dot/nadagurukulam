@@ -302,6 +302,7 @@ export type Database = {
           level: string | null
           preview_video_url: string | null
           price: number
+          slug: string | null
           status: string
           tags: string[] | null
           thumbnail_url: string | null
@@ -322,6 +323,7 @@ export type Database = {
           level?: string | null
           preview_video_url?: string | null
           price?: number
+          slug?: string | null
           status?: string
           tags?: string[] | null
           thumbnail_url?: string | null
@@ -342,6 +344,7 @@ export type Database = {
           level?: string | null
           preview_video_url?: string | null
           price?: number
+          slug?: string | null
           status?: string
           tags?: string[] | null
           thumbnail_url?: string | null
