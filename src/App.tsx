@@ -41,6 +41,7 @@ import AdminCategories from "./pages/admin/AdminCategories";
 import AdminCoupons from "./pages/admin/AdminCoupons";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import NotFound from "./pages/NotFound";
+import ProgramDetail from "./pages/ProgramDetail";
 
 const queryClient = new QueryClient();
 
@@ -59,6 +60,7 @@ const App = () => (
             <Route path="/courses" element={<Layout><Courses /></Layout>} />
             <Route path="/catalog" element={<Layout><CourseCatalog /></Layout>} />
             <Route path="/course/:id" element={<Layout><CourseDetail /></Layout>} />
+            <Route path="/programs/:slug" element={<Layout><ProgramDetail /></Layout>} />
             <Route path="/course/:courseId/lesson/:lessonId" element={<LessonPlayer />} />
             <Route path="/faculty" element={<Layout><Faculty /></Layout>} />
             <Route path="/faculty/:id" element={<Layout><FacultyDetail /></Layout>} />
