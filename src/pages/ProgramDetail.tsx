@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Music, Clock, Users, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SectionDivider from "@/components/SectionDivider";
+import InquiryFormDialog from "@/components/InquiryFormDialog";
 
 import imgVocal from "@/assets/gallery/NGZ6R_1512_R.webp";
 import imgMaleChorus from "@/assets/gallery/NGDSC_8160.webp";
@@ -121,6 +123,7 @@ const programsData: Record<string, ProgramInfo> = {
 
 const ProgramDetail = () => {
   const { slug } = useParams<{ slug: string }>();
+  const [inquiryOpen, setInquiryOpen] = useState(false);
   const program = slug ? programsData[slug] : null;
 
   if (!program) {
@@ -203,9 +206,9 @@ const ProgramDetail = () => {
             </ul>
 
             <div className="flex flex-wrap gap-4">
-              <Link to="/admissions">
-                <Button size="lg" className="shadow-lg">Apply Now</Button>
-              </Link>
+              <Button size="lg" className="shadow-lg" onClick={() => setInquiryOpen(true)}>
+                Apply Now
+              </Button>
               <Link to="/contact">
                 <Button size="lg" variant="outline">Contact Us</Button>
               </Link>
@@ -213,6 +216,13 @@ const ProgramDetail = () => {
           </motion.div>
         </div>
       </section>
+
+      <InquiryFormDialog
+        open={inquiryOpen}
+        onOpenChange={setInquiryOpen}
+        programSlug={slug || ""}
+        programName={program.name}
+      />
     </div>
   );
 };
