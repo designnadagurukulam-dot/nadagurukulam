@@ -520,6 +520,45 @@ export type Database = {
         }
         Relationships: []
       }
+      program_inquiries: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          message: string | null
+          phone: string | null
+          program_name: string
+          program_slug: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          message?: string | null
+          phone?: string | null
+          program_name: string
+          program_slug: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          message?: string | null
+          phone?: string | null
+          program_name?: string
+          program_slug?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       schedules: {
         Row: {
           course_id: string | null

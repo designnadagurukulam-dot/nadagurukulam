@@ -40,6 +40,7 @@ import AdminStudents from "./pages/admin/AdminStudents";
 import AdminCategories from "./pages/admin/AdminCategories";
 import AdminCoupons from "./pages/admin/AdminCoupons";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
+import AdminInquiries from "./pages/admin/AdminInquiries";
 import NotFound from "./pages/NotFound";
 import ProgramDetail from "./pages/ProgramDetail";
 
@@ -90,6 +91,7 @@ const App = () => (
 
             {/* Admin Dashboard */}
             <Route path="/dashboard/admin" element={<RoleProtectedRoute allowedRoles={["admin"]}><DashboardLayout><AdminOverview /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/admin/inquiries" element={<RoleProtectedRoute allowedRoles={["admin"]}><DashboardLayout><AdminInquiries /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/admin/approvals" element={<RoleProtectedRoute allowedRoles={["admin"]}><DashboardLayout><AdminApprovals /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/admin/courses" element={<RoleProtectedRoute allowedRoles={["admin"]}><DashboardLayout><AdminCourses /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/admin/students" element={<RoleProtectedRoute allowedRoles={["admin"]}><DashboardLayout><AdminStudents /></DashboardLayout></RoleProtectedRoute>} />

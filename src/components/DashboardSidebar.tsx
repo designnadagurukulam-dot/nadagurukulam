@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, BookOpen, ClipboardList, Calendar, Award, User, LogOut,
-  ChevronLeft, ChevronRight, PlusCircle, Settings, Users, BarChart3, CheckSquare, Tag, Ticket, Menu, X
+  ChevronLeft, ChevronRight, PlusCircle, Settings, Users, BarChart3, CheckSquare, Tag, Ticket, Menu, X, MessageSquare
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
@@ -29,6 +29,7 @@ const instructorNav = [
 
 const adminNav = [
   { label: "Overview", to: "/dashboard/admin", icon: LayoutDashboard },
+  { label: "Inquiries", to: "/dashboard/admin/inquiries", icon: MessageSquare },
   { label: "Course Approvals", to: "/dashboard/admin/approvals", icon: CheckSquare },
   { label: "All Courses", to: "/dashboard/admin/courses", icon: BookOpen },
   { label: "Students", to: "/dashboard/admin/students", icon: Users },
