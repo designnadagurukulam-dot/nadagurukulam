@@ -71,7 +71,9 @@ const App = () => (
             <Route path="/contact" element={<Layout><Contact /></Layout>} />
 
             {/* Auth pages */}
-            <Route path="/login" element={<Login />} />
+            <Route path="/login" element={<LoginSelect />} />
+            <Route path="/login/student" element={<Login roleType="student" />} />
+            <Route path="/login/educator" element={<Login roleType="educator" />} />
             <Route path="/register" element={<Register />} />
 
             {/* Student Dashboard */}
