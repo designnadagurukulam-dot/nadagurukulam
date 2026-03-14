@@ -199,7 +199,7 @@ const Admissions = () => (
       <div className="container mx-auto px-4 text-center relative z-10">
         <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
           <h2 className="font-serif text-4xl md:text-6xl font-bold text-primary-foreground mb-4">Interested in Joining?</h2>
-          <p className="text-primary-foreground/55 mb-12 max-w-lg mx-auto text-lg">We'd love to hear from you. Reach out to learn more about our programs.</p>
+          <p className="text-primary-foreground/55 mb-12 max-w-lg mx-auto text-lg">We'd love to hear from you. Reach out to learn more about our courses.</p>
           <Button asChild size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 text-lg px-14 h-14 shadow-2xl hover:shadow-secondary/30 transition-all hover:-translate-y-1 animate-glow-pulse">
             <Link to="/contact">
               <ArrowRight className="h-5 w-5 mr-2" />
