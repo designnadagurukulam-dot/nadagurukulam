@@ -134,7 +134,7 @@ const Login = ({ roleType }: LoginProps) => {
 
           <p className="text-center text-sm text-muted-foreground mt-8">
             Don't have an account?{" "}
-            <Link to="/register" className="text-primary font-medium hover:underline">
+            <Link to={roleType === "educator" ? "/register/educator" : "/register/student"} className="text-primary font-medium hover:underline">
               Create Account
             </Link>
           </p>
