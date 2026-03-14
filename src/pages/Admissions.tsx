@@ -51,17 +51,11 @@ const Admissions = () => (
 
       <div className="relative z-10 container mx-auto px-4 text-center">
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="font-devanagari text-xl text-shimmer-gold mb-3">
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="font-devanagari text-3xl md:text-5xl lg:text-6xl text-shimmer-gold mb-4">
             शिक्षा परम् धर्मम्
           </motion.p>
-          <h1
-            className="font-serif text-5xl md:text-7xl lg:text-8xl font-bold text-primary-foreground mb-4"
-            style={{ textShadow: "0 4px 40px hsl(0 0% 0% / 0.5)" }}
-          >
-            Join Nada Gurukulam
-          </h1>
-          <p className="text-primary-foreground/55 max-w-2xl mx-auto text-lg">
-            Embark on a transformative journey into the sacred world of Indian classical music and dance.
+          <p className="text-primary-foreground/50 italic text-lg md:text-2xl tracking-[0.2em]">
+            "Education is the highest virtue"
           </p>
         </motion.div>
       </div>

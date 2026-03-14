@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles } from "lucide-react";
 import SectionDivider from "@/components/SectionDivider";
 import { courseImageMap, defaultCourseImage } from "@/lib/courseImages";
 
@@ -61,18 +60,12 @@ const Courses = () => {
 
         <div className="relative z-10 container mx-auto px-4 text-center">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
-            <motion.p initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="font-devanagari text-xl md:text-2xl text-shimmer-gold mb-3">
+            <motion.p initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="font-devanagari text-3xl md:text-5xl lg:text-6xl text-shimmer-gold mb-4">
               विद्या ददाति विनयम्
             </motion.p>
-            <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl font-extrabold text-primary-foreground mb-5" style={{ textShadow: "0 4px 40px hsl(0 0% 0% / 0.5)" }}>
-              Our Courses
-            </h1>
-            <p className="text-primary-foreground/50 max-w-2xl mx-auto mb-6 text-lg">
-              Comprehensive courses rooted in tradition, designed for the modern learner.
+            <p className="text-primary-foreground/50 italic text-lg md:text-2xl tracking-[0.2em]">
+              "Knowledge bestows humility"
             </p>
-            <span className="badge-gold inline-flex items-center gap-1.5 text-xs">
-              <Sparkles className="h-3 w-3" /> {courses.length} Courses Available
-            </span>
           </motion.div>
         </div>
       </section>
