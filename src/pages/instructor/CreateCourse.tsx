@@ -13,7 +13,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
-const steps = ["Details", "Modules & Lessons", "Pricing & Review"];
+const steps = ["Details", "Modules & Lessons", "Review"];
 
 const lessonTypeIcons: Record<string, any> = { video: Video, pdf: FileText, text: Type };
 
