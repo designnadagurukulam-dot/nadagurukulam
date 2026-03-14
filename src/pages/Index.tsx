@@ -6,6 +6,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { ChevronDown, Quote, Star, Building2, Music, Sparkles, Lightbulb, Globe, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SectionDivider from "@/components/SectionDivider";
+import logo from "@/assets/logo.png";
 
 import imgMusic13 from "@/assets/gallery/NGMUSIC-13.webp";
 import imgMusic6 from "@/assets/gallery/NGMUSIC-6.webp";
