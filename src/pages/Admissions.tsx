@@ -9,7 +9,7 @@ import imgDancePerf from "@/assets/gallery/NGR6M_9591.webp";
 import campusAmphitheatre from "@/assets/campus/NGAmphitheatre.jpg";
 
 const highlights = [
-  { icon: Music, title: "Classical Traditions", desc: "Carnatic & Hindustani vocal, instrumental, and dance programs rooted in authentic Guru-Shishya Parampara." },
+  { icon: Music, title: "Classical Traditions", desc: "Carnatic & Hindustani vocal, instrumental, and dance courses rooted in authentic Guru-Shishya Parampara." },
   { icon: BookOpen, title: "Holistic Curriculum", desc: "A blend of rigorous artistic training, spiritual growth, and academic excellence." },
   { icon: Users, title: "Renowned Gurus", desc: "Learn from masters who have dedicated their lives to preserving and propagating Indian classical arts." },
   { icon: Heart, title: "Values-Driven", desc: "Education anchored in human values — selfless service, devotion, and the pursuit of inner excellence." },
