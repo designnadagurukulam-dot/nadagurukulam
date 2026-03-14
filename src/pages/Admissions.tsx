@@ -16,9 +16,9 @@ const highlights = [
 ];
 
 const faqs = [
-  { q: "Who can join Nada Gurukulam?", a: "Nada Gurukulam welcomes sincere seekers of Indian classical music and dance. Prior musical training may be required for certain programs." },
+  { q: "Who can join Nada Gurukulam?", a: "Nada Gurukulam welcomes sincere seekers of Indian classical music and dance. Prior musical training may be required for certain courses." },
   { q: "Are online classes available?", a: "Yes, we offer online live sessions for students who cannot attend in person at the campus." },
-  { q: "What is the duration of the programs?", a: "Programs range from 2 to 4 years depending on the discipline and level." },
+  { q: "What is the duration of the courses?", a: "Courses range from 2 to 4 years depending on the discipline and level." },
   { q: "Are scholarships available?", a: "Yes, merit-based and need-based scholarships are available for deserving students." },
   { q: "How can I express interest in joining?", a: "Please reach out through our Contact page. Our team will get back to you with all the details." },
 ];

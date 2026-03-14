@@ -114,7 +114,7 @@ const Courses = () => {
             </div>
           ) : filtered.length === 0 ? (
             <div className="text-center py-20">
-              <p className="text-muted-foreground text-lg">No programs found.</p>
+              <p className="text-muted-foreground text-lg">No courses found.</p>
             </div>
           ) : (
             <AnimatePresence mode="wait">
