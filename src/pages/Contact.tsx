@@ -97,7 +97,7 @@ const Contact = () => {
               Contact Us
             </h1>
             <p className="text-primary-foreground/55 max-w-2xl mx-auto text-lg">
-              We'd love to hear from you. Reach out with any questions about our programs.
+              We'd love to hear from you. Reach out with any questions about our courses.
             </p>
           </motion.div>
         </div>

@@ -10,7 +10,7 @@ import { courseImageMap, defaultCourseImage } from "@/lib/courseImages";
 import imgMusic13 from "@/assets/gallery/NGMUSIC-13.webp";
 
 const tabs = [
-  { value: "all", label: "All Programs" },
+  { value: "all", label: "All Courses" },
   { value: "Vocal", label: "Vocal" },
   { value: "Instrumental", label: "Instrumental" },
   { value: "Dance", label: "Dance" },
@@ -65,13 +65,13 @@ const Courses = () => {
               विद्या ददाति विनयम्
             </motion.p>
             <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl font-extrabold text-primary-foreground mb-5" style={{ textShadow: "0 4px 40px hsl(0 0% 0% / 0.5)" }}>
-              Our Programs
+              Our Courses
             </h1>
             <p className="text-primary-foreground/50 max-w-2xl mx-auto mb-6 text-lg">
-              Comprehensive programs rooted in tradition, designed for the modern learner.
+              Comprehensive courses rooted in tradition, designed for the modern learner.
             </p>
             <span className="badge-gold inline-flex items-center gap-1.5 text-xs">
-              <Sparkles className="h-3 w-3" /> {courses.length} Programs Available
+              <Sparkles className="h-3 w-3" /> {courses.length} Courses Available
             </span>
           </motion.div>
         </div>
@@ -114,7 +114,7 @@ const Courses = () => {
             </div>
           ) : filtered.length === 0 ? (
             <div className="text-center py-20">
-              <p className="text-muted-foreground text-lg">No programs found.</p>
+              <p className="text-muted-foreground text-lg">No courses found.</p>
             </div>
           ) : (
             <AnimatePresence mode="wait">

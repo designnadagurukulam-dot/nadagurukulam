@@ -85,9 +85,9 @@ const ProgramDetail = () => {
   if (!program) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-4">
-        <p className="text-muted-foreground text-lg">Program not found.</p>
+        <p className="text-muted-foreground text-lg">Course not found.</p>
         <Link to="/courses">
-          <Button variant="outline">← Back to Programs</Button>
+          <Button variant="outline">← Back to Courses</Button>
         </Link>
       </div>
     );
@@ -116,7 +116,7 @@ const ProgramDetail = () => {
               to="/courses"
               className="inline-flex items-center gap-1.5 text-primary-foreground/60 hover:text-primary-foreground text-sm mb-6 transition-colors"
             >
-              <ArrowLeft className="h-4 w-4" /> Back to Programs
+              <ArrowLeft className="h-4 w-4" /> Back to Courses
             </Link>
             {program.category && (
               <span className="block text-secondary text-sm font-semibold tracking-widest uppercase mb-2">

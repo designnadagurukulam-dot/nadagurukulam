@@ -415,9 +415,9 @@ const Index = () => {
       <section className="py-24 bg-background">
         <div className="container mx-auto px-4">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-            <h2 className="font-serif text-4xl md:text-5xl font-extrabold text-center mb-3">Our Programs</h2>
+            <h2 className="font-serif text-4xl md:text-5xl font-extrabold text-center mb-3">Our Courses</h2>
             <p className="text-center text-muted-foreground max-w-2xl mx-auto mb-16 text-sm tracking-wide">
-              Comprehensive programs in vocal, instrumental, and dance traditions.
+              Comprehensive courses in vocal, instrumental, and dance traditions.
             </p>
           </motion.div>
         </div>

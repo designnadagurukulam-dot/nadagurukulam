@@ -9,16 +9,16 @@ import imgDancePerf from "@/assets/gallery/NGR6M_9591.webp";
 import campusAmphitheatre from "@/assets/campus/NGAmphitheatre.jpg";
 
 const highlights = [
-  { icon: Music, title: "Classical Traditions", desc: "Carnatic & Hindustani vocal, instrumental, and dance programs rooted in authentic Guru-Shishya Parampara." },
+  { icon: Music, title: "Classical Traditions", desc: "Carnatic & Hindustani vocal, instrumental, and dance courses rooted in authentic Guru-Shishya Parampara." },
   { icon: BookOpen, title: "Holistic Curriculum", desc: "A blend of rigorous artistic training, spiritual growth, and academic excellence." },
   { icon: Users, title: "Renowned Gurus", desc: "Learn from masters who have dedicated their lives to preserving and propagating Indian classical arts." },
   { icon: Heart, title: "Values-Driven", desc: "Education anchored in human values — selfless service, devotion, and the pursuit of inner excellence." },
 ];
 
 const faqs = [
-  { q: "Who can join Nada Gurukulam?", a: "Nada Gurukulam welcomes sincere seekers of Indian classical music and dance. Prior musical training may be required for certain programs." },
+  { q: "Who can join Nada Gurukulam?", a: "Nada Gurukulam welcomes sincere seekers of Indian classical music and dance. Prior musical training may be required for certain courses." },
   { q: "Are online classes available?", a: "Yes, we offer online live sessions for students who cannot attend in person at the campus." },
-  { q: "What is the duration of the programs?", a: "Programs range from 2 to 4 years depending on the discipline and level." },
+  { q: "What is the duration of the courses?", a: "Courses range from 2 to 4 years depending on the discipline and level." },
   { q: "Are scholarships available?", a: "Yes, merit-based and need-based scholarships are available for deserving students." },
   { q: "How can I express interest in joining?", a: "Please reach out through our Contact page. Our team will get back to you with all the details." },
 ];
@@ -199,7 +199,7 @@ const Admissions = () => (
       <div className="container mx-auto px-4 text-center relative z-10">
         <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
           <h2 className="font-serif text-4xl md:text-6xl font-bold text-primary-foreground mb-4">Interested in Joining?</h2>
-          <p className="text-primary-foreground/55 mb-12 max-w-lg mx-auto text-lg">We'd love to hear from you. Reach out to learn more about our programs.</p>
+          <p className="text-primary-foreground/55 mb-12 max-w-lg mx-auto text-lg">We'd love to hear from you. Reach out to learn more about our courses.</p>
           <Button asChild size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 text-lg px-14 h-14 shadow-2xl hover:shadow-secondary/30 transition-all hover:-translate-y-1 animate-glow-pulse">
             <Link to="/contact">
               <ArrowRight className="h-5 w-5 mr-2" />
