@@ -71,7 +71,7 @@ const Courses = () => {
               Comprehensive courses rooted in tradition, designed for the modern learner.
             </p>
             <span className="badge-gold inline-flex items-center gap-1.5 text-xs">
-              <Sparkles className="h-3 w-3" /> {courses.length} Programs Available
+              <Sparkles className="h-3 w-3" /> {courses.length} Courses Available
             </span>
           </motion.div>
         </div>
