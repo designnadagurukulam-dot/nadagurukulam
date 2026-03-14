@@ -36,7 +36,7 @@ const About = () => {
         <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 60%, hsl(43 72% 52% / 0.08) 0%, transparent 50%)" }} />
 
         <div className="relative z-10 container mx-auto px-4 text-center">
-          <motion.p initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="font-devanagari text-4xl md:text-6xl lg:text-7xl text-shimmer-gold mb-4">
+          <motion.p initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="font-devanagari text-4xl md:text-6xl lg:text-7xl text-shimmer-gold mb-4 leading-relaxed overflow-visible py-2">
             नादो उपासना
           </motion.p>
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="text-primary-foreground/50 italic text-lg md:text-2xl tracking-[0.3em] uppercase">

@@ -86,7 +86,7 @@ const Contact = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="font-devanagari text-3xl md:text-5xl lg:text-6xl text-shimmer-gold mb-4"
+              className="font-devanagari text-3xl md:text-5xl lg:text-6xl text-shimmer-gold mb-4 leading-relaxed overflow-visible py-2"
             >
               संपर्क करें
             </motion.p>
