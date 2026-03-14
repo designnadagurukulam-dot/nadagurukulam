@@ -41,11 +41,7 @@ const Footer = () => {
             {/* About */}
             <div>
               <div className="flex items-center gap-3 mb-6">
-                <img src={logo} alt="Nada Gurukulam" className="h-14 w-auto brightness-0 invert" />
-                <div>
-                  <span className="font-serif text-lg font-bold block">Nada Gurukulam</span>
-                  <span className="text-[10px] text-primary-foreground/40 tracking-[0.2em] uppercase">Classical Arts Academy</span>
-                </div>
+                <img src={logo} alt="Nada Gurukulam" className="h-16 w-auto brightness-0 invert" />
               </div>
               <p className="text-sm text-primary-foreground/65 leading-relaxed">
                 A premier institution for Indian classical music and dance under Sri Sathya Sai University for Human Excellence. Nurturing talent through the traditional Guru-Shishya system.
