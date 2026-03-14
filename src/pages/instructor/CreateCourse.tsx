@@ -392,7 +392,7 @@ const CreateCourse = () => {
               <p><span className="font-medium">Title:</span> {title || "—"}</p>
               <p><span className="font-medium">Level:</span> {level}</p>
               <p><span className="font-medium">Duration:</span> {duration || "—"}</p>
-              <p><span className="font-medium">Price:</span> ₹{price}</p>
+              
               <p><span className="font-medium">Modules:</span> {modules.length}</p>
               <p><span className="font-medium">Total Lessons:</span> {modules.reduce((sum, m) => sum + m.lessons.length, 0)}</p>
             </CardContent>
