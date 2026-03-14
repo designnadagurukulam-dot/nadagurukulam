@@ -6,6 +6,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { ChevronDown, Quote, Star, Building2, Music, Sparkles, Lightbulb, Globe, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SectionDivider from "@/components/SectionDivider";
+import logo from "@/assets/logo.png";
 
 import imgMusic13 from "@/assets/gallery/NGMUSIC-13.webp";
 import imgMusic6 from "@/assets/gallery/NGMUSIC-6.webp";
@@ -221,8 +222,7 @@ const Index = () => {
             transition={{ duration: 0.8 }}
             className="inline-flex items-center gap-3 px-6 py-2 rounded-full border border-secondary/30 bg-secondary/10 backdrop-blur-sm mb-8"
           >
-            <span className="font-devanagari text-2xl md:text-3xl text-shimmer-gold">रसो वै सः</span>
-            <span className="text-primary-foreground/40 text-xs tracking-widest uppercase hidden sm:inline">— He is the essence of all Rasa</span>
+            <img src={logo} alt="Nada Gurukulam" className="h-12 md:h-16 w-auto object-contain" />
           </motion.div>
 
           <motion.h1 className="font-serif text-6xl sm:text-7xl md:text-8xl lg:text-[7rem] font-extrabold text-primary-foreground leading-[0.95] mb-8" style={{ textShadow: "0 6px 60px hsl(0 0% 0% / 0.6)" }}>
