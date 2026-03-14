@@ -281,10 +281,10 @@ const Contact = () => {
           src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2744.4066459650808!2d77.6937803941797!3d13.40135829461648!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bb1e52a89f0ad8d%3A0x8545bf8758410a18!2sNada%20Gurukulam!5e0!3m2!1sen!2sin!4v1773467122632!5m2!1sen!2sin"
           width="600"
           height="450"
-          style="border:0;"
-          allowfullscreen=""
+          style={{ border: 0 }}
+          allowFullScreen
           loading="lazy"
-          referrerpolicy="no-referrer-when-downgrade"
+          referrerPolicy="no-referrer-when-downgrade"
         ></iframe>
       </section>
     </div>
