@@ -200,14 +200,22 @@ const About = () => {
       </section>
 
       {/* ══════ LEADERSHIP BANNER ══════ */}
-      <section className="relative w-full h-[24rem] md:h-[36rem] overflow-hidden">
-        <img src={leadershipImg} alt="Our Leadership" className="w-full h-full object-contain bg-[hsl(0_69%_6%)]" loading="lazy" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[hsl(0_69%_8%/0.9)] via-[hsl(0_0%_0%/0.3)] to-transparent flex items-end justify-center pb-8">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center">
+      <section className="py-20 bg-background">
+        <div className="container mx-auto px-4 max-w-5xl">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-10">
             <div className="w-16 h-0.5 bg-secondary mx-auto mb-3 rounded-full" />
-            <h3 className="font-serif text-2xl md:text-4xl text-primary-foreground font-extrabold" style={{ textShadow: "0 2px 20px hsl(0 0% 0% / 0.6)" }}>
-              Our Leadership
+            <h3 className="font-serif text-3xl md:text-4xl font-extrabold">
+              Our <span className="text-gradient-gold">Leadership</span>
             </h3>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="rounded-2xl overflow-hidden border-2 border-secondary/30 shadow-2xl golden-frame"
+          >
+            <img src={leadershipImg} alt="Our Leadership" className="w-full h-auto object-contain" loading="lazy" />
           </motion.div>
         </div>
       </section>
