@@ -68,7 +68,7 @@ const Courses = () => {
               Our Courses
             </h1>
             <p className="text-primary-foreground/50 max-w-2xl mx-auto mb-6 text-lg">
-              Comprehensive programs rooted in tradition, designed for the modern learner.
+              Comprehensive courses rooted in tradition, designed for the modern learner.
             </p>
             <span className="badge-gold inline-flex items-center gap-1.5 text-xs">
               <Sparkles className="h-3 w-3" /> {courses.length} Programs Available
