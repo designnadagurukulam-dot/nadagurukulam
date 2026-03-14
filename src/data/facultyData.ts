@@ -6,7 +6,7 @@ import mrMangaliTirumala from "@/assets/faculty/Mr-Mangali-Tirumala.jpg";
 import mrPranavKashyap from "@/assets/faculty/Mr-Pranav-Kashyap.jpg";
 import mrSujanHN from "@/assets/faculty/Mr-Sujan-H-N.jpg";
 import msShailajaKumari from "@/assets/faculty/Ms-Shailaja-Kumari-A.jpg";
-import mrAbhiramaBode from "@/assets/faculty/Mr-Abhirama-Bode.jpg";
+
 import mrPrafullaKumar from "@/assets/faculty/Mr-Prafulla-Kumar-Meher.jpg";
 import mrShreeramaBhat from "@/assets/faculty/Mr-Shreerama-Bhat.jpg";
 import msManasvini from "@/assets/faculty/Ms-Manasvini-Ramachandran.webp";
@@ -245,33 +245,6 @@ export const facultyMembers: FacultyMember[] = [
       "Multiple prizes in vocal competitions at school and college levels",
     ],
     image: mrPrafullaKumar,
-  },
-  {
-    id: "abhirama-bode",
-    name: "Mr Abhirama Bode",
-    title: "Faculty",
-    specialization: "Vocal Music - Carnatic",
-    category: "carnatic",
-    experience: "10+ years",
-    bio: "Abhirama Bode is a distinguished Carnatic Vocalist, trained under the guidance of Vidushi R.A. Ramamani and Vidwan T.A.S. Mani. With a deep-rooted foundation in the Carnatic tradition, he has performed widely at prestigious venues across India and abroad, including the Music Academy (Chennai), Parthasarathy Swamy Sabha, and Bangalore Gayana Samaj. He is also a B-High graded artist of All India Radio (AIR).",
-    education: [
-      "Masters in Music – University of Madras",
-    ],
-    experienceDetails: [
-      "Assistant Professor of Music (Since November 2022) – Department of Performing Arts, Sri Sathya Sai University for Human Excellence",
-      "Performer – Featured in numerous concerts and festivals across leading sabhas and institutions in India and internationally",
-    ],
-    specialities: [
-      "Carnatic Vocal performance with strong emphasis on classical concert tradition",
-      "Wide-ranging concert experience at leading sabhas and music forums",
-      "Trained pedagogue nurturing the next generation of Carnatic vocalists",
-    ],
-    awards: [
-      "D. K. Pattammal Award of Excellence – Karthik Fine Arts",
-      "Ananya Nadajyothi Yuva Puraskara",
-      "Dr Shivasaroja Natyakala Scholarship",
-    ],
-    image: mrAbhiramaBode,
   },
   {
     id: "pranav-kashyap",
