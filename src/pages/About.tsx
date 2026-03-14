@@ -36,17 +36,17 @@ const About = () => {
         <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 60%, hsl(43 72% 52% / 0.08) 0%, transparent 50%)" }} />
 
         <div className="relative z-10 container mx-auto px-4 text-center">
-          <motion.p initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="font-devanagari text-xl md:text-2xl text-shimmer-gold mb-3">
+          <motion.p initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="font-devanagari text-3xl md:text-5xl lg:text-6xl text-shimmer-gold mb-3">
             नादो उपासना
           </motion.p>
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="text-primary-foreground/40 italic text-sm mb-6 tracking-[0.3em] uppercase">
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="text-primary-foreground/40 italic text-base md:text-lg mb-6 tracking-[0.3em] uppercase">
             "Worship through Sound"
           </motion.p>
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.8 }}
-            className="font-serif text-5xl md:text-7xl lg:text-8xl font-extrabold text-primary-foreground"
+            className="font-serif text-3xl md:text-4xl lg:text-5xl font-extrabold text-primary-foreground"
             style={{ textShadow: "0 4px 40px hsl(0 0% 0% / 0.5)" }}
           >
             About Nada Gurukulam
