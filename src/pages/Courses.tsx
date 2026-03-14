@@ -65,7 +65,7 @@ const Courses = () => {
               विद्या ददाति विनयम्
             </motion.p>
             <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl font-extrabold text-primary-foreground mb-5" style={{ textShadow: "0 4px 40px hsl(0 0% 0% / 0.5)" }}>
-              Our Programs
+              Our Courses
             </h1>
             <p className="text-primary-foreground/50 max-w-2xl mx-auto mb-6 text-lg">
               Comprehensive programs rooted in tradition, designed for the modern learner.
