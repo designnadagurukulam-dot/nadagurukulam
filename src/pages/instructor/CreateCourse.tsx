@@ -59,9 +59,6 @@ const CreateCourse = () => {
     { id: crypto.randomUUID(), title: "Module 1", description: "", sort_order: 0, lessons: [] },
   ]);
 
-  // Step 3: Pricing
-  const [price, setPrice] = useState("0");
-  const [discountPrice, setDiscountPrice] = useState("");
 
   useEffect(() => {
     supabase.from("categories").select("*").then(({ data }) => setCategories(data || []));
