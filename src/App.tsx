@@ -20,6 +20,7 @@ import FacultyDetail from "./pages/FacultyDetail";
 import Admissions from "./pages/Admissions";
 import Gallery from "./pages/Gallery";
 import Contact from "./pages/Contact";
+import LoginSelect from "./pages/LoginSelect";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import DashboardOverview from "./pages/dashboard/DashboardOverview";
