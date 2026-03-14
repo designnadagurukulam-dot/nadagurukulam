@@ -211,7 +211,7 @@ const About = () => {
           >
             <div className="md:col-span-2 flex justify-center">
               <div className="relative vignette-gold">
-                <div className="w-60 h-72 md:w-72 md:h-80 rounded-2xl overflow-hidden shadow-2xl golden-frame">
+                <div className="w-72 h-80 md:w-96 md:h-[28rem] rounded-2xl overflow-hidden shadow-2xl golden-frame">
                   <img src={leadershipImg} alt="Smt Revathi Ramachandran - Director" className="w-full h-full object-cover object-[center_15%]" loading="lazy" />
                 </div>
               </div>
