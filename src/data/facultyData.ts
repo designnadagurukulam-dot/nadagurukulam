@@ -6,7 +6,7 @@ import mrMangaliTirumala from "@/assets/faculty/Mr-Mangali-Tirumala.jpg";
 import mrPranavKashyap from "@/assets/faculty/Mr-Pranav-Kashyap.jpg";
 import mrSujanHN from "@/assets/faculty/Mr-Sujan-H-N.jpg";
 import msShailajaKumari from "@/assets/faculty/Ms-Shailaja-Kumari-A.jpg";
-import mrAbhiramaBode from "@/assets/faculty/Mr-Abhirama-Bode.jpg";
+
 import mrPrafullaKumar from "@/assets/faculty/Mr-Prafulla-Kumar-Meher.jpg";
 import mrShreeramaBhat from "@/assets/faculty/Mr-Shreerama-Bhat.jpg";
 import msManasvini from "@/assets/faculty/Ms-Manasvini-Ramachandran.webp";
