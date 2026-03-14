@@ -200,7 +200,7 @@ const About = () => {
       </section>
 
       {/* ══════ LEADERSHIP BANNER ══════ */}
-      <section className="relative w-full h-56 md:h-72 overflow-hidden">
+      <section className="relative w-full h-72 md:h-[28rem] overflow-hidden">
         <img src={leadershipImg} alt="Our Leadership" className="w-full h-full object-cover object-top" loading="lazy" />
         <div className="absolute inset-0 bg-gradient-to-t from-[hsl(0_69%_8%/0.9)] via-[hsl(0_0%_0%/0.3)] to-transparent flex items-end justify-center pb-8">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center">
