@@ -74,7 +74,9 @@ const App = () => (
             <Route path="/login" element={<LoginSelect />} />
             <Route path="/login/student" element={<Login roleType="student" />} />
             <Route path="/login/educator" element={<Login roleType="educator" />} />
-            <Route path="/register" element={<Register />} />
+            <Route path="/register" element={<Register roleType="student" />} />
+            <Route path="/register/student" element={<Register roleType="student" />} />
+            <Route path="/register/educator" element={<Register roleType="educator" />} />
 
             {/* Student Dashboard */}
             <Route path="/dashboard" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardOverview /></DashboardLayout></RoleProtectedRoute>} />

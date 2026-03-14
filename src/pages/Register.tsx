@@ -9,7 +9,11 @@ import { useToast } from "@/hooks/use-toast";
 import logo from "@/assets/logo.png";
 import campusVerandah from "@/assets/campus/NGVerandah.jpg";
 
-const Register = () => {
+interface RegisterProps {
+  roleType?: "student" | "educator";
+}
+
+const Register = ({ roleType = "student" }: RegisterProps) => {
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -19,6 +23,9 @@ const Register = () => {
   const { signUp } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  const isEducator = roleType === "educator";
+  const dbRole = isEducator ? "instructor" : "student";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,13 +38,13 @@ const Register = () => {
       return;
     }
     setLoading(true);
-    const { error } = await signUp(email, password, displayName);
+    const { error } = await signUp(email, password, displayName, dbRole);
     setLoading(false);
     if (error) {
       toast({ title: "Registration failed", description: error, variant: "destructive" });
     } else {
-      toast({ title: "Account created!", description: "Welcome to Nada Gurukulam" });
-      navigate("/dashboard");
+      toast({ title: "Account created!", description: `Welcome to Nada Gurukulam as ${isEducator ? "an Educator" : "a Student"}` });
+      navigate(isEducator ? "/dashboard/instructor/courses" : "/dashboard");
     }
   };
 
@@ -62,10 +69,13 @@ const Register = () => {
             transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
           />
           <h2 className="font-serif text-3xl text-primary-foreground mb-4" style={{ textShadow: "0 2px 20px hsl(0 0% 0% / 0.5)" }}>
-            Begin Your<br /><span className="text-shimmer-gold">Musical Journey</span>
+            {isEducator ? "Inspire & Teach" : "Begin Your"}<br />
+            <span className="text-shimmer-gold">{isEducator ? "Classical Arts" : "Musical Journey"}</span>
           </h2>
           <p className="text-primary-foreground/65 text-lg max-w-md leading-relaxed">
-            Join a community of passionate learners and master the art of Indian classical music and dance.
+            {isEducator
+              ? "Join as an educator and share your expertise in Indian classical music and dance with passionate learners."
+              : "Join a community of passionate learners and master the art of Indian classical music and dance."}
           </p>
           <div className="mt-10 flex items-center gap-3 text-secondary/80">
             <Music className="h-5 w-5" />
@@ -85,8 +95,12 @@ const Register = () => {
             <img src={logo} alt="Nada Gurukulam" className="h-16" />
           </div>
 
-          <h1 className="font-serif text-3xl text-foreground mb-2">Create Account</h1>
-          <p className="text-muted-foreground mb-8">Sign up to start your learning journey</p>
+          <h1 className="font-serif text-3xl text-foreground mb-2">
+            {isEducator ? "Educator Registration" : "Student Registration"}
+          </h1>
+          <p className="text-muted-foreground mb-8">
+            {isEducator ? "Create your educator account to start teaching" : "Sign up to start your learning journey"}
+          </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -142,19 +156,19 @@ const Register = () => {
               />
             </div>
             <Button type="submit" className="w-full h-12 rounded-xl text-base shadow-lg hover:shadow-xl transition-all" disabled={loading}>
-              {loading ? "Creating account..." : "Create Account"}
+              {loading ? "Creating account..." : isEducator ? "Register as Educator" : "Register as Student"}
             </Button>
           </form>
 
           <p className="text-center text-sm text-muted-foreground mt-8">
             Already have an account?{" "}
-            <Link to="/login" className="text-primary font-medium hover:underline">
+            <Link to={isEducator ? "/login/educator" : "/login/student"} className="text-primary font-medium hover:underline">
               Sign In
             </Link>
           </p>
           <p className="text-center text-sm mt-3">
-            <Link to="/" className="text-muted-foreground hover:text-primary transition-colors">
-              ← Back to Home
+            <Link to="/login" className="text-muted-foreground hover:text-primary transition-colors">
+              ← Back to Login
             </Link>
           </p>
         </motion.div>
