@@ -220,7 +220,7 @@ const Index = () => {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8 }}
-            className="inline-flex items-center gap-3 px-6 py-2 rounded-full border border-secondary/30 bg-secondary/10 backdrop-blur-sm mb-8"
+            className="inline-flex items-center gap-3 px-6 py-2 rounded-full border border-border bg-background/95 backdrop-blur-2xl shadow-xl mb-8"
           >
             <img src={logo} alt="Nada Gurukulam" className="h-12 md:h-16 w-auto object-contain" />
           </motion.div>
