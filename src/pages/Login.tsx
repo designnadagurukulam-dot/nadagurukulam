@@ -10,7 +10,11 @@ import { useToast } from "@/hooks/use-toast";
 import logo from "@/assets/logo.png";
 import campusVault from "@/assets/campus/NGVaultPassage.jpg";
 
-const Login = () => {
+interface LoginProps {
+  roleType: "student" | "educator";
+}
+
+const Login = ({ roleType }: LoginProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
@@ -20,7 +24,11 @@ const Login = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  // Redirect after login once role is loaded
+  const title = roleType === "student" ? "Student Sign In" : "Educator Sign In";
+  const subtitle = roleType === "student"
+    ? "Access your courses and learning dashboard"
+    : "Access your teaching dashboard and manage courses";
+
   useEffect(() => {
     if (loginSuccess && user && role) {
       navigate(getRoleDashboardPath(role), { replace: true });
@@ -46,7 +54,6 @@ const Login = () => {
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
         <img src={campusVault} alt="Campus heritage passage" className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-br from-[hsl(0_69%_10%/0.92)] via-[hsl(0_69%_18%/0.85)] to-[hsl(345_75%_12%/0.8)]" />
-        {/* Animated gradient overlay */}
         <motion.div
           className="absolute inset-0 opacity-20"
           animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
@@ -85,8 +92,8 @@ const Login = () => {
             <img src={logo} alt="Nada Gurukulam" className="h-16" />
           </div>
 
-          <h1 className="font-serif text-3xl text-foreground mb-2">Sign In</h1>
-          <p className="text-muted-foreground mb-8">Enter your credentials to access your dashboard</p>
+          <h1 className="font-serif text-3xl text-foreground mb-2">{title}</h1>
+          <p className="text-muted-foreground mb-8">{subtitle}</p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
@@ -132,8 +139,8 @@ const Login = () => {
             </Link>
           </p>
           <p className="text-center text-sm mt-3">
-            <Link to="/" className="text-muted-foreground hover:text-primary transition-colors">
-              ← Back to Home
+            <Link to="/login" className="text-muted-foreground hover:text-primary transition-colors">
+              ← Back to Role Selection
             </Link>
           </p>
         </motion.div>
