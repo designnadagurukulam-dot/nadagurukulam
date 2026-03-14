@@ -13,7 +13,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
-const steps = ["Details", "Modules & Lessons", "Pricing & Review"];
+const steps = ["Details", "Modules & Lessons", "Review"];
 
 const lessonTypeIcons: Record<string, any> = { video: Video, pdf: FileText, text: Type };
 
@@ -59,9 +59,6 @@ const CreateCourse = () => {
     { id: crypto.randomUUID(), title: "Module 1", description: "", sort_order: 0, lessons: [] },
   ]);
 
-  // Step 3: Pricing
-  const [price, setPrice] = useState("0");
-  const [discountPrice, setDiscountPrice] = useState("");
 
   useEffect(() => {
     supabase.from("categories").select("*").then(({ data }) => setCategories(data || []));
@@ -130,8 +127,8 @@ const CreateCourse = () => {
           duration,
           preview_video_url: previewVideoUrl || null,
           tags: tags.split(",").map((t) => t.trim()).filter(Boolean),
-          price: parseFloat(price) || 0,
-          discount_price: discountPrice ? parseFloat(discountPrice) : null,
+          price: 0,
+          discount_price: null,
           instructor_id: user.id,
           instructor_name: user.user_metadata?.display_name || user.email,
           status: submitForReview ? "pending" : "draft",
@@ -385,27 +382,9 @@ const CreateCourse = () => {
         </motion.div>
       )}
 
-      {/* Step 3: Pricing & Review */}
+      {/* Step 3: Review */}
       {step === 2 && (
         <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
-          <Card>
-            <CardHeader><CardTitle>Pricing</CardTitle></CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label>Price (₹) *</Label>
-                  <Input type="number" min="0" value={price} onChange={(e) => setPrice(e.target.value)} />
-                </div>
-                <div>
-                  <Label>Discount Price (₹)</Label>
-                  <Input type="number" min="0" value={discountPrice} onChange={(e) => setDiscountPrice(e.target.value)} placeholder="Optional" />
-                </div>
-              </div>
-              {parseFloat(price) === 0 && (
-                <Badge variant="secondary">This course will be free</Badge>
-              )}
-            </CardContent>
-          </Card>
 
           <Card>
             <CardHeader><CardTitle>Review Summary</CardTitle></CardHeader>
@@ -413,7 +392,7 @@ const CreateCourse = () => {
               <p><span className="font-medium">Title:</span> {title || "—"}</p>
               <p><span className="font-medium">Level:</span> {level}</p>
               <p><span className="font-medium">Duration:</span> {duration || "—"}</p>
-              <p><span className="font-medium">Price:</span> ₹{price}</p>
+              
               <p><span className="font-medium">Modules:</span> {modules.length}</p>
               <p><span className="font-medium">Total Lessons:</span> {modules.reduce((sum, m) => sum + m.lessons.length, 0)}</p>
             </CardContent>
