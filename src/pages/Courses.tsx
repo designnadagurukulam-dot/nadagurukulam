@@ -10,7 +10,7 @@ import { courseImageMap, defaultCourseImage } from "@/lib/courseImages";
 import imgMusic13 from "@/assets/gallery/NGMUSIC-13.webp";
 
 const tabs = [
-  { value: "all", label: "All Programs" },
+  { value: "all", label: "All Courses" },
   { value: "Vocal", label: "Vocal" },
   { value: "Instrumental", label: "Instrumental" },
   { value: "Dance", label: "Dance" },
