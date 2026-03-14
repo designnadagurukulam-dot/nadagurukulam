@@ -199,23 +199,51 @@ const About = () => {
         </div>
       </section>
 
-      {/* ══════ LEADERSHIP BANNER ══════ */}
-      <section className="py-20 bg-background">
-        <div className="container mx-auto px-4 max-w-xl">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-10">
-            <div className="w-16 h-0.5 bg-secondary mx-auto mb-3 rounded-full" />
-            <h3 className="font-serif text-3xl md:text-4xl font-extrabold">
-              Our <span className="text-gradient-gold">Leadership</span>
-            </h3>
-          </motion.div>
+      {/* ══════ OUR VISION ══════ */}
+      <section className="py-24 bg-background golden-sweep relative">
+        <div className="container mx-auto px-4 max-w-6xl">
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
-            className="rounded-2xl overflow-hidden border-2 border-secondary/30 shadow-2xl golden-frame"
+            transition={{ duration: 0.8 }}
+            className="grid md:grid-cols-5 gap-12 items-center"
           >
-            <img src={leadershipImg} alt="Our Leadership" className="w-full h-auto object-contain" loading="lazy" />
+            <div className="md:col-span-2 flex justify-center">
+              <div className="relative vignette-gold">
+                <div className="w-60 h-72 md:w-72 md:h-80 rounded-2xl overflow-hidden shadow-2xl golden-frame">
+                  <img src={leadershipImg} alt="Smt Revathi Ramachandran - Director" className="w-full h-full object-cover object-[center_15%]" loading="lazy" />
+                </div>
+              </div>
+            </div>
+            <div className="md:col-span-3">
+              <motion.div
+                className="card-glass-gold rounded-2xl p-8 md:p-10"
+                initial={{ opacity: 0, x: 30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.2, duration: 0.7 }}
+              >
+                <span className="text-secondary text-xs tracking-[0.3em] uppercase font-semibold">Our Vision</span>
+                <h2 className="font-serif text-2xl md:text-3xl font-bold mt-3 mb-1">Our Vision</h2>
+                <p className="text-muted-foreground text-sm mb-3 italic">
+                  A gentle yet rigorous pathway from foundation to performance: rooted in the guru–śiṣya tradition—clear progression, patient mentorship, and space for devotion.
+                </p>
+                <div className="w-16 h-0.5 bg-secondary rounded-full mb-6" />
+                <p className="text-foreground/70 leading-relaxed text-sm md:text-base mb-4">
+                  Nada Gurukulam will nurture creative excellence and foster cultural understanding. Its vision is to inspire and challenge young minds to develop into caring and committed citizens of Bharat, who aspire to achieve excellence in their chosen field of art and pursue knowledge throughout their life. The institution would strive to motivate innovations in Performing arts and Visual arts enriching life and shaping the future of the country through arts.
+                </p>
+                <p className="text-foreground/70 leading-relaxed text-sm md:text-base mb-6">
+                  Nada Gurukulam will not only inculcate the means of living but also the wisdom of living through dissemination of fine arts in its most pristine form. Nada Gurukulam will create an ambience of culture and incite cultural exchange and dialogue, using the Performing arts and Visual arts to unite communities and promote understanding globally.
+                </p>
+                <p className="text-muted-foreground text-sm font-semibold">
+                  Smt Revathi Ramachandran
+                </p>
+                <p className="text-muted-foreground text-xs">
+                  Director, Nada Gurukulam
+                </p>
+              </motion.div>
+            </div>
           </motion.div>
         </div>
       </section>
