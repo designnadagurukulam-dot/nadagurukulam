@@ -86,18 +86,12 @@ const Contact = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="font-devanagari text-xl text-shimmer-gold mb-3"
+              className="font-devanagari text-3xl md:text-5xl lg:text-6xl text-shimmer-gold mb-4"
             >
               संपर्क करें
             </motion.p>
-            <h1
-              className="font-serif text-5xl md:text-7xl lg:text-8xl font-bold text-primary-foreground mb-4"
-              style={{ textShadow: "0 4px 40px hsl(0 0% 0% / 0.5)" }}
-            >
-              Contact Us
-            </h1>
-            <p className="text-primary-foreground/55 max-w-2xl mx-auto text-lg">
-              We'd love to hear from you. Reach out with any questions about our courses.
+            <p className="text-primary-foreground/50 italic text-lg md:text-2xl tracking-[0.2em]">
+              "Connect with us"
             </p>
           </motion.div>
         </div>

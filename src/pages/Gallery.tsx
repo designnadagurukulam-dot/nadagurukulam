@@ -102,23 +102,12 @@ const Gallery = () => {
 
         <div className="relative z-10 container mx-auto px-4 text-center">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
-            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="font-devanagari text-xl text-shimmer-gold mb-3">
+            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="font-devanagari text-3xl md:text-5xl lg:text-6xl text-shimmer-gold mb-4">
               कला दर्शन
             </motion.p>
-            <h1
-              className="font-serif text-5xl md:text-7xl lg:text-8xl font-extrabold text-primary-foreground mb-5"
-              style={{ textShadow: "0 4px 40px hsl(0 0% 0% / 0.5)" }}
-            >
-              Gallery
-            </h1>
-            <p className="text-primary-foreground/50 max-w-2xl mx-auto text-lg">
-              Moments of artistry, devotion, and celebration from Nada Gurukulam.
+            <p className="text-primary-foreground/50 italic text-lg md:text-2xl tracking-[0.2em]">
+              "Vision of Art"
             </p>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="mt-6">
-              <span className="badge-gold inline-flex items-center gap-1.5 text-xs">
-                <Sparkles className="h-3 w-3" /> {images.length} Photos
-              </span>
-            </motion.div>
           </motion.div>
         </div>
       </section>
