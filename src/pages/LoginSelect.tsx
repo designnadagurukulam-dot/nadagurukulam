@@ -87,12 +87,18 @@ const LoginSelect = () => {
             </Button>
           </div>
 
-          <p className="text-center text-sm text-muted-foreground mt-10">
-            Don't have an account?{" "}
-            <Link to="/register" className="text-primary font-medium hover:underline">
-              Create Account
-            </Link>
-          </p>
+          <div className="text-center text-sm text-muted-foreground mt-10">
+            <p className="mb-1">Don't have an account?</p>
+            <div className="flex items-center justify-center gap-4 mt-2">
+              <Link to="/register/student" className="text-primary font-medium hover:underline">
+                Register as Student
+              </Link>
+              <span className="text-border">|</span>
+              <Link to="/register/educator" className="text-primary font-medium hover:underline">
+                Register as Educator
+              </Link>
+            </div>
+          </div>
           <p className="text-center text-sm mt-3">
             <Link to="/" className="text-muted-foreground hover:text-primary transition-colors">
               ← Back to Home
