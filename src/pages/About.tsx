@@ -201,7 +201,7 @@ const About = () => {
 
       {/* ══════ LEADERSHIP BANNER ══════ */}
       <section className="py-20 bg-background">
-        <div className="container mx-auto px-4 max-w-5xl">
+        <div className="container mx-auto px-4 max-w-3xl">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-10">
             <div className="w-16 h-0.5 bg-secondary mx-auto mb-3 rounded-full" />
             <h3 className="font-serif text-3xl md:text-4xl font-extrabold">
