@@ -382,27 +382,9 @@ const CreateCourse = () => {
         </motion.div>
       )}
 
-      {/* Step 3: Pricing & Review */}
+      {/* Step 3: Review */}
       {step === 2 && (
         <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
-          <Card>
-            <CardHeader><CardTitle>Pricing</CardTitle></CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label>Price (₹) *</Label>
-                  <Input type="number" min="0" value={price} onChange={(e) => setPrice(e.target.value)} />
-                </div>
-                <div>
-                  <Label>Discount Price (₹)</Label>
-                  <Input type="number" min="0" value={discountPrice} onChange={(e) => setDiscountPrice(e.target.value)} placeholder="Optional" />
-                </div>
-              </div>
-              {parseFloat(price) === 0 && (
-                <Badge variant="secondary">This course will be free</Badge>
-              )}
-            </CardContent>
-          </Card>
 
           <Card>
             <CardHeader><CardTitle>Review Summary</CardTitle></CardHeader>
