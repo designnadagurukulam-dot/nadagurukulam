@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
-import { motion, AnimatePresence } from "framer-motion";
 import SectionDivider from "@/components/SectionDivider";
 import { courseImageMap, defaultCourseImage } from "@/lib/courseImages";
 
