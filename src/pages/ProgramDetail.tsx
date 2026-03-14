@@ -85,9 +85,9 @@ const ProgramDetail = () => {
   if (!program) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-4">
-        <p className="text-muted-foreground text-lg">Program not found.</p>
+        <p className="text-muted-foreground text-lg">Course not found.</p>
         <Link to="/courses">
-          <Button variant="outline">← Back to Programs</Button>
+          <Button variant="outline">← Back to Courses</Button>
         </Link>
       </div>
     );
