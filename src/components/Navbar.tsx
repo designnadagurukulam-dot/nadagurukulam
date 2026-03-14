@@ -72,9 +72,8 @@ const Navbar = () => {
               {location.pathname === link.to && (
                 <motion.div
                   layoutId="nav-indicator"
-                  className="absolute -bottom-[2px] left-1/2 -translate-x-1/2 h-[3px] rounded-full"
+                  className="absolute -bottom-[2px] left-[20%] right-[20%] h-[3px] rounded-full"
                   style={{ 
-                    width: "60%",
                     background: "linear-gradient(90deg, hsl(43 72% 52%), hsl(48 90% 65%), hsl(43 72% 52%))" 
                   }}
                   transition={{ type: "spring", stiffness: 350, damping: 28 }}
