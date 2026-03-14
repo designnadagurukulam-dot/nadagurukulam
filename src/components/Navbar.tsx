@@ -53,11 +53,7 @@ const Navbar = () => {
 
       <div className="container mx-auto flex h-[76px] items-center justify-between px-4">
         <Link to="/" className="flex items-center gap-3 group">
-          <img src={logo} alt="Nada Gurukulam" className="h-10 w-auto transition-transform duration-300 group-hover:scale-105" />
-          <div className="hidden md:block">
-            <span className="font-serif text-lg font-bold text-foreground leading-tight block">Nada Gurukulam</span>
-            <span className="text-[10px] text-muted-foreground tracking-[0.2em] uppercase">Classical Arts Academy</span>
-          </div>
+          <img src={logo} alt="Nada Gurukulam" className="h-12 w-auto transition-transform duration-300 group-hover:scale-105" />
         </Link>
 
         {/* Desktop nav */}
