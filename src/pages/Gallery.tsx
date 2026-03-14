@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ChevronLeft, ChevronRight, Play, Sparkles } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Play } from "lucide-react";
 import SectionDivider from "@/components/SectionDivider";
 
 import imgMusic13 from "@/assets/gallery/NGMUSIC-13.webp";
