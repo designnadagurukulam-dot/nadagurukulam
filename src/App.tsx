@@ -17,7 +17,7 @@ import CourseDetail from "./pages/CourseDetail";
 import LessonPlayer from "./pages/LessonPlayer";
 import Faculty from "./pages/Faculty";
 import FacultyDetail from "./pages/FacultyDetail";
-import Admissions from "./pages/Admissions";
+
 import Gallery from "./pages/Gallery";
 import Contact from "./pages/Contact";
 import LoginSelect from "./pages/LoginSelect";
