@@ -9,7 +9,7 @@ const Footer = () => {
       {/* Gold shimmer line at top */}
       <div className="h-[2px] shimmer-line" style={{ background: "linear-gradient(90deg, hsl(358 68% 28%), hsl(33 62% 58%), hsl(35 62% 65%), hsl(33 62% 58%), hsl(358 68% 28%))" }} />
 
-      <div className="relative text-primary-foreground overflow-hidden" style={{ background: "linear-gradient(160deg, hsl(358 68% 20%) 0%, hsl(358 68% 14%) 40%, hsl(358 68% 10%) 100%)" }}>
+      <div className="relative text-primary-foreground overflow-hidden" style={{ backgroundColor: "rgb(134, 25, 28)" }}>
         {/* Pattern overlay */}
         <div className="absolute inset-0 opacity-[0.03]" style={{
           backgroundImage: "radial-gradient(circle at 25% 25%, hsl(0 0% 100%) 1px, transparent 1px), radial-gradient(circle at 75% 75%, hsl(0 0% 100%) 1px, transparent 1px)",
