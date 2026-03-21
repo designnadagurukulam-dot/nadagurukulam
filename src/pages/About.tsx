@@ -322,7 +322,7 @@ const About = () => {
           >
             <div className="flex items-center justify-center gap-3 mb-3">
               <Building2 className="h-6 w-6 text-secondary" />
-              <h2 className="font-serif text-4xl md:text-5xl font-extrabold">Our Campus</h2>
+              <h2 className="font-serif text-4xl md:text-5xl font-extrabold">Our Upcoming Campus</h2>
             </div>
             <p className="text-muted-foreground max-w-2xl mx-auto text-sm tracking-wide">
               A world-class campus at Sathya Sai Grama, designed to inspire creativity and devotion.
