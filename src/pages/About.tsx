@@ -180,9 +180,9 @@ const About = () => {
                 {/* Timeline dot */}
                 <div className="absolute left-6 md:left-1/2 -translate-x-1/2 z-10">
                   <div
-                    className={`w-12 h-12 rounded-full bg-gradient-to-br ${item.color} flex items-center justify-center shadow-lg`}
+                    className={`w-16 h-16 rounded-full bg-gradient-to-br ${item.color} flex items-center justify-center shadow-lg`}
                   >
-                    <item.icon className="h-5 w-5 text-primary-foreground" />
+                    <item.icon className="h-7 w-7 text-primary-foreground" />
                   </div>
                 </div>
 
