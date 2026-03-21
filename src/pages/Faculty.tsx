@@ -78,24 +78,25 @@ const Faculty = () => {
             >
               {/* Featured leaders row */}
               {(() => {
-                const leaders = filtered.filter(f => f.id === "revathi-ramachandran" || f.id === "manasvini-korukkai-ramachandran");
-                const others = filtered.filter(f => f.id !== "revathi-ramachandran" && f.id !== "manasvini-korukkai-ramachandran");
+                const leaderIds = ["revathi-ramachandran", "manasvini-korukkai-ramachandran"];
+                const leaders = leaderIds.map(id => filtered.find(f => f.id === id)).filter(Boolean) as typeof filtered;
+                const others = filtered.filter(f => !leaderIds.includes(f.id));
 
                 return (
                   <>
                     {leaders.length > 0 && (
-                      <div className="flex flex-wrap justify-center gap-8 md:gap-14 mb-16">
+                      <div className="flex flex-wrap justify-center items-end gap-10 md:gap-16 mb-16">
                         {leaders.map((f, i) => (
                           <motion.div
                             key={f.id}
                             initial={{ opacity: 0, y: 40 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: i * 0.1, duration: 0.5 }}
-                            className="w-56 md:w-64"
+                            className="w-60 md:w-72"
                           >
                             <Link to={`/faculty/${f.id}`} className="group block text-center">
                               <div className="relative mb-6">
-                                <div className="w-44 h-44 md:w-56 md:h-56 mx-auto rounded-full overflow-hidden portrait-gold-ring relative">
+                                <div className="w-48 h-48 md:w-60 md:h-60 mx-auto rounded-full overflow-hidden portrait-gold-ring relative">
                                   <img
                                     src={f.image}
                                     alt={f.name}
@@ -104,10 +105,10 @@ const Faculty = () => {
                                   />
                                 </div>
                                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                  <div className="w-48 h-48 md:w-60 md:h-60 rounded-full border border-secondary/0 group-hover:border-secondary/20 transition-all duration-700 group-hover:scale-110" />
+                                  <div className="w-52 h-52 md:w-64 md:h-64 rounded-full border border-secondary/0 group-hover:border-secondary/20 transition-all duration-700 group-hover:scale-110" />
                                 </div>
                               </div>
-                              <h3 className="font-serif text-base md:text-lg font-bold mb-1 group-hover:text-primary transition-colors">{f.name}</h3>
+                              <h3 className="font-serif text-lg md:text-xl font-bold mb-1 group-hover:text-primary transition-colors">{f.name}</h3>
                               <p className="text-secondary text-sm font-semibold">{f.id === "revathi-ramachandran" ? f.title : f.specialization}</p>
                               <p className="text-muted-foreground text-xs mt-1">{f.experience}</p>
                             </Link>
