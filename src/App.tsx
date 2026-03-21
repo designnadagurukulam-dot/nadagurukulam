@@ -70,6 +70,7 @@ const App = () => (
             <Route path="/faculty" element={<Layout><Faculty /></Layout>} />
             <Route path="/faculty/:id" element={<Layout><FacultyDetail /></Layout>} />
             
+            <Route path="/events" element={<Layout><Events /></Layout>} />
             <Route path="/gallery" element={<Layout><Gallery /></Layout>} />
             <Route path="/contact" element={<Layout><Contact /></Layout>} />
 
