@@ -139,31 +139,6 @@ const Admissions = () => (
       </div>
     </section>
 
-    {/* ══════ FAQs ══════ */}
-    <section className="py-20 bg-background">
-      <div className="container mx-auto px-4 max-w-3xl">
-        <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="font-serif text-3xl md:text-5xl font-bold text-center mb-12">
-          <HelpCircle className="inline h-8 w-8 mb-1 mr-2 text-secondary" />
-          Frequently Asked Questions
-        </motion.h2>
-        <Accordion type="single" collapsible className="space-y-3">
-          {faqs.map((faq, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.06, duration: 0.4 }}
-            >
-              <AccordionItem value={`faq-${i}`} className="bg-card rounded-xl border border-border/50 px-6 hover:shadow-lg transition-all duration-500 hover:border-secondary/20">
-                <AccordionTrigger className="text-sm font-medium text-left py-5 hover:text-primary transition-colors">{faq.q}</AccordionTrigger>
-                <AccordionContent className="text-sm text-muted-foreground pb-5">{faq.a}</AccordionContent>
-              </AccordionItem>
-            </motion.div>
-          ))}
-        </Accordion>
-      </div>
-    </section>
 
     {/* ══════ CTA ══════ */}
     <section className="relative py-24 overflow-hidden">
