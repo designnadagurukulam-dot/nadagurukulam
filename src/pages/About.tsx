@@ -31,15 +31,32 @@ const About = () => {
     <div>
       {/* ══════ HERO ══════ */}
       <section ref={heroRef} className="relative min-h-[55vh] flex items-center justify-center overflow-hidden">
-        <motion.img src={campusAerial} alt="Campus" className="absolute inset-0 w-full h-full object-cover" style={{ y: heroImgY }} />
+        <motion.img
+          src={campusAerial}
+          alt="Campus"
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{ y: heroImgY }}
+        />
         <div className="absolute inset-0 bg-gradient-to-b from-[hsl(0_69%_6%/0.93)] via-[hsl(0_69%_14%/0.87)] to-[hsl(345_75%_10%/0.92)]" />
-        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 60%, hsl(43 72% 52% / 0.08) 0%, transparent 50%)" }} />
+        <div
+          className="absolute inset-0"
+          style={{ background: "radial-gradient(ellipse at 50% 60%, hsl(43 72% 52% / 0.08) 0%, transparent 50%)" }}
+        />
 
         <div className="relative z-10 container mx-auto px-4 text-center">
-          <motion.p initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="font-devanagari text-3xl md:text-5xl lg:text-6xl text-shimmer-gold mb-4 leading-relaxed overflow-visible py-2">
+          <motion.p
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="font-devanagari text-3xl md:text-5xl lg:text-6xl text-shimmer-gold mb-4 leading-relaxed overflow-visible py-2"
+          >
             रसो वै सः
           </motion.p>
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="text-primary-foreground/50 italic text-lg md:text-2xl tracking-[0.3em] uppercase">
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="text-primary-foreground/50 italic text-lg md:text-2xl tracking-[0.3em] uppercase"
+          >
             "He is the essence of all Rasa"
           </motion.p>
         </div>
@@ -60,7 +77,12 @@ const About = () => {
             <div className="md:col-span-2 flex justify-center">
               <div className="relative vignette-gold">
                 <div className="w-64 h-72 md:w-80 md:h-96 rounded-2xl overflow-hidden shadow-2xl golden-frame">
-                  <img src={founderImg} alt="Sadguru Sri Madhusudan Sai" className="w-full h-full object-cover object-[center_15%]" loading="lazy" />
+                  <img
+                    src={founderImg}
+                    alt="Sadguru Sri Madhusudan Sai"
+                    className="w-full h-full object-cover object-[center_15%]"
+                    loading="lazy"
+                  />
                 </div>
                 <motion.span
                   className="absolute -top-6 -left-4 font-serif text-[7rem] leading-none text-secondary/12 pointer-events-none select-none"
@@ -80,15 +102,21 @@ const About = () => {
                 viewport={{ once: true }}
                 transition={{ delay: 0.2, duration: 0.7 }}
               >
-                <span className="text-secondary text-xs tracking-[0.3em] uppercase font-semibold">Founder's Message</span>
+                <span className="text-secondary text-xs tracking-[0.3em] uppercase font-semibold">
+                  Founder's Message
+                </span>
                 <h2 className="font-serif text-2xl md:text-3xl font-bold mt-3 mb-1">Sadguru Sri Madhusudan Sai</h2>
                 <p className="text-muted-foreground text-sm mb-3">Founder, Nada Gurukulam</p>
                 <div className="w-16 h-0.5 bg-secondary rounded-full mb-6" />
                 <blockquote className="border-l-4 border-secondary/40 pl-5 italic text-foreground/70 mb-4 leading-relaxed text-sm md:text-base">
-                  "nāda brahma, says our scriptures. Sound is divine or 'parameṣṭi', as it is called. And while the seven notes of music have been inspired by various sounds in creation or 'sṛṣṭi', it is the singular privilege of humans or 'vyaṣṭi' to sing and play music."
+                  "nāda brahma, says our scriptures. Sound is divine or 'parameṣṭi', as it is called. And while the
+                  seven notes of music have been inspired by various sounds in creation or 'sṛṣṭi', it is the singular
+                  privilege of humans or 'vyaṣṭi' to sing and play music."
                 </blockquote>
                 <blockquote className="border-l-4 border-secondary/40 pl-5 italic text-foreground/55 leading-relaxed text-sm">
-                  "To practise, promote and propagate this rich cultural and spiritual Indian music tradition is the purpose of establishing the Department of Music and Performing Arts at the Sri Sathya Sai University for Human Excellence."
+                  "To practise, promote and propagate this rich cultural and spiritual Indian music tradition is the
+                  purpose of establishing the Department of Music and Performing Arts at the Sri Sathya Sai University
+                  for Human Excellence."
                 </blockquote>
               </motion.div>
             </div>
@@ -113,12 +141,33 @@ const About = () => {
           {/* Vertical golden timeline */}
           <div className="relative">
             {/* Golden connecting line */}
-            <div className="absolute left-6 md:left-1/2 top-0 bottom-0 w-[2px] -translate-x-1/2" style={{ background: "linear-gradient(180deg, hsl(43 72% 52% / 0.5), hsl(43 72% 52% / 0.2), hsl(43 72% 52% / 0.5))" }} />
+            <div
+              className="absolute left-6 md:left-1/2 top-0 bottom-0 w-[2px] -translate-x-1/2"
+              style={{
+                background:
+                  "linear-gradient(180deg, hsl(43 72% 52% / 0.5), hsl(43 72% 52% / 0.2), hsl(43 72% 52% / 0.5))",
+              }}
+            />
 
             {[
-              { icon: Eye, title: "Our Vision", color: "from-primary to-primary/80", desc: "To be a global center of excellence for Indian classical music and dance education, preserving ancient traditions while embracing modern pedagogical methods." },
-              { icon: Target, title: "Our Mission", color: "from-secondary to-accent", desc: "Preserve and promote Indian classical art forms through authentic Guru-Shishya training. Make quality education accessible worldwide." },
-              { icon: Heart, title: "Our Values", color: "from-primary to-secondary", desc: "Devotion to the art, respect for tradition, excellence in teaching, inclusivity for all backgrounds, and spiritual growth through music." },
+              {
+                icon: Eye,
+                title: "Our Vision",
+                color: "from-primary to-primary/80",
+                desc: "To be a global center of excellence for Indian classical music and dance education, preserving ancient traditions while embracing modern pedagogical methods.",
+              },
+              {
+                icon: Target,
+                title: "Our Mission",
+                color: "from-secondary to-accent",
+                desc: "Preserve and promote Indian classical art forms through authentic Guru-Shishya training. Make quality education accessible worldwide.",
+              },
+              {
+                icon: Heart,
+                title: "Our Values",
+                color: "from-primary to-secondary",
+                desc: "Devotion to the art, respect for tradition, excellence in teaching, inclusivity for all backgrounds, and spiritual growth through music.",
+              },
             ].map((item, i) => (
               <motion.div
                 key={item.title}
@@ -130,7 +179,9 @@ const About = () => {
               >
                 {/* Timeline dot */}
                 <div className="absolute left-6 md:left-1/2 -translate-x-1/2 z-10">
-                  <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${item.color} flex items-center justify-center shadow-lg`}>
+                  <div
+                    className={`w-12 h-12 rounded-full bg-gradient-to-br ${item.color} flex items-center justify-center shadow-lg`}
+                  >
                     <item.icon className="h-5 w-5 text-primary-foreground" />
                   </div>
                 </div>
@@ -168,21 +219,29 @@ const About = () => {
                 viewport={{ once: true }}
                 transition={{ delay: 0.2, duration: 0.7 }}
               >
-                <span className="text-primary text-xs tracking-[0.3em] uppercase font-semibold">Director's Message</span>
+                <span className="text-primary text-xs tracking-[0.3em] uppercase font-semibold">Director</span>
                 <h2 className="font-serif text-2xl md:text-3xl font-bold mt-3 mb-1">Smt. Revathi Ramachandran</h2>
                 <div className="w-16 h-0.5 bg-primary rounded-full mb-6" />
                 <blockquote className="border-l-4 border-primary/40 pl-5 italic text-foreground/70 mb-4 leading-relaxed text-base">
-                  "Every student who walks through our doors carries within them the potential for artistic greatness. Our duty is to nurture that seed with patience, love, and rigorous training."
+                  "Every student who walks through our doors carries within them the potential for artistic greatness.
+                  Our duty is to nurture that seed with patience, love, and rigorous training."
                 </blockquote>
                 <p className="text-muted-foreground text-sm leading-relaxed">
-                  With decades of experience in Carnatic music and a deep commitment to the Guru-Shishya tradition, Smt. Revathi Ramachandran leads Nada Gurukulam with a unique blend of artistic excellence and administrative vision.
+                  With decades of experience in Carnatic music and a deep commitment to the Guru-Shishya tradition, Smt.
+                  Revathi Ramachandran leads Nada Gurukulam with a unique blend of artistic excellence and
+                  administrative vision.
                 </p>
               </motion.div>
             </div>
             <div className="md:col-span-2 flex justify-center order-1 md:order-2">
               <div className="relative vignette-gold">
                 <div className="w-60 h-72 md:w-72 md:h-80 rounded-2xl overflow-hidden shadow-2xl golden-frame">
-                  <img src={directorImg} alt="Smt. Revathi Ramachandran" className="w-full h-full object-cover object-[center_15%]" loading="lazy" />
+                  <img
+                    src={directorImg}
+                    alt="Smt. Revathi Ramachandran"
+                    className="w-full h-full object-cover object-[center_15%]"
+                    loading="lazy"
+                  />
                 </div>
               </div>
             </div>
@@ -203,7 +262,12 @@ const About = () => {
             <div className="md:col-span-2 flex justify-center">
               <div className="relative vignette-gold">
                 <div className="w-72 h-80 md:w-96 md:h-[28rem] rounded-2xl overflow-hidden shadow-2xl golden-frame">
-                  <img src={leadershipImg} alt="Smt Revathi Ramachandran - Director" className="w-full h-full object-cover object-[center_15%]" loading="lazy" />
+                  <img
+                    src={leadershipImg}
+                    alt="Smt Revathi Ramachandran - Director"
+                    className="w-full h-full object-cover object-[center_15%]"
+                    loading="lazy"
+                  />
                 </div>
               </div>
             </div>
@@ -215,24 +279,30 @@ const About = () => {
                 viewport={{ once: true }}
                 transition={{ delay: 0.2, duration: 0.7 }}
               >
-                <span className="text-secondary text-xs tracking-[0.3em] uppercase font-semibold">Our Vision</span>
+                <span className="text-secondary text-xs tracking-[0.3em] uppercase font-semibold">
+                  Director's Message
+                </span>
                 <h2 className="font-serif text-2xl md:text-3xl font-bold mt-3 mb-1">Our Vision</h2>
                 <p className="text-muted-foreground text-sm mb-3 italic">
-                  A gentle yet rigorous pathway from foundation to performance: rooted in the guru–śiṣya tradition—clear progression, patient mentorship, and space for devotion.
+                  A gentle yet rigorous pathway from foundation to performance: rooted in the guru–śiṣya tradition—clear
+                  progression, patient mentorship, and space for devotion.
                 </p>
                 <div className="w-16 h-0.5 bg-secondary rounded-full mb-6" />
                 <p className="text-foreground/70 leading-relaxed text-sm md:text-base mb-4">
-                  Nada Gurukulam will nurture creative excellence and foster cultural understanding. Its vision is to inspire and challenge young minds to develop into caring and committed citizens of Bharat, who aspire to achieve excellence in their chosen field of art and pursue knowledge throughout their life. The institution would strive to motivate innovations in Performing arts and Visual arts enriching life and shaping the future of the country through arts.
+                  Nada Gurukulam will nurture creative excellence and foster cultural understanding. Its vision is to
+                  inspire and challenge young minds to develop into caring and committed citizens of Bharat, who aspire
+                  to achieve excellence in their chosen field of art and pursue knowledge throughout their life. The
+                  institution would strive to motivate innovations in Performing arts and Visual arts enriching life and
+                  shaping the future of the country through arts.
                 </p>
                 <p className="text-foreground/70 leading-relaxed text-sm md:text-base mb-6">
-                  Nada Gurukulam will not only inculcate the means of living but also the wisdom of living through dissemination of fine arts in its most pristine form. Nada Gurukulam will create an ambience of culture and incite cultural exchange and dialogue, using the Performing arts and Visual arts to unite communities and promote understanding globally.
+                  Nada Gurukulam will not only inculcate the means of living but also the wisdom of living through
+                  dissemination of fine arts in its most pristine form. Nada Gurukulam will create an ambience of
+                  culture and incite cultural exchange and dialogue, using the Performing arts and Visual arts to unite
+                  communities and promote understanding globally.
                 </p>
-                <p className="text-muted-foreground text-sm font-semibold">
-                  Smt Revathi Ramachandran
-                </p>
-                <p className="text-muted-foreground text-xs">
-                  Director, Nada Gurukulam
-                </p>
+                <p className="text-muted-foreground text-sm font-semibold">Smt Revathi Ramachandran</p>
+                <p className="text-muted-foreground text-xs">Director, Nada Gurukulam</p>
               </motion.div>
             </div>
           </motion.div>
@@ -244,7 +314,12 @@ const About = () => {
       {/* ══════ CAMPUS BENTO ══════ */}
       <section className="py-24 bg-background">
         <div className="container mx-auto px-4">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
             <div className="flex items-center justify-center gap-3 mb-3">
               <Building2 className="h-6 w-6 text-secondary" />
               <h2 className="font-serif text-4xl md:text-5xl font-extrabold">Our Campus</h2>
@@ -264,9 +339,19 @@ const About = () => {
                 transition={{ delay: i * 0.1, duration: 0.5 }}
                 className={`${img.className} rounded-2xl overflow-hidden shadow-xl group relative cursor-pointer`}
               >
-                <img src={img.src} alt={img.alt} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" loading="lazy" />
+                <img
+                  src={img.src}
+                  alt={img.alt}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  loading="lazy"
+                />
                 <div className="absolute inset-0 bg-gradient-to-t from-[hsl(0_0%_0%/0.8)] via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-5">
-                  <span className="text-primary-foreground text-sm font-serif font-semibold" style={{ textShadow: "0 2px 8px hsl(0 0% 0% / 0.6)" }}>{img.alt}</span>
+                  <span
+                    className="text-primary-foreground text-sm font-serif font-semibold"
+                    style={{ textShadow: "0 2px 8px hsl(0 0% 0% / 0.6)" }}
+                  >
+                    {img.alt}
+                  </span>
                 </div>
                 <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-secondary/30 transition-all duration-500" />
               </motion.div>
@@ -283,15 +368,26 @@ const About = () => {
         <div className="absolute inset-0 bg-gradient-to-br from-[hsl(0_69%_6%/0.96)] to-[hsl(345_75%_8%/0.93)]" />
 
         <div className="relative z-10 container mx-auto px-4 max-w-3xl text-center">
-          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+          >
             <div className="w-16 h-0.5 bg-secondary mx-auto mb-6 rounded-full" />
-            <h2 className="font-serif text-4xl md:text-6xl font-extrabold mb-4 text-primary-foreground">Our Philosophy</h2>
-            <h3 className="font-serif text-lg md:text-xl text-shimmer-gold font-semibold mb-6">The Guru-Shishya Parampara</h3>
+            <h2 className="font-serif text-4xl md:text-6xl font-extrabold mb-4 text-primary-foreground">
+              Our Philosophy
+            </h2>
+            <h3 className="font-serif text-lg md:text-xl text-shimmer-gold font-semibold mb-6">
+              The Guru-Shishya Parampara
+            </h3>
             <p className="text-primary-foreground/70 leading-relaxed mb-4 text-base md:text-lg">
-              At the heart of Nada Gurukulam lies the time-honored Guru-Shishya tradition — a sacred bond between teacher and student that goes beyond mere instruction.
+              At the heart of Nada Gurukulam lies the time-honored Guru-Shishya tradition — a sacred bond between
+              teacher and student that goes beyond mere instruction.
             </p>
             <p className="text-primary-foreground/45 leading-relaxed text-sm md:text-base">
-              We believe that true learning happens not just through technique and practice, but through the transformative relationship with a Guru who imparts not only skill but wisdom, discipline, and devotion.
+              We believe that true learning happens not just through technique and practice, but through the
+              transformative relationship with a Guru who imparts not only skill but wisdom, discipline, and devotion.
             </p>
           </motion.div>
         </div>
