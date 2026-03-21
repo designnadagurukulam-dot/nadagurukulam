@@ -35,6 +35,7 @@ const adminNav = [
   { label: "Students", to: "/dashboard/admin/students", icon: Users },
   { label: "Categories", to: "/dashboard/admin/categories", icon: Tag },
   { label: "Coupons", to: "/dashboard/admin/coupons", icon: Ticket },
+  { label: "Jobs & Volunteers", to: "/dashboard/admin/jobs", icon: Briefcase },
   { label: "Analytics", to: "/dashboard/admin/analytics", icon: BarChart3 },
   { label: "Settings", to: "/dashboard/admin/settings", icon: Settings },
 ];
