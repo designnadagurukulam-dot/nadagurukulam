@@ -13,7 +13,7 @@ import Index from "./pages/Index";
 import About from "./pages/About";
 import Events from "./pages/Events";
 import Courses from "./pages/Courses";
-import CourseCatalog from "./pages/CourseCatalog";
+
 import CourseDetail from "./pages/CourseDetail";
 import LessonPlayer from "./pages/LessonPlayer";
 import Faculty from "./pages/Faculty";
@@ -63,7 +63,7 @@ const App = () => (
             <Route path="/" element={<Layout><Index /></Layout>} />
             <Route path="/about" element={<Layout><About /></Layout>} />
             <Route path="/courses" element={<Layout><Courses /></Layout>} />
-            <Route path="/catalog" element={<Layout><CourseCatalog /></Layout>} />
+            
             <Route path="/course/:id" element={<Layout><CourseDetail /></Layout>} />
             <Route path="/programs/:slug" element={<Layout><ProgramDetail /></Layout>} />
             <Route path="/course/:courseId/lesson/:lessonId" element={<LessonPlayer />} />
