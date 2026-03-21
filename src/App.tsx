@@ -13,7 +13,7 @@ import Index from "./pages/Index";
 import About from "./pages/About";
 import Events from "./pages/Events";
 import Courses from "./pages/Courses";
-import CourseCatalog from "./pages/CourseCatalog";
+
 import CourseDetail from "./pages/CourseDetail";
 import LessonPlayer from "./pages/LessonPlayer";
 import Faculty from "./pages/Faculty";
