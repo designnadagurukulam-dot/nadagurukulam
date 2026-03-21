@@ -686,4 +686,87 @@ const Index = () => {
   );
 };
 
+/* ─── Upcoming Events Section ─── */
+const UpcomingEventsSection = () => {
+  const { data: events = [] } = useQuery({
+    queryKey: ["homepage-events"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("events")
+        .select("*")
+        .eq("is_active", true)
+        .gte("event_date", new Date().toISOString())
+        .order("event_date", { ascending: true })
+        .limit(4);
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  if (events.length === 0) return null;
+
+  return (
+    <section className="py-24 bg-background">
+      <div className="container mx-auto px-4 max-w-5xl">
+        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+          <h2 className="font-serif text-4xl md:text-5xl font-extrabold text-center mb-3">
+            Upcoming <span className="text-gradient-gold">Events</span>
+          </h2>
+          <p className="text-center text-muted-foreground max-w-2xl mx-auto mb-16 text-sm tracking-wide">
+            Join us at our upcoming concerts, workshops, and cultural celebrations.
+          </p>
+        </motion.div>
+
+        <div className="grid md:grid-cols-2 gap-6">
+          {events.map((event: any, i: number) => (
+            <motion.div
+              key={event.id}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1, duration: 0.5 }}
+              className="group"
+            >
+              <div className="rounded-2xl overflow-hidden bg-card shadow-lg hover:shadow-xl transition-all duration-500 border border-border/50 h-full">
+                {event.image_url && (
+                  <div className="h-44 overflow-hidden">
+                    <img src={event.image_url} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" />
+                  </div>
+                )}
+                <div className="p-6">
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-secondary bg-secondary/10 px-3 py-1 rounded-full">
+                      <CalendarDays className="h-3 w-3" />
+                      {format(new Date(event.event_date), "MMM d, yyyy")}
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <Clock className="h-3 w-3" />
+                      {format(new Date(event.event_date), "h:mm a")}
+                    </span>
+                  </div>
+                  <h3 className="font-serif text-lg font-bold mb-2 group-hover:text-primary transition-colors">{event.title}</h3>
+                  {event.description && (
+                    <p className="text-muted-foreground text-sm leading-relaxed line-clamp-2 mb-3">{event.description}</p>
+                  )}
+                  {event.location && (
+                    <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                      <MapPin className="h-3.5 w-3.5 text-secondary" /> {event.location}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        <div className="text-center mt-14">
+          <Button asChild variant="outline" className="border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground px-10 h-12 font-semibold">
+            <Link to="/events">View All Events <ArrowRight className="ml-2 h-4 w-4" /></Link>
+          </Button>
+        </div>
+      </div>
+    </section>
+  );
+};
+
 export default Index;
