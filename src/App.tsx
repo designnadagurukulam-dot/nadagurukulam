@@ -42,6 +42,7 @@ import AdminCategories from "./pages/admin/AdminCategories";
 import AdminCoupons from "./pages/admin/AdminCoupons";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminInquiries from "./pages/admin/AdminInquiries";
+import AdminJobs from "./pages/admin/AdminJobs";
 import NotFound from "./pages/NotFound";
 import ProgramDetail from "./pages/ProgramDetail";
 
@@ -103,6 +104,7 @@ const App = () => (
             <Route path="/dashboard/admin/categories" element={<RoleProtectedRoute allowedRoles={["admin"]}><DashboardLayout><AdminCategories /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/admin/coupons" element={<RoleProtectedRoute allowedRoles={["admin"]}><DashboardLayout><AdminCoupons /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/admin/analytics" element={<RoleProtectedRoute allowedRoles={["admin"]}><DashboardLayout><AdminAnalytics /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/admin/jobs" element={<RoleProtectedRoute allowedRoles={["admin"]}><DashboardLayout><AdminJobs /></DashboardLayout></RoleProtectedRoute>} />
 
             <Route path="*" element={<Layout><NotFound /></Layout>} />
           </Routes>
