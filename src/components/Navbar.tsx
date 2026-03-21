@@ -48,7 +48,7 @@ const Navbar = () => {
         className={`absolute bottom-0 left-0 right-0 h-[2px] transition-opacity duration-500 ${
           scrolled ? "opacity-100" : "opacity-0"
         }`}
-        style={{ background: "linear-gradient(90deg, transparent, hsl(43 72% 52% / 0.5), hsl(43 72% 52% / 0.8), hsl(43 72% 52% / 0.5), transparent)" }}
+        style={{ background: "linear-gradient(90deg, transparent, hsl(33 62% 58% / 0.5), hsl(33 62% 58% / 0.8), hsl(33 62% 58% / 0.5), transparent)" }}
       />
 
       <div className="container mx-auto flex h-[76px] items-center justify-between px-4">
@@ -74,7 +74,7 @@ const Navbar = () => {
                   layoutId="nav-indicator"
                   className="absolute -bottom-[2px] left-[20%] right-[20%] h-[3px] rounded-full"
                   style={{ 
-                    background: "linear-gradient(90deg, hsl(43 72% 52%), hsl(48 90% 65%), hsl(43 72% 52%))" 
+                    background: "linear-gradient(90deg, hsl(33 62% 58%), hsl(35 62% 65%), hsl(33 62% 58%))" 
                   }}
                   transition={{ type: "spring", stiffness: 350, damping: 28 }}
                 />
@@ -120,7 +120,7 @@ const Navbar = () => {
             className="lg:hidden fixed inset-0 top-[76px] z-40 bg-background/98 backdrop-blur-2xl"
           >
             {/* Brand colored header strip */}
-            <div className="h-1 w-full" style={{ background: "linear-gradient(90deg, hsl(0 69% 33%), hsl(43 72% 52%), hsl(0 69% 33%))" }} />
+            <div className="h-1 w-full" style={{ background: "linear-gradient(90deg, hsl(358 68% 28%), hsl(33 62% 58%), hsl(358 68% 28%))" }} />
             <nav className="container mx-auto flex flex-col gap-1 p-6 pt-6">
               {navLinks.map((link, i) => (
                 <motion.div

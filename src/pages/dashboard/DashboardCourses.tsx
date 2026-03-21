@@ -42,7 +42,7 @@ const DashboardCourses = () => (
                     <circle cx="28" cy="28" r="24" fill="none" stroke="hsl(var(--muted))" strokeWidth="4" />
                     <circle
                       cx="28" cy="28" r="24" fill="none"
-                      stroke="hsl(43 72% 52%)"
+                      stroke="hsl(33 62% 58%)"
                       strokeWidth="4"
                       strokeLinecap="round"
                       strokeDasharray={`${course.progress * 1.508} ${150.8 - course.progress * 1.508}`}

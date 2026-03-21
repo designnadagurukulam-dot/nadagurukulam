@@ -8,7 +8,7 @@ const SectionDivider = () => (
       viewport={{ once: true }}
       transition={{ duration: 1, ease: "easeOut" }}
       className="h-px w-40 origin-right"
-      style={{ background: "linear-gradient(90deg, transparent, hsl(43 72% 52% / 0.5), hsl(43 72% 52% / 0.7))" }}
+      style={{ background: "linear-gradient(90deg, transparent, hsl(33 62% 58% / 0.5), hsl(33 62% 58% / 0.7))" }}
     />
     <div className="mx-5 relative">
       <svg width="56" height="56" viewBox="0 0 56 56" className="text-secondary" fill="none">
@@ -53,7 +53,7 @@ const SectionDivider = () => (
       viewport={{ once: true }}
       transition={{ duration: 1, ease: "easeOut" }}
       className="h-px w-40 origin-left"
-      style={{ background: "linear-gradient(90deg, hsl(43 72% 52% / 0.7), hsl(43 72% 52% / 0.5), transparent)" }}
+      style={{ background: "linear-gradient(90deg, hsl(33 62% 58% / 0.7), hsl(33 62% 58% / 0.5), transparent)" }}
     />
   </div>
 );

@@ -40,7 +40,7 @@ const FacultyDetail = () => {
           animate={{ scale: 1 }}
           transition={{ duration: 1.2, ease: "easeOut" }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[hsl(0_69%_10%/0.97)] via-[hsl(0_0%_0%/0.4)] to-[hsl(0_0%_0%/0.1)]" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[hsl(358_68%_10%/0.97)] via-[hsl(0_0%_0%/0.4)] to-[hsl(0_0%_0%/0.1)]" />
         <div className="relative z-10 container mx-auto px-4 pb-12 pt-28">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
             <Button asChild variant="ghost" size="sm" className="text-primary-foreground/70 hover:text-primary-foreground hover:bg-primary-foreground/10 mb-6">

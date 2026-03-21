@@ -27,7 +27,7 @@ const DashboardCertificates = () => (
             <Card className="overflow-hidden hover:shadow-xl transition-all duration-500 border-0 shadow-md group">
               {/* Certificate header with decorative gold frame border */}
               <div className="relative h-44 flex items-center justify-center overflow-hidden"
-                style={{ background: "linear-gradient(135deg, hsl(0 69% 25%) 0%, hsl(345 75% 18%) 100%)" }}
+                style={{ background: "linear-gradient(135deg, hsl(358 68% 25%) 0%, hsl(358 68% 18%) 100%)" }}
               >
                 {/* Decorative pattern */}
                 <div className="absolute inset-0 opacity-10" style={{
@@ -36,7 +36,7 @@ const DashboardCertificates = () => (
                 {/* Gold frame border */}
                 <div className="absolute inset-3 border-2 border-secondary/30 rounded-lg" />
                 <div className="absolute inset-5 border border-secondary/15 rounded-lg" />
-                <Award className="h-16 w-16 text-secondary group-hover:scale-110 transition-transform duration-500 drop-shadow-lg" style={{ filter: "drop-shadow(0 0 20px hsl(43 72% 52% / 0.3))" }} />
+                <Award className="h-16 w-16 text-secondary group-hover:scale-110 transition-transform duration-500 drop-shadow-lg" style={{ filter: "drop-shadow(0 0 20px hsl(33 62% 58% / 0.3))" }} />
               </div>
               <CardContent className="p-6 space-y-3">
                 <h3 className="font-serif text-lg font-bold text-foreground">{cert.title}</h3>

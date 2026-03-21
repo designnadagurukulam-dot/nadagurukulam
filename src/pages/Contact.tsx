@@ -106,7 +106,7 @@ const Contact = () => {
           animate={{ scale: 1 }}
           transition={{ duration: 1.5, ease: "easeOut" }}
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(0_69%_10%/0.94)] via-[hsl(0_69%_18%/0.88)] to-[hsl(345_75%_12%/0.82)]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(358_68%_10%/0.94)] via-[hsl(358_68%_18%/0.88)] to-[hsl(358_68%_12%/0.82)]" />
 
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           {[...Array(4)].map((_, i) => (
@@ -192,7 +192,7 @@ const Contact = () => {
               <div className="rounded-2xl overflow-hidden shadow-xl bg-card border border-border/50">
                 <div
                   className="h-1.5 shimmer-line"
-                  style={{ background: "linear-gradient(90deg, hsl(0 69% 33%), hsl(43 72% 52%), hsl(0 69% 33%))" }}
+                  style={{ background: "linear-gradient(90deg, hsl(358 68% 28%), hsl(33 62% 58%), hsl(358 68% 28%))" }}
                 />
                 <div className="p-7 md:p-9">
                   <h2 className="font-serif text-2xl md:text-3xl font-bold mb-2">Send a Message</h2>
@@ -286,7 +286,7 @@ const Contact = () => {
             <TabsContent value="volunteer">
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl mx-auto">
                 <div className="rounded-2xl overflow-hidden shadow-xl bg-card border border-border/50">
-                  <div className="h-1.5" style={{ background: "linear-gradient(90deg, hsl(0 69% 33%), hsl(43 72% 52%), hsl(0 69% 33%))" }} />
+                  <div className="h-1.5" style={{ background: "linear-gradient(90deg, hsl(358 68% 28%), hsl(33 62% 58%), hsl(358 68% 28%))" }} />
                   <div className="p-7 md:p-9">
                     <h3 className="font-serif text-xl font-bold mb-2">Volunteer Application</h3>
                     <p className="text-muted-foreground text-sm mb-6">
