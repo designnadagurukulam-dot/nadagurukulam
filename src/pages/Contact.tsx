@@ -265,20 +265,6 @@ const Contact = () => {
         </div>
       </section>
 
-      {/* ══════ MAP ══════ */}
-      <section className="h-80 w-full">
-        <iframe
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2744.4066459650808!2d77.6937803941797!3d13.40135829461648!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bb1e52a89f0ad8d%3A0x8545bf8758410a18!2sNada%20Gurukulam!5e0!3m2!1sen!2sin!4v1773467122632!5m2!1sen!2sin"
-          width="100%"
-          height="100%"
-          style={{ border: 0 }}
-          allowFullScreen
-          loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
-        ></iframe>
-      </section>
-
-      <SectionDivider />
 
       {/* ══════ GET INVOLVED: Volunteering + Job Openings ══════ */}
       <section className="py-20 bg-background">
@@ -441,6 +427,19 @@ const Contact = () => {
             ))}
           </Accordion>
         </div>
+      </section>
+
+      {/* ══════ MAP ══════ */}
+      <section className="h-80 w-full">
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2744.4066459650808!2d77.6937803941797!3d13.40135829461648!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bb1e52a89f0ad8d%3A0x8545bf8758410a18!2sNada%20Gurukulam!5e0!3m2!1sen!2sin!4v1773467122632!5m2!1sen!2sin"
+          width="100%"
+          height="100%"
+          style={{ border: 0 }}
+          allowFullScreen
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+        ></iframe>
       </section>
     </div>
   );
