@@ -58,7 +58,7 @@ const Register = ({ roleType = "student" }: RegisterProps) => {
           className="absolute inset-0 opacity-20"
           animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
           transition={{ repeat: Infinity, duration: 10, ease: "easeInOut" }}
-          style={{ background: "linear-gradient(135deg, hsl(43 72% 52% / 0.15), transparent, hsl(43 72% 52% / 0.15))", backgroundSize: "200% 200%" }}
+          style={{ background: "linear-gradient(135deg, hsl(33 62% 58% / 0.15), transparent, hsl(33 62% 58% / 0.15))", backgroundSize: "200% 200%" }}
         />
         <div className="relative z-10 flex flex-col justify-center items-center p-12 text-center w-full">
           <motion.img

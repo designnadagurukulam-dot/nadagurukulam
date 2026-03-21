@@ -48,7 +48,7 @@ const Navbar = () => {
         className={`absolute bottom-0 left-0 right-0 h-[2px] transition-opacity duration-500 ${
           scrolled ? "opacity-100" : "opacity-0"
         }`}
-        style={{ background: "linear-gradient(90deg, transparent, hsl(43 72% 52% / 0.5), hsl(43 72% 52% / 0.8), hsl(43 72% 52% / 0.5), transparent)" }}
+        style={{ background: "linear-gradient(90deg, transparent, hsl(33 62% 58% / 0.5), hsl(33 62% 58% / 0.8), hsl(33 62% 58% / 0.5), transparent)" }}
       />
 
       <div className="container mx-auto flex h-[76px] items-center justify-between px-4">

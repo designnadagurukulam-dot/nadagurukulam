@@ -40,7 +40,7 @@ const About = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-[hsl(358_68%_6%/0.93)] via-[hsl(358_68%_14%/0.87)] to-[hsl(358_68%_10%/0.92)]" />
         <div
           className="absolute inset-0"
-          style={{ background: "radial-gradient(ellipse at 50% 60%, hsl(43 72% 52% / 0.08) 0%, transparent 50%)" }}
+          style={{ background: "radial-gradient(ellipse at 50% 60%, hsl(33 62% 58% / 0.08) 0%, transparent 50%)" }}
         />
 
         <div className="relative z-10 container mx-auto px-4 text-center">
@@ -145,7 +145,7 @@ const About = () => {
               className="absolute left-6 md:left-1/2 top-0 bottom-0 w-[2px] -translate-x-1/2"
               style={{
                 background:
-                  "linear-gradient(180deg, hsl(43 72% 52% / 0.5), hsl(43 72% 52% / 0.2), hsl(43 72% 52% / 0.5))",
+                  "linear-gradient(180deg, hsl(33 62% 58% / 0.5), hsl(33 62% 58% / 0.2), hsl(33 62% 58% / 0.5))",
               }}
             />
 

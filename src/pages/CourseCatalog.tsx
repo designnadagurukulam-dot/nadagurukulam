@@ -53,7 +53,7 @@ const CourseCatalog = () => {
     <div>
       {/* Hero */}
       <section className="relative min-h-[40vh] flex items-center justify-center overflow-hidden section-dark grain-overlay pattern-overlay">
-        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 80%, hsl(43 72% 52% / 0.08) 0%, transparent 60%)" }} />
+        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 80%, hsl(33 62% 58% / 0.08) 0%, transparent 60%)" }} />
         <div className="relative z-10 container mx-auto px-4 text-center py-16">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
             <h1 className="font-serif text-5xl md:text-7xl font-extrabold text-primary-foreground mb-4" style={{ textShadow: "0 4px 40px hsl(0 0% 0% / 0.5)" }}>

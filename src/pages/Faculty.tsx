@@ -24,7 +24,7 @@ const Faculty = () => {
           transition={{ duration: 2, ease: "easeOut" }}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-[hsl(358_68%_6%/0.93)] via-[hsl(358_68%_14%/0.87)] to-[hsl(358_68%_10%/0.92)]" />
-        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 60%, hsl(43 72% 52% / 0.08) 0%, transparent 50%)" }} />
+        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 60%, hsl(33 62% 58% / 0.08) 0%, transparent 50%)" }} />
 
         <div className="relative z-10 container mx-auto px-4 text-center">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>

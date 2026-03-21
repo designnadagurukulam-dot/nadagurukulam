@@ -36,7 +36,7 @@ const DashboardCertificates = () => (
                 {/* Gold frame border */}
                 <div className="absolute inset-3 border-2 border-secondary/30 rounded-lg" />
                 <div className="absolute inset-5 border border-secondary/15 rounded-lg" />
-                <Award className="h-16 w-16 text-secondary group-hover:scale-110 transition-transform duration-500 drop-shadow-lg" style={{ filter: "drop-shadow(0 0 20px hsl(43 72% 52% / 0.3))" }} />
+                <Award className="h-16 w-16 text-secondary group-hover:scale-110 transition-transform duration-500 drop-shadow-lg" style={{ filter: "drop-shadow(0 0 20px hsl(33 62% 58% / 0.3))" }} />
               </div>
               <CardContent className="p-6 space-y-3">
                 <h3 className="font-serif text-lg font-bold text-foreground">{cert.title}</h3>

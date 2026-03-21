@@ -183,7 +183,7 @@ const Index = () => {
           transition={{ duration: 2.5, ease: "easeOut" }}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-[hsl(358_68%_6%/0.92)] via-[hsl(358_68%_12%/0.85)] to-[hsl(358_68%_8%/0.95)]" />
-        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 40%, hsl(43 72% 52% / 0.1) 0%, transparent 55%)" }} />
+        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 40%, hsl(33 62% 58% / 0.1) 0%, transparent 55%)" }} />
 
         {/* Grain */}
         <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E\")" }} />
@@ -204,7 +204,7 @@ const Index = () => {
               className="absolute top-1/2 left-1/2 origin-left"
               style={{
                 width: "600px", height: "1px",
-                background: "linear-gradient(90deg, hsl(43 72% 52% / 0.15), transparent)",
+                background: "linear-gradient(90deg, hsl(33 62% 58% / 0.15), transparent)",
                 transform: `rotate(${angle}deg)`,
               }}
               initial={{ scaleX: 0 }}
@@ -246,7 +246,7 @@ const Index = () => {
                   animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
                   transition={{ delay: 0.7 + i * 0.05, duration: 0.7, ease: "easeOut" }}
                   className="inline-block text-outline-gold"
-                  style={{ WebkitTextStroke: "2px hsl(43 72% 52% / 0.6)", color: "transparent" }}
+                  style={{ WebkitTextStroke: "2px hsl(33 62% 58% / 0.6)", color: "transparent" }}
                 >
                   {char}
                 </motion.span>
@@ -642,7 +642,7 @@ const Index = () => {
           className="absolute inset-0 opacity-30"
           animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
           transition={{ repeat: Infinity, duration: 8, ease: "easeInOut" }}
-          style={{ background: "linear-gradient(135deg, hsl(43 72% 52% / 0.12), transparent, hsl(358 68% 28% / 0.12))", backgroundSize: "200% 200%" }}
+          style={{ background: "linear-gradient(135deg, hsl(33 62% 58% / 0.12), transparent, hsl(358 68% 28% / 0.12))", backgroundSize: "200% 200%" }}
         />
 
         {/* Floating musical notes — larger and more visible */}

@@ -27,7 +27,7 @@ const DashboardAssignments = () => (
     {/* Timeline-style layout with golden connecting line */}
     <div className="relative">
       {/* Golden connecting line */}
-      <div className="absolute left-[23px] top-4 bottom-4 w-[2px] hidden md:block" style={{ background: "linear-gradient(180deg, hsl(43 72% 52% / 0.4), hsl(43 72% 52% / 0.1))" }} />
+      <div className="absolute left-[23px] top-4 bottom-4 w-[2px] hidden md:block" style={{ background: "linear-gradient(180deg, hsl(33 62% 58% / 0.4), hsl(33 62% 58% / 0.1))" }} />
 
       <div className="space-y-3">
         {assignments.map((a, i) => {
