@@ -78,7 +78,7 @@ const Faculty = () => {
             >
               {/* Featured leaders row */}
               {(() => {
-                const leaderIds = ["revathi-ramachandran", "manasvini-korukkai-ramachandran"];
+                const leaderIds = ["revathi-ramachandran", "manasvini-ramachandran"];
                 const leaders = leaderIds.map(id => filtered.find(f => f.id === id)).filter(Boolean) as typeof filtered;
                 const others = filtered.filter(f => !leaderIds.includes(f.id));
 
