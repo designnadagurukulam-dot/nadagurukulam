@@ -180,17 +180,17 @@ const About = () => {
                 {/* Timeline dot */}
                 <div className="absolute left-6 md:left-1/2 -translate-x-1/2 z-10">
                   <div
-                    className={`w-12 h-12 rounded-full bg-gradient-to-br ${item.color} flex items-center justify-center shadow-lg`}
+                    className={`w-16 h-16 rounded-full bg-gradient-to-br ${item.color} flex items-center justify-center shadow-lg`}
                   >
-                    <item.icon className="h-5 w-5 text-primary-foreground" />
+                    <item.icon className="h-7 w-7 text-primary-foreground" />
                   </div>
                 </div>
 
                 {/* Card */}
                 <div className={`ml-16 md:ml-0 ${i % 2 === 0 ? "md:mr-[55%]" : "md:ml-[55%]"} w-full md:w-[40%]`}>
-                  <div className="card-glass-gold rounded-2xl p-7 hover:shadow-xl transition-shadow duration-500">
-                    <h3 className="font-serif text-xl font-bold mb-3">{item.title}</h3>
-                    <p className="text-muted-foreground leading-relaxed text-sm">{item.desc}</p>
+                  <div className="card-glass-gold rounded-2xl p-8 hover:shadow-xl transition-shadow duration-500">
+                    <h3 className="font-serif text-2xl md:text-3xl font-bold mb-4">{item.title}</h3>
+                    <p className="text-muted-foreground leading-relaxed text-base">{item.desc}</p>
                   </div>
                 </div>
               </motion.div>
