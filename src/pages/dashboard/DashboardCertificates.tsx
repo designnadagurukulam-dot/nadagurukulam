@@ -27,7 +27,7 @@ const DashboardCertificates = () => (
             <Card className="overflow-hidden hover:shadow-xl transition-all duration-500 border-0 shadow-md group">
               {/* Certificate header with decorative gold frame border */}
               <div className="relative h-44 flex items-center justify-center overflow-hidden"
-                style={{ background: "linear-gradient(135deg, hsl(0 69% 25%) 0%, hsl(345 75% 18%) 100%)" }}
+                style={{ background: "linear-gradient(135deg, hsl(358 68% 25%) 0%, hsl(358 68% 18%) 100%)" }}
               >
                 {/* Decorative pattern */}
                 <div className="absolute inset-0 opacity-10" style={{

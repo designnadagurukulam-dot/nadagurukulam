@@ -64,7 +64,7 @@ const DashboardOverview = () => {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         className="relative overflow-hidden rounded-2xl p-6 md:p-8"
-        style={{ background: "linear-gradient(135deg, hsl(0 69% 25%) 0%, hsl(345 75% 18%) 100%)" }}
+        style={{ background: "linear-gradient(135deg, hsl(358 68% 25%) 0%, hsl(358 68% 18%) 100%)" }}
       >
         <div className="absolute inset-0 opacity-[0.06]" style={{
           backgroundImage: "radial-gradient(circle at 25% 25%, hsl(0 0% 100%) 1px, transparent 1px), radial-gradient(circle at 75% 75%, hsl(0 0% 100%) 1px, transparent 1px)",
@@ -120,7 +120,7 @@ const DashboardOverview = () => {
                 <Card className="group hover:shadow-xl hover:-translate-y-1 transition-all duration-500 overflow-hidden">
                   <div className="h-24 md:h-28 bg-gradient-to-br from-primary/90 to-primary/60 flex items-center justify-center relative overflow-hidden">
                     <div className="absolute inset-0 opacity-10" style={{
-                      backgroundImage: "radial-gradient(circle, hsl(43 72% 52%) 1px, transparent 1px)",
+                      backgroundImage: "radial-gradient(circle, hsl(33 62% 58%) 1px, transparent 1px)",
                       backgroundSize: "20px 20px"
                     }} />
                     <BookOpen className="h-10 w-10 text-primary-foreground/50 group-hover:scale-110 transition-transform duration-500" />
@@ -138,7 +138,7 @@ const DashboardOverview = () => {
                           className="h-full rounded-full transition-all duration-700"
                           style={{
                             width: `${course.progress}%`,
-                            background: "linear-gradient(90deg, hsl(43 72% 52%), hsl(48 90% 60%))"
+                            background: "linear-gradient(90deg, hsl(33 62% 58%), hsl(35 62% 65%))"
                           }}
                         />
                       </div>

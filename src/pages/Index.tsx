@@ -139,11 +139,11 @@ const FloatingOrnament = ({ style, delay }: { style: React.CSSProperties; delay:
     transition={{ repeat: Infinity, duration: 6, delay, ease: "easeInOut" }}
   >
     <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
-      <path d="M30 2 L34 26 L30 20 L26 26 Z" fill="hsl(43 72% 52%)" opacity="0.25" />
-      <path d="M30 58 L26 34 L30 40 L34 34 Z" fill="hsl(43 72% 52%)" opacity="0.25" />
-      <path d="M2 30 L26 26 L20 30 L26 34 Z" fill="hsl(43 72% 52%)" opacity="0.25" />
-      <path d="M58 30 L34 34 L40 30 L34 26 Z" fill="hsl(43 72% 52%)" opacity="0.25" />
-      <circle cx="30" cy="30" r="5" fill="hsl(43 72% 52%)" opacity="0.3" />
+      <path d="M30 2 L34 26 L30 20 L26 26 Z" fill="hsl(33 62% 58%)" opacity="0.25" />
+      <path d="M30 58 L26 34 L30 40 L34 34 Z" fill="hsl(33 62% 58%)" opacity="0.25" />
+      <path d="M2 30 L26 26 L20 30 L26 34 Z" fill="hsl(33 62% 58%)" opacity="0.25" />
+      <path d="M58 30 L34 34 L40 30 L34 26 Z" fill="hsl(33 62% 58%)" opacity="0.25" />
+      <circle cx="30" cy="30" r="5" fill="hsl(33 62% 58%)" opacity="0.3" />
     </svg>
   </motion.div>
 );
@@ -182,7 +182,7 @@ const Index = () => {
           animate={{ scale: 1 }}
           transition={{ duration: 2.5, ease: "easeOut" }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-[hsl(0_69%_6%/0.92)] via-[hsl(0_69%_12%/0.85)] to-[hsl(345_75%_8%/0.95)]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[hsl(358_68%_6%/0.92)] via-[hsl(358_68%_12%/0.85)] to-[hsl(358_68%_8%/0.95)]" />
         <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 40%, hsl(43 72% 52% / 0.1) 0%, transparent 55%)" }} />
 
         {/* Grain */}
@@ -431,7 +431,7 @@ const Index = () => {
                   <div className="relative w-[280px] sm:w-[320px] h-[400px] rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-700 card-premium">
                     <img src={getCourseImage(c)} alt={c.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-[1.2s]" loading="lazy" />
                     <div className="absolute inset-0 bg-gradient-to-t from-[hsl(0_0%_0%/0.92)] via-[hsl(0_0%_0%/0.3)] to-transparent" />
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 bg-gradient-to-t from-[hsl(43_72%_52%/0.12)] via-transparent to-transparent" />
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 bg-gradient-to-t from-[hsl(33_62%_58%/0.12)] via-transparent to-transparent" />
                     {/* Golden corner ornaments */}
                     <div className="absolute top-4 left-4 w-8 h-8 border-t-2 border-l-2 border-secondary/40 rounded-tl-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     <div className="absolute bottom-20 right-4 w-8 h-8 border-b-2 border-r-2 border-secondary/40 rounded-br-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -459,7 +459,7 @@ const Index = () => {
       {/* ══════ STATS ══════ */}
       <section className="relative py-24 overflow-hidden">
         <img src={imgConcert} alt="Performance" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(0_69%_6%/0.96)] to-[hsl(345_75%_8%/0.94)]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(358_68%_6%/0.96)] to-[hsl(358_68%_8%/0.94)]" />
         <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E\")" }} />
         <div className="container mx-auto px-4 relative z-10">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-10">
@@ -637,12 +637,12 @@ const Index = () => {
       {/* ══════ CTA — Full viewport dramatic ══════ */}
       <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden">
         <img src={imgChorus} alt="Music" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(0_69%_6%/0.96)] to-[hsl(345_75%_8%/0.93)]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(358_68%_6%/0.96)] to-[hsl(358_68%_8%/0.93)]" />
         <motion.div
           className="absolute inset-0 opacity-30"
           animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
           transition={{ repeat: Infinity, duration: 8, ease: "easeInOut" }}
-          style={{ background: "linear-gradient(135deg, hsl(43 72% 52% / 0.12), transparent, hsl(0 69% 33% / 0.12))", backgroundSize: "200% 200%" }}
+          style={{ background: "linear-gradient(135deg, hsl(43 72% 52% / 0.12), transparent, hsl(358 68% 28% / 0.12))", backgroundSize: "200% 200%" }}
         />
 
         {/* Floating musical notes — larger and more visible */}

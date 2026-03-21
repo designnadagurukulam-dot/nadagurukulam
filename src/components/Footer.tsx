@@ -7,9 +7,9 @@ const Footer = () => {
   return (
     <footer className="relative overflow-hidden">
       {/* Gold shimmer line at top */}
-      <div className="h-[2px] shimmer-line" style={{ background: "linear-gradient(90deg, hsl(0 69% 33%), hsl(43 72% 52%), hsl(48 90% 60%), hsl(43 72% 52%), hsl(0 69% 33%))" }} />
+      <div className="h-[2px] shimmer-line" style={{ background: "linear-gradient(90deg, hsl(358 68% 28%), hsl(33 62% 58%), hsl(35 62% 65%), hsl(33 62% 58%), hsl(358 68% 28%))" }} />
 
-      <div className="relative text-primary-foreground overflow-hidden" style={{ background: "linear-gradient(160deg, hsl(0 69% 20%) 0%, hsl(0 69% 14%) 40%, hsl(345 75% 10%) 100%)" }}>
+      <div className="relative text-primary-foreground overflow-hidden" style={{ background: "linear-gradient(160deg, hsl(358 68% 20%) 0%, hsl(358 68% 14%) 40%, hsl(358 68% 10%) 100%)" }}>
         {/* Pattern overlay */}
         <div className="absolute inset-0 opacity-[0.03]" style={{
           backgroundImage: "radial-gradient(circle at 25% 25%, hsl(0 0% 100%) 1px, transparent 1px), radial-gradient(circle at 75% 75%, hsl(0 0% 100%) 1px, transparent 1px)",
@@ -68,7 +68,7 @@ const Footer = () => {
             <div>
               <h4 className="font-serif text-lg font-semibold mb-6 relative inline-block">
                 Quick Links
-                <span className="absolute -bottom-1 left-0 w-10 h-[2px] rounded-full" style={{ background: "linear-gradient(90deg, hsl(43 72% 52%), transparent)" }} />
+                <span className="absolute -bottom-1 left-0 w-10 h-[2px] rounded-full" style={{ background: "linear-gradient(90deg, hsl(33 62% 58%), transparent)" }} />
               </h4>
               <ul className="space-y-3 text-sm text-primary-foreground/65">
                 {[
@@ -93,7 +93,7 @@ const Footer = () => {
             <div>
               <h4 className="font-serif text-lg font-semibold mb-6 relative inline-block">
                 Our Courses
-                <span className="absolute -bottom-1 left-0 w-10 h-[2px] rounded-full" style={{ background: "linear-gradient(90deg, hsl(43 72% 52%), transparent)" }} />
+                <span className="absolute -bottom-1 left-0 w-10 h-[2px] rounded-full" style={{ background: "linear-gradient(90deg, hsl(33 62% 58%), transparent)" }} />
               </h4>
               <ul className="space-y-3 text-sm text-primary-foreground/65">
                 {["Carnatic Vocal", "Hindustani Vocal", "Bharatanatyam", "Mridangam", "Tabla", "Sitar"].map((c) => (
@@ -111,7 +111,7 @@ const Footer = () => {
             <div>
               <h4 className="font-serif text-lg font-semibold mb-6 relative inline-block">
                 Contact Us
-                <span className="absolute -bottom-1 left-0 w-10 h-[2px] rounded-full" style={{ background: "linear-gradient(90deg, hsl(43 72% 52%), transparent)" }} />
+                <span className="absolute -bottom-1 left-0 w-10 h-[2px] rounded-full" style={{ background: "linear-gradient(90deg, hsl(33 62% 58%), transparent)" }} />
               </h4>
               <ul className="space-y-4 text-sm text-primary-foreground/65">
                 <li className="flex items-start gap-3">

@@ -11,7 +11,7 @@ const LoginSelect = () => {
       {/* Left — decorative */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
         <img src={campusVault} alt="Campus heritage passage" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(0_69%_10%/0.92)] via-[hsl(0_69%_18%/0.85)] to-[hsl(345_75%_12%/0.8)]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(358_68%_10%/0.92)] via-[hsl(358_68%_18%/0.85)] to-[hsl(358_68%_12%/0.8)]" />
         <motion.div
           className="absolute inset-0 opacity-20"
           animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}

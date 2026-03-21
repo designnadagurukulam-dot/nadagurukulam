@@ -55,7 +55,7 @@ const Courses = () => {
           animate={{ scale: 1 }}
           transition={{ duration: 2, ease: "easeOut" }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-[hsl(0_69%_6%/0.93)] via-[hsl(0_69%_14%/0.87)] to-[hsl(345_75%_10%/0.92)]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[hsl(358_68%_6%/0.93)] via-[hsl(358_68%_14%/0.87)] to-[hsl(358_68%_10%/0.92)]" />
         <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 60%, hsl(43 72% 52% / 0.08) 0%, transparent 50%)" }} />
 
         <div className="relative z-10 container mx-auto px-4 text-center">
@@ -91,7 +91,7 @@ const Courses = () => {
                   <motion.div
                     layoutId="course-tab-indicator"
                     className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-8 h-1 rounded-full"
-                    style={{ background: "linear-gradient(90deg, hsl(43 72% 52%), hsl(48 90% 60%))" }}
+                    style={{ background: "linear-gradient(90deg, hsl(33 62% 58%), hsl(35 62% 65%))" }}
                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                   />
                 )}
@@ -135,7 +135,7 @@ const Courses = () => {
                           loading="lazy"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-[hsl(0_0%_0%/0.92)] via-[hsl(0_0%_0%/0.2)] to-transparent" />
-                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 bg-gradient-to-t from-[hsl(43_72%_52%/0.12)] via-transparent to-transparent" />
+                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 bg-gradient-to-t from-[hsl(33_62%_58%/0.12)] via-transparent to-transparent" />
 
                         <div className="absolute top-4 left-4 w-10 h-10 border-t-2 border-l-2 border-secondary/30 rounded-tl-xl opacity-0 group-hover:opacity-100 transition-all duration-500" />
                         <div className="absolute top-4 right-4 w-10 h-10 border-t-2 border-r-2 border-secondary/30 rounded-tr-xl opacity-0 group-hover:opacity-100 transition-all duration-500" />
