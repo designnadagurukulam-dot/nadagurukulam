@@ -74,7 +74,7 @@ const Footer = () => {
                 {[
                   { label: "Home", to: "/" },
                   { label: "About Us", to: "/about" },
-                  { label: "Admissions", to: "/admissions" },
+                  
                   { label: "Faculty", to: "/faculty" },
                   { label: "Gallery", to: "/gallery" },
                   { label: "Contact", to: "/contact" },
