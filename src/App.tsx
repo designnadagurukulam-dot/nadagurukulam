@@ -11,6 +11,7 @@ import RoleProtectedRoute from "./components/RoleProtectedRoute";
 import ScrollToTop from "./components/ScrollToTop";
 import Index from "./pages/Index";
 import About from "./pages/About";
+import Events from "./pages/Events";
 import Courses from "./pages/Courses";
 import CourseCatalog from "./pages/CourseCatalog";
 import CourseDetail from "./pages/CourseDetail";
