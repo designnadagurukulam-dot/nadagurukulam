@@ -1,8 +1,7 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { GraduationCap, HelpCircle, ArrowRight, Music, BookOpen, Users, Heart } from "lucide-react";
+import { GraduationCap, ArrowRight, Music, BookOpen, Users, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import SectionDivider from "@/components/SectionDivider";
 
 import imgDancePerf from "@/assets/gallery/NGR6M_9591.webp";
