@@ -635,6 +635,11 @@ const Index = () => {
         </div>
       </section>
 
+      {/* ══════ UPCOMING EVENTS ══════ */}
+      <UpcomingEventsSection />
+
+      <SectionDivider />
+
       {/* ══════ CTA — Full viewport dramatic ══════ */}
       <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden">
         <img src={imgChorus} alt="Music" className="absolute inset-0 w-full h-full object-cover" />
