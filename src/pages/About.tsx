@@ -188,9 +188,9 @@ const About = () => {
 
                 {/* Card */}
                 <div className={`ml-16 md:ml-0 ${i % 2 === 0 ? "md:mr-[55%]" : "md:ml-[55%]"} w-full md:w-[40%]`}>
-                  <div className="card-glass-gold rounded-2xl p-7 hover:shadow-xl transition-shadow duration-500">
-                    <h3 className="font-serif text-xl font-bold mb-3">{item.title}</h3>
-                    <p className="text-muted-foreground leading-relaxed text-sm">{item.desc}</p>
+                  <div className="card-glass-gold rounded-2xl p-8 hover:shadow-xl transition-shadow duration-500">
+                    <h3 className="font-serif text-2xl md:text-3xl font-bold mb-4">{item.title}</h3>
+                    <p className="text-muted-foreground leading-relaxed text-base">{item.desc}</p>
                   </div>
                 </div>
               </motion.div>
