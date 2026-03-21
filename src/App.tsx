@@ -11,6 +11,7 @@ import RoleProtectedRoute from "./components/RoleProtectedRoute";
 import ScrollToTop from "./components/ScrollToTop";
 import Index from "./pages/Index";
 import About from "./pages/About";
+import Events from "./pages/Events";
 import Courses from "./pages/Courses";
 import CourseCatalog from "./pages/CourseCatalog";
 import CourseDetail from "./pages/CourseDetail";
@@ -43,6 +44,7 @@ import AdminCoupons from "./pages/admin/AdminCoupons";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminInquiries from "./pages/admin/AdminInquiries";
 import AdminJobs from "./pages/admin/AdminJobs";
+import AdminEvents from "./pages/admin/AdminEvents";
 import NotFound from "./pages/NotFound";
 import ProgramDetail from "./pages/ProgramDetail";
 
@@ -68,6 +70,7 @@ const App = () => (
             <Route path="/faculty" element={<Layout><Faculty /></Layout>} />
             <Route path="/faculty/:id" element={<Layout><FacultyDetail /></Layout>} />
             
+            <Route path="/events" element={<Layout><Events /></Layout>} />
             <Route path="/gallery" element={<Layout><Gallery /></Layout>} />
             <Route path="/contact" element={<Layout><Contact /></Layout>} />
 
@@ -105,6 +108,7 @@ const App = () => (
             <Route path="/dashboard/admin/coupons" element={<RoleProtectedRoute allowedRoles={["admin"]}><DashboardLayout><AdminCoupons /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/admin/analytics" element={<RoleProtectedRoute allowedRoles={["admin"]}><DashboardLayout><AdminAnalytics /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/admin/jobs" element={<RoleProtectedRoute allowedRoles={["admin"]}><DashboardLayout><AdminJobs /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/admin/events" element={<RoleProtectedRoute allowedRoles={["admin"]}><DashboardLayout><AdminEvents /></DashboardLayout></RoleProtectedRoute>} />
 
             <Route path="*" element={<Layout><NotFound /></Layout>} />
           </Routes>
