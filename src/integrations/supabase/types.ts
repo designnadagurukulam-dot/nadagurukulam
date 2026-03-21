@@ -574,6 +574,7 @@ export type Database = {
           bio: string | null
           created_at: string
           display_name: string | null
+          enrollment_id: string | null
           id: string
           phone: string | null
           updated_at: string
@@ -584,6 +585,7 @@ export type Database = {
           bio?: string | null
           created_at?: string
           display_name?: string | null
+          enrollment_id?: string | null
           id?: string
           phone?: string | null
           updated_at?: string
@@ -594,6 +596,7 @@ export type Database = {
           bio?: string | null
           created_at?: string
           display_name?: string | null
+          enrollment_id?: string | null
           id?: string
           phone?: string | null
           updated_at?: string
