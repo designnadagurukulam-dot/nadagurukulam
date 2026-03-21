@@ -4,48 +4,48 @@
 
 @layer base {
   :root {
-    /* Nada Gurukulam Brand Palette */
-    --background: 39 100% 97%;        /* cream #FFF8E7 */
-    --foreground: 16 27% 19%;         /* dark brown #3E2723 */
+    /* Nada Gurukulam Brand Palette — Deep Maroon + Warm Gold */
+    --background: 33 65% 95%;          /* warm cream #FAF3EA */
+    --foreground: 16 27% 19%;          /* dark brown #3E2723 */
 
-    --card: 30 50% 98%;               /* warm off-white */
+    --card: 33 55% 92%;                /* soft peach #F5E8D5 */
     --card-foreground: 16 27% 19%;
 
     --popover: 0 0% 100%;
     --popover-foreground: 16 27% 19%;
 
-    --primary: 1 74% 43%;             /* deep red #BE1E1C */
-    --primary-foreground: 39 100% 97%;
+    --primary: 358 68% 31%;            /* deep maroon #86191C */
+    --primary-foreground: 33 65% 95%;
 
-    --secondary: 42 100% 50%;         /* amber gold #FFB400 */
+    --secondary: 33 62% 58%;           /* warm gold #D69D53 */
     --secondary-foreground: 16 27% 19%;
 
-    --muted: 30 30% 93%;
-    --muted-foreground: 0 0% 45%;
+    --muted: 33 55% 85%;              /* peach cream #F0DCC1 */
+    --muted-foreground: 0 0% 42%;
 
-    --accent: 49 65% 43%;             /* muted gold #B29B27 */
-    --accent-foreground: 39 100% 97%;
+    --accent: 35 62% 65%;              /* medium gold #DDAD6E */
+    --accent-foreground: 16 27% 19%;
 
-    --destructive: 14 100% 60%;       /* orange-red #FF6333 */
+    --destructive: 14 100% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 30 20% 85%;
-    --input: 30 20% 85%;
-    --ring: 1 74% 43%;
+    --border: 33 35% 82%;
+    --input: 33 35% 82%;
+    --ring: 358 68% 31%;
 
     --radius: 0.5rem;
 
     /* Extra brand color */
-    --olive: 61 100% 20%;             /* olive #636500 */
+    --olive: 61 100% 20%;
 
-    --sidebar-background: 30 50% 98%;
+    --sidebar-background: 33 55% 92%;
     --sidebar-foreground: 16 27% 19%;
-    --sidebar-primary: 1 74% 43%;
-    --sidebar-primary-foreground: 39 100% 97%;
-    --sidebar-accent: 30 30% 93%;
+    --sidebar-primary: 358 68% 31%;
+    --sidebar-primary-foreground: 33 65% 95%;
+    --sidebar-accent: 33 55% 85%;
     --sidebar-accent-foreground: 16 27% 19%;
-    --sidebar-border: 30 20% 85%;
-    --sidebar-ring: 1 74% 43%;
+    --sidebar-border: 33 35% 82%;
+    --sidebar-ring: 358 68% 31%;
   }
 
   .dark {
