@@ -75,37 +75,82 @@ const Faculty = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
-              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8"
             >
-              {filtered.map((f, i) => (
-                <motion.div
-                  key={f.id}
-                  initial={{ opacity: 0, y: 40 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.07, duration: 0.5 }}
-                >
-                  <Link to={`/faculty/${f.id}`} className="group block text-center">
-                    <div className="relative mb-5">
-                      {/* Circular portrait with gold ring */}
-                      <div className="w-32 h-32 md:w-40 md:h-40 mx-auto rounded-full overflow-hidden portrait-gold-ring relative">
-                        <img
-                          src={f.image}
-                          alt={f.name}
-                          className="w-full h-full object-cover object-[center_15%] group-hover:scale-110 transition-transform duration-700"
-                          loading="lazy"
-                        />
+              {/* Featured leaders row */}
+              {(() => {
+                const leaders = filtered.filter(f => f.id === "revathi-ramachandran" || f.id === "manasvini-korukkai-ramachandran");
+                const others = filtered.filter(f => f.id !== "revathi-ramachandran" && f.id !== "manasvini-korukkai-ramachandran");
+
+                return (
+                  <>
+                    {leaders.length > 0 && (
+                      <div className="flex flex-wrap justify-center gap-8 md:gap-14 mb-16">
+                        {leaders.map((f, i) => (
+                          <motion.div
+                            key={f.id}
+                            initial={{ opacity: 0, y: 40 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: i * 0.1, duration: 0.5 }}
+                            className="w-56 md:w-64"
+                          >
+                            <Link to={`/faculty/${f.id}`} className="group block text-center">
+                              <div className="relative mb-6">
+                                <div className="w-44 h-44 md:w-56 md:h-56 mx-auto rounded-full overflow-hidden portrait-gold-ring relative">
+                                  <img
+                                    src={f.image}
+                                    alt={f.name}
+                                    className="w-full h-full object-cover object-[center_15%] group-hover:scale-110 transition-transform duration-700"
+                                    loading="lazy"
+                                  />
+                                </div>
+                                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                  <div className="w-48 h-48 md:w-60 md:h-60 rounded-full border border-secondary/0 group-hover:border-secondary/20 transition-all duration-700 group-hover:scale-110" />
+                                </div>
+                              </div>
+                              <h3 className="font-serif text-base md:text-lg font-bold mb-1 group-hover:text-primary transition-colors">{f.name}</h3>
+                              <p className="text-secondary text-sm font-semibold">{f.id === "revathi-ramachandran" ? f.title : f.specialization}</p>
+                              <p className="text-muted-foreground text-xs mt-1">{f.experience}</p>
+                            </Link>
+                          </motion.div>
+                        ))}
                       </div>
-                      {/* Golden glow ring pulse on hover */}
-                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <div className="w-36 h-36 md:w-44 md:h-44 rounded-full border border-secondary/0 group-hover:border-secondary/20 transition-all duration-700 group-hover:scale-110" />
+                    )}
+
+                    {/* Other faculty grid */}
+                    {others.length > 0 && (
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
+                        {others.map((f, i) => (
+                          <motion.div
+                            key={f.id}
+                            initial={{ opacity: 0, y: 40 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: (leaders.length + i) * 0.07, duration: 0.5 }}
+                          >
+                            <Link to={`/faculty/${f.id}`} className="group block text-center">
+                              <div className="relative mb-5">
+                                <div className="w-32 h-32 md:w-40 md:h-40 mx-auto rounded-full overflow-hidden portrait-gold-ring relative">
+                                  <img
+                                    src={f.image}
+                                    alt={f.name}
+                                    className="w-full h-full object-cover object-[center_15%] group-hover:scale-110 transition-transform duration-700"
+                                    loading="lazy"
+                                  />
+                                </div>
+                                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                  <div className="w-36 h-36 md:w-44 md:h-44 rounded-full border border-secondary/0 group-hover:border-secondary/20 transition-all duration-700 group-hover:scale-110" />
+                                </div>
+                              </div>
+                              <h3 className="font-serif text-sm md:text-base font-bold mb-1 group-hover:text-primary transition-colors">{f.name}</h3>
+                              <p className="text-secondary text-xs font-semibold">{f.specialization}</p>
+                              <p className="text-muted-foreground text-[11px] mt-1">{f.experience}</p>
+                            </Link>
+                          </motion.div>
+                        ))}
                       </div>
-                    </div>
-                    <h3 className="font-serif text-sm md:text-base font-bold mb-1 group-hover:text-primary transition-colors">{f.name}</h3>
-                    <p className="text-secondary text-xs font-semibold">{f.id === "revathi-ramachandran" ? f.title : f.specialization}</p>
-                    <p className="text-muted-foreground text-[11px] mt-1">{f.experience}</p>
-                  </Link>
-                </motion.div>
-              ))}
+                    )}
+                  </>
+                );
+              })()}
             </motion.div>
           </AnimatePresence>
         </div>
