@@ -17,7 +17,7 @@ import CourseDetail from "./pages/CourseDetail";
 import LessonPlayer from "./pages/LessonPlayer";
 import Faculty from "./pages/Faculty";
 import FacultyDetail from "./pages/FacultyDetail";
-import Admissions from "./pages/Admissions";
+
 import Gallery from "./pages/Gallery";
 import Contact from "./pages/Contact";
 import LoginSelect from "./pages/LoginSelect";
@@ -67,7 +67,7 @@ const App = () => (
             <Route path="/course/:courseId/lesson/:lessonId" element={<LessonPlayer />} />
             <Route path="/faculty" element={<Layout><Faculty /></Layout>} />
             <Route path="/faculty/:id" element={<Layout><FacultyDetail /></Layout>} />
-            <Route path="/admissions" element={<Layout><Admissions /></Layout>} />
+            
             <Route path="/gallery" element={<Layout><Gallery /></Layout>} />
             <Route path="/contact" element={<Layout><Contact /></Layout>} />
 
