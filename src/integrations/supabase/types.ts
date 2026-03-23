@@ -361,6 +361,92 @@ export type Database = {
           },
         ]
       }
+      curriculum_modules: {
+        Row: {
+          course_code: string
+          created_at: string
+          description: string | null
+          hours: number | null
+          id: string
+          module_name: string
+          semester: number
+          sort_order: number
+          subject_name: string
+          updated_at: string
+        }
+        Insert: {
+          course_code: string
+          created_at?: string
+          description?: string | null
+          hours?: number | null
+          id?: string
+          module_name: string
+          semester: number
+          sort_order?: number
+          subject_name: string
+          updated_at?: string
+        }
+        Update: {
+          course_code?: string
+          created_at?: string
+          description?: string | null
+          hours?: number | null
+          id?: string
+          module_name?: string
+          semester?: number
+          sort_order?: number
+          subject_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      curriculum_sections: {
+        Row: {
+          content_type: string
+          created_at: string
+          created_by: string | null
+          id: string
+          module_id: string
+          sort_order: number
+          text_content: string | null
+          title: string
+          updated_at: string
+          youtube_url: string | null
+        }
+        Insert: {
+          content_type?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          module_id: string
+          sort_order?: number
+          text_content?: string | null
+          title: string
+          updated_at?: string
+          youtube_url?: string | null
+        }
+        Update: {
+          content_type?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          module_id?: string
+          sort_order?: number
+          text_content?: string | null
+          title?: string
+          updated_at?: string
+          youtube_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curriculum_sections_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "curriculum_modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       enrollments: {
         Row: {
           course_id: string

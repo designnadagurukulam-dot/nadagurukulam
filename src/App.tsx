@@ -45,6 +45,9 @@ import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminInquiries from "./pages/admin/AdminInquiries";
 import AdminJobs from "./pages/admin/AdminJobs";
 import AdminEvents from "./pages/admin/AdminEvents";
+import AdminCurriculum from "./pages/admin/AdminCurriculum";
+import DashboardCurriculum from "./pages/dashboard/DashboardCurriculum";
+import Curriculum from "./pages/Curriculum";
 import NotFound from "./pages/NotFound";
 import ProgramDetail from "./pages/ProgramDetail";
 
@@ -63,7 +66,7 @@ const App = () => (
             <Route path="/" element={<Layout><Index /></Layout>} />
             <Route path="/about" element={<Layout><About /></Layout>} />
             <Route path="/courses" element={<Layout><Courses /></Layout>} />
-            
+            <Route path="/curriculum" element={<Layout><Curriculum /></Layout>} />
             <Route path="/course/:id" element={<Layout><CourseDetail /></Layout>} />
             <Route path="/programs/:slug" element={<Layout><ProgramDetail /></Layout>} />
             <Route path="/course/:courseId/lesson/:lessonId" element={<LessonPlayer />} />
@@ -88,6 +91,7 @@ const App = () => (
             <Route path="/dashboard/assignments" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardAssignments /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/schedule" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardSchedule /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/certificates" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardCertificates /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/curriculum" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardCurriculum /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/profile" element={<ProtectedRoute><DashboardLayout><DashboardProfile /></DashboardLayout></ProtectedRoute>} />
 
             {/* Instructor Dashboard */}
@@ -97,6 +101,7 @@ const App = () => (
             <Route path="/dashboard/instructor/submissions" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><InstructorSubmissions /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/instructor/students" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><InstructorStudents /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/instructor/analytics" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><InstructorAnalytics /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/instructor/curriculum" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><AdminCurriculum /></DashboardLayout></RoleProtectedRoute>} />
 
             {/* Admin Dashboard */}
             <Route path="/dashboard/admin" element={<RoleProtectedRoute allowedRoles={["admin"]}><DashboardLayout><AdminOverview /></DashboardLayout></RoleProtectedRoute>} />
@@ -109,6 +114,7 @@ const App = () => (
             <Route path="/dashboard/admin/analytics" element={<RoleProtectedRoute allowedRoles={["admin"]}><DashboardLayout><AdminAnalytics /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/admin/jobs" element={<RoleProtectedRoute allowedRoles={["admin"]}><DashboardLayout><AdminJobs /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/admin/events" element={<RoleProtectedRoute allowedRoles={["admin"]}><DashboardLayout><AdminEvents /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/admin/curriculum" element={<RoleProtectedRoute allowedRoles={["admin"]}><DashboardLayout><AdminCurriculum /></DashboardLayout></RoleProtectedRoute>} />
 
             <Route path="*" element={<Layout><NotFound /></Layout>} />
           </Routes>

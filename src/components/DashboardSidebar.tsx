@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, BookOpen, ClipboardList, Calendar, Award, User, LogOut,
-  ChevronLeft, ChevronRight, PlusCircle, Settings, Users, BarChart3, CheckSquare, Tag, Ticket, Menu, X, MessageSquare, Briefcase, CalendarDays
+  ChevronLeft, ChevronRight, PlusCircle, Settings, Users, BarChart3, CheckSquare, Tag, Ticket, Menu, X, MessageSquare, Briefcase, CalendarDays, GraduationCap
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
@@ -11,6 +11,7 @@ import logo from "@/assets/logo.png";
 const studentNav = [
   { label: "Overview", to: "/dashboard", icon: LayoutDashboard },
   { label: "My Courses", to: "/dashboard/courses", icon: BookOpen },
+  { label: "Curriculum", to: "/dashboard/curriculum", icon: GraduationCap },
   { label: "Assignments", to: "/dashboard/assignments", icon: ClipboardList },
   { label: "Schedule", to: "/dashboard/schedule", icon: Calendar },
   { label: "Certificates", to: "/dashboard/certificates", icon: Award },
@@ -20,6 +21,7 @@ const studentNav = [
 const instructorNav = [
   { label: "Overview", to: "/dashboard", icon: LayoutDashboard },
   { label: "My Courses", to: "/dashboard/instructor/courses", icon: BookOpen },
+  { label: "Curriculum", to: "/dashboard/instructor/curriculum", icon: GraduationCap },
   { label: "Create Course", to: "/dashboard/instructor/create", icon: PlusCircle },
   { label: "Submissions", to: "/dashboard/instructor/submissions", icon: CheckSquare },
   { label: "My Students", to: "/dashboard/instructor/students", icon: Users },
@@ -30,6 +32,7 @@ const instructorNav = [
 const adminNav = [
   { label: "Overview", to: "/dashboard/admin", icon: LayoutDashboard },
   { label: "Inquiries", to: "/dashboard/admin/inquiries", icon: MessageSquare },
+  { label: "Curriculum", to: "/dashboard/admin/curriculum", icon: GraduationCap },
   { label: "Course Approvals", to: "/dashboard/admin/approvals", icon: CheckSquare },
   { label: "All Courses", to: "/dashboard/admin/courses", icon: BookOpen },
   { label: "Students", to: "/dashboard/admin/students", icon: Users },
