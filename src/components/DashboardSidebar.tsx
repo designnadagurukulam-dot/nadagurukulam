@@ -21,6 +21,7 @@ const studentNav = [
 const instructorNav = [
   { label: "Overview", to: "/dashboard", icon: LayoutDashboard },
   { label: "My Courses", to: "/dashboard/instructor/courses", icon: BookOpen },
+  { label: "Curriculum", to: "/dashboard/instructor/curriculum", icon: GraduationCap },
   { label: "Create Course", to: "/dashboard/instructor/create", icon: PlusCircle },
   { label: "Submissions", to: "/dashboard/instructor/submissions", icon: CheckSquare },
   { label: "My Students", to: "/dashboard/instructor/students", icon: Users },
