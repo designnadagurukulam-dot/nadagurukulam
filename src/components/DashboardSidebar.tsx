@@ -32,6 +32,7 @@ const instructorNav = [
 const adminNav = [
   { label: "Overview", to: "/dashboard/admin", icon: LayoutDashboard },
   { label: "Inquiries", to: "/dashboard/admin/inquiries", icon: MessageSquare },
+  { label: "Curriculum", to: "/dashboard/admin/curriculum", icon: GraduationCap },
   { label: "Course Approvals", to: "/dashboard/admin/approvals", icon: CheckSquare },
   { label: "All Courses", to: "/dashboard/admin/courses", icon: BookOpen },
   { label: "Students", to: "/dashboard/admin/students", icon: Users },
