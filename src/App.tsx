@@ -91,6 +91,7 @@ const App = () => (
             <Route path="/dashboard/assignments" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardAssignments /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/schedule" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardSchedule /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/certificates" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardCertificates /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/curriculum" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardCurriculum /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/profile" element={<ProtectedRoute><DashboardLayout><DashboardProfile /></DashboardLayout></ProtectedRoute>} />
 
             {/* Instructor Dashboard */}
