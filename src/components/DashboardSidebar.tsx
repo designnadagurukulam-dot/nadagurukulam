@@ -11,6 +11,7 @@ import logo from "@/assets/logo.png";
 const studentNav = [
   { label: "Overview", to: "/dashboard", icon: LayoutDashboard },
   { label: "My Courses", to: "/dashboard/courses", icon: BookOpen },
+  { label: "Curriculum", to: "/dashboard/curriculum", icon: GraduationCap },
   { label: "Assignments", to: "/dashboard/assignments", icon: ClipboardList },
   { label: "Schedule", to: "/dashboard/schedule", icon: Calendar },
   { label: "Certificates", to: "/dashboard/certificates", icon: Award },
