@@ -40,7 +40,7 @@ import AdminApprovals from "./pages/admin/AdminApprovals";
 import AdminCourses from "./pages/admin/AdminCourses";
 import AdminStudents from "./pages/admin/AdminStudents";
 import AdminCategories from "./pages/admin/AdminCategories";
-import AdminCoupons from "./pages/admin/AdminCoupons";
+
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminInquiries from "./pages/admin/AdminInquiries";
 import AdminJobs from "./pages/admin/AdminJobs";
