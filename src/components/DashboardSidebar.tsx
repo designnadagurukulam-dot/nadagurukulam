@@ -41,7 +41,6 @@ const adminNav = [
   { label: "Jobs & Volunteers", to: "/dashboard/admin/jobs", icon: Briefcase },
   { label: "Events", to: "/dashboard/admin/events", icon: CalendarDays },
   { label: "Analytics", to: "/dashboard/admin/analytics", icon: BarChart3 },
-  { label: "Settings", to: "/dashboard/admin/settings", icon: Settings },
 ];
 
 const DashboardSidebar = () => {
