@@ -82,7 +82,7 @@ const AdminOverview = () => {
             <Link to="/dashboard/admin/courses"><Button variant="outline" size="sm">Manage Courses</Button></Link>
             <Link to="/dashboard/admin/students"><Button variant="outline" size="sm">Manage Students</Button></Link>
             <Link to="/dashboard/admin/categories"><Button variant="outline" size="sm">Manage Categories</Button></Link>
-            <Link to="/dashboard/admin/coupons"><Button variant="outline" size="sm">Manage Coupons</Button></Link>
+            
           </CardContent>
         </Card>
 
