@@ -32,7 +32,7 @@ import DashboardCertificates from "./pages/dashboard/DashboardCertificates";
 import DashboardProfile from "./pages/dashboard/DashboardProfile";
 import InstructorCourses from "./pages/instructor/InstructorCourses";
 import CreateCourse from "./pages/instructor/CreateCourse";
-import InstructorSubmissions from "./pages/instructor/InstructorSubmissions";
+import InstructorAssignments from "./pages/instructor/InstructorAssignments";
 import InstructorStudents from "./pages/instructor/InstructorStudents";
 import InstructorAnalytics from "./pages/instructor/InstructorAnalytics";
 import AdminOverview from "./pages/admin/AdminOverview";
@@ -98,7 +98,7 @@ const App = () => (
             <Route path="/dashboard/instructor/courses" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><InstructorCourses /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/instructor/create" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><CreateCourse /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/instructor/edit/:id" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><CreateCourse /></DashboardLayout></RoleProtectedRoute>} />
-            <Route path="/dashboard/instructor/submissions" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><InstructorSubmissions /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/instructor/assignments" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><InstructorAssignments /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/instructor/students" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><InstructorStudents /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/instructor/analytics" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><InstructorAnalytics /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/instructor/curriculum" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><AdminCurriculum /></DashboardLayout></RoleProtectedRoute>} />
