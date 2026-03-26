@@ -14,6 +14,53 @@ export type Database = {
   }
   public: {
     Tables: {
+      assignment_submissions: {
+        Row: {
+          assignment_id: string
+          feedback: string | null
+          file_url: string | null
+          grade: string | null
+          id: string
+          status: string
+          student_id: string
+          submitted_at: string
+          text_content: string | null
+          updated_at: string
+        }
+        Insert: {
+          assignment_id: string
+          feedback?: string | null
+          file_url?: string | null
+          grade?: string | null
+          id?: string
+          status?: string
+          student_id: string
+          submitted_at?: string
+          text_content?: string | null
+          updated_at?: string
+        }
+        Update: {
+          assignment_id?: string
+          feedback?: string | null
+          file_url?: string | null
+          grade?: string | null
+          id?: string
+          status?: string
+          student_id?: string
+          submitted_at?: string
+          text_content?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assignment_submissions_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "assignments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       assignments: {
         Row: {
           course_id: string
@@ -21,6 +68,8 @@ export type Database = {
           description: string | null
           due_date: string | null
           id: string
+          instructor_id: string | null
+          pdf_url: string | null
           title: string
         }
         Insert: {
@@ -29,6 +78,8 @@ export type Database = {
           description?: string | null
           due_date?: string | null
           id?: string
+          instructor_id?: string | null
+          pdf_url?: string | null
           title: string
         }
         Update: {
@@ -37,6 +88,8 @@ export type Database = {
           description?: string | null
           due_date?: string | null
           id?: string
+          instructor_id?: string | null
+          pdf_url?: string | null
           title?: string
         }
         Relationships: [
