@@ -1,95 +1,73 @@
 
 
-## Curriculum System — 8-Semester Syllabus with Educator Content Management
+## Assignments System — Educator Creates, Student Submits
 
 ### Overview
 
-Build a structured curriculum system based on the uploaded BPA Carnatic Vocal syllabus (8 semesters). Educators can enrich modules with sections containing YouTube videos and text. Students access the curriculum from their dashboard.
+Replace the instructor "Submissions" tab with a full "Assignments" tab. Educators create assignments (with optional PDF attachments) for their courses. Students see these assignments and can upload submission files. Educators can view all student submissions per assignment.
 
-### Database Schema
+### Database Changes
 
-Two new tables:
+**New table: `assignment_submissions`**
 
 ```text
-curriculum_modules
+assignment_submissions
 ├── id (uuid PK)
-├── semester (int, 1-8)
-├── subject_name (text) — e.g. "Carnatic Compositions I"
-├── course_code (text) — e.g. "BCVP210"
-├── module_name (text) — e.g. "Svarajathi - Any two"
-├── description (text, nullable)
-├── hours (int, nullable)
-├── sort_order (int)
-├── created_at, updated_at
-
-curriculum_sections
-├── id (uuid PK)
-├── module_id (uuid FK → curriculum_modules)
-├── title (text)
-├── content_type (text: 'youtube' | 'text')
-├── youtube_url (text, nullable)
-├── text_content (text, nullable)
-├── sort_order (int)
-├── created_by (uuid, nullable)
-├── created_at, updated_at
+├── assignment_id (uuid FK → assignments)
+├── student_id (uuid, references auth.users)
+├── file_url (text, nullable) — uploaded PDF/file
+├── text_content (text, nullable) — optional text submission
+├── status (text: 'submitted' | 'graded' | 'late') default 'submitted'
+├── grade (text, nullable)
+├── feedback (text, nullable)
+├── submitted_at (timestamptz, default now())
+├── updated_at (timestamptz, default now())
 ```
 
-**RLS policies:**
-- `curriculum_modules`: Anyone can SELECT; admins can INSERT/UPDATE/DELETE
-- `curriculum_sections`: Enrolled students + admins + instructors can SELECT; admins + instructors can INSERT/UPDATE/DELETE
+**Modify existing `assignments` table:**
+- Add `instructor_id` (uuid, nullable) — who created it
+- Add `pdf_url` (text, nullable) — assignment PDF attachment
 
-### Seed Data
+**Storage bucket:** `assignment-files` (public: false) for both assignment PDFs and student submission uploads.
 
-Insert all 8 semesters of syllabus data from the uploaded DOCX into `curriculum_modules` via a migration. This covers ~60-70 module rows across subjects like:
-- Sem 1: Foundation Course in Carnatic Music (BCVP110), History of Indian Music (BCVT130)
-- Sem 2: Carnatic Compositions I (BCVP210), Theory of Indian Music (BCVT230)
-- Sem 3-8: Continuing courses in Compositions, Theory, Manodharma Sangeetha, Samudaya Kriti
+**RLS policies on `assignment_submissions`:**
+- Students can INSERT/UPDATE/SELECT their own submissions
+- Instructors can SELECT submissions for their course assignments
+- Admins can SELECT all
 
-### New Pages & Components
+**Update RLS on `assignments`:**
+- Instructors can INSERT/UPDATE/DELETE assignments for their own courses
+- Students can SELECT assignments for enrolled courses (already exists)
 
-**1. Public Curriculum Page (`/curriculum`)**
-- 8 semester tabs across the top
-- Each tab shows subjects grouped as cards
-- Each subject card expands to show modules with descriptions and hours
-- Accessible from main navbar
+### Educator Side — Replace InstructorSubmissions
 
-**2. Educator Curriculum Manager (`/dashboard/admin/curriculum` and `/dashboard/instructor/curriculum`)**
-- Same semester tabs + subject/module drill-down
-- For each module: list existing sections, add new section (title + YouTube URL or text content)
-- Inline YouTube embed preview when adding
-- Edit/delete sections
+**Rename route:** `/dashboard/instructor/submissions` → `/dashboard/instructor/assignments`
 
-**3. Student Curriculum Dashboard (`/dashboard/curriculum`)**
-- Semester tabs showing their curriculum
-- Click into any module to see sections (embedded YouTube videos, text content)
-- Similar to LessonPlayer but for curriculum content
+**New `InstructorAssignments.tsx`:**
+- Lists all assignments created by this instructor (fetched via `assignments` joined with `courses` where `instructor_id = auth.uid()`)
+- "Create Assignment" button opens dialog: title, description, select course (from instructor's courses), due date, optional PDF upload
+- Click an assignment → expands/navigates to show student submissions list
+- Each submission shows: student name, submitted date, file download link, status, and option to add grade/feedback
 
-### Routing & Navigation Changes
+### Student Side — Update DashboardAssignments
 
-| Route | Role | Component |
-|-------|------|-----------|
-| `/curriculum` | Public | CurriculumPage |
-| `/dashboard/curriculum` | Student | StudentCurriculum |
-| `/dashboard/admin/curriculum` | Admin | AdminCurriculum |
-| `/dashboard/instructor/curriculum` | Instructor | InstructorCurriculum |
+**Rewrite `DashboardAssignments.tsx`:**
+- Fetch real assignments from DB (joined via enrollments to get only assignments for enrolled courses)
+- Each assignment card shows: title, course name, due date, status, attached PDF download
+- "Submit" button opens dialog: upload file + optional text content
+- Shows submission status if already submitted (submitted, graded, late)
+- Display grade/feedback if graded
 
-- Add "Curriculum" to main navbar
-- Add "Curriculum" to student, instructor, and admin sidebar nav
+### Sidebar Change
 
-### Technical Details
-
-- Semester tabs use existing `Tabs`/`TabsList`/`TabsTrigger`/`TabsContent` components
-- YouTube embed reuses the existing `getYouTubeId` helper from LessonPlayer
-- Sections are fetched via Supabase joins: `curriculum_modules` → `curriculum_sections`
-- Admin/Instructor share the same management component (role check determines access)
+- Instructor nav: Change "Submissions" label to "Assignments", route to `/dashboard/instructor/assignments`
 
 ### Files to Create/Edit
 
-- **Create**: Migration SQL (schema + seed data)
-- **Create**: `src/pages/Curriculum.tsx` — public page
-- **Create**: `src/pages/dashboard/DashboardCurriculum.tsx` — student view
-- **Create**: `src/pages/admin/AdminCurriculum.tsx` — admin/instructor management
-- **Edit**: `src/App.tsx` — add routes
-- **Edit**: `src/components/Navbar.tsx` — add Curriculum link
-- **Edit**: `src/components/DashboardSidebar.tsx` — add Curriculum to all three nav arrays
+- **Migration SQL**: Add `assignment_submissions` table, alter `assignments` table, create storage bucket, RLS policies
+- **Create**: `src/pages/instructor/InstructorAssignments.tsx`
+- **Rewrite**: `src/pages/dashboard/DashboardAssignments.tsx`
+- **Edit**: `src/components/DashboardSidebar.tsx` — rename Submissions → Assignments
+- **Edit**: `src/App.tsx` — update route, swap component import
+- **Delete/deprecate**: `src/pages/instructor/InstructorSubmissions.tsx` (no longer used)
 
