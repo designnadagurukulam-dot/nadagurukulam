@@ -465,8 +465,6 @@ const CreateCourse = () => {
               className="gap-2"
             >
               {courseType === "curriculum" ? "Go to Modules" : "Next"} <ArrowRight className="h-4 w-4" />
-            </Button>
-            </Button>
           </div>
         </motion.div>
       )}
