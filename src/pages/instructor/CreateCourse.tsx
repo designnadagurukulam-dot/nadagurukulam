@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -37,6 +38,15 @@ interface Module {
   lessons: Lesson[];
 }
 
+interface CurriculumModule {
+  id: string;
+  semester: number;
+  subject_name: string;
+  module_name: string;
+  course_code: string;
+  description: string | null;
+}
+
 const CreateCourse = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -44,6 +54,12 @@ const CreateCourse = () => {
   const [step, setStep] = useState(0);
   const [saving, setSaving] = useState(false);
   const [categories, setCategories] = useState<any[]>([]);
+
+  // Course type choice
+  const [courseType, setCourseType] = useState<"new" | "curriculum">("new");
+  const [curriculumModules, setCurriculumModules] = useState<CurriculumModule[]>([]);
+  const [selectedSemester, setSelectedSemester] = useState("");
+  const [selectedSubject, setSelectedSubject] = useState("");
 
   // Step 1: Course details
   const [title, setTitle] = useState("");
@@ -62,7 +78,35 @@ const CreateCourse = () => {
 
   useEffect(() => {
     supabase.from("categories").select("*").then(({ data }) => setCategories(data || []));
+    supabase.from("curriculum_modules").select("*").order("semester").order("sort_order").then(({ data }) => {
+      setCurriculumModules((data as CurriculumModule[]) || []);
+    });
   }, []);
+
+  // Derive available semesters
+  const semesters = [...new Set(curriculumModules.map((m) => m.semester))].sort((a, b) => a - b);
+
+  // Derive subjects for selected semester
+  const subjectsForSemester = selectedSemester
+    ? [...new Map(
+        curriculumModules
+          .filter((m) => m.semester === Number(selectedSemester))
+          .map((m) => [m.subject_name, m])
+      ).values()]
+    : [];
+
+  // When subject is selected, auto-fill course title/description
+  useEffect(() => {
+    if (courseType === "curriculum" && selectedSubject) {
+      const match = curriculumModules.find(
+        (m) => m.semester === Number(selectedSemester) && m.subject_name === selectedSubject
+      );
+      if (match) {
+        setTitle(`${match.subject_name} — Semester ${match.semester}`);
+        setDescription(match.description || `Course for ${match.subject_name} (${match.course_code})`);
+      }
+    }
+  }, [selectedSubject, selectedSemester, courseType, curriculumModules]);
 
   const addModule = () => {
     setModules([...modules, {
