@@ -579,15 +579,21 @@ const CreateCourse = () => {
             <Button variant="outline" onClick={() => setStep(0)} className="gap-2">
               <ArrowLeft className="h-4 w-4" /> Back
             </Button>
-            <Button onClick={() => setStep(2)} className="gap-2">
-              Next <ArrowRight className="h-4 w-4" />
-            </Button>
+            {courseType === "curriculum" ? (
+              <Button onClick={handleSaveCurriculumSections} disabled={saving || modules.length === 0} className="gap-2">
+                <Save className="h-4 w-4" /> {saving ? "Saving..." : "Save to Curriculum"}
+              </Button>
+            ) : (
+              <Button onClick={() => setStep(2)} className="gap-2">
+                Next <ArrowRight className="h-4 w-4" />
+              </Button>
+            )}
           </div>
         </motion.div>
       )}
 
-      {/* Step 3: Review */}
-      {step === 2 && (
+      {/* Step 3: Review (new course only) */}
+      {step === 2 && courseType === "new" && (
         <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
 
           <Card>
@@ -596,7 +602,7 @@ const CreateCourse = () => {
               <p><span className="font-medium">Title:</span> {title || "—"}</p>
               <p><span className="font-medium">Level:</span> {level}</p>
               <p><span className="font-medium">Duration:</span> {duration || "—"}</p>
-              
+              <p><span className="font-medium">Semester:</span> {selectedSemester === "9" ? "Additional" : `Semester ${selectedSemester}`}</p>
               <p><span className="font-medium">Modules:</span> {modules.length}</p>
               <p><span className="font-medium">Total Lessons:</span> {modules.reduce((sum, m) => sum + m.lessons.length, 0)}</p>
             </CardContent>
