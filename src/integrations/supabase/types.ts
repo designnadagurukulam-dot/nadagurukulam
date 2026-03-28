@@ -453,6 +453,41 @@ export type Database = {
         }
         Relationships: []
       }
+      curriculum_section_links: {
+        Row: {
+          created_at: string
+          id: string
+          label: string | null
+          section_id: string
+          sort_order: number
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          label?: string | null
+          section_id: string
+          sort_order?: number
+          url: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          label?: string | null
+          section_id?: string
+          sort_order?: number
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curriculum_section_links_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "curriculum_sections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       curriculum_sections: {
         Row: {
           content_type: string

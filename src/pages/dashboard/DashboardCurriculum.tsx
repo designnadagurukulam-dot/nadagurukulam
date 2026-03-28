@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Clock, PlayCircle, Type } from "lucide-react";
+import { BookOpen, Clock, PlayCircle, Type, Link as LinkIcon } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 const getYouTubeId = (url: string): string | null => {
@@ -37,6 +37,18 @@ const DashboardCurriculum = () => {
     },
   });
 
+  const { data: sectionLinks = [] } = useQuery({
+    queryKey: ["curriculum-section-links"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("curriculum_section_links")
+        .select("*")
+        .order("sort_order");
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const semesters = [1, 2, 3, 4, 5, 6, 7, 8];
 
   const getSubjectsForSemester = (sem: number) => {
@@ -57,6 +69,9 @@ const DashboardCurriculum = () => {
 
   const getSectionsForModule = (moduleId: string) =>
     sections.filter((s) => s.module_id === moduleId);
+
+  const getLinksForSection = (sectionId: string) =>
+    sectionLinks.filter((l) => l.section_id === sectionId);
 
   if (isLoading) {
     return (
@@ -126,33 +141,59 @@ const DashboardCurriculum = () => {
                             {modSections.length === 0 ? (
                               <p className="text-sm text-muted-foreground italic">No content added yet.</p>
                             ) : (
-                              modSections.map((section) => (
-                                <div key={section.id} className="border rounded-lg p-4 space-y-3">
-                                  <div className="flex items-center gap-2">
-                                    {section.content_type === "youtube" ? (
-                                      <PlayCircle className="h-4 w-4 text-red-500" />
-                                    ) : (
-                                      <Type className="h-4 w-4 text-muted-foreground" />
+                              modSections.map((section) => {
+                                const secLinks = getLinksForSection(section.id);
+                                const displayLinks = secLinks.length > 0
+                                  ? secLinks
+                                  : section.content_type === "youtube" && section.youtube_url
+                                    ? [{ id: "legacy", section_id: section.id, url: section.youtube_url, label: null, sort_order: 0, created_at: "" }]
+                                    : [];
+
+                                return (
+                                  <div key={section.id} className="border rounded-lg p-4 space-y-3">
+                                    <div className="flex items-center gap-2">
+                                      {section.content_type === "youtube" ? (
+                                        <PlayCircle className="h-4 w-4 text-red-500" />
+                                      ) : (
+                                        <Type className="h-4 w-4 text-muted-foreground" />
+                                      )}
+                                      <span className="font-medium text-sm">{section.title}</span>
+                                      {displayLinks.length > 1 && (
+                                        <Badge variant="outline" className="text-xs">
+                                          {displayLinks.length} links
+                                        </Badge>
+                                      )}
+                                    </div>
+                                    {displayLinks.map((link, idx) => (
+                                      <div key={link.id || idx} className="space-y-1">
+                                        {link.label && (
+                                          <p className="text-xs font-medium text-muted-foreground">{link.label}</p>
+                                        )}
+                                        {getYouTubeId(link.url) ? (
+                                          <div className="aspect-video rounded-lg overflow-hidden bg-muted">
+                                            <iframe
+                                              src={`https://www.youtube.com/embed/${getYouTubeId(link.url)}`}
+                                              className="w-full h-full"
+                                              allowFullScreen
+                                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                            />
+                                          </div>
+                                        ) : (
+                                          <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-sm text-primary underline flex items-center gap-1">
+                                            <LinkIcon className="h-3 w-3" />
+                                            {link.label || link.url}
+                                          </a>
+                                        )}
+                                      </div>
+                                    ))}
+                                    {section.content_type === "text" && section.text_content && (
+                                      <div className="text-sm text-muted-foreground whitespace-pre-wrap">
+                                        {section.text_content}
+                                      </div>
                                     )}
-                                    <span className="font-medium text-sm">{section.title}</span>
                                   </div>
-                                  {section.content_type === "youtube" && section.youtube_url && (
-                                    <div className="aspect-video rounded-lg overflow-hidden bg-muted">
-                                      <iframe
-                                        src={`https://www.youtube.com/embed/${getYouTubeId(section.youtube_url)}`}
-                                        className="w-full h-full"
-                                        allowFullScreen
-                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                      />
-                                    </div>
-                                  )}
-                                  {section.content_type === "text" && section.text_content && (
-                                    <div className="text-sm text-muted-foreground whitespace-pre-wrap">
-                                      {section.text_content}
-                                    </div>
-                                  )}
-                                </div>
-                              ))
+                                );
+                              })
                             )}
                           </AccordionContent>
                         </AccordionItem>

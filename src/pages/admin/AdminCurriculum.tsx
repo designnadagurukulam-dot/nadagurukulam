@@ -9,15 +9,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { BookOpen, Clock, Plus, Trash2, PlayCircle, Type, Edit2, X, Save } from "lucide-react";
+import { BookOpen, Clock, Plus, Trash2, PlayCircle, Type, X, Save, Link as LinkIcon } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { toast } from "@/hooks/use-toast";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 const getYouTubeId = (url: string): string | null => {
   const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/))([^&?\s]+)/);
   return match?.[1] ?? null;
 };
+
+interface LinkEntry {
+  url: string;
+  label: string;
+}
 
 const AdminCurriculum = () => {
   const { user } = useAuth();
@@ -25,7 +29,7 @@ const AdminCurriculum = () => {
   const [addingTo, setAddingTo] = useState<string | null>(null);
   const [sectionTitle, setSectionTitle] = useState("");
   const [contentType, setContentType] = useState<"youtube" | "text">("youtube");
-  const [youtubeUrl, setYoutubeUrl] = useState("");
+  const [links, setLinks] = useState<LinkEntry[]>([{ url: "", label: "" }]);
   const [textContent, setTextContent] = useState("");
 
   const { data: modules = [], isLoading } = useQuery({
@@ -53,22 +57,50 @@ const AdminCurriculum = () => {
     },
   });
 
+  const { data: sectionLinks = [] } = useQuery({
+    queryKey: ["curriculum-section-links"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("curriculum_section_links")
+        .select("*")
+        .order("sort_order");
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const addSection = useMutation({
     mutationFn: async (moduleId: string) => {
       const modSections = sections.filter((s) => s.module_id === moduleId);
-      const { error } = await supabase.from("curriculum_sections").insert({
+      const validLinks = links.filter((l) => l.url.trim());
+      
+      // Insert section with the first link in youtube_url for backward compat
+      const { data: newSection, error } = await supabase.from("curriculum_sections").insert({
         module_id: moduleId,
         title: sectionTitle,
         content_type: contentType,
-        youtube_url: contentType === "youtube" ? youtubeUrl : null,
+        youtube_url: contentType === "youtube" && validLinks.length > 0 ? validLinks[0].url : null,
         text_content: contentType === "text" ? textContent : null,
         sort_order: modSections.length + 1,
         created_by: user?.id,
-      });
+      }).select().single();
       if (error) throw error;
+
+      // Insert all links into the links table
+      if (contentType === "youtube" && validLinks.length > 0) {
+        const linkRows = validLinks.map((l, i) => ({
+          section_id: newSection.id,
+          url: l.url.trim(),
+          label: l.label.trim() || null,
+          sort_order: i,
+        }));
+        const { error: linkErr } = await supabase.from("curriculum_section_links").insert(linkRows);
+        if (linkErr) throw linkErr;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["curriculum-sections"] });
+      queryClient.invalidateQueries({ queryKey: ["curriculum-section-links"] });
       toast({ title: "Section added successfully" });
       resetForm();
     },
@@ -84,6 +116,7 @@ const AdminCurriculum = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["curriculum-sections"] });
+      queryClient.invalidateQueries({ queryKey: ["curriculum-section-links"] });
       toast({ title: "Section deleted" });
     },
   });
@@ -92,9 +125,27 @@ const AdminCurriculum = () => {
     setAddingTo(null);
     setSectionTitle("");
     setContentType("youtube");
-    setYoutubeUrl("");
+    setLinks([{ url: "", label: "" }]);
     setTextContent("");
   };
+
+  const addLinkField = () => {
+    setLinks([...links, { url: "", label: "" }]);
+  };
+
+  const removeLinkField = (index: number) => {
+    if (links.length <= 1) return;
+    setLinks(links.filter((_, i) => i !== index));
+  };
+
+  const updateLink = (index: number, field: "url" | "label", value: string) => {
+    const updated = [...links];
+    updated[index] = { ...updated[index], [field]: value };
+    setLinks(updated);
+  };
+
+  const getLinksForSection = (sectionId: string) =>
+    sectionLinks.filter((l) => l.section_id === sectionId);
 
   const semesters = [1, 2, 3, 4, 5, 6, 7, 8];
 
@@ -182,40 +233,67 @@ const AdminCurriculum = () => {
                             )}
 
                             {/* Existing sections */}
-                            {modSections.map((section) => (
-                              <div key={section.id} className="border rounded-lg p-4 space-y-3">
-                                <div className="flex items-center justify-between">
-                                  <div className="flex items-center gap-2">
-                                    {section.content_type === "youtube" ? (
-                                      <PlayCircle className="h-4 w-4 text-red-500" />
-                                    ) : (
-                                      <Type className="h-4 w-4 text-muted-foreground" />
-                                    )}
-                                    <span className="font-medium text-sm">{section.title}</span>
+                            {modSections.map((section) => {
+                              const secLinks = getLinksForSection(section.id);
+                              // Use links from the new table, fallback to legacy youtube_url
+                              const displayLinks = secLinks.length > 0
+                                ? secLinks
+                                : section.content_type === "youtube" && section.youtube_url
+                                  ? [{ id: "legacy", section_id: section.id, url: section.youtube_url, label: null, sort_order: 0, created_at: "" }]
+                                  : [];
+
+                              return (
+                                <div key={section.id} className="border rounded-lg p-4 space-y-3">
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                      {section.content_type === "youtube" ? (
+                                        <PlayCircle className="h-4 w-4 text-red-500" />
+                                      ) : (
+                                        <Type className="h-4 w-4 text-muted-foreground" />
+                                      )}
+                                      <span className="font-medium text-sm">{section.title}</span>
+                                      {displayLinks.length > 1 && (
+                                        <Badge variant="outline" className="text-xs">
+                                          {displayLinks.length} links
+                                        </Badge>
+                                      )}
+                                    </div>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-8 w-8 text-destructive hover:text-destructive"
+                                      onClick={() => deleteSection.mutate(section.id)}
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
                                   </div>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8 text-destructive hover:text-destructive"
-                                    onClick={() => deleteSection.mutate(section.id)}
-                                  >
-                                    <Trash2 className="h-4 w-4" />
-                                  </Button>
+                                  {displayLinks.map((link, idx) => (
+                                    <div key={link.id || idx} className="space-y-1">
+                                      {link.label && (
+                                        <p className="text-xs font-medium text-muted-foreground">{link.label}</p>
+                                      )}
+                                      {getYouTubeId(link.url) ? (
+                                        <div className="aspect-video rounded-lg overflow-hidden bg-muted">
+                                          <iframe
+                                            src={`https://www.youtube.com/embed/${getYouTubeId(link.url)}`}
+                                            className="w-full h-full"
+                                            allowFullScreen
+                                          />
+                                        </div>
+                                      ) : (
+                                        <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-sm text-primary underline flex items-center gap-1">
+                                          <LinkIcon className="h-3 w-3" />
+                                          {link.label || link.url}
+                                        </a>
+                                      )}
+                                    </div>
+                                  ))}
+                                  {section.content_type === "text" && section.text_content && (
+                                    <p className="text-sm text-muted-foreground whitespace-pre-wrap">{section.text_content}</p>
+                                  )}
                                 </div>
-                                {section.content_type === "youtube" && section.youtube_url && (
-                                  <div className="aspect-video rounded-lg overflow-hidden bg-muted">
-                                    <iframe
-                                      src={`https://www.youtube.com/embed/${getYouTubeId(section.youtube_url)}`}
-                                      className="w-full h-full"
-                                      allowFullScreen
-                                    />
-                                  </div>
-                                )}
-                                {section.content_type === "text" && section.text_content && (
-                                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">{section.text_content}</p>
-                                )}
-                              </div>
-                            ))}
+                              );
+                            })}
 
                             {/* Add section form */}
                             {addingTo === mod.id ? (
@@ -236,27 +314,48 @@ const AdminCurriculum = () => {
                                     <SelectValue />
                                   </SelectTrigger>
                                   <SelectContent>
-                                    <SelectItem value="youtube">YouTube Video</SelectItem>
+                                    <SelectItem value="youtube">YouTube / Links</SelectItem>
                                     <SelectItem value="text">Text Content</SelectItem>
                                   </SelectContent>
                                 </Select>
                                 {contentType === "youtube" ? (
-                                  <>
-                                    <Input
-                                      placeholder="YouTube URL (e.g. https://youtube.com/watch?v=...)"
-                                      value={youtubeUrl}
-                                      onChange={(e) => setYoutubeUrl(e.target.value)}
-                                    />
-                                    {youtubeUrl && getYouTubeId(youtubeUrl) && (
-                                      <div className="aspect-video rounded-lg overflow-hidden bg-muted">
-                                        <iframe
-                                          src={`https://www.youtube.com/embed/${getYouTubeId(youtubeUrl)}`}
-                                          className="w-full h-full"
-                                          allowFullScreen
+                                  <div className="space-y-3">
+                                    {links.map((link, idx) => (
+                                      <div key={idx} className="space-y-2 p-3 border rounded-lg bg-background">
+                                        <div className="flex items-center justify-between">
+                                          <span className="text-xs font-medium text-muted-foreground">Link {idx + 1}</span>
+                                          {links.length > 1 && (
+                                            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeLinkField(idx)}>
+                                              <X className="h-3 w-3" />
+                                            </Button>
+                                          )}
+                                        </div>
+                                        <Input
+                                          placeholder="Label (optional, e.g. 'Part 1 - Introduction')"
+                                          value={link.label}
+                                          onChange={(e) => updateLink(idx, "label", e.target.value)}
                                         />
+                                        <Input
+                                          placeholder="URL (YouTube or any link)"
+                                          value={link.url}
+                                          onChange={(e) => updateLink(idx, "url", e.target.value)}
+                                        />
+                                        {link.url && getYouTubeId(link.url) && (
+                                          <div className="aspect-video rounded-lg overflow-hidden bg-muted">
+                                            <iframe
+                                              src={`https://www.youtube.com/embed/${getYouTubeId(link.url)}`}
+                                              className="w-full h-full"
+                                              allowFullScreen
+                                            />
+                                          </div>
+                                        )}
                                       </div>
-                                    )}
-                                  </>
+                                    ))}
+                                    <Button type="button" variant="outline" size="sm" className="gap-1.5" onClick={addLinkField}>
+                                      <Plus className="h-4 w-4" />
+                                      Add Another Link
+                                    </Button>
+                                  </div>
                                 ) : (
                                   <Textarea
                                     placeholder="Enter text content..."
