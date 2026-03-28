@@ -303,7 +303,8 @@ const CreateCourse = () => {
             <CardContent>
               <div className="space-y-3">
                 <div
-                  className="flex items-center space-x-3 p-3 rounded-lg border border-border hover:border-primary/50 transition-colors cursor-pointer"
+                  className="flex items-center space-x-3 p-3 rounded-lg border transition-colors cursor-pointer"
+                  style={{ borderColor: courseType === "new" ? "hsl(var(--primary))" : undefined }}
                   onClick={() => setCourseType("new")}
                 >
                   <div className={`h-4 w-4 rounded-full border-2 flex items-center justify-center ${courseType === "new" ? "border-primary" : "border-muted-foreground"}`}>
@@ -315,13 +316,16 @@ const CreateCourse = () => {
                   </div>
                 </div>
                 <div
-                  className="flex items-center space-x-3 p-3 rounded-lg border border-border hover:border-primary/50 transition-colors cursor-pointer"
-                  onClick={() => navigate("/dashboard/instructor/curriculum")}
+                  className="flex items-center space-x-3 p-3 rounded-lg border transition-colors cursor-pointer"
+                  style={{ borderColor: courseType === "curriculum" ? "hsl(var(--primary))" : undefined }}
+                  onClick={() => setCourseType("curriculum")}
                 >
-                  <div className="h-4 w-4 rounded-full border-2 border-muted-foreground" />
+                  <div className={`h-4 w-4 rounded-full border-2 flex items-center justify-center ${courseType === "curriculum" ? "border-primary" : "border-muted-foreground"}`}>
+                    {courseType === "curriculum" && <div className="h-2 w-2 rounded-full bg-primary" />}
+                  </div>
                   <div className="flex-1">
                     <span className="font-medium">Add to existing curriculum</span>
-                    <p className="text-sm text-muted-foreground">Go to curriculum management to add modules and sections</p>
+                    <p className="text-sm text-muted-foreground">Add modules and sections to an existing curriculum subject</p>
                   </div>
                 </div>
               </div>
