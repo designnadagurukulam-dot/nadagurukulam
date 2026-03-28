@@ -148,6 +148,7 @@ const AdminCurriculum = () => {
     sectionLinks.filter((l) => l.section_id === sectionId);
 
   const semesters = [1, 2, 3, 4, 5, 6, 7, 8];
+  const hasAdditional = modules.some((m) => m.semester === 9);
 
   const getSubjectsForSemester = (sem: number) => {
     const semModules = modules.filter((m) => m.semester === sem);
@@ -194,9 +195,17 @@ const AdminCurriculum = () => {
               Sem {s}
             </TabsTrigger>
           ))}
+          {hasAdditional && (
+            <TabsTrigger
+              value="9"
+              className="px-4 py-2 text-sm font-semibold rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            >
+              Additional
+            </TabsTrigger>
+          )}
         </TabsList>
 
-        {semesters.map((sem) => (
+        {[...semesters, ...(hasAdditional ? [9] : [])].map((sem) => (
           <TabsContent key={sem} value={String(sem)} className="space-y-6">
             {getSubjectsForSemester(sem).map((subject) => (
               <Card key={subject.courseCode} className="border-border/50">
