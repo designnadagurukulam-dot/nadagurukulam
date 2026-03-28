@@ -186,7 +186,21 @@ const CreateCourse = () => {
         }
       }
 
-      // 3. Submit for review if requested
+      // 3. Create curriculum_module entry if semester selected
+      if (selectedSemester) {
+        const semNum = Number(selectedSemester);
+        const courseCode = semNum === 9 ? `ADD-${course.id.slice(0, 4).toUpperCase()}` : `SEM${semNum}-${course.id.slice(0, 4).toUpperCase()}`;
+        await supabase.from("curriculum_modules").insert({
+          semester: semNum,
+          subject_name: title,
+          course_code: courseCode,
+          module_name: title,
+          description: description || null,
+          sort_order: 0,
+        } as any);
+      }
+
+      // 4. Submit for review if requested
       if (submitForReview) {
         await supabase.from("content_reviews").insert({ course_id: course.id, status: "pending" } as any);
       }
