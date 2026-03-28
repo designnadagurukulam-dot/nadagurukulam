@@ -188,7 +188,7 @@ const CreateCourse = () => {
     }
   };
 
-
+  const handleSave = async (submitForReview = false) => {
     if (!user) return;
     setSaving(true);
     try {
