@@ -149,8 +149,46 @@ const CreateCourse = () => {
     (updated[modIdx].lessons[lesIdx] as any)[field] = value;
     setModules(updated);
   };
+  const handleSaveCurriculumSections = async () => {
+    if (!user || !selectedCurriculumModule) return;
+    setSaving(true);
+    try {
+      for (const mod of modules) {
+        // Create a curriculum_section for each module entry
+        const validLessons = mod.lessons.filter((l) => l.video_url || l.pdf_url || l.content_text);
+        const { data: newSection, error: secErr } = await supabase.from("curriculum_sections").insert({
+          module_id: selectedCurriculumModule.id,
+          title: mod.title,
+          content_type: validLessons.some((l) => l.lesson_type === "video") ? "youtube" : "text",
+          youtube_url: validLessons.find((l) => l.lesson_type === "video")?.video_url || null,
+          text_content: validLessons.find((l) => l.lesson_type === "text")?.content_text || null,
+          sort_order: 0,
+          created_by: user.id,
+        } as any).select().single();
+        if (secErr) throw secErr;
 
-  const handleSave = async (submitForReview = false) => {
+        // Add links for video lessons
+        const videoLessons = validLessons.filter((l) => l.lesson_type === "video" && l.video_url);
+        if (videoLessons.length > 0) {
+          const linkRows = videoLessons.map((l, i) => ({
+            section_id: newSection.id,
+            url: l.video_url,
+            label: l.title || null,
+            sort_order: i,
+          }));
+          await supabase.from("curriculum_section_links").insert(linkRows as any);
+        }
+      }
+      toast({ title: "Sections added to curriculum successfully!" });
+      navigate("/dashboard/instructor/curriculum");
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+
     if (!user) return;
     setSaving(true);
     try {
