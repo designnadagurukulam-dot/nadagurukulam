@@ -56,10 +56,9 @@ const CreateCourse = () => {
   const [categories, setCategories] = useState<any[]>([]);
 
   // Course type choice
-  const [courseType, setCourseType] = useState<"new" | "curriculum">("new");
+  const [courseType, setCourseType] = useState<"new">("new");
   const [curriculumModules, setCurriculumModules] = useState<CurriculumModule[]>([]);
   const [selectedSemester, setSelectedSemester] = useState("");
-  const [selectedSubject, setSelectedSubject] = useState("");
 
   // Step 1: Course details
   const [title, setTitle] = useState("");
@@ -85,28 +84,6 @@ const CreateCourse = () => {
 
   // Derive available semesters
   const semesters = [...new Set(curriculumModules.map((m) => m.semester))].sort((a, b) => a - b);
-
-  // Derive subjects for selected semester
-  const subjectsForSemester = selectedSemester
-    ? [...new Map(
-        curriculumModules
-          .filter((m) => m.semester === Number(selectedSemester))
-          .map((m) => [m.subject_name, m])
-      ).values()]
-    : [];
-
-  // When subject is selected, auto-fill course title/description
-  useEffect(() => {
-    if (courseType === "curriculum" && selectedSubject) {
-      const match = curriculumModules.find(
-        (m) => m.semester === Number(selectedSemester) && m.subject_name === selectedSubject
-      );
-      if (match) {
-        setTitle(`${match.subject_name} — Semester ${match.semester}`);
-        setDescription(match.description || `Course for ${match.subject_name} (${match.course_code})`);
-      }
-    }
-  }, [selectedSubject, selectedSemester, courseType, curriculumModules]);
 
   const addModule = () => {
     setModules([...modules, {
