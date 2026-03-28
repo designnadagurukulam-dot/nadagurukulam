@@ -332,91 +332,140 @@ const CreateCourse = () => {
             </CardContent>
           </Card>
 
-          {/* Semester selection for new courses */}
-          <Card>
-            <CardHeader><CardTitle>Course Placement</CardTitle></CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label>Which semester is this course for?</Label>
-                <Select value={selectedSemester} onValueChange={setSelectedSemester}>
-                  <SelectTrigger><SelectValue placeholder="Select semester or additional" /></SelectTrigger>
-                  <SelectContent>
-                    {semesters.map((s) => (
-                      <SelectItem key={s} value={String(s)}>Semester {s}</SelectItem>
-                    ))}
-                    <SelectItem value="9">Additional Course</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              {selectedSemester && (
-                <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
-                  <p className="text-sm text-muted-foreground">
-                    This course will appear under{" "}
-                    <span className="font-medium text-foreground">
-                      {selectedSemester === "9" ? "Additional Courses" : `Semester ${selectedSemester}`}
-                    </span>{" "}
-                    in the curriculum.
-                  </p>
+          {/* Curriculum mode: select semester & subject, then go to modules */}
+          {courseType === "curriculum" && (
+            <Card>
+              <CardHeader><CardTitle>Select Curriculum Subject</CardTitle></CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label>Semester *</Label>
+                    <Select value={selectedSemester} onValueChange={(v) => { setSelectedSemester(v); setSelectedSubject(""); }}>
+                      <SelectTrigger><SelectValue placeholder="Select semester" /></SelectTrigger>
+                      <SelectContent>
+                        {semesters.map((s) => (
+                          <SelectItem key={s} value={String(s)}>Semester {s}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Subject *</Label>
+                    <Select value={selectedSubject} onValueChange={setSelectedSubject} disabled={!selectedSemester}>
+                      <SelectTrigger><SelectValue placeholder={selectedSemester ? "Select subject" : "Select semester first"} /></SelectTrigger>
+                      <SelectContent>
+                        {subjectsForSemester.map((m) => (
+                          <SelectItem key={m.subject_name} value={m.subject_name}>{m.subject_name} ({m.course_code})</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
-              )}
-            </CardContent>
-          </Card>
+                {selectedSubject && (
+                  <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
+                    <p className="text-sm text-muted-foreground">
+                      You will add sections to <span className="font-medium text-foreground">{selectedSubject}</span> — Semester {selectedSemester}
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
 
-          {/* Course details */}
-          <Card>
-            <CardHeader><CardTitle>Course Details</CardTitle></CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label>Course Title *</Label>
-                <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g., Carnatic Vocal Masterclass" />
-              </div>
-              <div>
-                <Label>Description</Label>
-                <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What will students learn?" rows={4} />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label>Category</Label>
-                  <Select value={categoryId} onValueChange={setCategoryId}>
-                    <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
-                    <SelectContent>
-                      {categories.map((c) => (
-                        <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>Level</Label>
-                  <Select value={level} onValueChange={setLevel}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="beginner">Beginner</SelectItem>
-                      <SelectItem value="intermediate">Intermediate</SelectItem>
-                      <SelectItem value="advanced">Advanced</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label>Duration</Label>
-                  <Input value={duration} onChange={(e) => setDuration(e.target.value)} placeholder="e.g., 6 months" />
-                </div>
-                <div>
-                  <Label>Preview Video URL (YouTube)</Label>
-                  <Input value={previewVideoUrl} onChange={(e) => setPreviewVideoUrl(e.target.value)} placeholder="https://youtube.com/..." />
-                </div>
-              </div>
-              <div>
-                <Label>Tags (comma-separated)</Label>
-                <Input value={tags} onChange={(e) => setTags(e.target.value)} placeholder="vocal, carnatic, music" />
-              </div>
-            </CardContent>
-          </Card>
+          {/* New course mode: semester placement + course details */}
+          {courseType === "new" && (
+            <>
+              <Card>
+                <CardHeader><CardTitle>Course Placement</CardTitle></CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Which semester is this course for?</Label>
+                    <Select value={selectedSemester} onValueChange={setSelectedSemester}>
+                      <SelectTrigger><SelectValue placeholder="Select semester or additional" /></SelectTrigger>
+                      <SelectContent>
+                        {semesters.map((s) => (
+                          <SelectItem key={s} value={String(s)}>Semester {s}</SelectItem>
+                        ))}
+                        <SelectItem value="9">Additional Course</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {selectedSemester && (
+                    <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
+                      <p className="text-sm text-muted-foreground">
+                        This course will appear under{" "}
+                        <span className="font-medium text-foreground">
+                          {selectedSemester === "9" ? "Additional Courses" : `Semester ${selectedSemester}`}
+                        </span>{" "}
+                        in the curriculum.
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader><CardTitle>Course Details</CardTitle></CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Course Title *</Label>
+                    <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g., Carnatic Vocal Masterclass" />
+                  </div>
+                  <div>
+                    <Label>Description</Label>
+                    <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What will students learn?" rows={4} />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label>Category</Label>
+                      <Select value={categoryId} onValueChange={setCategoryId}>
+                        <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
+                        <SelectContent>
+                          {categories.map((c) => (
+                            <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>Level</Label>
+                      <Select value={level} onValueChange={setLevel}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="beginner">Beginner</SelectItem>
+                          <SelectItem value="intermediate">Intermediate</SelectItem>
+                          <SelectItem value="advanced">Advanced</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label>Duration</Label>
+                      <Input value={duration} onChange={(e) => setDuration(e.target.value)} placeholder="e.g., 6 months" />
+                    </div>
+                    <div>
+                      <Label>Preview Video URL (YouTube)</Label>
+                      <Input value={previewVideoUrl} onChange={(e) => setPreviewVideoUrl(e.target.value)} placeholder="https://youtube.com/..." />
+                    </div>
+                  </div>
+                  <div>
+                    <Label>Tags (comma-separated)</Label>
+                    <Input value={tags} onChange={(e) => setTags(e.target.value)} placeholder="vocal, carnatic, music" />
+                  </div>
+                </CardContent>
+              </Card>
+            </>
+          )}
+
           <div className="flex justify-end mt-4">
-            <Button onClick={() => setStep(1)} disabled={!title || !selectedSemester} className="gap-2">
-              Next <ArrowRight className="h-4 w-4" />
+            <Button
+              onClick={() => setStep(1)}
+              disabled={courseType === "new" ? (!title || !selectedSemester) : !selectedSubject}
+              className="gap-2"
+            >
+              {courseType === "curriculum" ? "Go to Modules" : "Next"} <ArrowRight className="h-4 w-4" />
+            </Button>
             </Button>
           </div>
         </motion.div>
