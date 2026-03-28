@@ -56,9 +56,10 @@ const CreateCourse = () => {
   const [categories, setCategories] = useState<any[]>([]);
 
   // Course type choice
-  const [courseType, setCourseType] = useState<"new">("new");
+  const [courseType, setCourseType] = useState<"new" | "curriculum">("new");
   const [curriculumModules, setCurriculumModules] = useState<CurriculumModule[]>([]);
   const [selectedSemester, setSelectedSemester] = useState("");
+  const [selectedSubject, setSelectedSubject] = useState("");
 
   // Step 1: Course details
   const [title, setTitle] = useState("");
@@ -84,6 +85,22 @@ const CreateCourse = () => {
 
   // Derive available semesters
   const semesters = [...new Set(curriculumModules.map((m) => m.semester))].sort((a, b) => a - b);
+
+  // Derive subjects for selected semester (curriculum mode)
+  const subjectsForSemester = selectedSemester
+    ? [...new Map(
+        curriculumModules
+          .filter((m) => m.semester === Number(selectedSemester))
+          .map((m) => [m.subject_name, m])
+      ).values()]
+    : [];
+
+  // Get the selected curriculum module id for saving sections
+  const selectedCurriculumModule = selectedSubject
+    ? curriculumModules.find(
+        (m) => m.semester === Number(selectedSemester) && m.subject_name === selectedSubject
+      )
+    : null;
 
   const addModule = () => {
     setModules([...modules, {
