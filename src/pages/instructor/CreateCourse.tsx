@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -37,6 +38,15 @@ interface Module {
   lessons: Lesson[];
 }
 
+interface CurriculumModule {
+  id: string;
+  semester: number;
+  subject_name: string;
+  module_name: string;
+  course_code: string;
+  description: string | null;
+}
+
 const CreateCourse = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -44,6 +54,12 @@ const CreateCourse = () => {
   const [step, setStep] = useState(0);
   const [saving, setSaving] = useState(false);
   const [categories, setCategories] = useState<any[]>([]);
+
+  // Course type choice
+  const [courseType, setCourseType] = useState<"new" | "curriculum">("new");
+  const [curriculumModules, setCurriculumModules] = useState<CurriculumModule[]>([]);
+  const [selectedSemester, setSelectedSemester] = useState("");
+  const [selectedSubject, setSelectedSubject] = useState("");
 
   // Step 1: Course details
   const [title, setTitle] = useState("");
@@ -62,7 +78,35 @@ const CreateCourse = () => {
 
   useEffect(() => {
     supabase.from("categories").select("*").then(({ data }) => setCategories(data || []));
+    supabase.from("curriculum_modules").select("*").order("semester").order("sort_order").then(({ data }) => {
+      setCurriculumModules((data as CurriculumModule[]) || []);
+    });
   }, []);
+
+  // Derive available semesters
+  const semesters = [...new Set(curriculumModules.map((m) => m.semester))].sort((a, b) => a - b);
+
+  // Derive subjects for selected semester
+  const subjectsForSemester = selectedSemester
+    ? [...new Map(
+        curriculumModules
+          .filter((m) => m.semester === Number(selectedSemester))
+          .map((m) => [m.subject_name, m])
+      ).values()]
+    : [];
+
+  // When subject is selected, auto-fill course title/description
+  useEffect(() => {
+    if (courseType === "curriculum" && selectedSubject) {
+      const match = curriculumModules.find(
+        (m) => m.semester === Number(selectedSemester) && m.subject_name === selectedSubject
+      );
+      if (match) {
+        setTitle(`${match.subject_name} — Semester ${match.semester}`);
+        setDescription(match.description || `Course for ${match.subject_name} (${match.course_code})`);
+      }
+    }
+  }, [selectedSubject, selectedSemester, courseType, curriculumModules]);
 
   const addModule = () => {
     setModules([...modules, {
@@ -206,7 +250,79 @@ const CreateCourse = () => {
 
       {/* Step 1: Details */}
       {step === 0 && (
-        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
+          {/* Course type choice */}
+          <Card>
+            <CardHeader><CardTitle>What would you like to do?</CardTitle></CardHeader>
+            <CardContent>
+              <RadioGroup value={courseType} onValueChange={(v) => {
+                setCourseType(v as "new" | "curriculum");
+                if (v === "new") {
+                  setSelectedSemester("");
+                  setSelectedSubject("");
+                  setTitle("");
+                  setDescription("");
+                }
+              }} className="space-y-3">
+                <div className="flex items-center space-x-3 p-3 rounded-lg border border-border hover:border-primary/50 transition-colors">
+                  <RadioGroupItem value="new" id="new" />
+                  <Label htmlFor="new" className="cursor-pointer flex-1">
+                    <span className="font-medium">Create a new course</span>
+                    <p className="text-sm text-muted-foreground">Start from scratch with a brand new course</p>
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-3 p-3 rounded-lg border border-border hover:border-primary/50 transition-colors">
+                  <RadioGroupItem value="curriculum" id="curriculum" />
+                  <Label htmlFor="curriculum" className="cursor-pointer flex-1">
+                    <span className="font-medium">Add to existing curriculum</span>
+                    <p className="text-sm text-muted-foreground">Add modules and sections to an existing curriculum subject</p>
+                  </Label>
+                </div>
+              </RadioGroup>
+            </CardContent>
+          </Card>
+
+          {/* Curriculum selection */}
+          {courseType === "curriculum" && (
+            <Card>
+              <CardHeader><CardTitle>Select Curriculum Subject</CardTitle></CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label>Semester *</Label>
+                    <Select value={selectedSemester} onValueChange={(v) => { setSelectedSemester(v); setSelectedSubject(""); }}>
+                      <SelectTrigger><SelectValue placeholder="Select semester" /></SelectTrigger>
+                      <SelectContent>
+                        {semesters.map((s) => (
+                          <SelectItem key={s} value={String(s)}>Semester {s}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Subject *</Label>
+                    <Select value={selectedSubject} onValueChange={setSelectedSubject} disabled={!selectedSemester}>
+                      <SelectTrigger><SelectValue placeholder={selectedSemester ? "Select subject" : "Select semester first"} /></SelectTrigger>
+                      <SelectContent>
+                        {subjectsForSemester.map((m) => (
+                          <SelectItem key={m.subject_name} value={m.subject_name}>{m.subject_name} ({m.course_code})</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                {selectedSubject && (
+                  <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
+                    <p className="text-sm text-muted-foreground">
+                      Course will be linked to <span className="font-medium text-foreground">{selectedSubject}</span> — Semester {selectedSemester}
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Course details */}
           <Card>
             <CardHeader><CardTitle>Course Details</CardTitle></CardHeader>
             <CardContent className="space-y-4">
@@ -259,7 +375,7 @@ const CreateCourse = () => {
             </CardContent>
           </Card>
           <div className="flex justify-end mt-4">
-            <Button onClick={() => setStep(1)} disabled={!title} className="gap-2">
+            <Button onClick={() => setStep(1)} disabled={!title || (courseType === "curriculum" && (!selectedSemester || !selectedSubject))} className="gap-2">
               Next <ArrowRight className="h-4 w-4" />
             </Button>
           </div>
