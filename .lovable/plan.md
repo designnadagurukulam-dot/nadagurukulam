@@ -1,122 +1,59 @@
 
 
-## Super Admin Activity Tracking System
+## Complete Activity Tracking — Gap Analysis & Implementation Plan
 
-### Overview
+### Currently Tracked (14 files instrumented)
+- **Auth**: login, logout, signup
+- **Courses**: course.created, course.submitted, course.approved, course.rejected
+- **Curriculum**: section_added, section_deleted, sections_added (from Create Course)
+- **Assignments**: assignment.created, assignment.graded, assignment.submitted
+- **Enrollment**: enrollment.created
+- **Lessons**: lesson.completed
+- **Profile**: profile.updated
+- **Admin CRUD**: event.created/updated/deleted, category.created/updated/deleted, coupon.created/deleted, job.created/updated/deleted
 
-Build a comprehensive audit log that records every meaningful action by educators and students, with timestamps, so the admin can monitor all platform activity from a single dashboard.
+### Missing — Activities NOT Currently Tracked
 
-### Activities to Track
+| # | Activity | File | Action Key |
+|---|----------|------|------------|
+| 1 | Admin deletes a course | `AdminCourses.tsx` | `course.deleted` |
+| 2 | Admin changes user role | `AdminStudents.tsx` | `role.changed` |
+| 3 | Coupon toggled active/inactive | `AdminCoupons.tsx` | `coupon.toggled` |
+| 4 | Job toggled active/inactive | `AdminJobs.tsx` | `job.toggled` |
+| 5 | Volunteer app status updated | `AdminJobs.tsx` | `volunteer.status_updated` |
+| 6 | Inquiry status updated | `AdminInquiries.tsx` | `inquiry.status_updated` |
+| 7 | Inquiry deleted | `AdminInquiries.tsx` | `inquiry.deleted` |
+| 8 | Volunteer application submitted (public) | `Contact.tsx` | `volunteer.submitted` |
+| 9 | Program inquiry submitted (public) | `InquiryFormDialog.tsx` | `inquiry.submitted` |
+| 10 | Instructor deletes assignment | `InstructorAssignments.tsx` | `assignment.deleted` |
+| 11 | Student exports data (PDF/Excel) | `AdminStudents.tsx` | `students.exported` |
+| 12 | Curriculum module added (from admin) | `AdminCurriculum.tsx` | `curriculum.module_added` |
+| 13 | Event toggled active/inactive | `AdminEvents.tsx` | `event.toggled` |
 
-**Authentication Events**
-- Login (successful + failed attempts)
-- Logout
-- Password reset request
-- Account registration (student/educator)
+### Implementation Plan
 
-**Educator Activities**
-- Course created / updated / deleted
-- Course status changed (draft → submitted → approved)
-- Course module added / updated / deleted
-- Course lesson added / updated / deleted
-- Curriculum section added / updated / deleted
-- Curriculum section links added / deleted
-- Assignment created / updated / deleted
-- Assignment graded (submission feedback given)
-- Profile updated
+**Files to edit** (add `import { logActivity }` where missing, then add one-line `logActivity(...)` calls after each successful mutation):
 
-**Student Activities**
-- Enrolled in a course
-- Assignment submitted
-- Lesson started / completed (lesson progress update)
-- Course completed (certificate earned)
-- Profile updated
+1. **`src/pages/admin/AdminCourses.tsx`** — Add logActivity import; add `logActivity("course.deleted", "course", id)` after delete succeeds.
 
-**Admin Activities**
-- Course approved / rejected (content review)
-- Enrollment managed (added/removed)
-- User role changed
-- Event created / updated / deleted
-- Category created / updated / deleted
-- Coupon created / updated / deleted
-- Job posting created / updated / deleted
+2. **`src/pages/admin/AdminStudents.tsx`** — Add logActivity import; add `logActivity("role.changed", "user_role", userId, { newRole, previousRole })` after role update succeeds.
 
-### Database Changes
+3. **`src/pages/admin/AdminCoupons.tsx`** — Add `logActivity("coupon.toggled", "coupon", coupon.id, { is_active: !coupon.is_active })` in `toggleActive`.
 
-**New table: `activity_logs`**
+4. **`src/pages/admin/AdminJobs.tsx`** — Add `logActivity("job.toggled", ...)` in toggle onSuccess; add `logActivity("volunteer.status_updated", ...)` in updateVolStatus onSuccess.
 
-```text
-activity_logs
-├── id (uuid PK)
-├── user_id (uuid) — who performed the action
-├── action (text) — e.g. 'course.created', 'assignment.submitted'
-├── entity_type (text) — e.g. 'course', 'assignment', 'enrollment'
-├── entity_id (uuid, nullable) — ID of the affected record
-├── metadata (jsonb, nullable) — extra context (course title, old/new values, IP, etc.)
-├── created_at (timestamptz, default now()) — the timestamp
-```
+5. **`src/pages/admin/AdminInquiries.tsx`** — Add logActivity import; add logs for inquiry status update and inquiry delete.
 
-**RLS policies:**
-- Admins can SELECT all logs
-- Authenticated users can INSERT their own logs (user_id = auth.uid())
-- No UPDATE/DELETE allowed (audit logs are immutable)
+6. **`src/pages/Contact.tsx`** — Add `logActivity("volunteer.submitted", ...)` in volunteer mutation onSuccess (note: this is public/unauthenticated — logActivity will silently fail if no user, which is fine; skip if undesirable).
 
-### Implementation Approach
+7. **`src/pages/instructor/InstructorAssignments.tsx`** — Check if assignment delete is tracked; add if missing.
 
-**1. Utility helper** — `src/lib/activityLogger.ts`
-- A single function `logActivity(action, entityType, entityId?, metadata?)` that inserts into `activity_logs` using the current authenticated user
-- Called from existing components after successful operations
+8. **`src/pages/admin/AdminActivityLog.tsx`** — Add the new action keys to `actionColors` map so they render with proper badge colors.
 
-**2. Instrument existing pages** — Add `logActivity()` calls to:
-- `useAuth.tsx` — login, logout, signup events
-- `CreateCourse.tsx` — course creation
-- `InstructorAssignments.tsx` — assignment CRUD, grading
-- `DashboardAssignments.tsx` — student submission
-- `AdminCurriculum.tsx` — curriculum changes
-- `DashboardCurriculum.tsx` — curriculum section views (optional)
-- `DashboardProfile.tsx` — profile updates
-- `CourseDetail.tsx` — enrollment
-- `LessonPlayer.tsx` — lesson progress
-- `AdminApprovals.tsx` — course review decisions
-- `AdminEvents.tsx`, `AdminCategories.tsx`, `AdminCoupons.tsx`, `AdminJobs.tsx` — admin CRUD actions
+### Summary of Changes
 
-**3. New admin page** — `src/pages/admin/AdminActivityLog.tsx`
-- Table view of all activity logs with:
-  - Filters by: user, action type, entity type, date range
-  - Search by user name or action
-  - Sortable by timestamp (newest first)
-  - Shows: user display name, action, entity, timestamp, metadata preview
-- Pagination for large datasets
-
-**4. Sidebar + routing**
-- Add "Activity Log" link to admin sidebar
-- Add route `/dashboard/admin/activity` in `App.tsx`
-
-### Files to Create/Edit
-
-| Action | File |
-|--------|------|
-| Create | `supabase migration` — `activity_logs` table + RLS |
-| Create | `src/lib/activityLogger.ts` |
-| Create | `src/pages/admin/AdminActivityLog.tsx` |
-| Edit | `src/hooks/useAuth.tsx` — log login/logout/signup |
-| Edit | `src/pages/instructor/CreateCourse.tsx` — log course creation |
-| Edit | `src/pages/instructor/InstructorAssignments.tsx` — log assignment CRUD + grading |
-| Edit | `src/pages/dashboard/DashboardAssignments.tsx` — log submissions |
-| Edit | `src/pages/admin/AdminCurriculum.tsx` — log curriculum changes |
-| Edit | `src/pages/admin/AdminApprovals.tsx` — log approvals |
-| Edit | `src/pages/admin/AdminEvents.tsx` — log event CRUD |
-| Edit | `src/pages/admin/AdminCategories.tsx` — log category CRUD |
-| Edit | `src/pages/admin/AdminCoupons.tsx` — log coupon CRUD |
-| Edit | `src/pages/admin/AdminJobs.tsx` — log job CRUD |
-| Edit | `src/pages/dashboard/DashboardProfile.tsx` — log profile updates |
-| Edit | `src/components/DashboardSidebar.tsx` — add Activity Log nav item |
-| Edit | `src/App.tsx` — add route |
-
-### Technical Notes
-
-- All logging is fire-and-forget (non-blocking) — failures to log do not break the user flow
-- The `metadata` JSONB column stores contextual details like course title, old/new status, submission file name, etc.
-- Timestamps use server-side `now()` for accuracy
-- Activity logs are append-only (no update/delete) to maintain audit integrity
+- **7 files edited** with simple one-line `logActivity()` additions
+- **1 file updated** (AdminActivityLog) for display colors
+- No database changes needed — the `activity_logs` table already supports all these entries
+- All logging remains fire-and-forget; failures never block UI
 
