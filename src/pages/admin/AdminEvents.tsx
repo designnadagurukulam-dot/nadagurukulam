@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Plus, Pencil, Trash2, CalendarDays } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { logActivity } from "@/lib/activityLogger";
 
 interface EventForm {
   title: string;
