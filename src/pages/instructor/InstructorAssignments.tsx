@@ -108,6 +108,7 @@ const InstructorAssignments = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["instructor-assignments"] });
+      logActivity("assignment.created", "assignment", undefined, { title, courseId });
       setCreateOpen(false);
       setTitle("");
       setDescription("");
