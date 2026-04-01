@@ -40,6 +40,7 @@ const adminNav = [
   
   { label: "Jobs & Volunteers", to: "/dashboard/admin/jobs", icon: Briefcase },
   { label: "Events", to: "/dashboard/admin/events", icon: CalendarDays },
+  { label: "Activity Log", to: "/dashboard/admin/activity", icon: Activity },
   { label: "Analytics", to: "/dashboard/admin/analytics", icon: BarChart3 },
 ];
 
