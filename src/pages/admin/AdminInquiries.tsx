@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "@/hooks/use-toast";
+import { logActivity } from "@/lib/activityLogger";
 import { Mail, Phone, MessageSquare, Trash2, Calendar } from "lucide-react";
 import { format } from "date-fns";
 
