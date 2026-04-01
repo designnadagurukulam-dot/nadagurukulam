@@ -42,6 +42,7 @@ const AdminCategories = () => {
     const slug = editName.trim().toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
     await supabase.from("categories").update({ name: editName.trim(), slug } as any).eq("id", id);
     setEditingId(null);
+    logActivity("category.updated", "category", id, { name: editName.trim() });
     toast({ title: "Category updated" });
     fetchCategories();
   };
