@@ -64,6 +64,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       password,
       options: { data: { display_name: displayName, role }, emailRedirectTo: window.location.origin },
     });
+    if (!error) {
+      logActivity("signup", "auth", undefined, { email, role });
+    }
     return { error: error?.message ?? null };
   };
 
