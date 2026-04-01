@@ -72,8 +72,9 @@ const AdminJobs = () => {
       const { error } = await supabase.from("job_postings").delete().eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: ["admin-jobs"] });
+      logActivity("job.deleted", "job_posting", id);
       toast({ title: "Job deleted" });
     },
   });

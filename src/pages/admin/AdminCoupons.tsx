@@ -58,6 +58,7 @@ const AdminCoupons = () => {
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this coupon?")) return;
     await supabase.from("coupons").delete().eq("id", id);
+    logActivity("coupon.deleted", "coupon", id);
     toast({ title: "Coupon deleted" });
     fetchCoupons();
   };

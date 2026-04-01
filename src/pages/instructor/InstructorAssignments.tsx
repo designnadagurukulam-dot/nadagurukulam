@@ -129,8 +129,9 @@ const InstructorAssignments = () => {
         .eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["assignment-submissions"] });
+      logActivity("assignment.graded", "assignment_submission", variables.id, { grade: variables.grade });
       setFeedbackDialog(null);
       toast.success("Feedback saved");
     },

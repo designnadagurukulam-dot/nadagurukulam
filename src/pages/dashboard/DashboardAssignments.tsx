@@ -93,8 +93,9 @@ const DashboardAssignments = () => {
       });
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: (_, assignmentId) => {
       queryClient.invalidateQueries({ queryKey: ["student-assignments"] });
+      logActivity("assignment.submitted", "assignment", assignmentId);
       setSubmitDialog(null);
       setTextContent("");
       setFile(null);

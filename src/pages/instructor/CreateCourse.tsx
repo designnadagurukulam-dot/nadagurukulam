@@ -262,6 +262,7 @@ const CreateCourse = () => {
         await supabase.from("content_reviews").insert({ course_id: course.id, status: "pending" } as any);
       }
 
+      logActivity(submitForReview ? "course.submitted" : "course.created", "course", course.id, { title, status: submitForReview ? "pending" : "draft" });
       toast({ title: submitForReview ? "Course submitted for review!" : "Course saved as draft!" });
       navigate("/dashboard/instructor/courses");
     } catch (err: any) {

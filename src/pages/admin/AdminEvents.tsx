@@ -85,8 +85,9 @@ const AdminEvents = () => {
       const { error } = await supabase.from("events").delete().eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: ["admin-events"] });
+      logActivity("event.deleted", "event", id);
       toast.success("Event deleted");
     },
     onError: (err: any) => toast.error(err.message),

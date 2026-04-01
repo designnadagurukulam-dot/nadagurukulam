@@ -44,6 +44,7 @@ const AdminApprovals = () => {
         status: action,
       } as any).eq("id", review.courses?.id);
 
+      logActivity(`course.${action}`, "course", review.courses?.id, { title: review.courses?.title, feedback: feedback[review.id] || null });
       toast({ title: `Course ${action}!` });
       fetchReviews();
     } catch (err: any) {

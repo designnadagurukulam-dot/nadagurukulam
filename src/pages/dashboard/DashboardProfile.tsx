@@ -37,6 +37,7 @@ const DashboardProfile = () => {
     if (error) {
       toast({ title: "Failed to update profile", description: error.message, variant: "destructive" });
     } else {
+      logActivity("profile.updated", "profile", undefined, { displayName, phone });
       toast({ title: "Profile updated!" });
     }
   };

@@ -81,6 +81,7 @@ const CourseDetail = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["enrollment", id] });
+      logActivity("enrollment.created", "enrollment", undefined, { courseId: id, courseTitle: course?.title });
       toast({ title: "Enrolled!", description: "You have been enrolled in this course." });
     },
     onError: (err: any) => {

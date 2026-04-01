@@ -50,6 +50,7 @@ const AdminCategories = () => {
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this category?")) return;
     await supabase.from("categories").delete().eq("id", id);
+    logActivity("category.deleted", "category", id);
     toast({ title: "Category deleted" });
     fetchCategories();
   };

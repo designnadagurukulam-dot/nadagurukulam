@@ -102,6 +102,7 @@ const LessonPlayer = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["lesson-progress", courseId] });
+      logActivity("lesson.completed", "course_lesson", lessonId, { courseId });
       toast({ title: "Lesson completed!" });
     },
   });
