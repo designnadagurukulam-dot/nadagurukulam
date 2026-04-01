@@ -44,6 +44,7 @@ const AdminCoupons = () => {
     } else {
       setCode(""); setDiscountValue(""); setMaxUses("");
       setShowForm(false);
+      logActivity("coupon.created", "coupon", undefined, { code: code.trim().toUpperCase(), discountType, discountValue });
       toast({ title: "Coupon created" });
       fetchCoupons();
     }
