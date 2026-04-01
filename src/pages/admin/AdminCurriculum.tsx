@@ -102,6 +102,7 @@ const AdminCurriculum = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["curriculum-sections"] });
       queryClient.invalidateQueries({ queryKey: ["curriculum-section-links"] });
+      logActivity("curriculum.section_added", "curriculum_section", undefined, { title: sectionTitle });
       toast({ title: "Section added successfully" });
       resetForm();
     },
