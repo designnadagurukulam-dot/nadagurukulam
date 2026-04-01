@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { logActivity } from "@/lib/activityLogger";
 
 const AdminCategories = () => {
   const { toast } = useToast();
@@ -31,6 +32,7 @@ const AdminCategories = () => {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
       setNewName("");
+      logActivity("category.created", "category", undefined, { name: newName.trim() });
       toast({ title: "Category added" });
       fetchCategories();
     }
@@ -40,6 +42,7 @@ const AdminCategories = () => {
     const slug = editName.trim().toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
     await supabase.from("categories").update({ name: editName.trim(), slug } as any).eq("id", id);
     setEditingId(null);
+    logActivity("category.updated", "category", id, { name: editName.trim() });
     toast({ title: "Category updated" });
     fetchCategories();
   };
@@ -47,6 +50,7 @@ const AdminCategories = () => {
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this category?")) return;
     await supabase.from("categories").delete().eq("id", id);
+    logActivity("category.deleted", "category", id);
     toast({ title: "Category deleted" });
     fetchCategories();
   };

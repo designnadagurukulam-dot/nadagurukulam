@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { logActivity } from "@/lib/activityLogger";
 
 const AdminApprovals = () => {
   const { user } = useAuth();
@@ -43,6 +44,7 @@ const AdminApprovals = () => {
         status: action,
       } as any).eq("id", review.courses?.id);
 
+      logActivity(`course.${action}`, "course", review.courses?.id, { title: review.courses?.title, feedback: feedback[review.id] || null });
       toast({ title: `Course ${action}!` });
       fetchReviews();
     } catch (err: any) {

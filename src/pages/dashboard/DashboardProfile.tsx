@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { logActivity } from "@/lib/activityLogger";
 
 const DashboardProfile = () => {
   const { user, profile } = useAuth();
@@ -36,6 +37,7 @@ const DashboardProfile = () => {
     if (error) {
       toast({ title: "Failed to update profile", description: error.message, variant: "destructive" });
     } else {
+      logActivity("profile.updated", "profile", undefined, { displayName, phone });
       toast({ title: "Profile updated!" });
     }
   };

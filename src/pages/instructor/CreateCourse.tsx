@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { logActivity } from "@/lib/activityLogger";
 
 const steps = ["Details", "Modules & Lessons", "Review"];
 
@@ -179,6 +180,7 @@ const CreateCourse = () => {
           await supabase.from("curriculum_section_links").insert(linkRows as any);
         }
       }
+      logActivity("curriculum.sections_added", "curriculum_module", selectedCurriculumModule.id, { subject: selectedSubject, semester: selectedSemester });
       toast({ title: "Sections added to curriculum successfully!" });
       navigate("/dashboard/instructor/curriculum");
     } catch (err: any) {
@@ -260,6 +262,7 @@ const CreateCourse = () => {
         await supabase.from("content_reviews").insert({ course_id: course.id, status: "pending" } as any);
       }
 
+      logActivity(submitForReview ? "course.submitted" : "course.created", "course", course.id, { title, status: submitForReview ? "pending" : "draft" });
       toast({ title: submitForReview ? "Course submitted for review!" : "Course saved as draft!" });
       navigate("/dashboard/instructor/courses");
     } catch (err: any) {

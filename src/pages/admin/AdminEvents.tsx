@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Plus, Pencil, Trash2, CalendarDays } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { logActivity } from "@/lib/activityLogger";
 
 interface EventForm {
   title: string;
@@ -71,6 +72,7 @@ const AdminEvents = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-events"] });
+      logActivity(editingId ? "event.updated" : "event.created", "event", editingId || undefined, { title: form.title });
       toast.success(editingId ? "Event updated" : "Event created");
       setDialogOpen(false);
       resetForm();
@@ -83,8 +85,9 @@ const AdminEvents = () => {
       const { error } = await supabase.from("events").delete().eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: ["admin-events"] });
+      logActivity("event.deleted", "event", id);
       toast.success("Event deleted");
     },
     onError: (err: any) => toast.error(err.message),

@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, BookOpen, ClipboardList, Calendar, Award, User, LogOut,
-  ChevronLeft, ChevronRight, PlusCircle, Settings, Users, BarChart3, CheckSquare, Tag, Ticket, Menu, X, MessageSquare, Briefcase, CalendarDays, GraduationCap
+  ChevronLeft, ChevronRight, PlusCircle, Settings, Users, BarChart3, CheckSquare, Tag, Ticket, Menu, X, MessageSquare, Briefcase, CalendarDays, GraduationCap, Activity
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
@@ -40,6 +40,7 @@ const adminNav = [
   
   { label: "Jobs & Volunteers", to: "/dashboard/admin/jobs", icon: Briefcase },
   { label: "Events", to: "/dashboard/admin/events", icon: CalendarDays },
+  { label: "Activity Log", to: "/dashboard/admin/activity", icon: Activity },
   { label: "Analytics", to: "/dashboard/admin/analytics", icon: BarChart3 },
 ];
 

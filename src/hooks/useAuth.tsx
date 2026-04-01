@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { logActivity } from "@/lib/activityLogger";
 
 type UserRole = "admin" | "student" | "instructor";
 
@@ -63,15 +64,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       password,
       options: { data: { display_name: displayName, role }, emailRedirectTo: window.location.origin },
     });
+    if (!error) {
+      logActivity("signup", "auth", undefined, { email, role });
+    }
     return { error: error?.message ?? null };
   };
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (!error) {
+      logActivity("login", "auth", undefined, { email });
+    } else {
+      logActivity("login.failed", "auth", undefined, { email, error: error.message });
+    }
     return { error: error?.message ?? null };
   };
 
   const signOut = async () => {
+    logActivity("logout", "auth");
     await supabase.auth.signOut();
     setRole(null);
     setProfile(null);

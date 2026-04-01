@@ -46,6 +46,7 @@ import AdminInquiries from "./pages/admin/AdminInquiries";
 import AdminJobs from "./pages/admin/AdminJobs";
 import AdminEvents from "./pages/admin/AdminEvents";
 import AdminCurriculum from "./pages/admin/AdminCurriculum";
+import AdminActivityLog from "./pages/admin/AdminActivityLog";
 import DashboardCurriculum from "./pages/dashboard/DashboardCurriculum";
 import Curriculum from "./pages/Curriculum";
 import NotFound from "./pages/NotFound";
@@ -115,6 +116,7 @@ const App = () => (
             <Route path="/dashboard/admin/jobs" element={<RoleProtectedRoute allowedRoles={["admin"]}><DashboardLayout><AdminJobs /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/admin/events" element={<RoleProtectedRoute allowedRoles={["admin"]}><DashboardLayout><AdminEvents /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/admin/curriculum" element={<RoleProtectedRoute allowedRoles={["admin"]}><DashboardLayout><AdminCurriculum /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/admin/activity" element={<RoleProtectedRoute allowedRoles={["admin"]}><DashboardLayout><AdminActivityLog /></DashboardLayout></RoleProtectedRoute>} />
 
             <Route path="*" element={<Layout><NotFound /></Layout>} />
           </Routes>

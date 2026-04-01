@@ -14,6 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { logActivity } from "@/lib/activityLogger";
 
 const InstructorAssignments = () => {
   const { user } = useAuth();
@@ -107,6 +108,7 @@ const InstructorAssignments = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["instructor-assignments"] });
+      logActivity("assignment.created", "assignment", undefined, { title, courseId });
       setCreateOpen(false);
       setTitle("");
       setDescription("");
@@ -127,8 +129,9 @@ const InstructorAssignments = () => {
         .eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["assignment-submissions"] });
+      logActivity("assignment.graded", "assignment_submission", variables.id, { grade: variables.grade });
       setFeedbackDialog(null);
       toast.success("Feedback saved");
     },

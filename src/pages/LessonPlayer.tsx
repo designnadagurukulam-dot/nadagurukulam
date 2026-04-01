@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { logActivity } from "@/lib/activityLogger";
 
 /** Extract YouTube video ID from various URL formats */
 const getYouTubeId = (url: string): string | null => {
@@ -101,6 +102,7 @@ const LessonPlayer = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["lesson-progress", courseId] });
+      logActivity("lesson.completed", "course_lesson", lessonId, { courseId });
       toast({ title: "Lesson completed!" });
     },
   });

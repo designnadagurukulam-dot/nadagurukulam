@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { BookOpen, Clock, Plus, Trash2, PlayCircle, Type, X, Save, Link as LinkIcon } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { toast } from "@/hooks/use-toast";
+import { logActivity } from "@/lib/activityLogger";
 
 const getYouTubeId = (url: string): string | null => {
   const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/))([^&?\s]+)/);
@@ -101,6 +102,7 @@ const AdminCurriculum = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["curriculum-sections"] });
       queryClient.invalidateQueries({ queryKey: ["curriculum-section-links"] });
+      logActivity("curriculum.section_added", "curriculum_section", undefined, { title: sectionTitle });
       toast({ title: "Section added successfully" });
       resetForm();
     },
@@ -114,9 +116,10 @@ const AdminCurriculum = () => {
       const { error } = await supabase.from("curriculum_sections").delete().eq("id", sectionId);
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: (_, sectionId) => {
       queryClient.invalidateQueries({ queryKey: ["curriculum-sections"] });
       queryClient.invalidateQueries({ queryKey: ["curriculum-section-links"] });
+      logActivity("curriculum.section_deleted", "curriculum_section", sectionId);
       toast({ title: "Section deleted" });
     },
   });

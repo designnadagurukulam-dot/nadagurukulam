@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { logActivity } from "@/lib/activityLogger";
 
 const AdminCoupons = () => {
   const { toast } = useToast();
@@ -43,6 +44,7 @@ const AdminCoupons = () => {
     } else {
       setCode(""); setDiscountValue(""); setMaxUses("");
       setShowForm(false);
+      logActivity("coupon.created", "coupon", undefined, { code: code.trim().toUpperCase(), discountType, discountValue });
       toast({ title: "Coupon created" });
       fetchCoupons();
     }
@@ -56,6 +58,7 @@ const AdminCoupons = () => {
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this coupon?")) return;
     await supabase.from("coupons").delete().eq("id", id);
+    logActivity("coupon.deleted", "coupon", id);
     toast({ title: "Coupon deleted" });
     fetchCoupons();
   };

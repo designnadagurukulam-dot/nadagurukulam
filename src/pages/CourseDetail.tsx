@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { toast } from "@/hooks/use-toast";
 import SectionDivider from "@/components/SectionDivider";
+import { logActivity } from "@/lib/activityLogger";
 
 const lessonIcon = (type: string) => {
   switch (type) {
@@ -80,6 +81,7 @@ const CourseDetail = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["enrollment", id] });
+      logActivity("enrollment.created", "enrollment", undefined, { courseId: id, courseTitle: course?.title });
       toast({ title: "Enrolled!", description: "You have been enrolled in this course." });
     },
     onError: (err: any) => {

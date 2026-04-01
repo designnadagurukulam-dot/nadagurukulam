@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { format, isPast } from "date-fns";
+import { logActivity } from "@/lib/activityLogger";
 
 const statusConfig = {
   pending: { label: "Pending", icon: Clock, bg: "bg-secondary/15 text-secondary-foreground", dot: "bg-secondary" },
@@ -92,8 +93,9 @@ const DashboardAssignments = () => {
       });
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: (_, assignmentId) => {
       queryClient.invalidateQueries({ queryKey: ["student-assignments"] });
+      logActivity("assignment.submitted", "assignment", assignmentId);
       setSubmitDialog(null);
       setTextContent("");
       setFile(null);

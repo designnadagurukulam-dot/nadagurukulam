@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import { logActivity } from "@/lib/activityLogger";
 import { Plus, Trash2, Pencil, Briefcase, Users, X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { format } from "date-fns";
@@ -52,6 +53,7 @@ const AdminJobs = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-jobs"] });
+      logActivity(editingJob ? "job.updated" : "job.created", "job_posting", editingJob?.id, { title: form.title });
       toast({ title: editingJob ? "Job updated" : "Job posted" });
       resetForm();
     },
@@ -70,8 +72,9 @@ const AdminJobs = () => {
       const { error } = await supabase.from("job_postings").delete().eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: ["admin-jobs"] });
+      logActivity("job.deleted", "job_posting", id);
       toast({ title: "Job deleted" });
     },
   });
