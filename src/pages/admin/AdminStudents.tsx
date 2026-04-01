@@ -53,6 +53,7 @@ const AdminStudents = () => {
   useEffect(() => { fetchData(); }, []);
 
   const handleRoleChange = async (userId: string, newRole: AppRole) => {
+    const previousRole = roles[userId] || "student";
     setUpdatingRole(userId);
     try {
       const { error: deleteError } = await supabase.from("user_roles").delete().eq("user_id", userId);
@@ -60,6 +61,7 @@ const AdminStudents = () => {
       const { error: insertError } = await supabase.from("user_roles").insert({ user_id: userId, role: newRole });
       if (insertError) throw insertError;
       setRoles((prev) => ({ ...prev, [userId]: newRole }));
+      logActivity("role.changed", "user_role", userId, { newRole, previousRole });
       toast.success(`Role updated to ${newRole}`);
     } catch (err: any) {
       toast.error("Failed to update role: " + (err.message || "Unknown error"));
