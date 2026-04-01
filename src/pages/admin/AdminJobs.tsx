@@ -64,7 +64,10 @@ const AdminJobs = () => {
       const { error } = await supabase.from("job_postings").update({ is_active }).eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin-jobs"] }),
+    onSuccess: (_, vars) => {
+      queryClient.invalidateQueries({ queryKey: ["admin-jobs"] });
+      logActivity("job.toggled", "job_posting", vars.id, { is_active: vars.is_active });
+    },
   });
 
   const deleteMutation = useMutation({
