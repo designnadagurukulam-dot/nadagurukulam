@@ -79,7 +79,8 @@ const AdminActivityLog = () => {
         .select("action")
         .limit(1000);
       if (error) return [];
-      return [...new Set((data || []).map((d: any) => d.action))] as string[];
+      const actions = (data || []).map((d: any) => d.action as string);
+      return [...new Set(actions)];
     },
   });
 
