@@ -5,7 +5,7 @@ export const logActivity = async (
   entityType?: string,
   entityId?: string,
   metadata?: Record<string, any>
-): Promise<void> => {
+) => {
   try {
     const { data } = await supabase.auth.getUser();
     const userId = data?.user?.id;
