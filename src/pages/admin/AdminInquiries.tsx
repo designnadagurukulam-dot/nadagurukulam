@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "@/hooks/use-toast";
+import { logActivity } from "@/lib/activityLogger";
 import { Mail, Phone, MessageSquare, Trash2, Calendar } from "lucide-react";
 import { format } from "date-fns";
 
@@ -40,8 +41,9 @@ const AdminInquiries = () => {
         .eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: (_, vars) => {
       queryClient.invalidateQueries({ queryKey: ["admin-inquiries"] });
+      logActivity("inquiry.status_updated", "program_inquiry", vars.id, { status: vars.status });
       toast({ title: "Status updated" });
     },
   });
@@ -54,8 +56,9 @@ const AdminInquiries = () => {
         .eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: ["admin-inquiries"] });
+      logActivity("inquiry.deleted", "program_inquiry", id);
       toast({ title: "Inquiry deleted" });
     },
   });

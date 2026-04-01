@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import { logActivity } from "@/lib/activityLogger";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -59,6 +60,7 @@ const InquiryFormDialog = ({ open, onOpenChange, programSlug, programName }: Inq
     if (error) {
       toast({ title: "Error", description: "Failed to submit inquiry. Please try again.", variant: "destructive" });
     } else {
+      logActivity("inquiry.submitted", "program_inquiry", undefined, { programName, programSlug });
       toast({ title: "Inquiry Submitted!", description: "We'll get back to you soon." });
       setForm({ full_name: "", email: "", phone: "", message: "" });
       setErrors({});

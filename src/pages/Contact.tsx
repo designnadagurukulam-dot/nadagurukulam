@@ -13,6 +13,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { logActivity } from "@/lib/activityLogger";
 import SectionDivider from "@/components/SectionDivider";
 
 import campusAerial from "@/assets/campus/NGCampusAerial.jpg";
@@ -71,6 +72,7 @@ const Contact = () => {
       if (error) throw error;
     },
     onSuccess: () => {
+      logActivity("volunteer.submitted", "volunteer_application", undefined, { name: volForm.full_name, email: volForm.email });
       toast({ title: "Application Submitted!", description: "Thank you for your interest in volunteering. We'll reach out soon." });
       setVolForm({ full_name: "", email: "", phone: "", area_of_interest: "", availability: "", message: "" });
     },

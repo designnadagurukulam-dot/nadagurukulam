@@ -52,6 +52,7 @@ const AdminCoupons = () => {
 
   const toggleActive = async (coupon: any) => {
     await supabase.from("coupons").update({ is_active: !coupon.is_active } as any).eq("id", coupon.id);
+    logActivity("coupon.toggled", "coupon", coupon.id, { is_active: !coupon.is_active, code: coupon.code });
     fetchCoupons();
   };
 
