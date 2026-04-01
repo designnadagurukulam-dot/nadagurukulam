@@ -74,14 +74,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (!error) {
       logActivity("login", "auth", undefined, { email });
-    } else {
-      logActivity("login.failed", "auth", undefined, { email, error: error.message });
     }
     return { error: error?.message ?? null };
   };
 
   const signOut = async () => {
-    logActivity("logout", "auth");
+    // Log logout BEFORE destroying the session, and await it
+    await logActivity("logout", "auth");
     await supabase.auth.signOut();
     setRole(null);
     setProfile(null);
