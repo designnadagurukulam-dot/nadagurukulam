@@ -56,8 +56,9 @@ const AdminInquiries = () => {
         .eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: ["admin-inquiries"] });
+      logActivity("inquiry.deleted", "program_inquiry", id);
       toast({ title: "Inquiry deleted" });
     },
   });

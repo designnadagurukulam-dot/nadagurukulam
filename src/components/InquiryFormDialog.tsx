@@ -60,6 +60,7 @@ const InquiryFormDialog = ({ open, onOpenChange, programSlug, programName }: Inq
     if (error) {
       toast({ title: "Error", description: "Failed to submit inquiry. Please try again.", variant: "destructive" });
     } else {
+      logActivity("inquiry.submitted", "program_inquiry", undefined, { programName, programSlug });
       toast({ title: "Inquiry Submitted!", description: "We'll get back to you soon." });
       setForm({ full_name: "", email: "", phone: "", message: "" });
       setErrors({});

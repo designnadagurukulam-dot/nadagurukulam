@@ -31,6 +31,7 @@ const AdminCourses = () => {
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this course?")) return;
     await supabase.from("courses").delete().eq("id", id);
+    logActivity("course.deleted", "course", id);
     toast({ title: "Course deleted" });
     fetchCourses();
   };

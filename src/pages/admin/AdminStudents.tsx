@@ -120,6 +120,7 @@ const AdminStudents = () => {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Students");
     XLSX.writeFile(wb, `students_${roleFilter}_${new Date().toISOString().slice(0, 10)}.xlsx`);
+    logActivity("students.exported", "export", undefined, { format: "excel", count: filtered.length, roleFilter });
     toast.success("Excel downloaded");
   };
 

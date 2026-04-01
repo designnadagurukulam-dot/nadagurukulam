@@ -87,8 +87,9 @@ const AdminJobs = () => {
       const { error } = await supabase.from("volunteer_applications").update({ status }).eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: (_, vars) => {
       queryClient.invalidateQueries({ queryKey: ["admin-volunteers"] });
+      logActivity("volunteer.status_updated", "volunteer_application", vars.id, { status: vars.status });
       toast({ title: "Status updated" });
     },
   });
