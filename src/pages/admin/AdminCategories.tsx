@@ -32,6 +32,7 @@ const AdminCategories = () => {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
       setNewName("");
+      logActivity("category.created", "category", undefined, { name: newName.trim() });
       toast({ title: "Category added" });
       fetchCategories();
     }
