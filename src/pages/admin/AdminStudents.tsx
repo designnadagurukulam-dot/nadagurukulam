@@ -110,6 +110,7 @@ const AdminStudents = () => {
     });
 
     doc.save(`students_${roleFilter}_${new Date().toISOString().slice(0, 10)}.pdf`);
+    logActivity("students.exported", "export", undefined, { format: "pdf", count: filtered.length, roleFilter });
     toast.success("PDF downloaded");
   };
 
