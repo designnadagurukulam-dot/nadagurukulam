@@ -1,73 +1,122 @@
 
 
-## Assignments System — Educator Creates, Student Submits
+## Super Admin Activity Tracking System
 
 ### Overview
 
-Replace the instructor "Submissions" tab with a full "Assignments" tab. Educators create assignments (with optional PDF attachments) for their courses. Students see these assignments and can upload submission files. Educators can view all student submissions per assignment.
+Build a comprehensive audit log that records every meaningful action by educators and students, with timestamps, so the admin can monitor all platform activity from a single dashboard.
+
+### Activities to Track
+
+**Authentication Events**
+- Login (successful + failed attempts)
+- Logout
+- Password reset request
+- Account registration (student/educator)
+
+**Educator Activities**
+- Course created / updated / deleted
+- Course status changed (draft → submitted → approved)
+- Course module added / updated / deleted
+- Course lesson added / updated / deleted
+- Curriculum section added / updated / deleted
+- Curriculum section links added / deleted
+- Assignment created / updated / deleted
+- Assignment graded (submission feedback given)
+- Profile updated
+
+**Student Activities**
+- Enrolled in a course
+- Assignment submitted
+- Lesson started / completed (lesson progress update)
+- Course completed (certificate earned)
+- Profile updated
+
+**Admin Activities**
+- Course approved / rejected (content review)
+- Enrollment managed (added/removed)
+- User role changed
+- Event created / updated / deleted
+- Category created / updated / deleted
+- Coupon created / updated / deleted
+- Job posting created / updated / deleted
 
 ### Database Changes
 
-**New table: `assignment_submissions`**
+**New table: `activity_logs`**
 
 ```text
-assignment_submissions
+activity_logs
 ├── id (uuid PK)
-├── assignment_id (uuid FK → assignments)
-├── student_id (uuid, references auth.users)
-├── file_url (text, nullable) — uploaded PDF/file
-├── text_content (text, nullable) — optional text submission
-├── status (text: 'submitted' | 'graded' | 'late') default 'submitted'
-├── grade (text, nullable)
-├── feedback (text, nullable)
-├── submitted_at (timestamptz, default now())
-├── updated_at (timestamptz, default now())
+├── user_id (uuid) — who performed the action
+├── action (text) — e.g. 'course.created', 'assignment.submitted'
+├── entity_type (text) — e.g. 'course', 'assignment', 'enrollment'
+├── entity_id (uuid, nullable) — ID of the affected record
+├── metadata (jsonb, nullable) — extra context (course title, old/new values, IP, etc.)
+├── created_at (timestamptz, default now()) — the timestamp
 ```
 
-**Modify existing `assignments` table:**
-- Add `instructor_id` (uuid, nullable) — who created it
-- Add `pdf_url` (text, nullable) — assignment PDF attachment
+**RLS policies:**
+- Admins can SELECT all logs
+- Authenticated users can INSERT their own logs (user_id = auth.uid())
+- No UPDATE/DELETE allowed (audit logs are immutable)
 
-**Storage bucket:** `assignment-files` (public: false) for both assignment PDFs and student submission uploads.
+### Implementation Approach
 
-**RLS policies on `assignment_submissions`:**
-- Students can INSERT/UPDATE/SELECT their own submissions
-- Instructors can SELECT submissions for their course assignments
-- Admins can SELECT all
+**1. Utility helper** — `src/lib/activityLogger.ts`
+- A single function `logActivity(action, entityType, entityId?, metadata?)` that inserts into `activity_logs` using the current authenticated user
+- Called from existing components after successful operations
 
-**Update RLS on `assignments`:**
-- Instructors can INSERT/UPDATE/DELETE assignments for their own courses
-- Students can SELECT assignments for enrolled courses (already exists)
+**2. Instrument existing pages** — Add `logActivity()` calls to:
+- `useAuth.tsx` — login, logout, signup events
+- `CreateCourse.tsx` — course creation
+- `InstructorAssignments.tsx` — assignment CRUD, grading
+- `DashboardAssignments.tsx` — student submission
+- `AdminCurriculum.tsx` — curriculum changes
+- `DashboardCurriculum.tsx` — curriculum section views (optional)
+- `DashboardProfile.tsx` — profile updates
+- `CourseDetail.tsx` — enrollment
+- `LessonPlayer.tsx` — lesson progress
+- `AdminApprovals.tsx` — course review decisions
+- `AdminEvents.tsx`, `AdminCategories.tsx`, `AdminCoupons.tsx`, `AdminJobs.tsx` — admin CRUD actions
 
-### Educator Side — Replace InstructorSubmissions
+**3. New admin page** — `src/pages/admin/AdminActivityLog.tsx`
+- Table view of all activity logs with:
+  - Filters by: user, action type, entity type, date range
+  - Search by user name or action
+  - Sortable by timestamp (newest first)
+  - Shows: user display name, action, entity, timestamp, metadata preview
+- Pagination for large datasets
 
-**Rename route:** `/dashboard/instructor/submissions` → `/dashboard/instructor/assignments`
-
-**New `InstructorAssignments.tsx`:**
-- Lists all assignments created by this instructor (fetched via `assignments` joined with `courses` where `instructor_id = auth.uid()`)
-- "Create Assignment" button opens dialog: title, description, select course (from instructor's courses), due date, optional PDF upload
-- Click an assignment → expands/navigates to show student submissions list
-- Each submission shows: student name, submitted date, file download link, status, and option to add grade/feedback
-
-### Student Side — Update DashboardAssignments
-
-**Rewrite `DashboardAssignments.tsx`:**
-- Fetch real assignments from DB (joined via enrollments to get only assignments for enrolled courses)
-- Each assignment card shows: title, course name, due date, status, attached PDF download
-- "Submit" button opens dialog: upload file + optional text content
-- Shows submission status if already submitted (submitted, graded, late)
-- Display grade/feedback if graded
-
-### Sidebar Change
-
-- Instructor nav: Change "Submissions" label to "Assignments", route to `/dashboard/instructor/assignments`
+**4. Sidebar + routing**
+- Add "Activity Log" link to admin sidebar
+- Add route `/dashboard/admin/activity` in `App.tsx`
 
 ### Files to Create/Edit
 
-- **Migration SQL**: Add `assignment_submissions` table, alter `assignments` table, create storage bucket, RLS policies
-- **Create**: `src/pages/instructor/InstructorAssignments.tsx`
-- **Rewrite**: `src/pages/dashboard/DashboardAssignments.tsx`
-- **Edit**: `src/components/DashboardSidebar.tsx` — rename Submissions → Assignments
-- **Edit**: `src/App.tsx` — update route, swap component import
-- **Delete/deprecate**: `src/pages/instructor/InstructorSubmissions.tsx` (no longer used)
+| Action | File |
+|--------|------|
+| Create | `supabase migration` — `activity_logs` table + RLS |
+| Create | `src/lib/activityLogger.ts` |
+| Create | `src/pages/admin/AdminActivityLog.tsx` |
+| Edit | `src/hooks/useAuth.tsx` — log login/logout/signup |
+| Edit | `src/pages/instructor/CreateCourse.tsx` — log course creation |
+| Edit | `src/pages/instructor/InstructorAssignments.tsx` — log assignment CRUD + grading |
+| Edit | `src/pages/dashboard/DashboardAssignments.tsx` — log submissions |
+| Edit | `src/pages/admin/AdminCurriculum.tsx` — log curriculum changes |
+| Edit | `src/pages/admin/AdminApprovals.tsx` — log approvals |
+| Edit | `src/pages/admin/AdminEvents.tsx` — log event CRUD |
+| Edit | `src/pages/admin/AdminCategories.tsx` — log category CRUD |
+| Edit | `src/pages/admin/AdminCoupons.tsx` — log coupon CRUD |
+| Edit | `src/pages/admin/AdminJobs.tsx` — log job CRUD |
+| Edit | `src/pages/dashboard/DashboardProfile.tsx` — log profile updates |
+| Edit | `src/components/DashboardSidebar.tsx` — add Activity Log nav item |
+| Edit | `src/App.tsx` — add route |
+
+### Technical Notes
+
+- All logging is fire-and-forget (non-blocking) — failures to log do not break the user flow
+- The `metadata` JSONB column stores contextual details like course title, old/new status, submission file name, etc.
+- Timestamps use server-side `now()` for accuracy
+- Activity logs are append-only (no update/delete) to maintain audit integrity
 
