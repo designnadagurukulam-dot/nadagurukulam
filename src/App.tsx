@@ -46,6 +46,7 @@ import AdminInquiries from "./pages/admin/AdminInquiries";
 import AdminJobs from "./pages/admin/AdminJobs";
 import AdminEvents from "./pages/admin/AdminEvents";
 import AdminCurriculum from "./pages/admin/AdminCurriculum";
+import AdminActivityLog from "./pages/admin/AdminActivityLog";
 import DashboardCurriculum from "./pages/dashboard/DashboardCurriculum";
 import Curriculum from "./pages/Curriculum";
 import NotFound from "./pages/NotFound";
