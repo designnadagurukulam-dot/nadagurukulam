@@ -180,6 +180,7 @@ const CreateCourse = () => {
           await supabase.from("curriculum_section_links").insert(linkRows as any);
         }
       }
+      logActivity("curriculum.sections_added", "curriculum_module", selectedCurriculumModule.id, { subject: selectedSubject, semester: selectedSemester });
       toast({ title: "Sections added to curriculum successfully!" });
       navigate("/dashboard/instructor/curriculum");
     } catch (err: any) {
