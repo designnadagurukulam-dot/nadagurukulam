@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { toast } from "@/hooks/use-toast";
 import SectionDivider from "@/components/SectionDivider";
+import { logActivity } from "@/lib/activityLogger";
 
 const lessonIcon = (type: string) => {
   switch (type) {
