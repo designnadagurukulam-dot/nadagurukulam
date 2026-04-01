@@ -52,7 +52,7 @@ const AdminActivityLog = () => {
       if (error) throw error;
 
       // Fetch display names for user_ids
-      const userIds = [...new Set((logs || []).map((l: any) => l.user_id))];
+      const userIds: string[] = [...new Set((logs || []).map((l: any) => l.user_id as string))];
       let profileMap: Record<string, string> = {};
       if (userIds.length > 0) {
         const { data: profiles } = await supabase
