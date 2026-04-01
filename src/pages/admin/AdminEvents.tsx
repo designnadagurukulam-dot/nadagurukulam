@@ -72,6 +72,7 @@ const AdminEvents = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-events"] });
+      logActivity(editingId ? "event.updated" : "event.created", "event", editingId || undefined, { title: form.title });
       toast.success(editingId ? "Event updated" : "Event created");
       setDialogOpen(false);
       resetForm();
