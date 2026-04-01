@@ -14,6 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { logActivity } from "@/lib/activityLogger";
 
 const InstructorAssignments = () => {
   const { user } = useAuth();
