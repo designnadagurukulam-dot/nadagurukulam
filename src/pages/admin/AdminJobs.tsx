@@ -53,6 +53,7 @@ const AdminJobs = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-jobs"] });
+      logActivity(editingJob ? "job.updated" : "job.created", "job_posting", editingJob?.id, { title: form.title });
       toast({ title: editingJob ? "Job updated" : "Job posted" });
       resetForm();
     },
