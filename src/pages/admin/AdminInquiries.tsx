@@ -41,8 +41,9 @@ const AdminInquiries = () => {
         .eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: (_, vars) => {
       queryClient.invalidateQueries({ queryKey: ["admin-inquiries"] });
+      logActivity("inquiry.status_updated", "program_inquiry", vars.id, { status: vars.status });
       toast({ title: "Status updated" });
     },
   });
