@@ -10,11 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import logo from "@/assets/logo.png";
 import campusVault from "@/assets/campus/NGVaultPassage.jpg";
 
-interface LoginProps {
-  roleType: "student" | "educator";
-}
-
-const Login = ({ roleType }: LoginProps) => {
+const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
@@ -23,11 +19,6 @@ const Login = ({ roleType }: LoginProps) => {
   const { signIn, role, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
-
-  const title = roleType === "student" ? "Student Sign In" : "Educator Sign In";
-  const subtitle = roleType === "student"
-    ? "Access your courses and learning dashboard"
-    : "Access your teaching dashboard and manage courses";
 
   useEffect(() => {
     if (loginSuccess && user && role) {
@@ -92,8 +83,8 @@ const Login = ({ roleType }: LoginProps) => {
             <img src={logo} alt="Nada Gurukulam" className="h-16" />
           </div>
 
-          <h1 className="font-serif text-3xl text-foreground mb-2">{title}</h1>
-          <p className="text-muted-foreground mb-8">{subtitle}</p>
+          <h1 className="font-serif text-3xl text-foreground mb-2">Sign In</h1>
+          <p className="text-muted-foreground mb-8">Access your dashboard</p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
@@ -132,15 +123,21 @@ const Login = ({ roleType }: LoginProps) => {
             </Button>
           </form>
 
-          <p className="text-center text-sm text-muted-foreground mt-8">
-            Don't have an account?{" "}
-            <Link to={roleType === "educator" ? "/register/educator" : "/register/student"} className="text-primary font-medium hover:underline">
-              Create Account
-            </Link>
-          </p>
+          <div className="text-center text-sm text-muted-foreground mt-8">
+            <p className="mb-2">Don't have an account?</p>
+            <div className="flex items-center justify-center gap-4">
+              <Link to="/register/student" className="text-primary font-medium hover:underline">
+                Register as Student
+              </Link>
+              <span className="text-border">|</span>
+              <Link to="/register/educator" className="text-primary font-medium hover:underline">
+                Register as Educator
+              </Link>
+            </div>
+          </div>
           <p className="text-center text-sm mt-3">
-            <Link to="/login" className="text-muted-foreground hover:text-primary transition-colors">
-              ← Back to Role Selection
+            <Link to="/" className="text-muted-foreground hover:text-primary transition-colors">
+              ← Back to Home
             </Link>
           </p>
         </motion.div>

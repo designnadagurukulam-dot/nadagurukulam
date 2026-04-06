@@ -21,7 +21,7 @@ import FacultyDetail from "./pages/FacultyDetail";
 
 import Gallery from "./pages/Gallery";
 import Contact from "./pages/Contact";
-import LoginSelect from "./pages/LoginSelect";
+// LoginSelect removed — unified login page
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import DashboardOverview from "./pages/dashboard/DashboardOverview";
@@ -83,9 +83,7 @@ const App = () => (
             <Route path="/contact" element={<Layout><Contact /></Layout>} />
 
             {/* Auth pages */}
-            <Route path="/login" element={<LoginSelect />} />
-            <Route path="/login/student" element={<Login roleType="student" />} />
-            <Route path="/login/educator" element={<Login roleType="educator" />} />
+            <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register roleType="student" />} />
             <Route path="/register/student" element={<Register roleType="student" />} />
             <Route path="/register/educator" element={<Register roleType="educator" />} />
