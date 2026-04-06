@@ -284,14 +284,20 @@ const Register = ({ roleType = "student" }: RegisterProps) => {
 
           <p className="text-center text-sm text-muted-foreground mt-8">
             Already have an account?{" "}
-            <Link to={isEducator ? "/login/educator" : "/login/student"} className="text-primary font-medium hover:underline">
+            <Link to="/login" className="text-primary font-medium hover:underline">
               Sign In
             </Link>
           </p>
           <p className="text-center text-sm mt-3">
-            <Link to="/login" className="text-muted-foreground hover:text-primary transition-colors">
-              ← Back to Login
-            </Link>
+            {isEducator ? (
+              <Link to="/register/student" className="text-muted-foreground hover:text-primary transition-colors">
+                Register as Student instead →
+              </Link>
+            ) : (
+              <Link to="/register/educator" className="text-muted-foreground hover:text-primary transition-colors">
+                Register as Educator instead →
+              </Link>
+            )}
           </p>
         </motion.div>
       </div>
