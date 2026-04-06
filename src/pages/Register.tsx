@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, Music } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/logo.png";
 import campusVerandah from "@/assets/campus/NGVerandah.jpg";
 
@@ -18,14 +20,35 @@ const Register = ({ roleType = "student" }: RegisterProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [phone, setPhone] = useState("");
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // Educator-specific
+  const [employeeId, setEmployeeId] = useState("");
+  const [designation, setDesignation] = useState("");
+
+  // Student-specific
+  const [rollNumber, setRollNumber] = useState("");
+  const [courseName, setCourseName] = useState("");
+  const [yearOfCommencement, setYearOfCommencement] = useState("");
+  const [availableCourses, setAvailableCourses] = useState<{ id: string; title: string }[]>([]);
+
   const { signUp } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
   const isEducator = roleType === "educator";
   const dbRole = isEducator ? "instructor" : "student";
+
+  // Fetch courses for student dropdown
+  useEffect(() => {
+    if (!isEducator) {
+      supabase.from("courses").select("id, title").eq("status", "approved").then(({ data }) => {
+        if (data) setAvailableCourses(data);
+      });
+    }
+  }, [isEducator]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,14 +62,34 @@ const Register = ({ roleType = "student" }: RegisterProps) => {
     }
     setLoading(true);
     const { error } = await signUp(email, password, displayName, dbRole);
-    setLoading(false);
     if (error) {
+      setLoading(false);
       toast({ title: "Registration failed", description: error, variant: "destructive" });
-    } else {
-      toast({ title: "Account created!", description: `Welcome to Nada Gurukulam as ${isEducator ? "an Educator" : "a Student"}` });
-      navigate(isEducator ? "/dashboard/instructor/courses" : "/dashboard");
+      return;
     }
+
+    // Update the profile with additional fields after signup
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const profileUpdate: Record<string, unknown> = { phone };
+      if (isEducator) {
+        profileUpdate.employee_id = employeeId || null;
+        profileUpdate.designation = designation || null;
+      } else {
+        profileUpdate.roll_number = rollNumber || null;
+        profileUpdate.course_name = courseName || null;
+        profileUpdate.year_of_commencement = yearOfCommencement ? parseInt(yearOfCommencement) : null;
+      }
+      await supabase.from("profiles").update(profileUpdate).eq("user_id", user.id);
+    }
+
+    setLoading(false);
+    toast({ title: "Account created!", description: `Welcome to Nada Gurukulam as ${isEducator ? "an Educator" : "a Student"}` });
+    navigate(isEducator ? "/dashboard/instructor/courses" : "/dashboard");
   };
+
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 6 }, (_, i) => currentYear - 2 + i);
 
   return (
     <div className="min-h-screen flex">
@@ -85,11 +128,11 @@ const Register = ({ roleType = "student" }: RegisterProps) => {
       </div>
 
       {/* Right — form */}
-      <div className="flex-1 flex items-center justify-center p-6 bg-background">
+      <div className="flex-1 flex items-center justify-center p-6 bg-background overflow-y-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-md"
+          className="w-full max-w-md py-8"
         >
           <div className="lg:hidden flex justify-center mb-8">
             <img src={logo} alt="Nada Gurukulam" className="h-16" />
@@ -124,6 +167,85 @@ const Register = ({ roleType = "student" }: RegisterProps) => {
                 className="h-12 rounded-xl border-border/50 focus:border-secondary focus:ring-secondary/20"
               />
             </div>
+            <div>
+              <label className="text-sm font-medium text-foreground mb-1.5 block">Contact Number</label>
+              <Input
+                type="tel"
+                placeholder="+91 XXXXX XXXXX"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="h-12 rounded-xl border-border/50 focus:border-secondary focus:ring-secondary/20"
+              />
+            </div>
+
+            {/* Educator-specific fields */}
+            {isEducator && (
+              <>
+                <div>
+                  <label className="text-sm font-medium text-foreground mb-1.5 block">Employee ID</label>
+                  <Input
+                    placeholder="e.g. EMP-001"
+                    value={employeeId}
+                    onChange={(e) => setEmployeeId(e.target.value)}
+                    className="h-12 rounded-xl border-border/50 focus:border-secondary focus:ring-secondary/20"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-foreground mb-1.5 block">Designation</label>
+                  <Input
+                    placeholder="e.g. Assistant Professor"
+                    value={designation}
+                    onChange={(e) => setDesignation(e.target.value)}
+                    className="h-12 rounded-xl border-border/50 focus:border-secondary focus:ring-secondary/20"
+                  />
+                </div>
+              </>
+            )}
+
+            {/* Student-specific fields */}
+            {!isEducator && (
+              <>
+                <div>
+                  <label className="text-sm font-medium text-foreground mb-1.5 block">Roll No / Registration No</label>
+                  <Input
+                    placeholder="e.g. NG-2026-00001"
+                    value={rollNumber}
+                    onChange={(e) => setRollNumber(e.target.value)}
+                    className="h-12 rounded-xl border-border/50 focus:border-secondary focus:ring-secondary/20"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-foreground mb-1.5 block">Course</label>
+                  <Select value={courseName} onValueChange={setCourseName}>
+                    <SelectTrigger className="h-12 rounded-xl border-border/50 focus:border-secondary focus:ring-secondary/20">
+                      <SelectValue placeholder="Select your course" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableCourses.map((c) => (
+                        <SelectItem key={c.id} value={c.title}>{c.title}</SelectItem>
+                      ))}
+                      {availableCourses.length === 0 && (
+                        <SelectItem value="general" disabled>No courses available</SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-foreground mb-1.5 block">Year of Commencement</label>
+                  <Select value={yearOfCommencement} onValueChange={setYearOfCommencement}>
+                    <SelectTrigger className="h-12 rounded-xl border-border/50 focus:border-secondary focus:ring-secondary/20">
+                      <SelectValue placeholder="Select year" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {years.map((y) => (
+                        <SelectItem key={y} value={y.toString()}>{y}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </>
+            )}
+
             <div>
               <label className="text-sm font-medium text-foreground mb-1.5 block">Password</label>
               <div className="relative">
