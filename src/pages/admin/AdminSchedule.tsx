@@ -74,20 +74,40 @@ const AdminSchedule = () => {
   useEffect(() => { fetchAll(); }, []);
 
   const handleCreate = async () => {
-    if (!title || !startTime || !endTime || !studentId) {
+    if (!title || !startTime || !endTime) {
       toast({ title: "Please fill required fields", variant: "destructive" });
       return;
     }
 
-    const { error } = await supabase.from("schedules").insert({
+    // Determine target students
+    let targetStudentIds: string[] = [];
+    if (studentId === "__all__" && courseId) {
+      // Get all enrolled students for this course
+      const { data: enrollments } = await supabase.from("enrollments").select("user_id").eq("course_id", courseId);
+      targetStudentIds = (enrollments || []).map((e) => e.user_id);
+      if (targetStudentIds.length === 0) {
+        toast({ title: "No students enrolled in this course", variant: "destructive" });
+        return;
+      }
+    } else if (studentId && studentId !== "__all__") {
+      targetStudentIds = [studentId];
+    } else {
+      toast({ title: "Please select a student or 'All Enrolled Students'", variant: "destructive" });
+      return;
+    }
+
+    // Create schedule entries for all target students
+    const entries = targetStudentIds.map((sid) => ({
       event_title: title,
       start_time: startTime,
       end_time: endTime,
       event_type: eventType,
       course_id: courseId || null,
-      user_id: studentId,
+      user_id: sid,
       instructor_id: instructorId || null,
-    });
+    }));
+
+    const { error } = await supabase.from("schedules").insert(entries);
 
     if (error) {
       toast({ title: "Failed to create schedule", description: error.message, variant: "destructive" });
@@ -121,7 +141,7 @@ const AdminSchedule = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pt-12 lg:pt-0">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex justify-between items-center">
         <div>
           <h1 className="font-serif text-3xl font-bold text-foreground">Timetable Management</h1>
@@ -181,13 +201,17 @@ const AdminSchedule = () => {
                 </Select>
               </div>
               <div>
-                <label className="text-sm font-medium mb-1.5 block">Student *</label>
+                <label className="text-sm font-medium mb-1.5 block">Student(s) *</label>
                 <Select value={studentId} onValueChange={setStudentId}>
-                  <SelectTrigger><SelectValue placeholder="Assign to student" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Assign to student(s)" /></SelectTrigger>
                   <SelectContent>
+                    {courseId && <SelectItem value="__all__">📋 All Enrolled Students</SelectItem>}
                     {students.map((s) => <SelectItem key={s.user_id} value={s.user_id}>{s.display_name || "Unnamed"}</SelectItem>)}
                   </SelectContent>
                 </Select>
+                {studentId === "__all__" && !courseId && (
+                  <p className="text-xs text-destructive mt-1">Please select a course first to use "All Enrolled Students"</p>
+                )}
               </div>
               <Button onClick={handleCreate} className="w-full">Create Schedule</Button>
             </div>

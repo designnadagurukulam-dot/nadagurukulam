@@ -92,7 +92,7 @@ const InstructorClassLog = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pt-12 lg:pt-0">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex justify-between items-center">
         <div>
           <h1 className="font-serif text-3xl font-bold text-foreground">Daily Class Log</h1>

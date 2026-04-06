@@ -112,7 +112,7 @@ const DashboardOverview = () => {
           </Link>
         </div>
         {recentCourses.length === 0 && !loading ? (
-          <Card><CardContent className="p-8 text-center text-muted-foreground">No enrolled courses yet. Browse the <Link to="/catalog" className="text-primary underline">catalog</Link> to get started!</CardContent></Card>
+          <Card><CardContent className="p-8 text-center text-muted-foreground">No enrolled courses yet. Browse the <Link to="/courses" className="text-primary underline">courses</Link> to get started!</CardContent></Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
             {recentCourses.map((course, i) => (
@@ -160,11 +160,11 @@ const DashboardOverview = () => {
               <h3 className="font-serif text-lg font-bold text-foreground flex items-center gap-2">
                 <Sparkles className="h-5 w-5 text-secondary" /> Explore new courses
               </h3>
-              <p className="text-sm text-muted-foreground mt-1">Browse our catalog and start your next learning journey</p>
+              <p className="text-sm text-muted-foreground mt-1">Browse our courses and start your next learning journey</p>
             </div>
-            <Link to="/catalog">
+            <Link to="/courses">
               <Button className="shrink-0 bg-secondary text-secondary-foreground hover:bg-secondary/90 shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5 relative z-10">
-                Browse Catalog
+                Browse Courses
               </Button>
             </Link>
           </CardContent>

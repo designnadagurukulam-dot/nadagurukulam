@@ -55,7 +55,8 @@ import NotFound from "./pages/NotFound";
 import ProgramDetail from "./pages/ProgramDetail";
 import AdminSchedule from "./pages/admin/AdminSchedule";
 import InstructorClassLog from "./pages/instructor/InstructorClassLog";
-
+import InstructorOverview from "./pages/instructor/InstructorOverview";
+import AdminSubjectAllocation from "./pages/admin/AdminSubjectAllocation";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -100,6 +101,7 @@ const App = () => (
             <Route path="/dashboard/profile" element={<ProtectedRoute><DashboardLayout><DashboardProfile /></DashboardLayout></ProtectedRoute>} />
 
             {/* Instructor Dashboard */}
+            <Route path="/dashboard/instructor" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><InstructorOverview /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/instructor/courses" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><InstructorCourses /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/instructor/create" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><CreateCourse /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/instructor/edit/:id" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><CreateCourse /></DashboardLayout></RoleProtectedRoute>} />
@@ -124,6 +126,7 @@ const App = () => (
             <Route path="/dashboard/admin/events" element={<RoleProtectedRoute allowedRoles={["admin"]}><DashboardLayout><AdminEvents /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/admin/curriculum" element={<RoleProtectedRoute allowedRoles={["admin"]}><DashboardLayout><AdminCurriculum /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/admin/activity" element={<RoleProtectedRoute allowedRoles={["admin"]}><DashboardLayout><AdminActivityLog /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/admin/subject-allocation" element={<RoleProtectedRoute allowedRoles={["admin"]}><DashboardLayout><AdminSubjectAllocation /></DashboardLayout></RoleProtectedRoute>} />
 
             <Route path="*" element={<Layout><NotFound /></Layout>} />
           </Routes>

@@ -83,7 +83,7 @@ const DashboardCurriculum = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pt-12 lg:pt-0">
       <div>
         <h1 className="text-2xl font-serif font-bold text-foreground">My Curriculum</h1>
         <p className="text-muted-foreground">Access your semester-wise curriculum and learning materials.</p>
