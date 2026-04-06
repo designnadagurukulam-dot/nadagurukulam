@@ -48,9 +48,13 @@ import AdminEvents from "./pages/admin/AdminEvents";
 import AdminCurriculum from "./pages/admin/AdminCurriculum";
 import AdminActivityLog from "./pages/admin/AdminActivityLog";
 import DashboardCurriculum from "./pages/dashboard/DashboardCurriculum";
+import DashboardClassLog from "./pages/dashboard/DashboardClassLog";
+import DashboardProjects from "./pages/dashboard/DashboardProjects";
 import Curriculum from "./pages/Curriculum";
 import NotFound from "./pages/NotFound";
 import ProgramDetail from "./pages/ProgramDetail";
+import AdminSchedule from "./pages/admin/AdminSchedule";
+import InstructorClassLog from "./pages/instructor/InstructorClassLog";
 
 const queryClient = new QueryClient();
 
@@ -92,6 +96,8 @@ const App = () => (
             <Route path="/dashboard/assignments" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardAssignments /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/schedule" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardSchedule /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/certificates" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardCertificates /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/class-log" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardClassLog /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/projects" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardProjects /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/curriculum" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardCurriculum /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/profile" element={<ProtectedRoute><DashboardLayout><DashboardProfile /></DashboardLayout></ProtectedRoute>} />
 
@@ -102,6 +108,8 @@ const App = () => (
             <Route path="/dashboard/instructor/assignments" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><InstructorAssignments /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/instructor/students" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><InstructorStudents /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/instructor/analytics" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><InstructorAnalytics /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/instructor/class-log" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><InstructorClassLog /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/instructor/schedule" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><DashboardSchedule /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/instructor/curriculum" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><AdminCurriculum /></DashboardLayout></RoleProtectedRoute>} />
 
             {/* Admin Dashboard */}
@@ -111,6 +119,7 @@ const App = () => (
             <Route path="/dashboard/admin/courses" element={<RoleProtectedRoute allowedRoles={["admin"]}><DashboardLayout><AdminCourses /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/admin/students" element={<RoleProtectedRoute allowedRoles={["admin"]}><DashboardLayout><AdminStudents /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/admin/categories" element={<RoleProtectedRoute allowedRoles={["admin"]}><DashboardLayout><AdminCategories /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/admin/schedule" element={<RoleProtectedRoute allowedRoles={["admin"]}><DashboardLayout><AdminSchedule /></DashboardLayout></RoleProtectedRoute>} />
             
             <Route path="/dashboard/admin/analytics" element={<RoleProtectedRoute allowedRoles={["admin"]}><DashboardLayout><AdminAnalytics /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/admin/jobs" element={<RoleProtectedRoute allowedRoles={["admin"]}><DashboardLayout><AdminJobs /></DashboardLayout></RoleProtectedRoute>} />
