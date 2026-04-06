@@ -13,9 +13,9 @@ const AdminOverview = () => {
 
   useEffect(() => {
     const fetchStats = async () => {
-      const [coursesRes, studentsRes, pendingRes, ordersRes, recentRes] = await Promise.all([
+      const [coursesRes, studentRolesRes, pendingRes, ordersRes, recentRes] = await Promise.all([
         supabase.from("courses").select("id", { count: "exact", head: true }),
-        supabase.from("profiles").select("id", { count: "exact", head: true }),
+        supabase.from("user_roles").select("id", { count: "exact", head: true }).eq("role", "student"),
         supabase.from("content_reviews").select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("orders").select("amount").eq("status", "completed"),
         supabase.from("courses").select("*").order("created_at", { ascending: false }).limit(5),
@@ -24,7 +24,7 @@ const AdminOverview = () => {
       const revenue = (ordersRes.data || []).reduce((sum, o) => sum + Number(o.amount), 0);
       setStats({
         courses: coursesRes.count || 0,
-        students: studentsRes.count || 0,
+        students: studentRolesRes.count || 0,
         pending: pendingRes.count || 0,
         revenue,
       });
@@ -50,7 +50,7 @@ const AdminOverview = () => {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 pt-12 lg:pt-0">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="font-serif text-3xl text-foreground">Admin Dashboard</h1>
         <p className="text-muted-foreground mt-1">Platform overview and management</p>

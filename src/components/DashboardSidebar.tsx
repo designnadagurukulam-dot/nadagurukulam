@@ -21,7 +21,7 @@ const studentNav = [
 ];
 
 const instructorNav = [
-  { label: "Overview", to: "/dashboard", icon: LayoutDashboard },
+  { label: "Overview", to: "/dashboard/instructor", icon: LayoutDashboard },
   { label: "My Courses", to: "/dashboard/instructor/courses", icon: BookOpen },
   { label: "Curriculum", to: "/dashboard/instructor/curriculum", icon: GraduationCap },
   { label: "Create Course", to: "/dashboard/instructor/create", icon: PlusCircle },
@@ -44,6 +44,7 @@ const adminNav = [
   { label: "Categories", to: "/dashboard/admin/categories", icon: Tag },
   { label: "Jobs & Volunteers", to: "/dashboard/admin/jobs", icon: Briefcase },
   { label: "Events", to: "/dashboard/admin/events", icon: CalendarDays },
+  { label: "Subject Allocation", to: "/dashboard/admin/subject-allocation", icon: BookCheck },
   { label: "Activity Log", to: "/dashboard/admin/activity", icon: Activity },
   { label: "Analytics", to: "/dashboard/admin/analytics", icon: BarChart3 },
 ];
@@ -73,7 +74,7 @@ const DashboardSidebar = () => {
   }, [mobileOpen]);
 
   const isActive = (path: string) =>
-    path === "/dashboard" || path === "/dashboard/admin"
+    path === "/dashboard" || path === "/dashboard/admin" || path === "/dashboard/instructor"
       ? location.pathname === path
       : location.pathname.startsWith(path);
 

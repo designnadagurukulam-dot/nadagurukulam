@@ -51,6 +51,15 @@ const actionColors: Record<string, string> = {
   "students.exported": "bg-muted text-muted-foreground",
   "curriculum.section_added": "bg-blue-100 text-blue-700",
   "curriculum.section_deleted": "bg-destructive/10 text-destructive",
+  "schedule.created": "bg-blue-100 text-blue-700",
+  "schedule.deleted": "bg-destructive/10 text-destructive",
+  "class_log.created": "bg-blue-100 text-blue-700",
+  "class_log.confirmed": "bg-green-100 text-green-700",
+  "project.created": "bg-blue-100 text-blue-700",
+  "project.deleted": "bg-destructive/10 text-destructive",
+  "certificate.uploaded": "bg-green-100 text-green-700",
+  "allocation.created": "bg-blue-100 text-blue-700",
+  "allocation.deleted": "bg-destructive/10 text-destructive",
 };
 
 const AdminActivityLog = () => {
@@ -112,7 +121,7 @@ const AdminActivityLog = () => {
   const totalPages = Math.ceil((data?.total || 0) / PAGE_SIZE);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pt-12 lg:pt-0">
       <div>
         <h1 className="text-2xl font-serif font-bold text-foreground flex items-center gap-2">
           <Activity className="h-6 w-6" /> Activity Log

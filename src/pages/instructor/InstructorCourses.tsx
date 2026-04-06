@@ -35,7 +35,7 @@ const InstructorCourses = () => {
   }, [user]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pt-12 lg:pt-0">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between">
         <div>
           <h1 className="font-serif text-3xl text-foreground">My Courses</h1>

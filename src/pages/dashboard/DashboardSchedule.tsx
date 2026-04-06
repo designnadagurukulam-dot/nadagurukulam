@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 
+type UserRole = "admin" | "student" | "instructor";
+
 interface ScheduleItem {
   id: string;
   event_title: string;
@@ -22,24 +24,31 @@ const typeColors: Record<string, string> = {
 };
 
 const DashboardSchedule = () => {
-  const { user } = useAuth();
+  const { user, role } = useAuth();
   const [schedule, setSchedule] = useState<ScheduleItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!user) return;
-    const fetch = async () => {
-      const { data } = await supabase
+    const fetchSchedule = async () => {
+      let query = supabase
         .from("schedules")
         .select("id, event_title, start_time, end_time, event_type")
-        .eq("user_id", user.id)
         .gte("start_time", new Date().toISOString())
         .order("start_time", { ascending: true });
+
+      if ((role as UserRole) === "instructor") {
+        query = query.or(`user_id.eq.${user.id},instructor_id.eq.${user.id}`);
+      } else {
+        query = query.eq("user_id", user.id);
+      }
+
+      const { data } = await query;
       setSchedule((data as ScheduleItem[]) || []);
       setLoading(false);
     };
-    fetch();
-  }, [user]);
+    fetchSchedule();
+  }, [user, role]);
 
   if (loading) {
     return (

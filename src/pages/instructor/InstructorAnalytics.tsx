@@ -76,7 +76,7 @@ const InstructorAnalytics = () => {
   ];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 pt-12 lg:pt-0">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="font-serif text-3xl text-foreground">My Analytics</h1>
         <p className="text-muted-foreground mt-1">Track your course performance</p>
