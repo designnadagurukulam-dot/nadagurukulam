@@ -1,180 +1,108 @@
 
 
-## Nada Gurukulam — Document Requirements vs Current State & Implementation Plan
+## Complete LMS Audit & Fix Plan
 
-### Document Summary
+### Issues Found
 
-The uploaded document outlines a comprehensive student management and curriculum tracking system. Below is a gap analysis comparing what's requested vs what's already built, followed by the implementation plan.
+**Critical Bugs:**
+1. **Instructor sidebar "Overview" links to `/dashboard`** — a student-only route. Instructors get redirected away. No instructor overview page exists.
+2. **Student DashboardOverview links to `/catalog`** — route doesn't exist. Should be `/courses`.
+3. **AdminSchedule requires selecting individual students** — impractical for class-wide scheduling. Should support "All Students" or course-based assignment.
+4. **DashboardSchedule only queries `user_id = current user`** — instructors viewing their schedule at `/dashboard/instructor/schedule` won't see entries where they're the `instructor_id` but not the `user_id`.
+5. **Profile page doesn't show role-specific fields** — employee_id, roll_number, designation, course_name, year_of_commencement are stored but never displayed or editable.
+6. **Missing Subject Allocation admin page** — table exists, no UI built yet.
+
+**UI/UX Issues:**
+7. **InstructorCourses page missing `pt-12 lg:pt-0`** top padding for mobile (sidebar toggle overlap).
+8. **InstructorStudents page** same missing top padding.
+9. **InstructorAnalytics** same missing top padding.
+10. **AdminOverview** same missing top padding.
+11. **AdminApprovals** same missing top padding.
+12. **AdminActivityLog** same missing top padding.
+13. **DashboardCurriculum** same missing top padding.
+14. **AdminSchedule** same missing top padding.
+15. **InstructorClassLog** same missing top padding.
+
+**Data Integrity Issues:**
+16. **DashboardSchedule for instructors** — should query by `instructor_id` OR `user_id` depending on role.
+17. **Class log visibility** — students see ALL class logs (no filtering by enrolled courses works because RLS depends on `schedule_id` join, but class logs may have `schedule_id = null`). Students could see unrelated logs.
+18. **Certificate upload** doesn't associate with a course — just uploads to storage with no database record linking it.
+19. **Admin overview "Total Students" counts all profiles** including admins/instructors — should filter by student role.
 
 ---
 
-### What's Already Built (No Changes Needed)
+### Implementation Plan
 
-| Requirement | Status |
+#### Step 1: Fix routing & navigation bugs
+- **DashboardSidebar**: Change instructor "Overview" link from `/dashboard` to `/dashboard/instructor`
+- **App.tsx**: Add route `/dashboard/instructor` pointing to a new `InstructorOverview` component
+- **DashboardOverview**: Fix `/catalog` links → `/courses`
+- Create `src/pages/instructor/InstructorOverview.tsx` — quick stats (my courses, my students, pending class logs, upcoming schedule)
+
+#### Step 2: Fix mobile padding on all dashboard pages
+Add `pt-12 lg:pt-0` to the root container of these 9 pages:
+- InstructorCourses, InstructorStudents, InstructorAnalytics, InstructorClassLog
+- AdminOverview, AdminApprovals, AdminActivityLog, AdminSchedule
+- DashboardCurriculum
+
+#### Step 3: Fix DashboardSchedule for instructor role
+- Query schedules where `instructor_id = user.id` OR `user_id = user.id` using `.or()` filter
+- This ensures instructors see classes assigned to them
+
+#### Step 4: Fix AdminSchedule — bulk student assignment
+- Replace single student dropdown with multi-select or "All enrolled students" option
+- When "All enrolled students" is selected and a course is chosen, create schedule entries for every student enrolled in that course
+- This makes timetable management practical
+
+#### Step 5: Enhance Profile page with role-specific fields
+- Show and allow editing of: employee_id, designation (for instructors), roll_number, course_name, year_of_commencement (for students), department (for admins)
+- Use `useAuth` role to conditionally render fields
+
+#### Step 6: Build Admin Subject Allocation page
+- Create `src/pages/admin/AdminSubjectAllocation.tsx`
+- UI: Select instructor → Select curriculum module → Assign
+- List existing allocations with delete option
+- Add route + sidebar nav item
+
+#### Step 7: Fix class log student visibility
+- Class logs with `schedule_id = null` bypass the RLS join-based filter
+- Fix: InstructorClassLog should require selecting a schedule or at minimum ensure the class log is associated properly
+- DashboardClassLog: add client-side filter to only show logs from instructors who teach the student's enrolled courses (via subject_allocations)
+
+#### Step 8: Fix AdminOverview stats accuracy
+- "Total Students" should count only users with student role, not all profiles
+- Add counts for instructors and admins separately
+
+#### Step 9: Add missing activity log action colors
+- `schedule.created`, `schedule.deleted`, `class_log.created`, `class_log.confirmed`, `project.created`, `project.deleted`, `certificate.uploaded`, `profile.updated` — add to actionColors map
+
+---
+
+### Files to Create
+| File | Purpose |
 |---|---|
-| Student signup with name, email, password | Done |
-| Educator signup with name, email, password | Done |
-| Admin created by Super Admin (role management) | Done — AdminStudents role change |
-| Course data entry (name, subject, units, topics, hours) | Done — curriculum_modules + curriculum_sections |
-| Super Admin approval before publishing | Done — content_reviews workflow |
-| Assignments by educator (name, description, course, due date, PDF upload) | Done — InstructorAssignments |
-| Student assignment submission + status tracking | Done — DashboardAssignments |
-| Certificates page for students | Done (hardcoded demo) |
-| Educator analytics (syllabus completion, student counts) | Done — InstructorAnalytics |
-| Activity tracking / audit log | Done — AdminActivityLog |
-| Curriculum view for students (semester-based) | Done — DashboardCurriculum |
+| `src/pages/instructor/InstructorOverview.tsx` | Instructor dashboard home |
+| `src/pages/admin/AdminSubjectAllocation.tsx` | Subject-teacher allocation UI |
 
----
-
-### What's Missing — Gaps to Fill
-
-#### Phase 1: Registration Form Enhancements (High Priority)
-
-**1. Educator Registration — add missing fields**
-- Contact number
-- Employee ID
-- Designation
-
-**2. Student Registration — add missing fields**
-- Contact number
-- Roll No / Registration No
-- Course selection (dropdown from database courses)
-- Year of course commencement
-
-**3. Admin creation — add missing fields**
-- Designation
-- Department
-
-**Database**: Add columns to `profiles` table: `employee_id`, `designation`, `department`, `roll_number`, `course_name`, `year_of_commencement`
-
----
-
-#### Phase 2: Timetable & Schedule System (High Priority)
-
-**4. Dynamic Timetable Management by Admin**
-
-Currently the schedule page is hardcoded demo data. Need:
-- Admin can create/edit schedule entries with flexible start/end times per class
-- Class duration flexibility (45min, 1hr, or more)
-- Fixed institutional timings reference (8:15 AM start, 12:15 PM lunch, 1:30 PM afternoon, 4:00 PM end)
-- Assign educator and course/subject to each slot
-- Auto-reflect in both educator and student schedule pages
-
-The `schedules` table already exists with `start_time`, `end_time`, `event_title`, `course_id`, `user_id`. Need to:
-- Add admin UI for creating timetable entries
-- Add `instructor_id` column to schedules table so educators see their own schedule
-- Connect student `DashboardSchedule` to real data
-- Add schedule view to instructor sidebar
-
----
-
-#### Phase 3: Class Completion Tracking (High Priority — Core Doc Requirement)
-
-**5. Daily Class Update System**
-
-The document's most critical requirement: after each class, the educator must log what topic was covered. Students confirm it. Both get analytics updated.
-
-- New table: `class_logs` — `id`, `schedule_id`, `instructor_id`, `topic_covered` (from curriculum), `date`, `notes`, `status` (pending_confirmation / confirmed)
-- New table: `class_log_confirmations` — student confirmations per class log
-- Educator: after class, selects topic from their assigned curriculum → submits
-- Student: sees pending confirmations → confirms what was taught
-- Analytics: syllabus completion % derived from confirmed class logs vs total topics
-- Mismatch detection: if student doesn't confirm, admin sees the gap
-
----
-
-#### Phase 4: Student Dashboard Fixes (Medium Priority)
-
-**6. My Courses — connect to real data**
-
-Currently uses hardcoded demo array. Need to:
-- Fetch from `enrollments` + `courses` tables
-- Show subjects for current semester
-- Show completion status, instructor, remaining hours
-
-**7. Schedule — connect to real data**
-
-Currently hardcoded. Connect to `schedules` table filtered by student's enrolled courses.
-
-**8. Certificates — connect to real data + upload**
-
-Currently hardcoded. Need:
-- Fetch from `certificates` table
-- Allow students to upload external certificates (scan/upload feature)
-- Storage bucket for certificate uploads
-
----
-
-#### Phase 5: Student Projects/Presentations (Low Priority)
-
-**9. New "Projects" page for students**
-
-- New table: `student_projects` — `id`, `student_id`, `title`, `description`, `subject`, `file_url`, `created_at`
-- Students can create personal projects/presentations beyond assignments
-- Visible to educators and admin
-
----
-
-#### Phase 6: Subject-Teacher Allocation (Medium Priority)
-
-**10. Subject allocation to educators by admin**
-
-- New table: `subject_allocations` — `id`, `instructor_id`, `curriculum_module_id`, `semester`, `academic_year`
-- Admin assigns subjects to specific educators
-- Educators only see topics from their assigned subjects when logging class completion
-- Students see which educator teaches each subject
-
----
-
-### Implementation Order
-
-```text
-Step 1 → DB Migration: Add profile fields + class_logs + 
-         class_log_confirmations + student_projects + 
-         subject_allocations tables + instructor_id to schedules
-
-Step 2 → Registration forms: Add new fields to student 
-         and educator signup
-
-Step 3 → Admin timetable: Build schedule creation UI 
-         for admin, connect student/educator schedule 
-         pages to real data
-
-Step 4 → Class completion tracking: Educator topic 
-         logging + student confirmation + analytics
-
-Step 5 → Student dashboard: Connect My Courses, 
-         Schedule, Certificates to real DB data
-
-Step 6 → Student projects page: New page + CRUD
-
-Step 7 → Subject allocation: Admin assigns subjects 
-         to educators
-```
-
-### Files to Create/Edit
-
-| Action | File |
+### Files to Edit
+| File | Changes |
 |---|---|
-| **DB Migration** | New migration — 6 profile columns, 3 new tables, 1 altered table |
-| Edit | `src/pages/Register.tsx` — add role-specific fields |
-| Edit | `src/pages/dashboard/DashboardCourses.tsx` — replace hardcoded with real data |
-| Edit | `src/pages/dashboard/DashboardSchedule.tsx` — replace hardcoded with real data |
-| Edit | `src/pages/dashboard/DashboardCertificates.tsx` — real data + upload |
-| Create | `src/pages/dashboard/DashboardProjects.tsx` — student projects CRUD |
-| Create | `src/pages/admin/AdminSchedule.tsx` — timetable management |
-| Create | `src/pages/instructor/InstructorClassLog.tsx` — daily class update |
-| Create | `src/pages/dashboard/DashboardClassLog.tsx` — student confirmation |
-| Edit | `src/components/DashboardSidebar.tsx` — add new nav items |
-| Edit | `src/App.tsx` — add new routes |
-| Edit | `src/pages/admin/AdminStudents.tsx` — subject allocation UI |
-| Edit | `src/pages/instructor/InstructorAnalytics.tsx` — syllabus completion from class logs |
+| `src/components/DashboardSidebar.tsx` | Fix instructor Overview link, add Subject Allocation to admin nav |
+| `src/App.tsx` | Add instructor overview + subject allocation routes |
+| `src/pages/dashboard/DashboardOverview.tsx` | Fix `/catalog` → `/courses` |
+| `src/pages/dashboard/DashboardSchedule.tsx` | Query by instructor_id for instructor role |
+| `src/pages/dashboard/DashboardProfile.tsx` | Add role-specific profile fields |
+| `src/pages/dashboard/DashboardClassLog.tsx` | Add instructor name, better filtering |
+| `src/pages/dashboard/DashboardCurriculum.tsx` | Add top padding |
+| `src/pages/admin/AdminOverview.tsx` | Fix stats, add top padding |
+| `src/pages/admin/AdminSchedule.tsx` | Bulk student assignment, add top padding |
+| `src/pages/admin/AdminApprovals.tsx` | Add top padding |
+| `src/pages/admin/AdminActivityLog.tsx` | Add missing action colors, add top padding |
+| `src/pages/instructor/InstructorCourses.tsx` | Add top padding |
+| `src/pages/instructor/InstructorStudents.tsx` | Add top padding |
+| `src/pages/instructor/InstructorAnalytics.tsx` | Add top padding |
+| `src/pages/instructor/InstructorClassLog.tsx` | Add top padding |
 
-### Technical Notes
-
-- All new tables will have proper RLS policies
-- Class log system uses curriculum topics as the source of truth for syllabus tracking
-- Certificate upload uses a new `student-certificates` storage bucket
-- Registration fields stored in profiles (not auth.users) for easy querying
-- The document mentions temp passwords + OTP — this requires custom auth flow and will be noted as a future enhancement
+### No database changes needed
+All tables and columns already exist.
 
