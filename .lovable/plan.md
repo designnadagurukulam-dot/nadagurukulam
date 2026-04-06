@@ -1,59 +1,180 @@
 
 
-## Complete Activity Tracking — Gap Analysis & Implementation Plan
+## Nada Gurukulam — Document Requirements vs Current State & Implementation Plan
 
-### Currently Tracked (14 files instrumented)
-- **Auth**: login, logout, signup
-- **Courses**: course.created, course.submitted, course.approved, course.rejected
-- **Curriculum**: section_added, section_deleted, sections_added (from Create Course)
-- **Assignments**: assignment.created, assignment.graded, assignment.submitted
-- **Enrollment**: enrollment.created
-- **Lessons**: lesson.completed
-- **Profile**: profile.updated
-- **Admin CRUD**: event.created/updated/deleted, category.created/updated/deleted, coupon.created/deleted, job.created/updated/deleted
+### Document Summary
 
-### Missing — Activities NOT Currently Tracked
+The uploaded document outlines a comprehensive student management and curriculum tracking system. Below is a gap analysis comparing what's requested vs what's already built, followed by the implementation plan.
 
-| # | Activity | File | Action Key |
-|---|----------|------|------------|
-| 1 | Admin deletes a course | `AdminCourses.tsx` | `course.deleted` |
-| 2 | Admin changes user role | `AdminStudents.tsx` | `role.changed` |
-| 3 | Coupon toggled active/inactive | `AdminCoupons.tsx` | `coupon.toggled` |
-| 4 | Job toggled active/inactive | `AdminJobs.tsx` | `job.toggled` |
-| 5 | Volunteer app status updated | `AdminJobs.tsx` | `volunteer.status_updated` |
-| 6 | Inquiry status updated | `AdminInquiries.tsx` | `inquiry.status_updated` |
-| 7 | Inquiry deleted | `AdminInquiries.tsx` | `inquiry.deleted` |
-| 8 | Volunteer application submitted (public) | `Contact.tsx` | `volunteer.submitted` |
-| 9 | Program inquiry submitted (public) | `InquiryFormDialog.tsx` | `inquiry.submitted` |
-| 10 | Instructor deletes assignment | `InstructorAssignments.tsx` | `assignment.deleted` |
-| 11 | Student exports data (PDF/Excel) | `AdminStudents.tsx` | `students.exported` |
-| 12 | Curriculum module added (from admin) | `AdminCurriculum.tsx` | `curriculum.module_added` |
-| 13 | Event toggled active/inactive | `AdminEvents.tsx` | `event.toggled` |
+---
 
-### Implementation Plan
+### What's Already Built (No Changes Needed)
 
-**Files to edit** (add `import { logActivity }` where missing, then add one-line `logActivity(...)` calls after each successful mutation):
+| Requirement | Status |
+|---|---|
+| Student signup with name, email, password | Done |
+| Educator signup with name, email, password | Done |
+| Admin created by Super Admin (role management) | Done — AdminStudents role change |
+| Course data entry (name, subject, units, topics, hours) | Done — curriculum_modules + curriculum_sections |
+| Super Admin approval before publishing | Done — content_reviews workflow |
+| Assignments by educator (name, description, course, due date, PDF upload) | Done — InstructorAssignments |
+| Student assignment submission + status tracking | Done — DashboardAssignments |
+| Certificates page for students | Done (hardcoded demo) |
+| Educator analytics (syllabus completion, student counts) | Done — InstructorAnalytics |
+| Activity tracking / audit log | Done — AdminActivityLog |
+| Curriculum view for students (semester-based) | Done — DashboardCurriculum |
 
-1. **`src/pages/admin/AdminCourses.tsx`** — Add logActivity import; add `logActivity("course.deleted", "course", id)` after delete succeeds.
+---
 
-2. **`src/pages/admin/AdminStudents.tsx`** — Add logActivity import; add `logActivity("role.changed", "user_role", userId, { newRole, previousRole })` after role update succeeds.
+### What's Missing — Gaps to Fill
 
-3. **`src/pages/admin/AdminCoupons.tsx`** — Add `logActivity("coupon.toggled", "coupon", coupon.id, { is_active: !coupon.is_active })` in `toggleActive`.
+#### Phase 1: Registration Form Enhancements (High Priority)
 
-4. **`src/pages/admin/AdminJobs.tsx`** — Add `logActivity("job.toggled", ...)` in toggle onSuccess; add `logActivity("volunteer.status_updated", ...)` in updateVolStatus onSuccess.
+**1. Educator Registration — add missing fields**
+- Contact number
+- Employee ID
+- Designation
 
-5. **`src/pages/admin/AdminInquiries.tsx`** — Add logActivity import; add logs for inquiry status update and inquiry delete.
+**2. Student Registration — add missing fields**
+- Contact number
+- Roll No / Registration No
+- Course selection (dropdown from database courses)
+- Year of course commencement
 
-6. **`src/pages/Contact.tsx`** — Add `logActivity("volunteer.submitted", ...)` in volunteer mutation onSuccess (note: this is public/unauthenticated — logActivity will silently fail if no user, which is fine; skip if undesirable).
+**3. Admin creation — add missing fields**
+- Designation
+- Department
 
-7. **`src/pages/instructor/InstructorAssignments.tsx`** — Check if assignment delete is tracked; add if missing.
+**Database**: Add columns to `profiles` table: `employee_id`, `designation`, `department`, `roll_number`, `course_name`, `year_of_commencement`
 
-8. **`src/pages/admin/AdminActivityLog.tsx`** — Add the new action keys to `actionColors` map so they render with proper badge colors.
+---
 
-### Summary of Changes
+#### Phase 2: Timetable & Schedule System (High Priority)
 
-- **7 files edited** with simple one-line `logActivity()` additions
-- **1 file updated** (AdminActivityLog) for display colors
-- No database changes needed — the `activity_logs` table already supports all these entries
-- All logging remains fire-and-forget; failures never block UI
+**4. Dynamic Timetable Management by Admin**
+
+Currently the schedule page is hardcoded demo data. Need:
+- Admin can create/edit schedule entries with flexible start/end times per class
+- Class duration flexibility (45min, 1hr, or more)
+- Fixed institutional timings reference (8:15 AM start, 12:15 PM lunch, 1:30 PM afternoon, 4:00 PM end)
+- Assign educator and course/subject to each slot
+- Auto-reflect in both educator and student schedule pages
+
+The `schedules` table already exists with `start_time`, `end_time`, `event_title`, `course_id`, `user_id`. Need to:
+- Add admin UI for creating timetable entries
+- Add `instructor_id` column to schedules table so educators see their own schedule
+- Connect student `DashboardSchedule` to real data
+- Add schedule view to instructor sidebar
+
+---
+
+#### Phase 3: Class Completion Tracking (High Priority — Core Doc Requirement)
+
+**5. Daily Class Update System**
+
+The document's most critical requirement: after each class, the educator must log what topic was covered. Students confirm it. Both get analytics updated.
+
+- New table: `class_logs` — `id`, `schedule_id`, `instructor_id`, `topic_covered` (from curriculum), `date`, `notes`, `status` (pending_confirmation / confirmed)
+- New table: `class_log_confirmations` — student confirmations per class log
+- Educator: after class, selects topic from their assigned curriculum → submits
+- Student: sees pending confirmations → confirms what was taught
+- Analytics: syllabus completion % derived from confirmed class logs vs total topics
+- Mismatch detection: if student doesn't confirm, admin sees the gap
+
+---
+
+#### Phase 4: Student Dashboard Fixes (Medium Priority)
+
+**6. My Courses — connect to real data**
+
+Currently uses hardcoded demo array. Need to:
+- Fetch from `enrollments` + `courses` tables
+- Show subjects for current semester
+- Show completion status, instructor, remaining hours
+
+**7. Schedule — connect to real data**
+
+Currently hardcoded. Connect to `schedules` table filtered by student's enrolled courses.
+
+**8. Certificates — connect to real data + upload**
+
+Currently hardcoded. Need:
+- Fetch from `certificates` table
+- Allow students to upload external certificates (scan/upload feature)
+- Storage bucket for certificate uploads
+
+---
+
+#### Phase 5: Student Projects/Presentations (Low Priority)
+
+**9. New "Projects" page for students**
+
+- New table: `student_projects` — `id`, `student_id`, `title`, `description`, `subject`, `file_url`, `created_at`
+- Students can create personal projects/presentations beyond assignments
+- Visible to educators and admin
+
+---
+
+#### Phase 6: Subject-Teacher Allocation (Medium Priority)
+
+**10. Subject allocation to educators by admin**
+
+- New table: `subject_allocations` — `id`, `instructor_id`, `curriculum_module_id`, `semester`, `academic_year`
+- Admin assigns subjects to specific educators
+- Educators only see topics from their assigned subjects when logging class completion
+- Students see which educator teaches each subject
+
+---
+
+### Implementation Order
+
+```text
+Step 1 → DB Migration: Add profile fields + class_logs + 
+         class_log_confirmations + student_projects + 
+         subject_allocations tables + instructor_id to schedules
+
+Step 2 → Registration forms: Add new fields to student 
+         and educator signup
+
+Step 3 → Admin timetable: Build schedule creation UI 
+         for admin, connect student/educator schedule 
+         pages to real data
+
+Step 4 → Class completion tracking: Educator topic 
+         logging + student confirmation + analytics
+
+Step 5 → Student dashboard: Connect My Courses, 
+         Schedule, Certificates to real DB data
+
+Step 6 → Student projects page: New page + CRUD
+
+Step 7 → Subject allocation: Admin assigns subjects 
+         to educators
+```
+
+### Files to Create/Edit
+
+| Action | File |
+|---|---|
+| **DB Migration** | New migration — 6 profile columns, 3 new tables, 1 altered table |
+| Edit | `src/pages/Register.tsx` — add role-specific fields |
+| Edit | `src/pages/dashboard/DashboardCourses.tsx` — replace hardcoded with real data |
+| Edit | `src/pages/dashboard/DashboardSchedule.tsx` — replace hardcoded with real data |
+| Edit | `src/pages/dashboard/DashboardCertificates.tsx` — real data + upload |
+| Create | `src/pages/dashboard/DashboardProjects.tsx` — student projects CRUD |
+| Create | `src/pages/admin/AdminSchedule.tsx` — timetable management |
+| Create | `src/pages/instructor/InstructorClassLog.tsx` — daily class update |
+| Create | `src/pages/dashboard/DashboardClassLog.tsx` — student confirmation |
+| Edit | `src/components/DashboardSidebar.tsx` — add new nav items |
+| Edit | `src/App.tsx` — add new routes |
+| Edit | `src/pages/admin/AdminStudents.tsx` — subject allocation UI |
+| Edit | `src/pages/instructor/InstructorAnalytics.tsx` — syllabus completion from class logs |
+
+### Technical Notes
+
+- All new tables will have proper RLS policies
+- Class log system uses curriculum topics as the source of truth for syllabus tracking
+- Certificate upload uses a new `student-certificates` storage bucket
+- Registration fields stored in profiles (not auth.users) for easy querying
+- The document mentions temp passwords + OTP — this requires custom auth flow and will be noted as a future enhancement
 
