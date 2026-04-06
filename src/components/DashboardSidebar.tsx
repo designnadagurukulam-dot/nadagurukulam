@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, BookOpen, ClipboardList, Calendar, Award, User, LogOut,
-  ChevronLeft, ChevronRight, PlusCircle, Settings, Users, BarChart3, CheckSquare, Tag, Ticket, Menu, X, MessageSquare, Briefcase, CalendarDays, GraduationCap, Activity
+  ChevronLeft, ChevronRight, PlusCircle, Settings, Users, BarChart3, CheckSquare, Tag, Ticket, Menu, X, MessageSquare, Briefcase, CalendarDays, GraduationCap, Activity, BookCheck, FolderOpen
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
@@ -14,6 +14,8 @@ const studentNav = [
   { label: "Curriculum", to: "/dashboard/curriculum", icon: GraduationCap },
   { label: "Assignments", to: "/dashboard/assignments", icon: ClipboardList },
   { label: "Schedule", to: "/dashboard/schedule", icon: Calendar },
+  { label: "Class Log", to: "/dashboard/class-log", icon: BookCheck },
+  { label: "Projects", to: "/dashboard/projects", icon: FolderOpen },
   { label: "Certificates", to: "/dashboard/certificates", icon: Award },
   { label: "Profile", to: "/dashboard/profile", icon: User },
 ];
@@ -24,6 +26,8 @@ const instructorNav = [
   { label: "Curriculum", to: "/dashboard/instructor/curriculum", icon: GraduationCap },
   { label: "Create Course", to: "/dashboard/instructor/create", icon: PlusCircle },
   { label: "Assignments", to: "/dashboard/instructor/assignments", icon: ClipboardList },
+  { label: "Class Log", to: "/dashboard/instructor/class-log", icon: BookCheck },
+  { label: "Schedule", to: "/dashboard/instructor/schedule", icon: Calendar },
   { label: "My Students", to: "/dashboard/instructor/students", icon: Users },
   { label: "Analytics", to: "/dashboard/instructor/analytics", icon: BarChart3 },
   { label: "Profile", to: "/dashboard/profile", icon: User },
@@ -36,8 +40,8 @@ const adminNav = [
   { label: "Course Approvals", to: "/dashboard/admin/approvals", icon: CheckSquare },
   { label: "All Courses", to: "/dashboard/admin/courses", icon: BookOpen },
   { label: "Students", to: "/dashboard/admin/students", icon: Users },
+  { label: "Timetable", to: "/dashboard/admin/schedule", icon: Calendar },
   { label: "Categories", to: "/dashboard/admin/categories", icon: Tag },
-  
   { label: "Jobs & Volunteers", to: "/dashboard/admin/jobs", icon: Briefcase },
   { label: "Events", to: "/dashboard/admin/events", icon: CalendarDays },
   { label: "Activity Log", to: "/dashboard/admin/activity", icon: Activity },
