@@ -1,17 +1,17 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
 import { logActivity } from "@/lib/activityLogger";
 
-type UserRole = "admin" | "student" | "instructor";
+type UserRole = "super_admin" | "admin" | "student" | "instructor";
 
 interface AuthContextType {
   session: Session | null;
   user: User | null;
   role: UserRole | null;
-  profile: { display_name: string | null; avatar_url: string | null; phone: string | null; bio: string | null } | null;
+  profile: { display_name: string | null; avatar_url: string | null; phone: string | null; bio: string | null; is_verified: boolean } | null;
   loading: boolean;
+  isVerified: boolean;
   signUp: (email: string, password: string, displayName: string, role?: string) => Promise<{ error: string | null }>;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
@@ -29,10 +29,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const fetchUserData = async (userId: string) => {
     const [{ data: roles }, { data: prof }] = await Promise.all([
       supabase.from("user_roles").select("role").eq("user_id", userId),
-      supabase.from("profiles").select("display_name, avatar_url, phone, bio").eq("user_id", userId).single(),
+      supabase.from("profiles").select("display_name, avatar_url, phone, bio, is_verified").eq("user_id", userId).single(),
     ]);
     if (roles && roles.length > 0) setRole(roles[0].role as UserRole);
-    if (prof) setProfile(prof);
+    if (prof) setProfile(prof as AuthContextType["profile"]);
   };
 
   useEffect(() => {
@@ -79,15 +79,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signOut = async () => {
-    // Log logout BEFORE destroying the session, and await it
     await logActivity("logout", "auth");
     await supabase.auth.signOut();
     setRole(null);
     setProfile(null);
   };
 
+  const isVerified = profile?.is_verified ?? false;
+
   return (
-    <AuthContext.Provider value={{ session, user, role, profile, loading, signUp, signIn, signOut }}>
+    <AuthContext.Provider value={{ session, user, role, profile, loading, isVerified, signUp, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );
