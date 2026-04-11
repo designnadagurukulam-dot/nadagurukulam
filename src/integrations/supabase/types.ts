@@ -873,6 +873,7 @@ export type Database = {
           employee_id: string | null
           enrollment_id: string | null
           id: string
+          is_verified: boolean
           phone: string | null
           roll_number: string | null
           updated_at: string
@@ -890,6 +891,7 @@ export type Database = {
           employee_id?: string | null
           enrollment_id?: string | null
           id?: string
+          is_verified?: boolean
           phone?: string | null
           roll_number?: string | null
           updated_at?: string
@@ -907,6 +909,7 @@ export type Database = {
           employee_id?: string | null
           enrollment_id?: string | null
           id?: string
+          is_verified?: boolean
           phone?: string | null
           roll_number?: string | null
           updated_at?: string
@@ -1138,9 +1141,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_super_or_admin: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      app_role: "admin" | "student" | "instructor"
+      app_role: "admin" | "student" | "instructor" | "super_admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1268,7 +1272,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "student", "instructor"],
+      app_role: ["admin", "student", "instructor", "super_admin"],
     },
   },
 } as const
