@@ -33,6 +33,8 @@ const instructorNav = [
   { label: "Profile", to: "/dashboard/profile", icon: User },
 ];
 
+import { ShieldCheck } from "lucide-react";
+
 const adminNav = [
   { label: "Overview", to: "/dashboard/admin", icon: LayoutDashboard },
   { label: "Inquiries", to: "/dashboard/admin/inquiries", icon: MessageSquare },
@@ -49,6 +51,11 @@ const adminNav = [
   { label: "Analytics", to: "/dashboard/admin/analytics", icon: BarChart3 },
 ];
 
+const superAdminNav = [
+  ...adminNav,
+  { label: "User Verification", to: "/dashboard/admin/verification", icon: ShieldCheck },
+];
+
 const DashboardSidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -56,7 +63,7 @@ const DashboardSidebar = () => {
   const navigate = useNavigate();
   const { signOut, profile, role } = useAuth();
 
-  const navItems = role === "admin" ? adminNav : role === "instructor" ? instructorNav : studentNav;
+  const navItems = role === "super_admin" ? superAdminNav : role === "admin" ? adminNav : role === "instructor" ? instructorNav : studentNav;
 
   // Close mobile sidebar on route change
   useEffect(() => {
@@ -78,7 +85,7 @@ const DashboardSidebar = () => {
       ? location.pathname === path
       : location.pathname.startsWith(path);
 
-  const roleLabel = role === "admin" ? "Admin" : role === "instructor" ? "Instructor" : "Student";
+  const roleLabel = role === "super_admin" ? "Super Admin" : role === "admin" ? "Admin" : role === "instructor" ? "Educator" : "Student";
 
   const initials = profile?.display_name
     ? profile.display_name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase()
