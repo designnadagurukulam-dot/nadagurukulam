@@ -1,127 +1,101 @@
 
 
-## Document Requirements — Status Check & Remaining Plan
+## 4-Role Access Control: Super Admin, Admin, Educator, Student
 
-### COMPLETED (Already Implemented)
+### Current State
+The system has 3 roles via the `app_role` enum: `admin`, `instructor`, `student`. All admin routes use `allowedRoles={["admin"]}`. The `has_role()` security definer function and `handle_new_user()` trigger use this enum.
 
-| # | Requirement | Status |
-|---|---|---|
-| 1 | Single unified login page (not student/educator split) | Done |
-| 2 | Educator signup: name, email, contact, employee ID, designation, password | Done |
-| 3 | Student signup: name, email, roll no, course dropdown, year, password | Done |
-| 4 | Admin created by Super Admin with designation, department | Done |
-| 5 | Course data entry (name, subject, paper code, units, topics, hours) | Done — curriculum_modules + curriculum_sections |
-| 6 | Super Admin approval before publishing | Done — content_reviews workflow |
-| 7 | Subject allocation to educators by admin | Done — AdminSubjectAllocation |
-| 8 | Dynamic timetable by admin with flexible timings | Done — AdminSchedule |
-| 9 | Schedule visible to educators and students | Done — DashboardSchedule |
-| 10 | Educator class log (update topic covered after class) | Done — InstructorClassLog |
-| 11 | Student confirmation of class logs | Done — DashboardClassLog |
-| 12 | Analytics updated based on class logs (syllabus %) | Done — InstructorAnalytics |
-| 13 | Assignments by educator (name, desc, course, due date, PDF) | Done — InstructorAssignments |
-| 14 | Student assignment submission + status tracking | Done — DashboardAssignments |
-| 15 | My Courses showing enrolled subjects from DB | Done — DashboardCourses |
-| 16 | Curriculum (semester-based view) | Done — DashboardCurriculum |
-| 17 | Student Projects/Presentations page | Done — DashboardProjects |
-| 18 | Certificates page with upload capability | Done — DashboardCertificates |
-| 19 | Educator overview page | Done — InstructorOverview |
-| 20 | Activity/audit log | Done — AdminActivityLog |
+### What Needs to Change
 
----
+#### 1. Database Migration — Add `super_admin` role to enum + approval system
 
-### NOT YET IMPLEMENTED (Remaining Work)
+- **Alter the `app_role` enum** to add `'super_admin'` as a new value
+- **Add `is_verified` column to `profiles`** (boolean, default `false`) — new educator/student signups start unverified; Super Admin must approve before they can access dashboards
+- **Update `has_role()` function** — no change needed (it checks exact role match)
+- **Create a helper function `is_super_or_admin()`** — returns true if user has `super_admin` or `admin` role, used in RLS policies
+- **Update all existing RLS policies** that reference `'admin'` to also allow `'super_admin'` (about 30+ policies across all tables)
 
-| # | Requirement from Document | What's Missing |
-|---|---|---|
-| A | **Class log topics filtered by educator's allocated subjects only** | InstructorClassLog fetches ALL curriculum sections instead of filtering by subject_allocations table |
-| B | **Assignment notifications** — students auto-notified when assignment created | No notification system exists |
-| C | **Assignment late/on-time tracking** — educator sees who submitted before/after due date | InstructorAssignments shows submissions but no late vs on-time indicator |
-| D | **Student list upload by admin** (bulk CSV) + auto-fill registration from roll number | Not built |
-| E | **Temp password + forced change on first login** (OTP or magic link) | Not built |
-| F | **Curriculum semester visibility filter** — students see only current + past semesters, not future | DashboardCurriculum shows ALL semesters openly |
-| G | **Student overview — previous day's updates** | DashboardOverview shows stats but not yesterday's class activity |
-| H | **Assignments segregated by subject** in student view | DashboardAssignments shows flat list, not grouped by subject |
-| I | **My Courses: hours remaining, completion status from class logs** | DashboardCourses shows enrollment progress but not hours-based completion derived from class logs |
-| J | **Schedule page doubles as class completion details view** | Document says schedule tab should also show what happened in each class slot — currently separate pages |
+#### 2. Auth & Verification Flow
 
----
+- **Update `handle_new_user()` trigger** — set `is_verified = false` for student/instructor signups. Super Admin and Admin accounts (created manually or by Super Admin) start verified.
+- **Update `ProtectedRoute`** — after login, if `is_verified = false`, redirect to a "Pending Approval" page instead of the dashboard
+- **Create a "Pending Approval" page** — simple message: "Your account is awaiting verification by the administrator"
+- **Super Admin approval UI** in AdminStudents page — show unverified users with an "Approve" button that sets `is_verified = true`
 
-### Implementation Plan for Remaining Items
+#### 3. Frontend Role Type Updates
 
-#### Step 1: Filter class log topics by allocated subjects (Item A)
-- Edit `InstructorClassLog.tsx` — fetch `subject_allocations` for the logged-in instructor, then only show `curriculum_sections` belonging to those allocated modules
-- Small change, high impact on data integrity
+Files to update with the new `UserRole` type (`"super_admin" | "admin" | "instructor" | "student"`):
 
-#### Step 2: Assignment late/on-time tracking (Item C)
-- Edit `InstructorAssignments.tsx` — in the submissions view, compare `submitted_at` with assignment `due_date`
-- Show badges: "On Time" (green) / "Late" (red) / "Not Submitted" (gray)
-- Show counts: X submitted on time, Y submitted late, Z not submitted
+| File | Change |
+|---|---|
+| `src/hooks/useAuth.tsx` | Add `super_admin` to `UserRole` type |
+| `src/components/RoleProtectedRoute.tsx` | Add `super_admin` to type + `getRoleDashboardPath` |
+| `src/components/DashboardSidebar.tsx` | Add `superAdminNav` with full nav (all admin items + user management) |
+| `src/App.tsx` | Update all admin routes to `allowedRoles={["super_admin", "admin"]}`, add super-admin-only routes |
 
-#### Step 3: In-app notification system (Item B)
-- Create `notifications` table: `id`, `user_id`, `type`, `title`, `message`, `read`, `entity_id`, `created_at`
-- Create a notification bell component in the dashboard header
-- When educator creates an assignment, insert notification rows for all enrolled students via a database trigger or client-side batch insert
-- Enable Supabase Realtime on the notifications table
-- **No external service needed — $0 cost**
+#### 4. Super Admin Dashboard — Extra Capabilities
 
-#### Step 4: Student overview with yesterday's updates (Item G)
-- Edit `DashboardOverview.tsx` — add a section showing class logs from the previous day (topic, instructor, confirmation status)
-- Query `class_logs` where `date = yesterday` filtered by student's enrolled courses
+Super Admin gets the same admin dashboard plus:
+- **User Verification tab** — approve/reject new signups (educators and students)
+- **Admin Management** — ability to create/delete admin accounts (admin cannot do this)
+- **Full Activity Log** — can see all actions including admin actions
+- **Role Management** — can change any user's role
 
-#### Step 5: Curriculum semester filter (Item F)
-- Edit `DashboardCurriculum.tsx` — use student's `year_of_commencement` from profile to calculate current semester
-- Show current + past semesters normally, future semesters with a lock icon (greyed out, no content access)
+Admin gets:
+- Everything currently in the admin dashboard
+- Cannot create/delete other admins
+- Cannot change roles
+- Cannot see super admin actions in activity log
 
-#### Step 6: Assignments grouped by subject (Item H)
-- Edit `DashboardAssignments.tsx` — group assignments by course/subject name with collapsible sections
-
-#### Step 7: Bulk student CSV upload (Item D)
-- Create `student_registry` table + RLS
-- Create `AdminStudentUpload.tsx` — CSV upload using Papa Parse, parse and insert into `student_registry`
-- Edit `Register.tsx` — when student enters roll number, auto-fetch from `student_registry` and pre-fill fields
-
-#### Step 8: Admin invite flow (Item E)
-- Instead of temp password + OTP, use Supabase's built-in `inviteUserByEmail` via an edge function
-- Admin creates user → invite email sent → user clicks link and sets password
-- **$0 cost, built-in functionality**
-
-#### Step 9: Enrich My Courses with hours data (Item I)
-- Edit `DashboardCourses.tsx` — calculate completed hours from confirmed `class_logs` vs total `hours` in `curriculum_modules`
-- Show remaining hours and completion percentage per subject
-
-#### Step 10: Schedule + class details combined view (Item J)
-- Edit `DashboardSchedule.tsx` — for past schedule entries, show the associated class log (topic covered, confirmation status) inline
-
----
-
-### External Integrations & Cost
-
-| Service | Purpose | Cost |
-|---|---|---|
-| Papa Parse (npm) | CSV parsing for bulk upload | Free (MIT) |
-| Supabase Realtime | Live notifications | Free (built-in) |
-| Supabase invite flow | User invitations | Free (built-in) |
-| **Total** | | **$0/month** |
-
-No paid external services are required for any remaining items.
-
-### Priority Order
+#### 5. Access Control Matrix
 
 ```text
-High Priority (Core functionality gaps):
-  Step 1 → Class log topic filtering
-  Step 2 → Assignment late/on-time tracking  
-  Step 3 → Notification system
-
-Medium Priority (UX improvements):
-  Step 4 → Student overview with yesterday's updates
-  Step 5 → Curriculum semester filter
-  Step 6 → Assignments grouped by subject
-  Step 9 → My Courses hours enrichment
-  Step 10 → Schedule + class details
-
-Lower Priority (Admin workflows):
-  Step 7 → Bulk student CSV upload
-  Step 8 → Admin invite flow
+Feature                    SuperAdmin  Admin  Educator  Student
+─────────────────────────  ──────────  ─────  ────────  ───────
+Verify new signups         Yes         No     No        No
+Create/delete admins       Yes         No     No        No
+Change user roles          Yes         No     No        No
+Manage courses/curriculum  Yes         Yes    Own only  View
+Manage timetable           Yes         Yes    No        No
+Manage categories/events   Yes         Yes    No        No
+View activity log          Yes         Yes*   No        No
+Approve content            Yes         Yes    No        No
+Subject allocation         Yes         Yes    No        No
+Manage students            Yes         Yes    No        No
+Create assignments         No          No     Yes       No
+Log classes                No          No     Yes       No
+Submit assignments         No          No     No        Yes
 ```
+*Admin sees all except super admin actions
+
+#### 6. Registration — No Change Needed for Role Selection
+
+Students and Educators register as before. Admin and Super Admin accounts are created only by an existing Super Admin through the dashboard (not through self-registration). The first Super Admin must be seeded manually in the database.
+
+### Files to Create
+| File | Purpose |
+|---|---|
+| `src/pages/PendingApproval.tsx` | Shown to unverified users after login |
+| `src/pages/admin/AdminUserVerification.tsx` | Super Admin approves new signups |
+
+### Files to Edit
+| File | Change |
+|---|---|
+| `src/hooks/useAuth.tsx` | Add `super_admin` to UserRole, fetch `is_verified` from profiles |
+| `src/components/RoleProtectedRoute.tsx` | Add `super_admin` routing, check `is_verified` |
+| `src/components/DashboardSidebar.tsx` | Add `superAdminNav`, update role label/logic |
+| `src/App.tsx` | Add `super_admin` to admin route allowedRoles, add verification routes |
+| `src/pages/Register.tsx` | No change (only student/educator self-register) |
+| `src/pages/admin/AdminStudents.tsx` | Add "Create Admin" button for super_admin only |
+| `src/pages/admin/AdminOverview.tsx` | Show verification pending count for super_admin |
+
+### Database Migration
+1. `ALTER TYPE public.app_role ADD VALUE 'super_admin';`
+2. `ALTER TABLE public.profiles ADD COLUMN is_verified boolean NOT NULL DEFAULT false;`
+3. Update `handle_new_user()` to set `is_verified = false` for student/instructor
+4. Update ~30 RLS policies to include `super_admin` alongside `admin`
+5. Create `is_super_or_admin()` helper function for cleaner RLS
+
+### Seeding the First Super Admin
+After migration, you will need to manually update one existing admin user's role to `super_admin` via a database insert. This is a one-time operation.
 
