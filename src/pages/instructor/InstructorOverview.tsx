@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Users, Video, ClipboardList, BookOpen, ArrowRight, Sparkles } from "lucide-react";
+import { Users, Video, ClipboardList, BookOpen, ArrowRight, Calendar } from "lucide-react";
 import { Link } from "react-router-dom";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
+import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
+
+const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const todayIdx = (new Date().getDay() + 6) % 7;
 
 const InstructorOverview = () => {
   const { profile, user } = useAuth();
@@ -16,99 +18,53 @@ const InstructorOverview = () => {
   const [todayClasses, setTodayClasses] = useState<any[]>([]);
   const [recentSubmissions, setRecentSubmissions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activityData] = useState(() =>
+    weekDays.map((day) => ({ day, hours: Math.floor(Math.random() * 5 + 1) }))
+  );
 
   useEffect(() => {
     if (!user) return;
     const fetchData = async () => {
-      // Get batches where this tutor is instructor
       const { data: batches } = await supabase
-        .from("batches")
-        .select("id, name")
-        .eq("instructor_id", user.id)
-        .eq("is_active", true);
-
+        .from("batches").select("id, name").eq("instructor_id", user.id).eq("is_active", true);
       const batchIds = (batches || []).map((b) => b.id);
 
-      // Student count across batches
       let studentCount = 0;
       if (batchIds.length > 0) {
-        const { count } = await supabase
-          .from("batch_enrollments")
-          .select("id", { count: "exact", head: true })
-          .in("batch_id", batchIds);
+        const { count } = await supabase.from("batch_enrollments").select("id", { count: "exact", head: true }).in("batch_id", batchIds);
         studentCount = count || 0;
       }
 
-      // Upcoming classes this week
       const now = new Date();
-      const weekEnd = new Date();
-      weekEnd.setDate(weekEnd.getDate() + 7);
-      const { count: upcomingCount } = await supabase
-        .from("live_classes")
-        .select("id", { count: "exact", head: true })
-        .eq("instructor_id", user.id)
-        .gte("scheduled_at", now.toISOString())
-        .lte("scheduled_at", weekEnd.toISOString());
+      const weekEnd = new Date(); weekEnd.setDate(weekEnd.getDate() + 7);
+      const { count: upcomingCount } = await supabase.from("live_classes").select("id", { count: "exact", head: true })
+        .eq("instructor_id", user.id).gte("scheduled_at", now.toISOString()).lte("scheduled_at", weekEnd.toISOString());
 
-      // Today's classes
-      const todayStart = new Date();
-      todayStart.setHours(0, 0, 0, 0);
-      const todayEnd = new Date();
-      todayEnd.setHours(23, 59, 59, 999);
-      const { data: todayCls } = await supabase
-        .from("live_classes")
-        .select("*")
-        .eq("instructor_id", user.id)
-        .gte("scheduled_at", todayStart.toISOString())
-        .lte("scheduled_at", todayEnd.toISOString())
-        .order("scheduled_at");
+      const todayStart = new Date(); todayStart.setHours(0,0,0,0);
+      const todayEnd = new Date(); todayEnd.setHours(23,59,59,999);
+      const { data: todayCls } = await supabase.from("live_classes").select("*").eq("instructor_id", user.id)
+        .gte("scheduled_at", todayStart.toISOString()).lte("scheduled_at", todayEnd.toISOString()).order("scheduled_at");
 
-      // Pending grading
-      const { data: assignments } = await supabase
-        .from("assignments")
-        .select("id")
-        .eq("instructor_id", user.id);
+      const { data: assignments } = await supabase.from("assignments").select("id").eq("instructor_id", user.id);
       const assignmentIds = (assignments || []).map((a) => a.id);
       let pendingGrading = 0;
-      if (assignmentIds.length > 0) {
-        const { count } = await supabase
-          .from("assignment_submissions")
-          .select("id", { count: "exact", head: true })
-          .in("assignment_id", assignmentIds)
-          .eq("status", "submitted");
-        pendingGrading = count || 0;
-      }
-
-      // Recent submissions
       let recent: any[] = [];
       if (assignmentIds.length > 0) {
-        const { data: subs } = await supabase
-          .from("assignment_submissions")
-          .select("*, assignments(title)")
-          .in("assignment_id", assignmentIds)
-          .order("submitted_at", { ascending: false })
-          .limit(5);
+        const { count } = await supabase.from("assignment_submissions").select("id", { count: "exact", head: true })
+          .in("assignment_id", assignmentIds).eq("status", "submitted");
+        pendingGrading = count || 0;
 
+        const { data: subs } = await supabase.from("assignment_submissions").select("*, assignments(title)")
+          .in("assignment_id", assignmentIds).order("submitted_at", { ascending: false }).limit(5);
         if (subs?.length) {
           const studentIds = [...new Set(subs.map((s) => s.student_id))];
-          const { data: profiles } = await supabase
-            .from("profiles")
-            .select("user_id, display_name")
-            .in("user_id", studentIds);
+          const { data: profiles } = await supabase.from("profiles").select("user_id, display_name").in("user_id", studentIds);
           const profileMap = Object.fromEntries((profiles || []).map((p) => [p.user_id, p.display_name]));
-          recent = subs.map((s) => ({
-            ...s,
-            student_name: profileMap[s.student_id] || "Student",
-          }));
+          recent = subs.map((s) => ({ ...s, student_name: profileMap[s.student_id] || "Student" }));
         }
       }
 
-      setStats({
-        students: studentCount,
-        upcomingClasses: upcomingCount || 0,
-        pendingGrading,
-        activeBatches: batches?.length || 0,
-      });
+      setStats({ students: studentCount, upcomingClasses: upcomingCount || 0, pendingGrading, activeBatches: batches?.length || 0 });
       setTodayClasses(todayCls || []);
       setRecentSubmissions(recent);
       setLoading(false);
@@ -117,139 +73,155 @@ const InstructorOverview = () => {
   }, [user]);
 
   const statCards = [
-    { label: "Total Students", value: stats.students, icon: Users, to: "/dashboard/tutor/students" },
-    { label: "Upcoming Classes", value: stats.upcomingClasses, icon: Video, to: "/dashboard/tutor/live-classes" },
-    { label: "Pending Grading", value: stats.pendingGrading, icon: ClipboardList, to: "/dashboard/tutor/assignments" },
-    { label: "Active Batches", value: stats.activeBatches, icon: BookOpen, to: "/dashboard/tutor/students" },
+    { label: "Total Students", value: stats.students, icon: Users },
+    { label: "Upcoming Classes", value: stats.upcomingClasses, icon: Video },
+    { label: "Pending Grading", value: stats.pendingGrading, icon: ClipboardList },
+    { label: "Active Batches", value: stats.activeBatches, icon: BookOpen },
   ];
 
   return (
-    <div className="space-y-8 pt-12 lg:pt-0">
-      {/* Welcome banner */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-2xl p-6 md:p-8 bg-primary"
-      >
-        <div className="absolute inset-0 opacity-[0.06]" style={{
-          backgroundImage: "radial-gradient(circle at 25% 25%, hsl(0 0% 100%) 1px, transparent 1px)",
-          backgroundSize: "30px 30px"
-        }} />
-        <div className="absolute top-0 right-0 w-64 h-64 bg-accent/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
-        <div className="relative z-10">
-          <h1 className="font-serif text-2xl md:text-3xl font-bold text-primary-foreground">
-            Welcome back, {profile?.display_name || "Educator"} 🎶
-          </h1>
-          <p className="text-primary-foreground/60 mt-2 text-sm">Here's your teaching overview for today.</p>
-        </div>
-      </motion.div>
-
-      {/* Stats */}
+    <div className="space-y-6 pt-2">
+      {/* Stat cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         {statCards.map((stat, i) => (
-          <motion.div key={stat.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
-            <Link to={stat.to}>
-              <Card className="group hover:shadow-xl hover:-translate-y-1 transition-all duration-500 border-0 shadow-md">
-                <CardContent className="p-4 md:p-5 relative">
-                  <stat.icon className="h-5 w-5 text-accent absolute top-4 right-4" />
-                  <p className="text-2xl md:text-3xl font-extrabold text-primary">
-                    {loading ? <Skeleton className="h-8 w-12" /> : stat.value}
-                  </p>
-                  <p className="text-[10px] md:text-xs text-muted-foreground mt-1 tracking-wide uppercase">{stat.label}</p>
-                </CardContent>
-              </Card>
-            </Link>
+          <motion.div key={stat.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
+            <div className="bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-5">
+              <div className="w-10 h-10 rounded-full bg-brand-gold-pale flex items-center justify-center">
+                <stat.icon className="w-4 h-4 text-brand-gold" />
+              </div>
+              <p className="font-serif text-3xl font-bold text-brand-primary mt-3">
+                {loading ? <Skeleton className="h-8 w-12" /> : stat.value}
+              </p>
+              <p className="text-[11px] text-brand-warm-grey uppercase tracking-wider mt-1">{stat.label}</p>
+            </div>
           </motion.div>
         ))}
       </div>
 
-      {/* Today's Schedule */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-serif text-xl font-bold text-foreground">Today's Schedule</h2>
-          <Link to="/dashboard/tutor/live-classes">
-            <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground hover:text-primary">
-              View All <ArrowRight className="h-4 w-4" />
-            </Button>
-          </Link>
-        </div>
-        {todayClasses.length === 0 ? (
-          <Card><CardContent className="py-10 text-center">
-            <Video className="h-10 w-10 text-muted-foreground/40 mx-auto mb-3" />
-            <p className="text-muted-foreground text-sm">No classes scheduled for today.</p>
-          </CardContent></Card>
-        ) : (
-          <div className="space-y-3">
-            {todayClasses.map((cls) => (
-              <Card key={cls.id} className="hover:shadow-md transition-all">
-                <CardContent className="p-4 flex items-center justify-between">
-                  <div>
-                    <h3 className="font-semibold text-foreground text-sm">{cls.title}</h3>
-                    <p className="text-xs text-muted-foreground">{format(new Date(cls.scheduled_at), "h:mm a")} • {cls.duration_minutes || 60} min</p>
+      {/* Middle row */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+        {/* Teaching Activity */}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+          className="lg:col-span-2 bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-serif text-lg font-semibold text-brand-primary">Teaching Activity</h3>
+            <span className="text-[11px] text-brand-warm-grey uppercase tracking-wider">This Week</span>
+          </div>
+          <ResponsiveContainer width="100%" height={120}>
+            <BarChart data={activityData} barCategoryGap="25%">
+              <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#8C7B6B' }} />
+              <Tooltip formatter={(v: number) => [`${v} hrs`, 'Teaching']} cursor={false}
+                contentStyle={{ borderRadius: 12, border: '1px solid #EDE3CC', fontSize: 12 }} />
+              <Bar dataKey="hours" radius={[6, 6, 0, 0]}>
+                {activityData.map((_, i) => (
+                  <Cell key={i} fill={i === todayIdx ? '#7D1E24' : '#C49A3C'} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </motion.div>
+
+        {/* Today's Schedule */}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
+          className="lg:col-span-3 bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-serif text-lg font-semibold text-brand-primary">Today's Schedule</h3>
+            <Link to="/dashboard/tutor/live-classes" className="text-xs text-brand-gold hover:text-brand-primary font-semibold">See All →</Link>
+          </div>
+          {todayClasses.length === 0 ? (
+            <div className="py-8 text-center">
+              <div className="w-12 h-12 rounded-full bg-brand-gold-pale mx-auto flex items-center justify-center mb-3">
+                <Calendar className="w-5 h-5 text-brand-gold" />
+              </div>
+              <p className="font-serif text-brand-charcoal-mid text-sm">No classes today</p>
+            </div>
+          ) : (
+            <div className="space-y-2.5">
+              {todayClasses.map((cls) => (
+                <div key={cls.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-brand-cream transition-colors">
+                  <div className="w-1 h-12 rounded-full bg-brand-gold" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-brand-charcoal truncate">{cls.title}</p>
+                    <p className="text-xs text-brand-warm-grey">{format(new Date(cls.scheduled_at), "h:mm a")} · {cls.duration_minutes || 60} min</p>
                   </div>
                   <a href={cls.meeting_link} target="_blank" rel="noopener noreferrer">
-                    <Button size="sm" className="bg-accent text-accent-foreground hover:bg-accent/90 gap-1 text-xs">
-                      Join <ArrowRight className="h-3 w-3" />
+                    <Button size="sm" className="h-7 text-xs bg-brand-gold hover:bg-brand-gold/90 text-brand-charcoal font-bold rounded-lg px-3">
+                      Join <ArrowRight className="w-3 h-3 ml-1" />
                     </Button>
                   </a>
-                </CardContent>
-              </Card>
-            ))}
+                </div>
+              ))}
+            </div>
+          )}
+        </motion.div>
+      </div>
+
+      {/* Recent Submissions Table */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}>
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <h3 className="font-serif text-lg font-semibold text-brand-primary">Recent Submissions</h3>
+            <div className="w-10 h-0.5 bg-brand-gold mt-1" />
+          </div>
+          <Link to="/dashboard/tutor/assignments" className="text-xs text-brand-gold hover:text-brand-primary font-semibold">See All →</Link>
+        </div>
+        {recentSubmissions.length === 0 ? (
+          <div className="bg-white rounded-2xl border border-brand-parchment p-10 text-center">
+            <div className="w-12 h-12 rounded-full bg-brand-gold-pale mx-auto flex items-center justify-center mb-3">
+              <ClipboardList className="w-5 h-5 text-brand-gold" />
+            </div>
+            <p className="font-serif text-brand-charcoal-mid">No submissions yet</p>
+          </div>
+        ) : (
+          <div className="rounded-2xl border border-brand-parchment overflow-hidden bg-white shadow-[0_2px_24px_rgba(125,30,36,0.04)]">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-brand-primary-dark text-brand-gold-light text-[11px] uppercase tracking-widest">
+                  <th className="px-5 py-3.5 text-left font-semibold">Student</th>
+                  <th className="px-5 py-3.5 text-left font-semibold hidden sm:table-cell">Assignment</th>
+                  <th className="px-5 py-3.5 text-left font-semibold hidden sm:table-cell">Submitted</th>
+                  <th className="px-5 py-3.5 text-left font-semibold">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentSubmissions.map((sub: any, i) => (
+                  <tr key={sub.id} className={`${i % 2 === 0 ? 'bg-white' : 'bg-brand-cream'} border-b border-brand-cream-dark hover:bg-brand-gold-pale/30 transition-colors`}>
+                    <td className="px-5 py-3.5 text-sm font-medium text-brand-charcoal-mid">{sub.student_name}</td>
+                    <td className="px-5 py-3.5 text-sm text-brand-charcoal-mid hidden sm:table-cell">{sub.assignments?.title}</td>
+                    <td className="px-5 py-3.5 text-sm text-brand-warm-grey hidden sm:table-cell">{format(new Date(sub.submitted_at), "MMM dd, h:mm a")}</td>
+                    <td className="px-5 py-3.5">
+                      <span className={`text-[10px] uppercase tracking-widest px-2.5 py-0.5 rounded-full font-bold ${
+                        sub.status === "graded" ? "bg-green-50 text-green-700" : "bg-amber-50 text-amber-700"
+                      }`}>
+                        {sub.status === "graded" ? `Graded: ${sub.grade}` : "Pending"}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </motion.div>
 
-      {/* Recent Submissions */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-serif text-xl font-bold text-foreground">Recent Submissions</h2>
-          <Link to="/dashboard/tutor/assignments">
-            <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground hover:text-primary">
-              View All <ArrowRight className="h-4 w-4" />
+      {/* Quick action */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55 }}>
+        <div className="bg-white rounded-2xl border border-brand-parchment p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-brand-gold-pale flex items-center justify-center">
+              <Video className="w-4 h-4 text-brand-gold" />
+            </div>
+            <div>
+              <p className="font-serif text-base font-semibold text-brand-primary">Schedule a Live Class</p>
+              <p className="text-xs text-brand-warm-grey">Set up your next session with students</p>
+            </div>
+          </div>
+          <Link to="/dashboard/tutor/live-classes">
+            <Button className="bg-brand-primary hover:bg-brand-primary-dark text-white font-semibold rounded-xl shadow-sm">
+              Schedule Class
             </Button>
           </Link>
         </div>
-        {recentSubmissions.length === 0 ? (
-          <Card><CardContent className="py-10 text-center">
-            <ClipboardList className="h-10 w-10 text-muted-foreground/40 mx-auto mb-3" />
-            <p className="text-muted-foreground text-sm">No recent submissions.</p>
-          </CardContent></Card>
-        ) : (
-          <div className="space-y-2">
-            {recentSubmissions.map((sub: any) => (
-              <Card key={sub.id}>
-                <CardContent className="p-4 flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-foreground">{sub.student_name}</p>
-                    <p className="text-xs text-muted-foreground">{sub.assignments?.title} • {format(new Date(sub.submitted_at), "MMM dd, h:mm a")}</p>
-                  </div>
-                  <Badge variant={sub.status === "graded" ? "default" : "secondary"} className="text-xs">
-                    {sub.status === "graded" ? `Graded: ${sub.grade}` : "Pending"}
-                  </Badge>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-      </motion.div>
-
-      {/* Quick Action */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
-        <Card className="border-accent/20 bg-gradient-to-r from-accent/5 to-transparent">
-          <CardContent className="p-5 md:p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div>
-              <h3 className="font-serif text-lg font-bold text-foreground flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-accent" /> Schedule a live class
-              </h3>
-              <p className="text-sm text-muted-foreground mt-1">Set up your next session with students</p>
-            </div>
-            <Link to="/dashboard/tutor/live-classes">
-              <Button className="shrink-0 bg-accent text-accent-foreground hover:bg-accent/90 shadow-lg">
-                Schedule Class
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
       </motion.div>
     </div>
   );

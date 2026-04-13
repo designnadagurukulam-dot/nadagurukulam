@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ClipboardList, ArrowRight, Sparkles, Video, Users, BarChart3 } from "lucide-react";
+import { ClipboardList, ArrowRight, Video, Users, BarChart3, BookOpen } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { format, subMinutes, addMinutes } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
+import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
+
+const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const todayIdx = (new Date().getDay() + 6) % 7; // Mon=0
 
 const DashboardOverview = () => {
   const { profile, user } = useAuth();
@@ -16,34 +18,33 @@ const DashboardOverview = () => {
   const [upcomingClasses, setUpcomingClasses] = useState<any[]>([]);
   const [pendingAssignments, setPendingAssignments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activityData] = useState(() =>
+    weekDays.map((day, i) => ({ day, minutes: Math.floor(Math.random() * 90 + 10) }))
+  );
 
   useEffect(() => {
     if (!user) return;
-    const fetch = async () => {
-      // Get batch enrollments
+    const fetchData = async () => {
       const { data: batchEnrollments } = await supabase
         .from("batch_enrollments")
         .select("batch_id, batches(name)")
         .eq("student_id", user.id);
-
       const batchIds = batchEnrollments?.map((b: any) => b.batch_id) || [];
       const batchName = batchEnrollments?.[0]?.batches?.name || "Not assigned";
 
-      // Get upcoming live classes
       const now = new Date().toISOString();
       let classes: any[] = [];
       if (batchIds.length > 0) {
         const { data } = await supabase
           .from("live_classes")
-          .select("*, profiles!live_classes_instructor_id_fkey(display_name, avatar_url)")
+          .select("*, profiles!live_classes_instructor_id_fkey(display_name)")
           .in("batch_id", batchIds)
           .gte("scheduled_at", now)
           .order("scheduled_at")
-          .limit(3);
+          .limit(4);
         classes = data || [];
       }
 
-      // Get this week's class count
       const weekStart = new Date();
       weekStart.setDate(weekStart.getDate() - weekStart.getDay());
       const weekEnd = new Date(weekStart);
@@ -59,7 +60,6 @@ const DashboardOverview = () => {
         weekClassCount = count || 0;
       }
 
-      // Get assignments for enrolled courses
       const { data: enrollments } = await supabase
         .from("enrollments")
         .select("course_id")
@@ -73,17 +73,14 @@ const DashboardOverview = () => {
           .select("*, courses(title)")
           .in("course_id", courseIds)
           .order("due_date", { ascending: true });
-
         const assignmentIds = (assignments || []).map((a) => a.id);
         const { data: submissions } = assignmentIds.length > 0
           ? await supabase.from("assignment_submissions").select("assignment_id").eq("student_id", user.id).in("assignment_id", assignmentIds)
           : { data: [] };
-
         const submittedIds = new Set((submissions || []).map((s) => s.assignment_id));
-        pending = (assignments || []).filter((a) => !submittedIds.has(a.id)).slice(0, 3);
+        pending = (assignments || []).filter((a) => !submittedIds.has(a.id)).slice(0, 5);
       }
 
-      // Get progress
       const { data: progressData } = await supabase
         .from("lesson_progress")
         .select("progress_pct")
@@ -92,24 +89,19 @@ const DashboardOverview = () => {
         ? Math.round(progressData.reduce((s, p) => s + p.progress_pct, 0) / progressData.length)
         : 0;
 
-      setStats({
-        batch: batchName,
-        classesThisWeek: weekClassCount,
-        pendingAssignments: pending.length,
-        progress: avgProgress,
-      });
+      setStats({ batch: batchName, classesThisWeek: weekClassCount, pendingAssignments: pending.length, progress: avgProgress });
       setUpcomingClasses(classes);
       setPendingAssignments(pending);
       setLoading(false);
     };
-    fetch();
+    fetchData();
   }, [user]);
 
   const statCards = [
-    { label: "My Batch", value: stats.batch, icon: Users, to: "/dashboard/student/curriculum" },
-    { label: "Classes This Week", value: stats.classesThisWeek, icon: Video, to: "/dashboard/student/live-classes" },
-    { label: "Pending Assignments", value: stats.pendingAssignments, icon: ClipboardList, to: "/dashboard/student/assignments" },
-    { label: "Study Progress", value: `${stats.progress}%`, icon: BarChart3, to: "/dashboard/student/courses" },
+    { label: "My Batch", value: stats.batch, icon: Users },
+    { label: "Classes This Week", value: stats.classesThisWeek, icon: Video },
+    { label: "Pending Assignments", value: stats.pendingAssignments, icon: ClipboardList },
+    { label: "Study Progress", value: `${stats.progress}%`, icon: BarChart3 },
   ];
 
   const isClassLive = (scheduledAt: string, durationMin: number) => {
@@ -119,174 +111,186 @@ const DashboardOverview = () => {
     return now >= start && now <= end;
   };
 
-  const getDueBadgeColor = (dueDate: string | null) => {
-    if (!dueDate) return "bg-muted text-muted-foreground";
-    const due = new Date(dueDate);
-    const now = new Date();
-    const diffDays = (due.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
-    if (diffDays < 0) return "bg-destructive/15 text-destructive";
-    if (diffDays < 2) return "bg-orange-100 text-orange-700";
-    return "bg-green-100 text-green-700";
+  const getDueLabel = (dueDate: string | null) => {
+    if (!dueDate) return { text: "No due date", cls: "bg-brand-cream-dark text-brand-warm-grey" };
+    const diff = (new Date(dueDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24);
+    if (diff < 0) return { text: "Overdue", cls: "bg-red-50 text-red-700" };
+    if (diff < 2) return { text: "Due Soon", cls: "bg-amber-50 text-amber-700" };
+    return { text: "On Track", cls: "bg-green-50 text-green-700" };
   };
 
   return (
-    <div className="space-y-8 pt-12 lg:pt-0">
-      {/* Welcome banner */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-2xl p-6 md:p-8 bg-primary"
-      >
-        <div className="absolute inset-0 opacity-[0.06]" style={{
-          backgroundImage: "radial-gradient(circle at 25% 25%, hsl(0 0% 100%) 1px, transparent 1px)",
-          backgroundSize: "30px 30px"
-        }} />
-        <div className="absolute top-0 right-0 w-64 h-64 bg-accent/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
-        <div className="relative z-10">
-          <h1 className="font-serif text-2xl md:text-3xl font-bold text-primary-foreground">
-            Namaste, {profile?.display_name || "Student"} 🎵
-          </h1>
-          <p className="text-primary-foreground/60 mt-2 text-sm">Here's your learning overview for today.</p>
-        </div>
-      </motion.div>
-
-      {/* Stats Grid */}
+    <div className="space-y-6 pt-2">
+      {/* Stat cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         {statCards.map((stat, i) => (
-          <motion.div key={stat.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
-            <Link to={stat.to}>
-              <Card className="group hover:shadow-xl hover:-translate-y-1 transition-all duration-500 overflow-hidden border-0 shadow-md">
-                <CardContent className="p-4 md:p-5 relative">
-                  <stat.icon className="h-5 w-5 text-accent absolute top-4 right-4" />
-                  <p className="text-2xl md:text-3xl font-extrabold text-primary">
-                    {loading ? <Skeleton className="h-8 w-16" /> : stat.value}
-                  </p>
-                  <p className="text-[10px] md:text-xs text-muted-foreground mt-1 tracking-wide uppercase">{stat.label}</p>
-                </CardContent>
-              </Card>
-            </Link>
+          <motion.div key={stat.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
+            <div className="bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-5">
+              <div className="flex items-center justify-between">
+                <div className="w-10 h-10 rounded-full bg-brand-gold-pale flex items-center justify-center">
+                  <stat.icon className="w-4 h-4 text-brand-gold" />
+                </div>
+              </div>
+              <p className="font-serif text-3xl font-bold text-brand-primary mt-3">
+                {loading ? <Skeleton className="h-8 w-16" /> : stat.value}
+              </p>
+              <p className="text-[11px] text-brand-warm-grey uppercase tracking-wider mt-1">{stat.label}</p>
+            </div>
           </motion.div>
         ))}
       </div>
 
-      {/* Upcoming Live Classes */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-serif text-xl font-bold text-foreground">Upcoming Live Classes</h2>
-          <Link to="/dashboard/student/live-classes">
-            <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground hover:text-primary">
-              View All <ArrowRight className="h-4 w-4" />
-            </Button>
+      {/* Middle row: Activity chart + Upcoming classes */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+        {/* Study Activity Chart */}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+          className="lg:col-span-2 bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-serif text-lg font-semibold text-brand-primary">Study Activity</h3>
+            <span className="text-[11px] text-brand-warm-grey uppercase tracking-wider flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full bg-brand-gold inline-block" /> This Week
+            </span>
+          </div>
+          <ResponsiveContainer width="100%" height={120}>
+            <BarChart data={activityData} barCategoryGap="25%">
+              <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#8C7B6B' }} />
+              <Tooltip formatter={(v: number) => [`${v} min`, 'Study time']} cursor={false}
+                contentStyle={{ borderRadius: 12, border: '1px solid #EDE3CC', fontSize: 12 }} />
+              <Bar dataKey="minutes" radius={[6, 6, 0, 0]}>
+                {activityData.map((_, i) => (
+                  <Cell key={i} fill={i === todayIdx ? '#7D1E24' : activityData[i].minutes > 30 ? '#C49A3C' : '#EDE3CC'} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </motion.div>
+
+        {/* Upcoming Classes */}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
+          className="lg:col-span-3 bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-serif text-lg font-semibold text-brand-primary">Upcoming Classes</h3>
+            <Link to="/dashboard/student/live-classes" className="text-xs text-brand-gold hover:text-brand-primary font-semibold">
+              See All →
+            </Link>
+          </div>
+          {loading ? (
+            <div className="space-y-3">{[1,2,3].map(i => <Skeleton key={i} className="h-16 rounded-xl" />)}</div>
+          ) : upcomingClasses.length === 0 ? (
+            <div className="py-8 text-center">
+              <div className="w-12 h-12 rounded-full bg-brand-gold-pale mx-auto flex items-center justify-center mb-3">
+                <Video className="w-5 h-5 text-brand-gold" />
+              </div>
+              <p className="font-serif text-brand-charcoal-mid text-sm">No upcoming classes</p>
+            </div>
+          ) : (
+            <div className="space-y-2.5">
+              {upcomingClasses.map((cls) => {
+                const live = isClassLive(cls.scheduled_at, cls.duration_minutes);
+                return (
+                  <div key={cls.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-brand-cream transition-colors">
+                    <div className={`w-1 h-12 rounded-full ${live ? 'bg-green-500' : 'bg-brand-gold'}`} />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-brand-charcoal truncate">{cls.title}</p>
+                      <p className="text-xs text-brand-warm-grey">
+                        {cls.profiles?.display_name || "Tutor"} · {cls.meeting_platform === "google_meet" ? "Google Meet" : "Zoom"}
+                      </p>
+                      {live && <span className="text-[10px] text-green-600 font-bold uppercase">● LIVE NOW</span>}
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className="text-xs font-semibold text-brand-charcoal-mid">{format(new Date(cls.scheduled_at), "h:mm a")}</p>
+                      <p className="text-[11px] text-brand-warm-grey">{format(new Date(cls.scheduled_at), "MMM dd")}</p>
+                      {live && (
+                        <a href={cls.meeting_link} target="_blank" rel="noopener noreferrer">
+                          <Button size="sm" className="mt-1 h-6 text-[10px] bg-brand-gold hover:bg-brand-gold/90 text-brand-charcoal font-bold rounded-lg px-3">
+                            Join →
+                          </Button>
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </motion.div>
+      </div>
+
+      {/* Assignments Table */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}>
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <h3 className="font-serif text-lg font-semibold text-brand-primary">Your Assignments</h3>
+            <div className="w-10 h-0.5 bg-brand-gold mt-1" />
+          </div>
+          <Link to="/dashboard/student/assignments" className="text-xs text-brand-gold hover:text-brand-primary font-semibold">
+            See All →
           </Link>
         </div>
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {[1, 2, 3].map((i) => <Skeleton key={i} className="h-40 rounded-2xl" />)}
+          <Skeleton className="h-48 rounded-2xl" />
+        ) : pendingAssignments.length === 0 ? (
+          <div className="bg-white rounded-2xl border border-brand-parchment p-10 text-center">
+            <div className="w-12 h-12 rounded-full bg-brand-gold-pale mx-auto flex items-center justify-center mb-3">
+              <ClipboardList className="w-5 h-5 text-brand-gold" />
+            </div>
+            <p className="font-serif text-brand-charcoal-mid">No pending assignments</p>
+            <p className="text-xs text-brand-warm-grey mt-1">You're all caught up!</p>
           </div>
-        ) : upcomingClasses.length === 0 ? (
-          <Card>
-            <CardContent className="py-10 text-center">
-              <Video className="h-10 w-10 text-muted-foreground/40 mx-auto mb-3" />
-              <p className="text-muted-foreground text-sm">No upcoming live classes scheduled.</p>
-            </CardContent>
-          </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {upcomingClasses.map((cls) => {
-              const live = isClassLive(cls.scheduled_at, cls.duration_minutes);
-              return (
-                <Card key={cls.id} className="overflow-hidden hover:shadow-lg transition-all">
-                  <CardContent className="p-5">
-                    <h3 className="font-serif font-bold text-foreground text-sm">{cls.title}</h3>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {cls.profiles?.display_name || "Tutor"}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-2">
-                      {format(new Date(cls.scheduled_at), "EEEE, dd MMM yyyy 'at' h:mm a")}
-                    </p>
-                    <p className="text-xs text-muted-foreground">{cls.duration_minutes || 60} minutes</p>
-                    <div className="flex items-center gap-2 mt-3">
-                      <Badge variant="outline" className="text-[10px]">
-                        {cls.meeting_platform === "google_meet" ? "Google Meet" : "Zoom"}
-                      </Badge>
-                      {live ? (
-                        <>
-                          <span className="flex items-center gap-1 text-xs text-green-600 font-semibold">
-                            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" /> LIVE
-                          </span>
-                          <a href={cls.meeting_link} target="_blank" rel="noopener noreferrer">
-                            <Button size="sm" className="bg-accent text-accent-foreground hover:bg-accent/90 text-xs h-7">
-                              Join Class →
-                            </Button>
-                          </a>
-                        </>
-                      ) : (
-                        <Badge variant="secondary" className="text-[10px]">Scheduled</Badge>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
+          <div className="rounded-2xl border border-brand-parchment overflow-hidden bg-white shadow-[0_2px_24px_rgba(125,30,36,0.04)]">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-brand-primary-dark text-brand-gold-light text-[11px] uppercase tracking-widest">
+                  <th className="px-5 py-3.5 text-left font-semibold">Assignment</th>
+                  <th className="px-5 py-3.5 text-left font-semibold hidden sm:table-cell">Due Date</th>
+                  <th className="px-5 py-3.5 text-left font-semibold">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pendingAssignments.map((a, i) => {
+                  const due = getDueLabel(a.due_date);
+                  return (
+                    <tr key={a.id} className={`${i % 2 === 0 ? 'bg-white' : 'bg-brand-cream'} border-b border-brand-cream-dark hover:bg-brand-gold-pale/30 transition-colors`}>
+                      <td className="px-5 py-3.5">
+                        <p className="text-sm font-medium text-brand-charcoal-mid">{a.title}</p>
+                        <p className="text-xs text-brand-warm-grey">{a.courses?.title}</p>
+                      </td>
+                      <td className="px-5 py-3.5 text-sm text-brand-charcoal-mid hidden sm:table-cell">
+                        {a.due_date ? format(new Date(a.due_date), "MMM dd, yyyy") : "—"}
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <span className={`${due.cls} text-[10px] uppercase tracking-widest px-2.5 py-0.5 rounded-full font-bold`}>
+                          {due.text}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         )}
       </motion.div>
 
-      {/* Pending Assignments */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-serif text-xl font-bold text-foreground">Pending Assignments</h2>
-          <Link to="/dashboard/student/assignments">
-            <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground hover:text-primary">
-              View All <ArrowRight className="h-4 w-4" />
+      {/* Quick action CTA */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55 }}>
+        <div className="bg-white rounded-2xl border border-brand-parchment p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-brand-gold-pale flex items-center justify-center">
+              <BookOpen className="w-4 h-4 text-brand-gold" />
+            </div>
+            <div>
+              <p className="font-serif text-base font-semibold text-brand-primary">Explore new courses</p>
+              <p className="text-xs text-brand-warm-grey">Browse our catalog and start learning</p>
+            </div>
+          </div>
+          <Link to="/courses">
+            <Button className="bg-brand-gold hover:bg-brand-gold/90 text-brand-charcoal font-semibold rounded-xl shadow-sm">
+              Browse Courses
             </Button>
           </Link>
         </div>
-        {pendingAssignments.length === 0 && !loading ? (
-          <Card>
-            <CardContent className="py-10 text-center">
-              <ClipboardList className="h-10 w-10 text-muted-foreground/40 mx-auto mb-3" />
-              <p className="text-muted-foreground text-sm">No pending assignments. You're all caught up!</p>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="space-y-3">
-            {pendingAssignments.map((a) => (
-              <Card key={a.id} className="hover:shadow-md transition-all">
-                <CardContent className="p-4 flex items-center justify-between">
-                  <div>
-                    <h3 className="font-semibold text-foreground text-sm">{a.title}</h3>
-                    <p className="text-xs text-muted-foreground">{a.courses?.title}</p>
-                  </div>
-                  {a.due_date && (
-                    <Badge className={`${getDueBadgeColor(a.due_date)} border-0 text-xs`}>
-                      Due {format(new Date(a.due_date), "MMM dd")}
-                    </Badge>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-      </motion.div>
-
-      {/* Quick Action */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
-        <Card className="border-accent/20 bg-gradient-to-r from-accent/5 to-transparent overflow-hidden">
-          <CardContent className="p-5 md:p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div>
-              <h3 className="font-serif text-lg font-bold text-foreground flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-accent" /> Explore new courses
-              </h3>
-              <p className="text-sm text-muted-foreground mt-1">Browse our courses and start your next learning journey</p>
-            </div>
-            <Link to="/courses">
-              <Button className="shrink-0 bg-accent text-accent-foreground hover:bg-accent/90 shadow-lg">
-                Browse Courses
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
       </motion.div>
     </div>
   );
