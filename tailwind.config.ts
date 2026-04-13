@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        serif: ["Playfair Display", "Georgia", "serif"],
-        sans: ["Inter", "Segoe UI", "sans-serif"],
+        serif: ["Cormorant Garamond", "Georgia", "serif"],
+        sans: ["Nunito Sans", "Helvetica Neue", "sans-serif"],
         devanagari: ["Noto Sans Devanagari", "sans-serif"],
       },
       colors: {
@@ -62,6 +62,22 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        brand: {
+          primary: '#7D1E24',
+          'primary-dark': '#5C1219',
+          'primary-light': '#A8343B',
+          gold: '#C49A3C',
+          'gold-light': '#E2B95A',
+          'gold-pale': '#F5E9CE',
+          cream: '#FAF6EE',
+          'cream-dark': '#F2EAD6',
+          parchment: '#EDE3CC',
+          charcoal: '#1E1610',
+          'charcoal-mid': '#3D2E22',
+          'charcoal-soft': '#6B5744',
+          'warm-grey': '#8C7B6B',
+          'warm-grey-light': '#C4B5A5',
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -94,8 +110,8 @@ export default {
           "100%": { opacity: "1", filter: "blur(0)" },
         },
         "glow-pulse": {
-          "0%, 100%": { boxShadow: "0 0 20px hsl(33 62% 58% / 0.2)" },
-          "50%": { boxShadow: "0 0 40px hsl(33 62% 58% / 0.4)" },
+          "0%, 100%": { boxShadow: "0 0 20px hsl(40 56% 50% / 0.2)" },
+          "50%": { boxShadow: "0 0 40px hsl(40 56% 50% / 0.4)" },
         },
         "marquee": {
           "0%": { transform: "translateX(0)" },
