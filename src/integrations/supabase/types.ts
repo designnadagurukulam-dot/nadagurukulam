@@ -93,38 +93,136 @@ export type Database = {
       }
       assignments: {
         Row: {
+          batch_id: string | null
           course_id: string
           created_at: string
           description: string | null
           due_date: string | null
+          external_link: string | null
           id: string
           instructor_id: string | null
           pdf_url: string | null
           title: string
+          video_url: string | null
         }
         Insert: {
+          batch_id?: string | null
           course_id: string
           created_at?: string
           description?: string | null
           due_date?: string | null
+          external_link?: string | null
           id?: string
           instructor_id?: string | null
           pdf_url?: string | null
           title: string
+          video_url?: string | null
         }
         Update: {
+          batch_id?: string | null
           course_id?: string
           created_at?: string
           description?: string | null
           due_date?: string | null
+          external_link?: string | null
           id?: string
           instructor_id?: string | null
           pdf_url?: string | null
           title?: string
+          video_url?: string | null
         }
         Relationships: [
           {
+            foreignKeyName: "assignments_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "assignments_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      batch_enrollments: {
+        Row: {
+          batch_id: string
+          enrolled_at: string | null
+          enrolled_by: string | null
+          id: string
+          student_id: string
+        }
+        Insert: {
+          batch_id: string
+          enrolled_at?: string | null
+          enrolled_by?: string | null
+          id?: string
+          student_id: string
+        }
+        Update: {
+          batch_id?: string
+          enrolled_at?: string | null
+          enrolled_by?: string | null
+          id?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "batch_enrollments_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      batches: {
+        Row: {
+          batch_code: string | null
+          course_id: string | null
+          created_at: string | null
+          description: string | null
+          end_date: string | null
+          id: string
+          instructor_id: string | null
+          is_active: boolean | null
+          max_students: number | null
+          name: string
+          start_date: string | null
+        }
+        Insert: {
+          batch_code?: string | null
+          course_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          instructor_id?: string | null
+          is_active?: boolean | null
+          max_students?: number | null
+          name: string
+          start_date?: string | null
+        }
+        Update: {
+          batch_code?: string | null
+          course_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          instructor_id?: string | null
+          is_active?: boolean | null
+          max_students?: number | null
+          name?: string
+          start_date?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "batches_course_id_fkey"
             columns: ["course_id"]
             isOneToOne: false
             referencedRelation: "courses"
@@ -535,6 +633,7 @@ export type Database = {
       }
       curriculum_modules: {
         Row: {
+          batch_id: string | null
           course_code: string
           created_at: string
           description: string | null
@@ -547,6 +646,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          batch_id?: string | null
           course_code: string
           created_at?: string
           description?: string | null
@@ -559,6 +659,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          batch_id?: string | null
           course_code?: string
           created_at?: string
           description?: string | null
@@ -570,7 +671,15 @@ export type Database = {
           subject_name?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "curriculum_modules_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       curriculum_section_links: {
         Row: {
@@ -609,11 +718,13 @@ export type Database = {
       }
       curriculum_sections: {
         Row: {
+          audio_url: string | null
           content_type: string
           created_at: string
           created_by: string | null
           id: string
           module_id: string
+          pdf_url: string | null
           sort_order: number
           text_content: string | null
           title: string
@@ -621,11 +732,13 @@ export type Database = {
           youtube_url: string | null
         }
         Insert: {
+          audio_url?: string | null
           content_type?: string
           created_at?: string
           created_by?: string | null
           id?: string
           module_id: string
+          pdf_url?: string | null
           sort_order?: number
           text_content?: string | null
           title: string
@@ -633,11 +746,13 @@ export type Database = {
           youtube_url?: string | null
         }
         Update: {
+          audio_url?: string | null
           content_type?: string
           created_at?: string
           created_by?: string | null
           id?: string
           module_id?: string
+          pdf_url?: string | null
           sort_order?: number
           text_content?: string | null
           title?: string
@@ -728,6 +843,50 @@ export type Database = {
         }
         Relationships: []
       }
+      feedback: {
+        Row: {
+          batch_id: string | null
+          category: string | null
+          id: string
+          instructor_id: string | null
+          is_anonymous: boolean | null
+          message: string
+          rating: number | null
+          student_id: string
+          submitted_at: string | null
+        }
+        Insert: {
+          batch_id?: string | null
+          category?: string | null
+          id?: string
+          instructor_id?: string | null
+          is_anonymous?: boolean | null
+          message: string
+          rating?: number | null
+          student_id: string
+          submitted_at?: string | null
+        }
+        Update: {
+          batch_id?: string | null
+          category?: string | null
+          id?: string
+          instructor_id?: string | null
+          is_anonymous?: boolean | null
+          message?: string
+          rating?: number | null
+          student_id?: string
+          submitted_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feedback_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       job_postings: {
         Row: {
           created_at: string
@@ -808,6 +967,99 @@ export type Database = {
           },
         ]
       }
+      live_classes: {
+        Row: {
+          batch_id: string | null
+          course_id: string | null
+          created_at: string | null
+          description: string | null
+          duration_minutes: number | null
+          id: string
+          instructor_id: string
+          meeting_link: string
+          meeting_platform: string | null
+          scheduled_at: string
+          status: string | null
+          title: string
+        }
+        Insert: {
+          batch_id?: string | null
+          course_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          instructor_id: string
+          meeting_link: string
+          meeting_platform?: string | null
+          scheduled_at: string
+          status?: string | null
+          title: string
+        }
+        Update: {
+          batch_id?: string | null
+          course_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          instructor_id?: string
+          meeting_link?: string
+          meeting_platform?: string | null
+          scheduled_at?: string
+          status?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_classes_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "live_classes_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          media_type: string | null
+          media_url: string | null
+          receiver_id: string
+          sender_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          media_type?: string | null
+          media_url?: string | null
+          receiver_id: string
+          sender_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          media_type?: string | null
+          media_url?: string | null
+          receiver_id?: string
+          sender_id?: string
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           amount: number
@@ -863,58 +1115,100 @@ export type Database = {
       }
       profiles: {
         Row: {
+          address: string | null
           avatar_url: string | null
           bio: string | null
+          city: string | null
           course_name: string | null
           created_at: string
+          date_of_birth: string | null
           department: string | null
           designation: string | null
           display_name: string | null
+          emergency_contact_name: string | null
+          emergency_contact_phone: string | null
           employee_id: string | null
           enrollment_id: string | null
+          gender: string | null
           id: string
           is_verified: boolean
+          kyc_document_number: string | null
+          kyc_document_type: string | null
+          kyc_document_url: string | null
           phone: string | null
+          pincode: string | null
+          qualifications: string | null
           roll_number: string | null
+          specialization: string | null
+          state: string | null
           updated_at: string
           user_id: string
           year_of_commencement: number | null
+          years_of_experience: number | null
         }
         Insert: {
+          address?: string | null
           avatar_url?: string | null
           bio?: string | null
+          city?: string | null
           course_name?: string | null
           created_at?: string
+          date_of_birth?: string | null
           department?: string | null
           designation?: string | null
           display_name?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
           employee_id?: string | null
           enrollment_id?: string | null
+          gender?: string | null
           id?: string
           is_verified?: boolean
+          kyc_document_number?: string | null
+          kyc_document_type?: string | null
+          kyc_document_url?: string | null
           phone?: string | null
+          pincode?: string | null
+          qualifications?: string | null
           roll_number?: string | null
+          specialization?: string | null
+          state?: string | null
           updated_at?: string
           user_id: string
           year_of_commencement?: number | null
+          years_of_experience?: number | null
         }
         Update: {
+          address?: string | null
           avatar_url?: string | null
           bio?: string | null
+          city?: string | null
           course_name?: string | null
           created_at?: string
+          date_of_birth?: string | null
           department?: string | null
           designation?: string | null
           display_name?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
           employee_id?: string | null
           enrollment_id?: string | null
+          gender?: string | null
           id?: string
           is_verified?: boolean
+          kyc_document_number?: string | null
+          kyc_document_type?: string | null
+          kyc_document_url?: string | null
           phone?: string | null
+          pincode?: string | null
+          qualifications?: string | null
           roll_number?: string | null
+          specialization?: string | null
+          state?: string | null
           updated_at?: string
           user_id?: string
           year_of_commencement?: number | null
+          years_of_experience?: number | null
         }
         Relationships: []
       }
