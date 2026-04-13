@@ -3,15 +3,14 @@ import { Search, Bell } from "lucide-react";
 import DashboardSidebar from "./DashboardSidebar";
 import { useAuth } from "@/hooks/useAuth";
 
-const getGreeting = () => {
-  const h = new Date().getHours();
-  if (h < 12) return "Good Morning";
-  if (h < 17) return "Good Afternoon";
-  return "Good Evening";
+const roleLabel = (role: string | null | undefined): string => {
+  if (role === "instructor") return "Tutor";
+  if (role === "admin" || role === "super_admin") return "Admin";
+  return "Student";
 };
 
 const DashboardLayout = ({ children }: { children: ReactNode }) => {
-  const { profile } = useAuth();
+  const { profile, role } = useAuth();
   const name = profile?.display_name || "there";
 
   return (
