@@ -108,6 +108,9 @@ const App = () => (
             <Route path="/dashboard/student/class-log" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardClassLog /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/student/projects" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardProjects /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/student/curriculum" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardCurriculum /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/student/live-classes" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><StudentLiveClasses /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/student/chat" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><StudentChat /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/student/feedback" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><StudentFeedback /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/student/profile" element={<ProtectedRoute><DashboardLayout><DashboardProfile /></DashboardLayout></ProtectedRoute>} />
 
             {/* Tutor Dashboard */}
