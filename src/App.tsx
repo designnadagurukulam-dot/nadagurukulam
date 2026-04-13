@@ -56,12 +56,16 @@ import ProgramDetail from "./pages/ProgramDetail";
 import AdminSchedule from "./pages/admin/AdminSchedule";
 import InstructorClassLog from "./pages/instructor/InstructorClassLog";
 import InstructorOverview from "./pages/instructor/InstructorOverview";
+import TutorLiveClasses from "./pages/instructor/TutorLiveClasses";
+import TutorMessages from "./pages/instructor/TutorMessages";
+import TutorCurriculum from "./pages/instructor/TutorCurriculum";
 import AdminSubjectAllocation from "./pages/admin/AdminSubjectAllocation";
 import AdminUserVerification from "./pages/admin/AdminUserVerification";
 import AdminBatches from "./pages/admin/AdminBatches";
 import AdminFeedback from "./pages/admin/AdminFeedback";
 import AdminLiveClasses from "./pages/admin/AdminLiveClasses";
 import PendingApproval from "./pages/PendingApproval";
+import LoginSelect from "./pages/LoginSelect";
 
 const queryClient = new QueryClient();
 
