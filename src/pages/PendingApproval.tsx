@@ -5,7 +5,7 @@ import { Clock, LogOut } from "lucide-react";
 import { getRoleDashboardPath } from "@/components/RoleProtectedRoute";
 
 const PendingApproval = () => {
-  const { user, role, loading, isVerified, signOut } = useAuth();
+  const { user, role, loading, isVerified, profile, signOut } = useAuth();
   const navigate = useNavigate();
 
   if (loading) {
@@ -24,15 +24,19 @@ const PendingApproval = () => {
     navigate("/");
   };
 
+  const userName = profile?.display_name || "there";
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="max-w-md w-full text-center space-y-6">
         <div className="mx-auto w-20 h-20 rounded-full bg-secondary/20 flex items-center justify-center">
           <Clock className="h-10 w-10 text-secondary" />
         </div>
-        <h1 className="text-2xl font-serif font-bold text-foreground">Account Pending Approval</h1>
+        <h1 className="text-2xl font-serif font-bold text-foreground">
+          Hello {userName}, your account is under review
+        </h1>
         <p className="text-muted-foreground">
-          Your account has been created successfully. Please wait for the administrator to verify your account before you can access the dashboard.
+          Our team is reviewing your registration. You'll receive an email once your account is approved. This usually takes 1–2 business days.
         </p>
         <p className="text-sm text-muted-foreground">
           You will be able to sign in and access your dashboard once your account is approved.

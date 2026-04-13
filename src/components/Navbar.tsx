@@ -4,13 +4,13 @@ import { Menu, X, LogOut, LayoutDashboard } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import { getRoleDashboardPath } from "@/components/RoleProtectedRoute";
 import logo from "@/assets/logo.png";
 
 const navLinks = [
   { label: "Home", to: "/" },
   { label: "About", to: "/about" },
   { label: "Courses", to: "/courses" },
-  
   { label: "Faculty", to: "/faculty" },
   { label: "Events", to: "/events" },
   { label: "Gallery", to: "/gallery" },
@@ -22,7 +22,7 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
+  const { user, role, signOut } = useAuth();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -35,6 +35,8 @@ const Navbar = () => {
     navigate("/");
   };
 
+  const dashboardPath = getRoleDashboardPath(role);
+
   return (
     <header
       className={`sticky top-0 z-50 transition-all duration-500 ${
@@ -43,7 +45,6 @@ const Navbar = () => {
           : "bg-background/50 backdrop-blur-xl border-b border-transparent"
       }`}
     >
-      {/* Gold accent line */}
       <div
         className={`absolute bottom-0 left-0 right-0 h-[2px] transition-opacity duration-500 ${
           scrolled ? "opacity-100" : "opacity-0"
@@ -56,7 +57,6 @@ const Navbar = () => {
           <img src={logo} alt="Nada Gurukulam" className="h-12 w-auto transition-transform duration-300 group-hover:scale-105" />
         </Link>
 
-        {/* Desktop nav */}
         <nav className="hidden lg:flex items-center gap-1">
           {navLinks.map((link) => (
             <Link
@@ -83,7 +83,7 @@ const Navbar = () => {
           ))}
           {user ? (
             <div className="flex items-center gap-2 ml-4">
-              <Button variant="outline" size="sm" onClick={() => navigate("/dashboard")} className="gap-1.5 border-secondary/30 hover:border-secondary hover:bg-secondary/5">
+              <Button variant="outline" size="sm" onClick={() => navigate(dashboardPath)} className="gap-1.5 border-secondary/30 hover:border-secondary hover:bg-secondary/5">
                 <LayoutDashboard className="h-4 w-4" /> Dashboard
               </Button>
               <Button variant="ghost" size="sm" onClick={handleSignOut} className="gap-1.5 text-muted-foreground">
@@ -99,7 +99,6 @@ const Navbar = () => {
           )}
         </nav>
 
-        {/* Mobile toggle */}
         <button
           className="lg:hidden p-2.5 rounded-lg hover:bg-muted transition-colors"
           onClick={() => setMobileOpen(!mobileOpen)}
@@ -109,7 +108,6 @@ const Navbar = () => {
         </button>
       </div>
 
-      {/* Mobile full-screen overlay */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
@@ -119,7 +117,6 @@ const Navbar = () => {
             transition={{ duration: 0.3 }}
             className="lg:hidden fixed inset-0 top-[76px] z-40 bg-background/98 backdrop-blur-2xl"
           >
-            {/* Brand colored header strip */}
             <div className="h-1 w-full" style={{ background: "linear-gradient(90deg, hsl(358 68% 28%), hsl(33 62% 58%), hsl(358 68% 28%))" }} />
             <nav className="container mx-auto flex flex-col gap-1 p-6 pt-6">
               {navLinks.map((link, i) => (
@@ -150,7 +147,7 @@ const Navbar = () => {
               >
                 {user ? (
                   <div className="space-y-3">
-                    <Link to="/dashboard" onClick={() => setMobileOpen(false)}>
+                    <Link to={dashboardPath} onClick={() => setMobileOpen(false)}>
                       <Button variant="outline" className="w-full gap-1.5 h-12 text-base border-secondary/30">
                         <LayoutDashboard className="h-5 w-5" /> Dashboard
                       </Button>

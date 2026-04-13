@@ -14,10 +14,10 @@ export const getRoleDashboardPath = (role: UserRole | null): string => {
     case "admin":
       return "/dashboard/admin";
     case "instructor":
-      return "/dashboard/instructor";
+      return "/dashboard/tutor";
     case "student":
     default:
-      return "/dashboard";
+      return "/dashboard/student";
   }
 };
 
