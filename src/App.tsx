@@ -94,6 +94,7 @@ const App = () => (
 
             {/* Auth pages */}
             <Route path="/login" element={<Login />} />
+            <Route path="/login-select" element={<LoginSelect />} />
             <Route path="/admin-login" element={<AdminLogin />} />
             <Route path="/register" element={<Register roleType="student" />} />
             <Route path="/register/student" element={<Register roleType="student" />} />
