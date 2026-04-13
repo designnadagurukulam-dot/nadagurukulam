@@ -97,11 +97,12 @@ const DashboardSidebar = () => {
 
   const sidebarContent = (isMobile = false) => (
     <>
-      <div className="flex items-center justify-between p-4 border-b border-secondary/10">
+      {/* Logo area */}
+      <div className="flex items-center justify-between p-4 border-b border-sidebar-border">
         {(!collapsed || isMobile) ? (
           <Link to="/" className="flex items-center gap-2.5">
             <img src={logo} alt="Logo" className="h-9" />
-            <span className="font-serif text-sm font-bold text-foreground">Nada Gurukulam</span>
+            <span className="font-serif text-sm font-bold text-sidebar-foreground">Nada Gurukulam</span>
           </Link>
         ) : (
           <Link to="/" className="mx-auto">
@@ -109,33 +110,35 @@ const DashboardSidebar = () => {
           </Link>
         )}
         {isMobile ? (
-          <button onClick={() => setMobileOpen(false)} className="p-1.5 rounded-lg hover:bg-secondary/10 text-muted-foreground">
+          <button onClick={() => setMobileOpen(false)} className="p-1.5 rounded-lg hover:bg-sidebar-accent text-sidebar-foreground">
             <X className="h-5 w-5" />
           </button>
         ) : (
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="p-1.5 rounded-lg hover:bg-secondary/10 text-muted-foreground hidden lg:block"
+            className="p-1.5 rounded-lg hover:bg-sidebar-accent text-sidebar-foreground hidden lg:block"
           >
             {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
           </button>
         )}
       </div>
 
-      <div className={`border-b border-secondary/10 ${(collapsed && !isMobile) ? "p-3" : "px-4 py-4"}`}>
+      {/* User avatar + role badge */}
+      <div className={`border-b border-sidebar-border ${(collapsed && !isMobile) ? "p-3" : "px-4 py-4"}`}>
         <div className={`flex items-center ${(collapsed && !isMobile) ? "justify-center" : "gap-3"}`}>
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center text-primary-foreground font-bold text-xs shrink-0 shadow-md">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-sidebar-primary to-sidebar-primary/70 flex items-center justify-center text-sidebar-primary-foreground font-bold text-xs shrink-0 shadow-md">
             {initials}
           </div>
           {(!collapsed || isMobile) && (
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-foreground truncate">{profile?.display_name || "User"}</p>
-              <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-secondary">{roleLabel}</span>
+              <p className="text-sm font-semibold text-sidebar-foreground truncate">{profile?.display_name || "User"}</p>
+              <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-sidebar-primary">{roleLabel}</span>
             </div>
           )}
         </div>
       </div>
 
+      {/* Nav items */}
       <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
         {navItems.map((item) => (
           <Link
@@ -143,25 +146,26 @@ const DashboardSidebar = () => {
             to={item.to}
             className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 group ${
               isActive(item.to)
-                ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
-                : "text-muted-foreground hover:bg-secondary/8 hover:text-foreground"
+                ? "bg-sidebar-accent text-sidebar-primary shadow-lg"
+                : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
             }`}
             title={(collapsed && !isMobile) ? item.label : undefined}
           >
             {isActive(item.to) && (
-              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 rounded-r-full bg-secondary shadow-sm shadow-secondary/50" />
+              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 rounded-r-full bg-sidebar-primary shadow-sm" />
             )}
-            <item.icon className="h-5 w-5 shrink-0" />
+            <item.icon className={`h-5 w-5 shrink-0 ${isActive(item.to) ? "text-sidebar-primary" : ""}`} />
             {(!collapsed || isMobile) && <span>{item.label}</span>}
           </Link>
         ))}
       </nav>
 
-      <div className="p-3 border-t border-secondary/10">
+      {/* Logout */}
+      <div className="p-3 border-t border-sidebar-border">
         <Button
           variant="ghost"
           size="sm"
-          className="w-full justify-start gap-3 text-muted-foreground hover:text-destructive hover:bg-destructive/5 rounded-xl"
+          className="w-full justify-start gap-3 text-sidebar-foreground/70 hover:text-red-400 hover:bg-red-500/10 rounded-xl"
           onClick={handleSignOut}
         >
           <LogOut className="h-4 w-4 shrink-0" />
@@ -173,6 +177,7 @@ const DashboardSidebar = () => {
 
   return (
     <>
+      {/* Mobile toggle */}
       {!mobileOpen && (
         <button
           onClick={() => setMobileOpen(true)}
@@ -183,13 +188,14 @@ const DashboardSidebar = () => {
         </button>
       )}
 
+      {/* Mobile overlay + sidebar */}
       {mobileOpen && (
         <div
           className="lg:hidden fixed inset-0 z-50 bg-foreground/30 backdrop-blur-sm animate-in fade-in duration-200"
           onClick={() => setMobileOpen(false)}
         >
           <aside
-            className="w-72 max-w-[85vw] h-full flex flex-col bg-card shadow-2xl border-r border-border animate-in slide-in-from-left duration-300"
+            className="w-72 max-w-[85vw] h-full flex flex-col bg-sidebar shadow-2xl border-r border-sidebar-border animate-in slide-in-from-left duration-300"
             onClick={(e) => e.stopPropagation()}
           >
             {sidebarContent(true)}
@@ -197,8 +203,9 @@ const DashboardSidebar = () => {
         </div>
       )}
 
+      {/* Desktop sidebar */}
       <aside
-        className={`hidden lg:flex sticky top-0 h-screen flex-col border-r border-border/50 bg-card transition-all duration-300 ${
+        className={`hidden lg:flex sticky top-0 h-screen flex-col border-r border-sidebar-border bg-sidebar transition-all duration-300 ${
           collapsed ? "w-[72px]" : "w-64"
         }`}
       >
