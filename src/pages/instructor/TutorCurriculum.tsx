@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { BookOpen, Plus, Edit, Trash2, Eye, Upload, FileText, PlayCircle, Headphones, Link as LinkIcon, Type } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { BookOpen, Plus, Trash2, FileText, PlayCircle, Headphones, Link as LinkIcon, Type } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
