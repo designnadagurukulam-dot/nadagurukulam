@@ -148,6 +148,17 @@ const DashboardSidebar = () => {
         ))}
       </nav>
 
+      {/* Certificate promo card (student only) */}
+      {role === "student" && (!collapsed || isMobile) && (
+        <div className="mx-3 mb-3 p-4 rounded-xl border border-brand-gold/30 bg-brand-primary/40">
+          <div className="w-9 h-9 rounded-full bg-brand-gold-pale flex items-center justify-center mb-2">
+            <Award className="w-[18px] h-[18px] text-brand-gold" />
+          </div>
+          <p className="font-serif text-sm font-semibold text-brand-gold-light">Earn Your Certificate!</p>
+          <p className="text-[11px] text-brand-warm-grey-light mt-0.5">Complete your course to get certified</p>
+        </div>
+      )}
+
       {/* Logout */}
       <div className="p-3 border-t border-brand-primary">
         <Button
