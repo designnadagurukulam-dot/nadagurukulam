@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
-  Layers, Plus, Pencil, Trash2, Users, Search, X, UserPlus
+  Layers, Plus, Pencil, Trash2, Users, Search, X, UserPlus, Calendar, Hash, GraduationCap
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -157,120 +157,200 @@ const AdminBatches = () => {
   const getName = (id: string) => instructors.find(i => i.user_id === id)?.display_name || "—";
   const getStudentName = (id: string) => students.find(s => s.user_id === id)?.display_name || id.slice(0, 8);
 
+  const activeBatches = batches.filter(b => b.is_active).length;
+
   if (loading) {
     return (
-      <div className="space-y-4 pt-12 lg:pt-0">
-        <Skeleton className="h-10 w-48" />
-        <Skeleton className="h-10 w-full" />
-        {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-16" />)}
+      <div className="space-y-6 pt-2">
+        <Skeleton className="h-10 w-48 rounded-xl" />
+        <div className="grid grid-cols-3 gap-4">
+          {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-24 rounded-2xl" />)}
+        </div>
+        {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-16 rounded-xl" />)}
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 pt-12 lg:pt-0">
+    <div className="space-y-6 pt-2">
+      {/* Header */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
         <div className="flex items-center justify-between flex-wrap gap-4">
-          <div className="flex items-center gap-3">
-            <Layers className="h-7 w-7 text-primary" />
-            <h1 className="font-serif text-2xl text-foreground">Batch Management</h1>
+          <div>
+            <h1 className="font-serif text-2xl font-semibold text-[#7D1E24]">Batch Management</h1>
+            <div className="w-12 h-0.5 bg-[#C49A3C] mt-1" />
           </div>
-          <Button onClick={openCreate}><Plus className="h-4 w-4 mr-2" />New Batch</Button>
+          <Button onClick={openCreate} className="bg-[#7D1E24] hover:bg-[#5C1219] text-white rounded-xl gap-2">
+            <Plus className="h-4 w-4" /> New Batch
+          </Button>
         </div>
       </motion.div>
 
-      <div className="relative">
-        <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-        <Input placeholder="Search batches..." value={search} onChange={e => setSearch(e.target.value)} className="pl-10" />
+      {/* Stat Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {[
+          { label: "Total Batches", value: batches.length, icon: Layers, color: "#7D1E24" },
+          { label: "Active Batches", value: activeBatches, icon: Hash, color: "#C49A3C" },
+          { label: "Courses Linked", value: courses.length, icon: GraduationCap, color: "#5C1219" },
+        ].map((s, i) => (
+          <motion.div key={s.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
+            <div className="bg-white rounded-2xl border border-[#EDE3CC] shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-5 flex items-center gap-4">
+              <div className="w-11 h-11 rounded-full bg-[#F5E9CE] flex items-center justify-center">
+                <s.icon className="h-5 w-5" style={{ color: s.color }} />
+              </div>
+              <div>
+                <p className="font-serif text-3xl font-bold text-[#7D1E24]">{s.value}</p>
+                <p className="text-[11px] uppercase tracking-widest text-[#8C7B6B] font-semibold">{s.label}</p>
+              </div>
+            </div>
+          </motion.div>
+        ))}
       </div>
 
+      {/* Search */}
+      <div className="relative">
+        <Search className="absolute left-3 top-3 h-4 w-4 text-[#8C7B6B]" />
+        <Input
+          placeholder="Search batches..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="pl-10 border-[#EDE3CC] rounded-xl focus:border-[#C49A3C]"
+        />
+      </div>
+
+      {/* Table */}
       {filtered.length === 0 ? (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <Layers className="h-12 w-12 text-muted-foreground mx-auto mb-3 opacity-40" />
-            <p className="text-muted-foreground">No batches found</p>
-            <Button className="mt-4" onClick={openCreate}><Plus className="h-4 w-4 mr-2" />Create First Batch</Button>
-          </CardContent>
-        </Card>
+        <div className="bg-white rounded-2xl border border-[#EDE3CC] shadow-[0_2px_24px_rgba(125,30,36,0.06)] py-16 text-center">
+          <div className="w-14 h-14 rounded-full bg-[#F5E9CE] flex items-center justify-center mx-auto mb-4">
+            <Layers className="h-7 w-7 text-[#C49A3C]" />
+          </div>
+          <h3 className="font-serif text-xl text-[#7D1E24] mb-1">No Batches Found</h3>
+          <p className="text-sm text-[#8C7B6B] mb-4">Create your first batch to get started</p>
+          <Button onClick={openCreate} className="bg-[#C49A3C] hover:bg-[#B08A2E] text-[#3D2E22] rounded-xl gap-2">
+            <Plus className="h-4 w-4" /> Create First Batch
+          </Button>
+        </div>
       ) : (
-        <Card>
+        <div className="bg-white rounded-2xl border border-[#EDE3CC] shadow-[0_2px_24px_rgba(125,30,36,0.06)] overflow-hidden">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Batch</TableHead>
-                  <TableHead>Code</TableHead>
-                  <TableHead>Instructor</TableHead>
-                  <TableHead>Dates</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                <TableRow className="bg-[#5C1219] hover:bg-[#5C1219]">
+                  <TableHead className="text-[#E2B95A] text-[11px] uppercase tracking-widest font-semibold">Batch</TableHead>
+                  <TableHead className="text-[#E2B95A] text-[11px] uppercase tracking-widest font-semibold">Code</TableHead>
+                  <TableHead className="text-[#E2B95A] text-[11px] uppercase tracking-widest font-semibold">Instructor</TableHead>
+                  <TableHead className="text-[#E2B95A] text-[11px] uppercase tracking-widest font-semibold">Dates</TableHead>
+                  <TableHead className="text-[#E2B95A] text-[11px] uppercase tracking-widest font-semibold">Status</TableHead>
+                  <TableHead className="text-[#E2B95A] text-[11px] uppercase tracking-widest font-semibold text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filtered.map(b => (
-                  <TableRow key={b.id}>
-                    <TableCell className="font-medium">{b.name}</TableCell>
-                    <TableCell>{b.batch_code || "—"}</TableCell>
-                    <TableCell>{getName(b.instructor_id)}</TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
+                {filtered.map((b, i) => (
+                  <TableRow key={b.id} className={`${i % 2 === 1 ? "bg-[#FAF6EE]" : "bg-white"} hover:bg-[#FAF6EE] transition-colors border-b border-[#EDE3CC]`}>
+                    <TableCell className="font-medium text-[#3D2E22]">{b.name}</TableCell>
+                    <TableCell className="text-[#8C7B6B] font-mono text-xs">{b.batch_code || "—"}</TableCell>
+                    <TableCell className="text-[#3D2E22]">{getName(b.instructor_id)}</TableCell>
+                    <TableCell className="text-sm text-[#8C7B6B]">
                       {b.start_date ? new Date(b.start_date).toLocaleDateString() : "—"} — {b.end_date ? new Date(b.end_date).toLocaleDateString() : "—"}
                     </TableCell>
                     <TableCell>
-                      <Badge variant={b.is_active ? "default" : "secondary"}>{b.is_active ? "Active" : "Inactive"}</Badge>
+                      <Badge className={b.is_active
+                        ? "bg-green-50 text-green-700 border border-green-200"
+                        : "bg-gray-50 text-gray-500 border border-gray-200"
+                      }>
+                        {b.is_active ? "Active" : "Inactive"}
+                      </Badge>
                     </TableCell>
-                    <TableCell className="text-right space-x-1">
-                      <Button size="icon" variant="ghost" onClick={() => openEnroll(b)}><Users className="h-4 w-4" /></Button>
-                      <Button size="icon" variant="ghost" onClick={() => openEdit(b)}><Pencil className="h-4 w-4" /></Button>
-                      <Button size="icon" variant="ghost" onClick={() => deleteBatch(b.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button size="icon" variant="ghost" onClick={() => openEnroll(b)} className="hover:bg-[#F5E9CE] text-[#C49A3C]">
+                          <Users className="h-4 w-4" />
+                        </Button>
+                        <Button size="icon" variant="ghost" onClick={() => openEdit(b)} className="hover:bg-[#F5E9CE] text-[#7D1E24]">
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button size="icon" variant="ghost" onClick={() => deleteBatch(b.id)} className="hover:bg-red-50 text-red-500">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
           </div>
-        </Card>
+        </div>
       )}
 
       {/* Create/Edit Dialog */}
       <Dialog open={showForm} onOpenChange={setShowForm}>
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl border-[#EDE3CC]">
           <DialogHeader>
-            <DialogTitle>{editBatch ? "Edit Batch" : "Create Batch"}</DialogTitle>
+            <DialogTitle className="font-serif text-xl text-[#7D1E24]">{editBatch ? "Edit Batch" : "Create Batch"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
-            <Input placeholder="Batch Name *" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
-            <Input placeholder="Batch Code" value={form.batch_code} onChange={e => setForm({ ...form, batch_code: e.target.value })} />
-            <Textarea placeholder="Description" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
-            <Select value={form.course_id} onValueChange={v => setForm({ ...form, course_id: v })}>
-              <SelectTrigger><SelectValue placeholder="Select Course" /></SelectTrigger>
-              <SelectContent>{courses.map(c => <SelectItem key={c.id} value={c.id}>{c.title}</SelectItem>)}</SelectContent>
-            </Select>
-            <Select value={form.instructor_id} onValueChange={v => setForm({ ...form, instructor_id: v })}>
-              <SelectTrigger><SelectValue placeholder="Assign Instructor" /></SelectTrigger>
-              <SelectContent>{instructors.map(i => <SelectItem key={i.user_id} value={i.user_id}>{i.display_name || i.user_id.slice(0, 8)}</SelectItem>)}</SelectContent>
-            </Select>
-            <div className="grid grid-cols-2 gap-2">
-              <Input type="date" value={form.start_date} onChange={e => setForm({ ...form, start_date: e.target.value })} />
-              <Input type="date" value={form.end_date} onChange={e => setForm({ ...form, end_date: e.target.value })} />
+            <div>
+              <label className="text-[11px] uppercase tracking-widest text-[#8C7B6B] font-semibold mb-1 block">Batch Name *</label>
+              <Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className="border-[#EDE3CC] rounded-xl focus:border-[#C49A3C]" />
             </div>
-            <Input type="number" placeholder="Max Students" value={form.max_students} onChange={e => setForm({ ...form, max_students: e.target.value })} />
+            <div>
+              <label className="text-[11px] uppercase tracking-widest text-[#8C7B6B] font-semibold mb-1 block">Batch Code</label>
+              <Input value={form.batch_code} onChange={e => setForm({ ...form, batch_code: e.target.value })} className="border-[#EDE3CC] rounded-xl focus:border-[#C49A3C]" />
+            </div>
+            <div>
+              <label className="text-[11px] uppercase tracking-widest text-[#8C7B6B] font-semibold mb-1 block">Description</label>
+              <Textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} className="border-[#EDE3CC] rounded-xl focus:border-[#C49A3C]" />
+            </div>
+            <div>
+              <label className="text-[11px] uppercase tracking-widest text-[#8C7B6B] font-semibold mb-1 block">Course</label>
+              <Select value={form.course_id} onValueChange={v => setForm({ ...form, course_id: v })}>
+                <SelectTrigger className="border-[#EDE3CC] rounded-xl"><SelectValue placeholder="Select Course" /></SelectTrigger>
+                <SelectContent>{courses.map(c => <SelectItem key={c.id} value={c.id}>{c.title}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-[11px] uppercase tracking-widest text-[#8C7B6B] font-semibold mb-1 block">Instructor</label>
+              <Select value={form.instructor_id} onValueChange={v => setForm({ ...form, instructor_id: v })}>
+                <SelectTrigger className="border-[#EDE3CC] rounded-xl"><SelectValue placeholder="Assign Instructor" /></SelectTrigger>
+                <SelectContent>{instructors.map(i => <SelectItem key={i.user_id} value={i.user_id}>{i.display_name || i.user_id.slice(0, 8)}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-[11px] uppercase tracking-widest text-[#8C7B6B] font-semibold mb-1 block">Start Date</label>
+                <Input type="date" value={form.start_date} onChange={e => setForm({ ...form, start_date: e.target.value })} className="border-[#EDE3CC] rounded-xl" />
+              </div>
+              <div>
+                <label className="text-[11px] uppercase tracking-widest text-[#8C7B6B] font-semibold mb-1 block">End Date</label>
+                <Input type="date" value={form.end_date} onChange={e => setForm({ ...form, end_date: e.target.value })} className="border-[#EDE3CC] rounded-xl" />
+              </div>
+            </div>
+            <div>
+              <label className="text-[11px] uppercase tracking-widest text-[#8C7B6B] font-semibold mb-1 block">Max Students</label>
+              <Input type="number" value={form.max_students} onChange={e => setForm({ ...form, max_students: e.target.value })} className="border-[#EDE3CC] rounded-xl" />
+            </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowForm(false)}>Cancel</Button>
-            <Button onClick={saveBatch} disabled={!form.name}>{editBatch ? "Update" : "Create"}</Button>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setShowForm(false)} className="rounded-xl border-[#EDE3CC]">Cancel</Button>
+            <Button onClick={saveBatch} disabled={!form.name} className="bg-[#7D1E24] hover:bg-[#5C1219] text-white rounded-xl">
+              {editBatch ? "Update" : "Create"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Enrollment Dialog */}
       <Dialog open={!!showEnroll} onOpenChange={() => setShowEnroll(null)}>
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl border-[#EDE3CC]">
           <DialogHeader>
-            <DialogTitle>Enrollments — {showEnroll?.name}</DialogTitle>
+            <DialogTitle className="font-serif text-xl text-[#7D1E24]">
+              <Users className="inline h-5 w-5 mr-2 text-[#C49A3C]" />
+              Enrollments — {showEnroll?.name}
+            </DialogTitle>
           </DialogHeader>
           <div className="flex gap-2">
             <Select value={selectedStudent} onValueChange={setSelectedStudent}>
-              <SelectTrigger className="flex-1"><SelectValue placeholder="Select Student" /></SelectTrigger>
+              <SelectTrigger className="flex-1 border-[#EDE3CC] rounded-xl"><SelectValue placeholder="Select Student" /></SelectTrigger>
               <SelectContent>
                 {students
                   .filter(s => !enrollments.some(e => e.student_id === s.user_id))
@@ -281,16 +361,30 @@ const AdminBatches = () => {
                   ))}
               </SelectContent>
             </Select>
-            <Button onClick={enrollStudent} disabled={!selectedStudent}><UserPlus className="h-4 w-4" /></Button>
+            <Button onClick={enrollStudent} disabled={!selectedStudent} className="bg-[#C49A3C] hover:bg-[#B08A2E] text-[#3D2E22] rounded-xl">
+              <UserPlus className="h-4 w-4" />
+            </Button>
           </div>
-          <div className="space-y-2 mt-2">
+          <div className="space-y-1 mt-2">
             {enrollments.length === 0 && (
-              <p className="text-center text-muted-foreground text-sm py-4">No students enrolled</p>
+              <div className="text-center py-8">
+                <div className="w-12 h-12 rounded-full bg-[#F5E9CE] flex items-center justify-center mx-auto mb-3">
+                  <Users className="h-6 w-6 text-[#C49A3C]" />
+                </div>
+                <p className="text-sm text-[#8C7B6B]">No students enrolled yet</p>
+              </div>
             )}
             {enrollments.map(e => (
-              <div key={e.id} className="flex items-center justify-between border-b border-border py-2 text-sm">
-                <span>{getStudentName(e.student_id)}</span>
-                <Button size="sm" variant="ghost" onClick={() => unenroll(e.id)}><X className="h-4 w-4 text-destructive" /></Button>
+              <div key={e.id} className="flex items-center justify-between border-b border-[#EDE3CC] py-2.5 text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-full bg-[#F5E9CE] flex items-center justify-center text-[#7D1E24] text-xs font-bold">
+                    {getStudentName(e.student_id)[0]?.toUpperCase()}
+                  </div>
+                  <span className="text-[#3D2E22]">{getStudentName(e.student_id)}</span>
+                </div>
+                <Button size="sm" variant="ghost" onClick={() => unenroll(e.id)} className="hover:bg-red-50 text-red-500">
+                  <X className="h-4 w-4" />
+                </Button>
               </div>
             ))}
           </div>
