@@ -1,91 +1,94 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Nunito+Sans:wght@300;400;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    /* Nada Gurukulam Brand Palette — Deep Navy + Warm Gold */
-    --background: 38 30% 97%;          /* warm off-white */
-    --foreground: 231 72% 15%;         /* deep navy text */
+    /* Nada Gurukulam Brand Palette — Deep Maroon + Saffron Gold */
+    --background: 42 40% 96%;               /* warm cream #FAF6EE */
+    --foreground: 22 52% 10%;               /* dark charcoal #1E1610 */
 
-    --card: 0 0% 100%;                 /* white cards */
-    --card-foreground: 231 72% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 22 52% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 231 72% 15%;
+    --popover-foreground: 22 52% 10%;
 
-    --primary: 231 72% 25%;            /* deep navy blue */
-    --primary-foreground: 0 0% 100%;
+    --primary: 355 60% 30%;                 /* deep maroon #7D1E24 */
+    --primary-foreground: 42 80% 97%;       /* near white */
 
-    --secondary: 43 85% 52%;           /* warm gold */
-    --secondary-foreground: 231 72% 15%;
+    --secondary: 38 60% 90%;               /* pale gold-cream */
+    --secondary-foreground: 355 60% 25%;
 
-    --muted: 38 20% 93%;
-    --muted-foreground: 0 0% 42%;
+    --muted: 38 25% 90%;
+    --muted-foreground: 25 25% 42%;
 
-    --accent: 43 85% 52%;              /* gold accent */
-    --accent-foreground: 231 72% 15%;
+    --accent: 40 56% 50%;                  /* warm saffron gold #C49A3C */
+    --accent-foreground: 22 52% 10%;
 
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 72% 40%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 231 20% 88%;
-    --input: 231 20% 88%;
-    --ring: 231 72% 25%;
+    --border: 35 30% 82%;
+    --input: 35 30% 82%;
+    --ring: 355 60% 30%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
     --olive: 61 100% 20%;
 
-    --sidebar-background: 231 72% 18%; /* deep navy for sidebar */
-    --sidebar-foreground: 38 60% 88%;  /* soft gold-white */
-    --sidebar-primary: 43 85% 52%;     /* gold active */
-    --sidebar-primary-foreground: 231 72% 15%;
-    --sidebar-accent: 231 72% 22%;
-    --sidebar-accent-foreground: 38 60% 88%;
-    --sidebar-border: 231 50% 28%;
-    --sidebar-ring: 43 85% 52%;
+    /* Sidebar */
+    --sidebar-background: 355 60% 20%;     /* very deep maroon #5C1219 */
+    --sidebar-foreground: 40 60% 90%;      /* pale gold text */
+    --sidebar-primary: 40 56% 50%;         /* gold for active item */
+    --sidebar-primary-foreground: 355 60% 15%;
+    --sidebar-accent: 355 55% 25%;         /* slightly lighter maroon for hover */
+    --sidebar-accent-foreground: 40 60% 90%;
+    --sidebar-border: 355 55% 28%;
+    --sidebar-ring: 40 56% 50%;
   }
 
   .dark {
-    --background: 231 72% 8%;
-    --foreground: 38 30% 95%;
+    --background: 355 40% 6%;
+    --foreground: 40 30% 92%;
 
-    --card: 231 50% 12%;
-    --card-foreground: 38 30% 95%;
+    --card: 355 30% 10%;
+    --card-foreground: 40 30% 92%;
 
-    --popover: 231 50% 12%;
-    --popover-foreground: 38 30% 95%;
+    --popover: 355 30% 10%;
+    --popover-foreground: 40 30% 92%;
 
-    --primary: 231 72% 35%;
-    --primary-foreground: 38 30% 95%;
+    --primary: 355 55% 40%;
+    --primary-foreground: 40 30% 95%;
 
-    --secondary: 43 85% 48%;
-    --secondary-foreground: 38 30% 95%;
+    --secondary: 40 50% 45%;
+    --secondary-foreground: 40 30% 95%;
 
-    --muted: 231 30% 18%;
-    --muted-foreground: 38 15% 65%;
+    --muted: 355 20% 16%;
+    --muted-foreground: 38 15% 60%;
 
-    --accent: 43 85% 45%;
-    --accent-foreground: 231 72% 8%;
+    --accent: 40 56% 42%;
+    --accent-foreground: 355 40% 6%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 231 30% 22%;
-    --input: 231 30% 22%;
-    --ring: 43 85% 52%;
+    --border: 355 20% 20%;
+    --input: 355 20% 20%;
+    --ring: 40 56% 50%;
 
     --olive: 61 100% 25%;
 
-    --sidebar-background: 231 72% 10%;
-    --sidebar-foreground: 38 30% 90%;
-    --sidebar-primary: 43 85% 52%;
-    --sidebar-primary-foreground: 231 72% 10%;
-    --sidebar-accent: 231 50% 16%;
-    --sidebar-accent-foreground: 38 30% 90%;
-    --sidebar-border: 231 30% 22%;
-    --sidebar-ring: 43 85% 52%;
+    --sidebar-background: 355 60% 8%;
+    --sidebar-foreground: 40 30% 88%;
+    --sidebar-primary: 40 56% 50%;
+    --sidebar-primary-foreground: 355 60% 8%;
+    --sidebar-accent: 355 40% 14%;
+    --sidebar-accent-foreground: 40 30% 88%;
+    --sidebar-border: 355 30% 18%;
+    --sidebar-ring: 40 56% 50%;
   }
 }
 
@@ -96,46 +99,55 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', 'Segoe UI', sans-serif;
+    font-family: 'Nunito Sans', 'Helvetica Neue', sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Playfair Display', Georgia, serif;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-weight: 600;
+    letter-spacing: -0.01em;
   }
+
+  h1 { font-size: 2.4rem; line-height: 1.2; }
+  h2 { font-size: 1.85rem; line-height: 1.25; }
+  h3 { font-size: 1.4rem; line-height: 1.3; }
+  h4 { font-size: 1.15rem; }
 
   .font-devanagari {
     font-family: 'Noto Sans Devanagari', sans-serif;
   }
 
   .font-serif {
-    font-family: 'Playfair Display', Georgia, serif;
+    font-family: 'Cormorant Garamond', Georgia, serif;
   }
 
   .font-sans {
-    font-family: 'Inter', 'Segoe UI', sans-serif;
+    font-family: 'Nunito Sans', 'Helvetica Neue', sans-serif;
   }
 }
 
 @layer utilities {
   /* ─── Gradients ─── */
   .gradient-navy {
-    background: linear-gradient(135deg, hsl(231 72% 25%) 0%, hsl(231 72% 18%) 100%);
+    background: linear-gradient(135deg, hsl(355 60% 30%) 0%, hsl(355 60% 20%) 100%);
   }
 
   .gradient-maroon {
-    background: linear-gradient(135deg, hsl(231 72% 25%) 0%, hsl(231 72% 18%) 100%);
+    background: linear-gradient(135deg, hsl(355 60% 30%) 0%, hsl(355 60% 20%) 100%);
   }
 
   .gradient-gold {
-    background: linear-gradient(135deg, hsl(43 85% 52%) 0%, hsl(43 85% 60%) 100%);
+    background: linear-gradient(135deg, hsl(40 56% 50%) 0%, hsl(40 56% 58%) 100%);
   }
 
   .text-gold {
-    color: hsl(33 62% 58%);
+    color: hsl(40 56% 50%);
   }
 
   .text-gradient-gold {
-    background: linear-gradient(135deg, hsl(33 62% 62%), hsl(35 62% 65%), hsl(33 62% 48%));
+    background: linear-gradient(135deg, hsl(40 56% 55%), hsl(40 60% 60%), hsl(40 56% 45%));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -149,19 +161,19 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, hsl(358 68% 22% / 0.85) 0%, hsl(358 68% 18% / 0.75) 100%);
+    background: linear-gradient(135deg, hsl(355 60% 20% / 0.85) 0%, hsl(355 60% 15% / 0.75) 100%);
     z-index: 1;
   }
 
   /* ─── Borders ─── */
   .golden-border {
-    border: 3px solid hsl(33 62% 58%);
-    box-shadow: 0 0 0 4px hsl(33 62% 58% / 0.15);
+    border: 3px solid hsl(40 56% 50%);
+    box-shadow: 0 0 0 4px hsl(40 56% 50% / 0.15);
   }
 
   .golden-frame {
-    border: 4px solid hsl(33 62% 58%);
-    box-shadow: 0 0 0 6px hsl(33 62% 58% / 0.12), 0 0 30px hsl(33 62% 58% / 0.15);
+    border: 4px solid hsl(40 56% 50%);
+    box-shadow: 0 0 0 6px hsl(40 56% 50% / 0.12), 0 0 30px hsl(40 56% 50% / 0.15);
   }
 
   /* ─── Image zoom ─── */
@@ -187,12 +199,12 @@
     background: hsl(30 50% 98% / 0.7);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid hsl(33 62% 58% / 0.15);
+    border: 1px solid hsl(40 56% 50% / 0.15);
   }
 
-  /* ─── Section glass (frosted warm tint) ─── */
+  /* ─── Section glass ─── */
   .section-glass {
-    background: hsl(39 100% 97% / 0.6);
+    background: hsl(42 40% 96% / 0.6);
     backdrop-filter: blur(20px) saturate(1.2);
     -webkit-backdrop-filter: blur(20px) saturate(1.2);
   }
@@ -210,7 +222,7 @@
     inset: 0;
     padding: 2px;
     border-radius: 1rem;
-    background: linear-gradient(135deg, hsl(358 68% 31%), hsl(33 62% 58%), hsl(358 68% 31%), hsl(33 62% 58%));
+    background: linear-gradient(135deg, hsl(355 60% 30%), hsl(40 56% 50%), hsl(355 60% 30%), hsl(40 56% 50%));
     background-size: 300% 300%;
     animation: gradient-shift 6s ease infinite;
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
@@ -225,11 +237,11 @@
 
   /* ─── Gold glass card ─── */
   .card-glass-gold {
-    background: linear-gradient(145deg, hsl(39 100% 97% / 0.9), hsl(33 62% 58% / 0.05));
+    background: linear-gradient(145deg, hsl(42 40% 96% / 0.9), hsl(40 56% 50% / 0.05));
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid hsl(33 62% 58% / 0.2);
-    box-shadow: 0 8px 32px hsl(33 62% 58% / 0.08), inset 0 1px 0 hsl(0 0% 100% / 0.5);
+    border: 1px solid hsl(40 56% 50% / 0.2);
+    box-shadow: 0 8px 32px hsl(40 56% 50% / 0.08), inset 0 1px 0 hsl(0 0% 100% / 0.5);
   }
 
   /* ─── 3D hover tilt ─── */
@@ -244,19 +256,19 @@
 
   /* ─── Gold badge ─── */
   .badge-gold {
-    background: linear-gradient(135deg, hsl(33 62% 58%), hsl(35 62% 65%));
-    color: hsl(16 27% 19%);
+    background: linear-gradient(135deg, hsl(40 56% 50%), hsl(40 60% 58%));
+    color: hsl(22 52% 10%);
     font-weight: 600;
     font-size: 0.65rem;
     padding: 0.25rem 0.75rem;
     border-radius: 999px;
-    box-shadow: 0 2px 8px hsl(33 62% 58% / 0.3);
+    box-shadow: 0 2px 8px hsl(40 56% 50% / 0.3);
   }
 
   /* ─── Section dark ─── */
   .section-dark {
-    background: linear-gradient(135deg, hsl(358 68% 20%) 0%, hsl(358 68% 15%) 100%);
-    color: hsl(39 100% 97%);
+    background: linear-gradient(135deg, hsl(355 60% 20%) 0%, hsl(355 60% 15%) 100%);
+    color: hsl(42 40% 96%);
   }
 
   .shimmer-line {
@@ -270,7 +282,7 @@
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, hsl(33 62% 58% / 0.4), transparent);
+    background: linear-gradient(90deg, transparent, hsl(40 56% 50% / 0.4), transparent);
     animation: shimmer 3s infinite;
   }
 
@@ -296,7 +308,7 @@
     position: absolute;
     inset: -2px;
     border-radius: inherit;
-    background: linear-gradient(135deg, hsl(358 68% 31%), hsl(33 62% 58%), hsl(35 62% 65%), hsl(358 68% 31%));
+    background: linear-gradient(135deg, hsl(355 60% 30%), hsl(40 56% 50%), hsl(40 60% 58%), hsl(355 60% 30%));
     background-size: 400% 400%;
     animation: gradient-shift 4s ease infinite;
     z-index: -1;
@@ -327,8 +339,8 @@
 
   /* ─── Ornament gold ─── */
   .ornament-gold {
-    color: hsl(33 62% 58%);
-    filter: drop-shadow(0 2px 8px hsl(33 62% 58% / 0.3));
+    color: hsl(40 56% 50%);
+    filter: drop-shadow(0 2px 8px hsl(40 56% 50% / 0.3));
   }
 
   /* ─── Vignette gold ─── */
@@ -340,7 +352,7 @@
     position: absolute;
     inset: -20px;
     border-radius: 50%;
-    background: radial-gradient(ellipse at center, hsl(33 62% 58% / 0.15) 0%, transparent 70%);
+    background: radial-gradient(ellipse at center, hsl(40 56% 50% / 0.15) 0%, transparent 70%);
     z-index: -1;
   }
 
@@ -357,7 +369,7 @@
 
   /* ─── Text outline gold ─── */
   .text-outline-gold {
-    -webkit-text-stroke: 2px hsl(33 62% 58%);
+    -webkit-text-stroke: 2px hsl(40 56% 50%);
     color: transparent;
   }
 
@@ -381,7 +393,7 @@
     left: -100%;
     width: 50%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, hsl(33 62% 58% / 0.08), transparent);
+    background: linear-gradient(90deg, transparent, hsl(40 56% 50% / 0.08), transparent);
     animation: golden-sweep 4s ease-in-out infinite;
   }
 
@@ -407,12 +419,12 @@
 
   /* ─── Gold ring portrait ─── */
   .portrait-gold-ring {
-    border: 3px solid hsl(33 62% 58%);
-    box-shadow: 0 0 0 6px hsl(33 62% 58% / 0.12), 0 0 25px hsl(33 62% 58% / 0.15);
+    border: 3px solid hsl(40 56% 50%);
+    box-shadow: 0 0 0 6px hsl(40 56% 50% / 0.12), 0 0 25px hsl(40 56% 50% / 0.15);
     transition: box-shadow 0.4s ease, transform 0.4s ease;
   }
   .portrait-gold-ring:hover {
-    box-shadow: 0 0 0 8px hsl(33 62% 58% / 0.2), 0 0 40px hsl(33 62% 58% / 0.25);
+    box-shadow: 0 0 0 8px hsl(40 56% 50% / 0.2), 0 0 40px hsl(40 56% 50% / 0.25);
     transform: scale(1.05);
   }
 }
@@ -429,8 +441,8 @@
 }
 
 @keyframes glow-pulse {
-  0%, 100% { box-shadow: 0 0 20px hsl(33 62% 58% / 0.2); }
-  50% { box-shadow: 0 0 40px hsl(33 62% 58% / 0.45), 0 0 80px hsl(33 62% 58% / 0.15); }
+  0%, 100% { box-shadow: 0 0 20px hsl(40 56% 50% / 0.2); }
+  50% { box-shadow: 0 0 40px hsl(40 56% 50% / 0.45), 0 0 80px hsl(40 56% 50% / 0.15); }
 }
 
 @keyframes gradient-shift {
@@ -440,8 +452,8 @@
 }
 
 @keyframes border-glow {
-  0%, 100% { box-shadow: 0 0 0 2px hsl(33 62% 58% / 0.2), 0 0 20px hsl(33 62% 58% / 0.1); }
-  50% { box-shadow: 0 0 0 2px hsl(33 62% 58% / 0.5), 0 0 30px hsl(33 62% 58% / 0.2); }
+  0%, 100% { box-shadow: 0 0 0 2px hsl(40 56% 50% / 0.2), 0 0 20px hsl(40 56% 50% / 0.1); }
+  50% { box-shadow: 0 0 0 2px hsl(40 56% 50% / 0.5), 0 0 30px hsl(40 56% 50% / 0.2); }
 }
 
 @keyframes text-shimmer {
@@ -488,7 +500,7 @@
 
 /* ─── Text shimmer gold ─── */
 .text-shimmer-gold {
-  background: linear-gradient(90deg, hsl(33 62% 58%), hsl(35 62% 65%), hsl(33 62% 58%));
+  background: linear-gradient(90deg, hsl(40 56% 50%), hsl(40 60% 58%), hsl(40 56% 50%));
   background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -498,10 +510,10 @@
 
 /* ─── Decorative quote mark ─── */
 .quote-decorative {
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: 'Cormorant Garamond', Georgia, serif;
   font-size: 6rem;
   line-height: 1;
-  color: hsl(33 62% 58% / 0.15);
+  color: hsl(40 56% 50% / 0.15);
   position: absolute;
   top: -0.5rem;
   left: 0.5rem;

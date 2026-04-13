@@ -158,19 +158,19 @@ const Register = ({ roleType = "student" }: RegisterProps) => {
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 6 }, (_, i) => currentYear - 2 + i);
 
-  const inputClass = "h-12 rounded-xl border-border/50 focus:border-secondary focus:ring-secondary/20";
+  const inputClass = "h-12 rounded-xl border-brand-parchment bg-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 text-[14px] text-brand-charcoal placeholder:text-brand-warm-grey-light";
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex bg-brand-cream">
       {/* Left — decorative */}
       <div className="hidden lg:flex lg:w-[40%] relative overflow-hidden">
         <img src={campusVerandah} alt="Campus verandah walkway" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(231_72%_12%/0.94)] via-[hsl(231_72%_20%/0.88)] to-[hsl(231_72%_15%/0.85)]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#5C1219]/95 via-[#7D1E24]/88 to-[#5C1219]/85" />
         <motion.div
           className="absolute inset-0 opacity-20"
           animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
           transition={{ repeat: Infinity, duration: 10, ease: "easeInOut" }}
-          style={{ background: "linear-gradient(135deg, hsl(43 85% 52% / 0.15), transparent, hsl(43 85% 52% / 0.15))", backgroundSize: "200% 200%" }}
+          style={{ background: "linear-gradient(135deg, hsl(40 56% 50% / 0.15), transparent, hsl(40 56% 50% / 0.15))", backgroundSize: "200% 200%" }}
         />
         <div className="relative z-10 flex flex-col justify-center items-center p-12 text-center w-full">
           <motion.img
@@ -180,16 +180,16 @@ const Register = ({ roleType = "student" }: RegisterProps) => {
             animate={{ y: [0, -6, 0] }}
             transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
           />
-          <h2 className="font-serif text-3xl text-primary-foreground mb-4" style={{ textShadow: "0 2px 20px hsl(0 0% 0% / 0.5)" }}>
+          <h2 className="font-serif text-4xl font-bold text-brand-gold-light mb-4">
             {isEducator ? "Inspire & Teach" : "Begin Your"}<br />
             <span className="text-shimmer-gold">{isEducator ? "Classical Arts" : "Musical Journey"}</span>
           </h2>
-          <p className="text-primary-foreground/65 text-lg max-w-md leading-relaxed">
+          <p className="text-brand-warm-grey-light text-lg max-w-md leading-relaxed italic font-light">
             {isEducator
               ? "Join as a tutor and share your expertise in Indian classical arts."
               : "Join a community of passionate learners of Indian classical arts."}
           </p>
-          <div className="mt-10 flex items-center gap-3 text-secondary/80">
+          <div className="mt-10 flex items-center gap-3 text-brand-gold/80">
             <Music className="h-5 w-5" />
             <span className="font-devanagari text-xl">रसो वै सः</span>
           </div>
@@ -254,7 +254,7 @@ const Register = ({ roleType = "student" }: RegisterProps) => {
             {/* Address */}
             <div>
               <label className="text-sm font-medium text-foreground mb-1.5 block">Address</label>
-              <Textarea placeholder="Full address" value={address} onChange={(e) => setAddress(e.target.value)} className="rounded-xl border-border/50 focus:border-secondary focus:ring-secondary/20" rows={2} />
+              <Textarea placeholder="Full address" value={address} onChange={(e) => setAddress(e.target.value)} className="rounded-xl border-brand-parchment bg-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 text-[14px] text-brand-charcoal" rows={2} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
@@ -391,11 +391,11 @@ const Register = ({ roleType = "student" }: RegisterProps) => {
                 </div>
                 <div>
                   <label className="text-sm font-medium text-foreground mb-1.5 block">Qualifications</label>
-                  <Textarea placeholder="Your educational qualifications" value={qualifications} onChange={(e) => setQualifications(e.target.value)} className="rounded-xl border-border/50 focus:border-secondary focus:ring-secondary/20" rows={2} />
+                  <Textarea placeholder="Your educational qualifications" value={qualifications} onChange={(e) => setQualifications(e.target.value)} className="rounded-xl border-brand-parchment bg-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 text-[14px] text-brand-charcoal" rows={2} />
                 </div>
                 <div>
                   <label className="text-sm font-medium text-foreground mb-1.5 block">Specialization / Bio</label>
-                  <Textarea placeholder="Your specialization and brief bio" value={specialization} onChange={(e) => setSpecialization(e.target.value)} className="rounded-xl border-border/50 focus:border-secondary focus:ring-secondary/20" rows={2} />
+                  <Textarea placeholder="Your specialization and brief bio" value={specialization} onChange={(e) => setSpecialization(e.target.value)} className="rounded-xl border-brand-parchment bg-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 text-[14px] text-brand-charcoal" rows={2} />
                 </div>
                 <div>
                   <label className="text-sm font-medium text-foreground mb-1.5 flex items-center gap-1.5"><Upload className="h-3.5 w-3.5 text-muted-foreground" />Profile Photo</label>

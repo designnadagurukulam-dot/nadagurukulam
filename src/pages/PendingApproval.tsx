@@ -10,8 +10,8 @@ const PendingApproval = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="h-10 w-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-brand-cream">
+        <div className="h-10 w-10 border-4 border-brand-primary border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -27,21 +27,21 @@ const PendingApproval = () => {
   const userName = profile?.display_name || "there";
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
+    <div className="min-h-screen flex items-center justify-center bg-brand-cream px-4">
       <div className="max-w-md w-full text-center space-y-6">
-        <div className="mx-auto w-20 h-20 rounded-full bg-secondary/20 flex items-center justify-center">
-          <Clock className="h-10 w-10 text-secondary" />
+        <div className="mx-auto w-20 h-20 rounded-full bg-brand-gold-pale flex items-center justify-center">
+          <Clock className="h-10 w-10 text-brand-gold" />
         </div>
-        <h1 className="text-2xl font-serif font-bold text-foreground">
+        <h1 className="text-2xl font-serif font-bold text-brand-primary">
           Hello {userName}, your account is under review
         </h1>
-        <p className="text-muted-foreground">
+        <p className="text-brand-warm-grey">
           Our team is reviewing your registration. You'll receive an email once your account is approved. This usually takes 1–2 business days.
         </p>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-brand-warm-grey">
           You will be able to sign in and access your dashboard once your account is approved.
         </p>
-        <Button variant="outline" onClick={handleSignOut} className="gap-2">
+        <Button variant="outline" onClick={handleSignOut} className="gap-2 border-brand-primary text-brand-primary hover:bg-brand-primary hover:text-white rounded-xl">
           <LogOut className="h-4 w-4" />
           Sign Out
         </Button>
