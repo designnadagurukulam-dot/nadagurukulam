@@ -4,89 +4,88 @@
 
 @layer base {
   :root {
-    /* Nada Gurukulam Brand Palette — Deep Maroon + Warm Gold */
-    --background: 33 65% 95%;          /* warm cream #FAF3EA */
-    --foreground: 16 27% 19%;          /* dark brown #3E2723 */
+    /* Nada Gurukulam Brand Palette — Deep Navy + Warm Gold */
+    --background: 38 30% 97%;          /* warm off-white */
+    --foreground: 231 72% 15%;         /* deep navy text */
 
-    --card: 33 55% 92%;                /* soft peach #F5E8D5 */
-    --card-foreground: 16 27% 19%;
+    --card: 0 0% 100%;                 /* white cards */
+    --card-foreground: 231 72% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 16 27% 19%;
+    --popover-foreground: 231 72% 15%;
 
-    --primary: 358 68% 31%;            /* deep maroon #86191C */
-    --primary-foreground: 33 65% 95%;
+    --primary: 231 72% 25%;            /* deep navy blue */
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 33 62% 58%;           /* warm gold #D69D53 */
-    --secondary-foreground: 16 27% 19%;
+    --secondary: 43 85% 52%;           /* warm gold */
+    --secondary-foreground: 231 72% 15%;
 
-    --muted: 33 55% 85%;              /* peach cream #F0DCC1 */
+    --muted: 38 20% 93%;
     --muted-foreground: 0 0% 42%;
 
-    --accent: 35 62% 65%;              /* medium gold #DDAD6E */
-    --accent-foreground: 16 27% 19%;
+    --accent: 43 85% 52%;              /* gold accent */
+    --accent-foreground: 231 72% 15%;
 
-    --destructive: 14 100% 60%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 33 35% 82%;
-    --input: 33 35% 82%;
-    --ring: 358 68% 31%;
+    --border: 231 20% 88%;
+    --input: 231 20% 88%;
+    --ring: 231 72% 25%;
 
     --radius: 0.5rem;
 
-    /* Extra brand color */
     --olive: 61 100% 20%;
 
-    --sidebar-background: 33 55% 92%;
-    --sidebar-foreground: 16 27% 19%;
-    --sidebar-primary: 358 68% 31%;
-    --sidebar-primary-foreground: 33 65% 95%;
-    --sidebar-accent: 33 55% 85%;
-    --sidebar-accent-foreground: 16 27% 19%;
-    --sidebar-border: 33 35% 82%;
-    --sidebar-ring: 358 68% 31%;
+    --sidebar-background: 231 72% 18%; /* deep navy for sidebar */
+    --sidebar-foreground: 38 60% 88%;  /* soft gold-white */
+    --sidebar-primary: 43 85% 52%;     /* gold active */
+    --sidebar-primary-foreground: 231 72% 15%;
+    --sidebar-accent: 231 72% 22%;
+    --sidebar-accent-foreground: 38 60% 88%;
+    --sidebar-border: 231 50% 28%;
+    --sidebar-ring: 43 85% 52%;
   }
 
   .dark {
-    --background: 16 27% 10%;
-    --foreground: 33 65% 95%;
+    --background: 231 72% 8%;
+    --foreground: 38 30% 95%;
 
-    --card: 16 27% 14%;
-    --card-foreground: 33 65% 95%;
+    --card: 231 50% 12%;
+    --card-foreground: 38 30% 95%;
 
-    --popover: 16 27% 14%;
-    --popover-foreground: 33 65% 95%;
+    --popover: 231 50% 12%;
+    --popover-foreground: 38 30% 95%;
 
-    --primary: 358 68% 35%;
-    --primary-foreground: 33 65% 95%;
+    --primary: 231 72% 35%;
+    --primary-foreground: 38 30% 95%;
 
-    --secondary: 33 62% 52%;
-    --secondary-foreground: 33 65% 95%;
+    --secondary: 43 85% 48%;
+    --secondary-foreground: 38 30% 95%;
 
-    --muted: 16 20% 20%;
-    --muted-foreground: 30 15% 65%;
+    --muted: 231 30% 18%;
+    --muted-foreground: 38 15% 65%;
 
-    --accent: 35 62% 55%;
-    --accent-foreground: 16 27% 10%;
+    --accent: 43 85% 45%;
+    --accent-foreground: 231 72% 8%;
 
-    --destructive: 14 100% 55%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 16 20% 20%;
-    --input: 16 20% 20%;
-    --ring: 33 62% 58%;
+    --border: 231 30% 22%;
+    --input: 231 30% 22%;
+    --ring: 43 85% 52%;
 
     --olive: 61 100% 25%;
 
-    --sidebar-background: 16 27% 10%;
-    --sidebar-foreground: 33 65% 95%;
-    --sidebar-primary: 358 68% 35%;
-    --sidebar-primary-foreground: 33 65% 95%;
-    --sidebar-accent: 16 20% 20%;
-    --sidebar-accent-foreground: 33 65% 95%;
-    --sidebar-border: 16 20% 20%;
-    --sidebar-ring: 33 62% 58%;
+    --sidebar-background: 231 72% 10%;
+    --sidebar-foreground: 38 30% 90%;
+    --sidebar-primary: 43 85% 52%;
+    --sidebar-primary-foreground: 231 72% 10%;
+    --sidebar-accent: 231 50% 16%;
+    --sidebar-accent-foreground: 38 30% 90%;
+    --sidebar-border: 231 30% 22%;
+    --sidebar-ring: 43 85% 52%;
   }
 }
 
@@ -119,12 +118,16 @@
 
 @layer utilities {
   /* ─── Gradients ─── */
+  .gradient-navy {
+    background: linear-gradient(135deg, hsl(231 72% 25%) 0%, hsl(231 72% 18%) 100%);
+  }
+
   .gradient-maroon {
-    background: linear-gradient(135deg, hsl(358 68% 31%) 0%, hsl(358 68% 25%) 100%);
+    background: linear-gradient(135deg, hsl(231 72% 25%) 0%, hsl(231 72% 18%) 100%);
   }
 
   .gradient-gold {
-    background: linear-gradient(135deg, hsl(33 62% 58%) 0%, hsl(35 62% 65%) 100%);
+    background: linear-gradient(135deg, hsl(43 85% 52%) 0%, hsl(43 85% 60%) 100%);
   }
 
   .text-gold {
