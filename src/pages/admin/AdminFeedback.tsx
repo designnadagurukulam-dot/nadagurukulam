@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { MessageSquare, Star, Filter } from "lucide-react";
+import { MessageSquare, Star, Filter, MessageCircle, Eye } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -48,60 +48,59 @@ const AdminFeedback = () => {
 
   if (loading) {
     return (
-      <div className="space-y-4 pt-12 lg:pt-0">
-        <Skeleton className="h-10 w-48" />
-        <div className="grid grid-cols-3 gap-4">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-24" />)}</div>
-        {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-28" />)}
+      <div className="space-y-6 pt-2">
+        <Skeleton className="h-10 w-48 rounded-xl" />
+        <div className="grid grid-cols-3 gap-4">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-24 rounded-2xl" />)}</div>
+        {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-28 rounded-2xl" />)}
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 pt-12 lg:pt-0">
+    <div className="space-y-6 pt-2">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-        <div className="flex items-center gap-3">
-          <MessageSquare className="h-7 w-7 text-primary" />
-          <h1 className="font-serif text-2xl text-foreground">Student Feedback</h1>
-        </div>
+        <h1 className="font-serif text-2xl font-semibold text-[#7D1E24]">Student Feedback</h1>
+        <div className="w-12 h-0.5 bg-[#C49A3C] mt-1" />
       </motion.div>
 
-      {/* Summary */}
+      {/* Summary Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card>
-          <CardContent className="p-4 text-center">
-            <p className="text-3xl font-bold text-foreground">{feedback.length}</p>
-            <p className="text-xs text-muted-foreground">Total Feedback</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <div className="flex items-center justify-center gap-1">
-              <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
-              <span className="text-3xl font-bold text-foreground">{avgRating}</span>
+        {[
+          { label: "Total Feedback", value: feedback.length, icon: MessageSquare, color: "#7D1E24" },
+          { label: "Average Rating", value: avgRating, icon: Star, color: "#C49A3C", isStar: true },
+          { label: "Anonymous", value: feedback.filter(f => f.is_anonymous).length, icon: Eye, color: "#5C1219" },
+        ].map((s, i) => (
+          <motion.div key={s.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
+            <div className="bg-white rounded-2xl border border-[#EDE3CC] shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-5 flex items-center gap-4">
+              <div className="w-11 h-11 rounded-full bg-[#F5E9CE] flex items-center justify-center">
+                <s.icon className="h-5 w-5" style={{ color: s.color }} />
+              </div>
+              <div>
+                <div className="flex items-center gap-1">
+                  {s.isStar && <Star className="h-4 w-4 text-[#C49A3C] fill-[#C49A3C]" />}
+                  <p className="font-serif text-3xl font-bold text-[#7D1E24]">{s.value}</p>
+                </div>
+                <p className="text-[11px] uppercase tracking-widest text-[#8C7B6B] font-semibold">{s.label}</p>
+              </div>
             </div>
-            <p className="text-xs text-muted-foreground">Average Rating</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <p className="text-3xl font-bold text-foreground">{feedback.filter(f => f.is_anonymous).length}</p>
-            <p className="text-xs text-muted-foreground">Anonymous</p>
-          </CardContent>
-        </Card>
+          </motion.div>
+        ))}
       </div>
 
       {/* Filters */}
       <div className="flex flex-wrap gap-3 items-center">
-        <Filter className="h-4 w-4 text-muted-foreground" />
+        <div className="w-8 h-8 rounded-full bg-[#F5E9CE] flex items-center justify-center">
+          <Filter className="h-4 w-4 text-[#C49A3C]" />
+        </div>
         <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-          <SelectTrigger className="w-40"><SelectValue placeholder="Category" /></SelectTrigger>
+          <SelectTrigger className="w-40 border-[#EDE3CC] rounded-xl"><SelectValue placeholder="Category" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Categories</SelectItem>
             {categories.map(c => <SelectItem key={c} value={c!}>{c}</SelectItem>)}
           </SelectContent>
         </Select>
         <Select value={ratingFilter} onValueChange={setRatingFilter}>
-          <SelectTrigger className="w-32"><SelectValue placeholder="Rating" /></SelectTrigger>
+          <SelectTrigger className="w-32 border-[#EDE3CC] rounded-xl"><SelectValue placeholder="Rating" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Ratings</SelectItem>
             {[5, 4, 3, 2, 1].map(r => <SelectItem key={r} value={r.toString()}>{r} Stars</SelectItem>)}
@@ -111,40 +110,46 @@ const AdminFeedback = () => {
 
       {/* Feedback List */}
       {filtered.length === 0 ? (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-3 opacity-40" />
-            <p className="text-muted-foreground">No feedback found</p>
-          </CardContent>
-        </Card>
+        <div className="bg-white rounded-2xl border border-[#EDE3CC] shadow-[0_2px_24px_rgba(125,30,36,0.06)] py-16 text-center">
+          <div className="w-14 h-14 rounded-full bg-[#F5E9CE] flex items-center justify-center mx-auto mb-4">
+            <MessageCircle className="h-7 w-7 text-[#C49A3C]" />
+          </div>
+          <h3 className="font-serif text-xl text-[#7D1E24]">No Feedback Found</h3>
+          <p className="text-sm text-[#8C7B6B] mt-1">Adjust your filters to see results</p>
+        </div>
       ) : (
         <div className="space-y-3">
-          {filtered.map(f => (
-            <Card key={f.id}>
-              <CardContent className="p-4">
+          {filtered.map((f, i) => (
+            <motion.div key={f.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}>
+              <div className="bg-white rounded-2xl border border-[#EDE3CC] shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-5 hover:bg-[#FAF6EE] transition-colors">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-medium text-sm text-foreground">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-8 h-8 rounded-full bg-[#F5E9CE] flex items-center justify-center text-[#7D1E24] font-serif font-bold text-xs">
+                        {f.is_anonymous ? "?" : (profiles[f.student_id] || "S")[0].toUpperCase()}
+                      </div>
+                      <span className="font-medium text-sm text-[#3D2E22]">
                         {f.is_anonymous ? "Anonymous" : (profiles[f.student_id] || "Student")}
                       </span>
-                      {f.category && <Badge variant="secondary" className="text-xs">{f.category}</Badge>}
+                      {f.category && (
+                        <Badge className="bg-[#F5E9CE] text-[#8B6914] border border-[#EDE3CC] text-[10px]">{f.category}</Badge>
+                      )}
                     </div>
-                    <p className="text-sm text-foreground/80">{f.message}</p>
-                    <p className="text-xs text-muted-foreground mt-2">
+                    <p className="text-sm text-[#3D2E22]/80 leading-relaxed">{f.message}</p>
+                    <p className="text-xs text-[#8C7B6B] mt-2">
                       {f.submitted_at ? new Date(f.submitted_at).toLocaleDateString() : ""}
                     </p>
                   </div>
                   {f.rating && (
                     <div className="flex items-center gap-0.5 shrink-0">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star key={i} className={`h-4 w-4 ${i < f.rating ? "text-yellow-500 fill-yellow-500" : "text-muted-foreground/30"}`} />
+                      {Array.from({ length: 5 }).map((_, idx) => (
+                        <Star key={idx} className={`h-4 w-4 ${idx < f.rating ? "text-[#C49A3C] fill-[#C49A3C]" : "text-[#EDE3CC]"}`} />
                       ))}
                     </div>
                   )}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </motion.div>
           ))}
         </div>
       )}

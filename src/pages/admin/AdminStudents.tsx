@@ -1,16 +1,12 @@
 import { useEffect, useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Search, ShieldCheck, GraduationCap, UserCog, Download, FileSpreadsheet, FileText } from "lucide-react";
+import { Search, ShieldCheck, GraduationCap, UserCog, Download, FileSpreadsheet, FileText, Users, BookOpen } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -125,9 +121,9 @@ const AdminStudents = () => {
   };
 
   const roleColors: Record<string, string> = {
-    admin: "bg-primary text-primary-foreground",
-    instructor: "bg-secondary text-secondary-foreground",
-    student: "bg-muted text-muted-foreground",
+    admin: "bg-[#7D1E24]/10 text-[#7D1E24] border border-[#7D1E24]/20",
+    instructor: "bg-[#C49A3C]/10 text-[#8B6914] border border-[#C49A3C]/20",
+    student: "bg-[#FAF6EE] text-[#8C7B6B] border border-[#EDE3CC]",
   };
 
   const roleIcons: Record<string, typeof ShieldCheck> = {
@@ -136,20 +132,46 @@ const AdminStudents = () => {
     student: UserCog,
   };
 
+  const studentCount = Object.values(roles).filter(r => r === "student").length;
+  const instructorCount = Object.values(roles).filter(r => r === "instructor").length;
+
   return (
-    <div className="space-y-6 pt-12 lg:pt-0">
+    <div className="space-y-6 pt-2">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="font-serif text-2xl md:text-3xl text-foreground">Students & Users</h1>
-        <p className="text-muted-foreground mt-1">{profiles.length} total users • {filtered.length} shown</p>
+        <h1 className="font-serif text-2xl font-semibold text-[#7D1E24]">Students & Users</h1>
+        <div className="w-12 h-0.5 bg-[#C49A3C] mt-1" />
+        <p className="text-sm text-[#8C7B6B] mt-2">{profiles.length} total users • {filtered.length} shown</p>
       </motion.div>
 
+      {/* Stat Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {[
+          { label: "Total Users", value: profiles.length, icon: Users, color: "#7D1E24" },
+          { label: "Students", value: studentCount, icon: GraduationCap, color: "#C49A3C" },
+          { label: "Instructors", value: instructorCount, icon: BookOpen, color: "#5C1219" },
+        ].map((s, i) => (
+          <motion.div key={s.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
+            <div className="bg-white rounded-2xl border border-[#EDE3CC] shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-5 flex items-center gap-4">
+              <div className="w-11 h-11 rounded-full bg-[#F5E9CE] flex items-center justify-center">
+                <s.icon className="h-5 w-5" style={{ color: s.color }} />
+              </div>
+              <div>
+                <p className="font-serif text-3xl font-bold text-[#7D1E24]">{s.value}</p>
+                <p className="text-[11px] uppercase tracking-widest text-[#8C7B6B] font-semibold">{s.label}</p>
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by name..." className="pl-10" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#8C7B6B]" />
+          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by name..." className="pl-10 border-[#EDE3CC] rounded-xl focus:border-[#C49A3C]" />
         </div>
         <Select value={roleFilter} onValueChange={setRoleFilter}>
-          <SelectTrigger className="w-[150px] h-10">
+          <SelectTrigger className="w-[150px] h-10 border-[#EDE3CC] rounded-xl">
             <SelectValue placeholder="Filter by role" />
           </SelectTrigger>
           <SelectContent>
@@ -160,18 +182,18 @@ const AdminStudents = () => {
           </SelectContent>
         </Select>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={exportPDF} disabled={filtered.length === 0}>
-            <FileText className="h-4 w-4 mr-1" /> PDF
+          <Button variant="outline" size="sm" onClick={exportPDF} disabled={filtered.length === 0} className="border-[#EDE3CC] rounded-xl hover:bg-[#FAF6EE] gap-1">
+            <FileText className="h-4 w-4 text-[#7D1E24]" /> PDF
           </Button>
-          <Button variant="outline" size="sm" onClick={exportExcel} disabled={filtered.length === 0}>
-            <FileSpreadsheet className="h-4 w-4 mr-1" /> Excel
+          <Button variant="outline" size="sm" onClick={exportExcel} disabled={filtered.length === 0} className="border-[#EDE3CC] rounded-xl hover:bg-[#FAF6EE] gap-1">
+            <FileSpreadsheet className="h-4 w-4 text-[#C49A3C]" /> Excel
           </Button>
         </div>
       </div>
 
       {loading ? (
         <div className="flex justify-center py-12">
-          <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          <div className="h-8 w-8 border-4 border-[#7D1E24] border-t-transparent rounded-full animate-spin" />
         </div>
       ) : (
         <div className="space-y-2">
@@ -180,17 +202,17 @@ const AdminStudents = () => {
             const RoleIcon = roleIcons[currentRole] || UserCog;
             return (
               <motion.div key={p.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}>
-                <Card>
-                  <CardContent className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4">
+                <div className="bg-white rounded-2xl border border-[#EDE3CC] shadow-[0_2px_24px_rgba(125,30,36,0.06)] hover:bg-[#FAF6EE] transition-colors">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4">
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm shrink-0">
+                      <div className="h-10 w-10 rounded-full bg-[#F5E9CE] flex items-center justify-center text-[#7D1E24] font-bold text-sm shrink-0 font-serif">
                         {(p.display_name || "?")[0].toUpperCase()}
                       </div>
                       <div className="min-w-0">
-                        <p className="font-medium text-foreground truncate">{p.display_name || "Unnamed"}</p>
-                        <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
+                        <p className="font-medium text-[#3D2E22] truncate">{p.display_name || "Unnamed"}</p>
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-[#8C7B6B]">
                           {p.enrollment_id && (
-                            <span className="font-mono text-primary/80">{p.enrollment_id}</span>
+                            <span className="font-mono text-[#7D1E24]/70">{p.enrollment_id}</span>
                           )}
                           <span>Joined {new Date(p.created_at).toLocaleDateString()}</span>
                           <span>{enrollCounts[p.user_id] || 0} courses</span>
@@ -207,7 +229,7 @@ const AdminStudents = () => {
                         onValueChange={(val) => handleRoleChange(p.user_id, val as AppRole)}
                         disabled={updatingRole === p.user_id}
                       >
-                        <SelectTrigger className="w-[130px] h-8 text-xs">
+                        <SelectTrigger className="w-[130px] h-8 text-xs border-[#EDE3CC] rounded-xl">
                           <SelectValue placeholder="Change role" />
                         </SelectTrigger>
                         <SelectContent>
@@ -217,13 +239,18 @@ const AdminStudents = () => {
                         </SelectContent>
                       </Select>
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               </motion.div>
             );
           })}
           {filtered.length === 0 && (
-            <p className="text-center text-muted-foreground py-8">No users found.</p>
+            <div className="bg-white rounded-2xl border border-[#EDE3CC] shadow-[0_2px_24px_rgba(125,30,36,0.06)] py-12 text-center">
+              <div className="w-14 h-14 rounded-full bg-[#F5E9CE] flex items-center justify-center mx-auto mb-4">
+                <Users className="h-7 w-7 text-[#C49A3C]" />
+              </div>
+              <h3 className="font-serif text-xl text-[#7D1E24]">No Users Found</h3>
+            </div>
           )}
         </div>
       )}
