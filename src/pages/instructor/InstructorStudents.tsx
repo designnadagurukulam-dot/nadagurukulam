@@ -1,128 +1,186 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { Users, BookOpen, Clock } from "lucide-react";
+import { Users, Search, MessageSquare, Eye } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-
-interface StudentRow {
-  user_id: string;
-  course_title: string;
-  enrolled_at: string;
-  progress: number;
-  display_name: string | null;
-}
+import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
+import { format } from "date-fns";
 
 const InstructorStudents = () => {
   const { user } = useAuth();
-  const [students, setStudents] = useState<StudentRow[]>([]);
-  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const [search, setSearch] = useState("");
+  const [batchFilter, setBatchFilter] = useState("all");
+  const [selectedStudent, setSelectedStudent] = useState<any>(null);
 
-  useEffect(() => {
-    if (!user) return;
-    const fetchStudents = async () => {
-      // Get instructor's courses
-      const { data: courses } = await supabase
-        .from("courses")
-        .select("id, title")
-        .eq("instructor_id", user.id);
+  const { data: batches = [] } = useQuery({
+    queryKey: ["tutor-batches", user?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("batches")
+        .select("id, name")
+        .eq("instructor_id", user!.id);
+      return data || [];
+    },
+    enabled: !!user,
+  });
 
-      if (!courses || courses.length === 0) {
-        setLoading(false);
-        return;
-      }
+  const { data: students = [], isLoading } = useQuery({
+    queryKey: ["tutor-students", user?.id, batches],
+    queryFn: async () => {
+      const batchIds = batches.map((b) => b.id);
+      if (!batchIds.length) return [];
 
-      const courseIds = courses.map((c) => c.id);
-      const courseMap = Object.fromEntries(courses.map((c) => [c.id, c.title]));
-
-      // Get enrollments
       const { data: enrollments } = await supabase
-        .from("enrollments")
-        .select("user_id, course_id, enrolled_at, progress")
-        .in("course_id", courseIds)
-        .order("enrolled_at", { ascending: false });
+        .from("batch_enrollments")
+        .select("student_id, batch_id, enrolled_at")
+        .in("batch_id", batchIds);
 
-      if (!enrollments || enrollments.length === 0) {
-        setLoading(false);
-        return;
-      }
+      if (!enrollments?.length) return [];
 
-      // Get profiles for enrolled users
-      const userIds = [...new Set(enrollments.map((e) => e.user_id))];
+      const studentIds = [...new Set(enrollments.map((e) => e.student_id))];
       const { data: profiles } = await supabase
         .from("profiles")
-        .select("user_id, display_name")
-        .in("user_id", userIds);
+        .select("user_id, display_name, avatar_url, roll_number, phone, course_name")
+        .in("user_id", studentIds);
 
-      const profileMap = Object.fromEntries((profiles || []).map((p) => [p.user_id, p.display_name]));
+      const profileMap = Object.fromEntries((profiles || []).map((p) => [p.user_id, p]));
+      const batchMap = Object.fromEntries(batches.map((b) => [b.id, b.name]));
 
-      const rows: StudentRow[] = enrollments.map((e) => ({
-        user_id: e.user_id,
-        course_title: courseMap[e.course_id] || "Unknown",
-        enrolled_at: e.enrolled_at,
-        progress: e.progress,
-        display_name: profileMap[e.user_id] || null,
+      return enrollments.map((e) => ({
+        ...e,
+        profile: profileMap[e.student_id] || {},
+        batch_name: batchMap[e.batch_id] || "Unknown",
       }));
+    },
+    enabled: batches.length > 0,
+  });
 
-      setStudents(rows);
-      setLoading(false);
-    };
-    fetchStudents();
-  }, [user]);
+  const filtered = students.filter((s: any) => {
+    const matchesSearch = !search ||
+      s.profile?.display_name?.toLowerCase().includes(search.toLowerCase()) ||
+      s.profile?.roll_number?.toLowerCase().includes(search.toLowerCase());
+    const matchesBatch = batchFilter === "all" || s.batch_id === batchFilter;
+    return matchesSearch && matchesBatch;
+  });
+
+  const getInitials = (name: string) => name?.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase() || "?";
 
   return (
     <div className="space-y-6 pt-12 lg:pt-0">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="font-serif text-3xl text-foreground">My Students</h1>
-        <p className="text-muted-foreground mt-1">Students enrolled in your courses</p>
+        <h1 className="font-serif text-3xl font-bold text-foreground">My Students</h1>
+        <p className="text-muted-foreground mt-1 text-sm">Students enrolled in your batches</p>
       </motion.div>
 
-      {loading ? (
-        <div className="flex justify-center py-12">
-          <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      {/* Filters */}
+      <div className="flex gap-3 flex-wrap">
+        <div className="relative flex-1 min-w-[200px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by name or roll number..." className="pl-9 rounded-xl" />
         </div>
-      ) : students.length === 0 ? (
+        <Select value={batchFilter} onValueChange={setBatchFilter}>
+          <SelectTrigger className="w-48 rounded-xl">
+            <SelectValue placeholder="Filter by batch" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Batches</SelectItem>
+            {batches.map((b) => (
+              <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Students list */}
+      {isLoading ? (
+        <div className="space-y-3">{[1, 2, 3].map((i) => <Skeleton key={i} className="h-20 rounded-2xl" />)}</div>
+      ) : filtered.length === 0 ? (
         <Card>
-          <CardContent className="flex flex-col items-center py-16">
-            <Users className="h-12 w-12 text-muted-foreground/40 mb-4" />
-            <h3 className="font-serif text-xl text-foreground mb-2">No students yet</h3>
-            <p className="text-muted-foreground">Students will appear here once they enroll in your courses</p>
+          <CardContent className="py-12 text-center">
+            <Users className="h-12 w-12 text-muted-foreground/40 mx-auto mb-3" />
+            <p className="text-muted-foreground">No students found.</p>
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-3">
-          {students.map((s, i) => (
-            <motion.div key={`${s.user_id}-${s.course_title}-${i}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}>
-              <Card>
-                <CardContent className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm shrink-0">
-                      {(s.display_name || "U")[0].toUpperCase()}
-                    </div>
-                    <div>
-                      <p className="font-medium text-foreground">{s.display_name || "Anonymous"}</p>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
-                        <BookOpen className="h-3 w-3" />
-                        <span>{s.course_title}</span>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-primary text-primary-foreground text-xs uppercase tracking-wider">
+                <th className="text-left p-3 rounded-tl-xl">Student</th>
+                <th className="text-left p-3">Roll No</th>
+                <th className="text-left p-3">Batch</th>
+                <th className="text-left p-3">Enrolled</th>
+                <th className="text-right p-3 rounded-tr-xl">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((s: any, i: number) => (
+                <tr key={`${s.student_id}-${s.batch_id}-${i}`} className={`border-b border-border hover:border-l-[3px] hover:border-l-accent transition-all ${i % 2 === 0 ? "bg-card" : "bg-muted/30"}`}>
+                  <td className="p-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
+                        {getInitials(s.profile?.display_name || "")}
+                      </div>
+                      <div>
+                        <p className="font-medium text-foreground text-sm">{s.profile?.display_name || "—"}</p>
+                        <p className="text-xs text-muted-foreground">{s.profile?.course_name || ""}</p>
                       </div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Clock className="h-3 w-3" />
-                      {new Date(s.enrolled_at).toLocaleDateString()}
+                  </td>
+                  <td className="p-3 text-sm text-muted-foreground font-mono">{s.profile?.roll_number || "—"}</td>
+                  <td className="p-3"><Badge variant="outline" className="text-xs">{s.batch_name}</Badge></td>
+                  <td className="p-3 text-sm text-muted-foreground">{s.enrolled_at ? format(new Date(s.enrolled_at), "MMM dd, yyyy") : "—"}</td>
+                  <td className="p-3 text-right">
+                    <div className="flex items-center justify-end gap-1">
+                      <Button variant="ghost" size="sm" onClick={() => setSelectedStudent(s)} className="gap-1 text-xs">
+                        <Eye className="h-3 w-3" /> View
+                      </Button>
+                      <Button variant="ghost" size="sm" onClick={() => navigate("/dashboard/tutor/messages")} className="gap-1 text-xs">
+                        <MessageSquare className="h-3 w-3" /> Message
+                      </Button>
                     </div>
-                    <Badge variant="outline" className="text-xs">
-                      {s.progress}% complete
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
+
+      {/* Student Detail Modal */}
+      <Dialog open={!!selectedStudent} onOpenChange={() => setSelectedStudent(null)}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Student Profile</DialogTitle></DialogHeader>
+          {selectedStudent && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg">
+                  {getInitials(selectedStudent.profile?.display_name || "")}
+                </div>
+                <div>
+                  <p className="font-serif text-lg font-bold">{selectedStudent.profile?.display_name || "—"}</p>
+                  <Badge variant="secondary">{selectedStudent.batch_name}</Badge>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div><span className="text-muted-foreground text-xs uppercase tracking-wider">Roll Number</span><p className="font-medium">{selectedStudent.profile?.roll_number || "—"}</p></div>
+                <div><span className="text-muted-foreground text-xs uppercase tracking-wider">Phone</span><p className="font-medium">{selectedStudent.profile?.phone || "—"}</p></div>
+                <div><span className="text-muted-foreground text-xs uppercase tracking-wider">Course</span><p className="font-medium">{selectedStudent.profile?.course_name || "—"}</p></div>
+                <div><span className="text-muted-foreground text-xs uppercase tracking-wider">Enrolled</span><p className="font-medium">{selectedStudent.enrolled_at ? format(new Date(selectedStudent.enrolled_at), "MMM dd, yyyy") : "—"}</p></div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
