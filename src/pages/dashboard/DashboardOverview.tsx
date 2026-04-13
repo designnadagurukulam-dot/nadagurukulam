@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { BookOpen, ClipboardList, Calendar, Award, ArrowRight, Sparkles, Video, Users, BarChart3 } from "lucide-react";
+import { ClipboardList, ArrowRight, Sparkles, Video, Users, BarChart3 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { format, isAfter, subMinutes, addMinutes } from "date-fns";
+import { format, subMinutes, addMinutes } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const DashboardOverview = () => {

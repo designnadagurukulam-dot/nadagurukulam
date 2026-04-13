@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { logActivity } from "@/lib/activityLogger";
 
 const DashboardProfile = () => {
-  const { user, profile, role } = useAuth();
+  const { user, role } = useAuth();
   const { toast } = useToast();
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
