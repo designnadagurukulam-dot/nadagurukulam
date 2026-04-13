@@ -20,8 +20,8 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => {
         {/* Top greeting bar */}
         <div className="px-4 pt-14 md:px-8 md:pt-6 pb-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <p className="text-sm text-brand-warm-grey">{getGreeting()},</p>
-            <h2 className="font-serif text-2xl font-semibold text-brand-primary leading-tight">{name}</h2>
+            <p className="text-sm text-brand-warm-grey">Sai Ram</p>
+            <h2 className="font-serif text-2xl font-semibold text-brand-primary leading-tight">{roleLabel(role)} {name}</h2>
             <div className="w-10 h-0.5 bg-brand-gold mt-1" />
           </div>
           <div className="flex items-center gap-3">
