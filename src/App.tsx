@@ -58,6 +58,9 @@ import InstructorClassLog from "./pages/instructor/InstructorClassLog";
 import InstructorOverview from "./pages/instructor/InstructorOverview";
 import AdminSubjectAllocation from "./pages/admin/AdminSubjectAllocation";
 import AdminUserVerification from "./pages/admin/AdminUserVerification";
+import AdminBatches from "./pages/admin/AdminBatches";
+import AdminFeedback from "./pages/admin/AdminFeedback";
+import AdminLiveClasses from "./pages/admin/AdminLiveClasses";
 import PendingApproval from "./pages/PendingApproval";
 
 const queryClient = new QueryClient();
@@ -141,6 +144,9 @@ const App = () => (
             <Route path="/dashboard/admin/activity" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminActivityLog /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/admin/subject-allocation" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminSubjectAllocation /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/admin/verification" element={<RoleProtectedRoute allowedRoles={["super_admin"]}><DashboardLayout><AdminUserVerification /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/admin/batches" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminBatches /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/admin/feedback" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminFeedback /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/admin/live-classes" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminLiveClasses /></DashboardLayout></RoleProtectedRoute>} />
 
             <Route path="*" element={<Layout><NotFound /></Layout>} />
           </Routes>
