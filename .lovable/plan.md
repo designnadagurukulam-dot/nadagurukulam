@@ -1,79 +1,63 @@
 
 
-# Nada Gurukulam — Brand Theme Application Plan
+# Premium Dashboard UI Redesign
 
 ## Summary
-Replace the current Deep Navy + Gold palette with the original nadagurukulam.org **Deep Maroon (#7D1E24) + Saffron Gold (#C49A3C)** palette across all LMS/auth pages. Update fonts from Playfair Display/Inter to Cormorant Garamond/Nunito Sans.
-
----
+Redesign all three dashboard overview pages (Student, Tutor, Admin) to use a modern, airy, card-based layout with a top greeting bar, study activity chart, upcoming schedule panel, curriculum topic cards, and assignment table. Also add a certificate promo card to the sidebar and refine the DashboardLayout top bar pattern.
 
 ## Scope
-**Changed**: All dashboard, auth, and LMS pages (login, register, pending-approval, student/tutor/admin dashboards, modals, forms, tables, toasts, skeletons, empty states)  
-**Unchanged**: Public pages (`/`, `/about`, `/courses`, `/faculty`, etc.)
+- 5 files modified: `DashboardSidebar.tsx`, `DashboardLayout.tsx`, `DashboardOverview.tsx`, `InstructorOverview.tsx`, `AdminOverview.tsx`
+- 1 new dependency: `recharts` (already likely installed, will verify)
 
----
+## Changes
 
-## Implementation Steps
+### 1. DashboardSidebar — Add Certificate Promo Card
+- Insert a promotional card between nav items and logout section
+- Gold-bordered card with `Award` icon, "Earn Your Certificate!" heading
+- Only shown for student role, when sidebar is not collapsed
+- Reduce nav icon sizes to `size={15}` for consistency
 
-### Step 1 — Global CSS Variables & Fonts (`src/index.css`)
-- Import Cormorant Garamond + Nunito Sans from Google Fonts
-- Replace `:root` CSS variables: primary from navy `231 72% 25%` → maroon `355 60% 30%`, sidebar from `231 72% 18%` → `355 60% 20%`, accent to saffron gold `40 56% 50%`, background to cream `42 40% 96%`
-- Update `.dark` block accordingly
-- Replace body font-family to Nunito Sans, headings to Cormorant Garamond
-- Update gradient utilities (`gradient-navy` → maroon gradient, gold gradients updated)
-- Add global heading styles (h1-h4 sizes, colors)
+### 2. DashboardLayout — Add Top Greeting Bar
+- Create an inline top bar inside the main content area (not a fixed header)
+- Left side: time-based greeting ("Good Morning/Afternoon/Evening") + user name with gold underline accent
+- Right side: search input (decorative/placeholder) + notification bell icon
+- Uses `useAuth()` for profile data
+- Renders above `{children}` in the layout
 
-### Step 2 — Tailwind Config (`tailwind.config.ts`)
-- Add `brand` color map with all 13 hex values (#7D1E24, #5C1219, #A8343B, #C49A3C, #E2B95A, #F5E9CE, #FAF6EE, #F2EAD6, #EDE3CC, #1E1610, #3D2E22, #8C7B6B, #C4B5A5)
-- Update fontFamily to Cormorant Garamond (serif) and Nunito Sans (sans)
+### 3. Student DashboardOverview — Full Redesign
+Replace the current welcome-banner + stats + lists layout with:
+- **Stat cards row** (3-4 cards): white cards with `border-[#EDE3CC]`, subtle shadow, icon in gold circle (`bg-[#F5E9CE]`), number in Cormorant Garamond `text-[#7D1E24]`, label in warm grey uppercase
+- **Middle row** (2-column grid):
+  - Left: **Study Activity bar chart** using `recharts` `BarChart` — 6 day bars, today's bar in `#7D1E24`, others in `#C49A3C`, inactive in `#EDE3CC`, no grid/axes, 100px height. Data sourced from `lesson_progress` or placeholder
+  - Right: **Upcoming Classes** list with colored left border, instructor + platform info, LIVE indicator, join button
+- **Curriculum topic cards** (3-column grid): icon, title, media count, progress bar with maroon fill on parchment track
+- **Assignments table**: maroon header row (`bg-[#5C1219] text-[#E2B95A]`), alternating cream/white rows, status badges (Overdue=red, Due Soon=amber, On Track=green)
+- Remove the emoji from greeting, use clean text only
 
-### Step 3 — Sidebar (`DashboardSidebar.tsx`)
-- Update sidebar to use deep maroon (`#5C1219`) background with gold text (`#E2B95A`)
-- Active nav items: `bg-[#7D1E24]` with gold border-left and gold text
-- Inactive: `text-[#C4B5A5]` with hover to gold
-- User section: gold name, role badge `bg-[#C49A3C] text-[#5C1219]`
-- Mobile hamburger bar: `bg-[#5C1219]`
+### 4. Tutor InstructorOverview — Matching Redesign
+Same layout patterns as student but with tutor-specific content:
+- **Stat cards**: Total Students, Upcoming Classes, Ungraded Submissions, Active Batches
+- **Middle row**: Teaching activity chart + today's schedule
+- **Recent submissions** as a styled table instead of card list
+- **Quick action card**: Schedule a live class
 
-### Step 4 — Login Page (`Login.tsx`)
-- Left panel: `bg-[#5C1219]` with Cormorant Garamond institution name in `#E2B95A`
-- Role tabs: active `bg-[#7D1E24] text-white`, inactive `bg-[#F2EAD6] text-[#8C7B6B]`
-- Form inputs: border `#EDE3CC`, focus ring `#C49A3C`
-- Links: gold accent color
+### 5. Admin AdminOverview — Matching Redesign
+Same layout patterns:
+- **Stat cards** (4x2 grid): 8 stats with consistent card styling (gold icon circles, Cormorant numbers)
+- **Middle row**: Platform activity chart + quick actions as styled grid buttons
+- **Recent courses** as a styled table with maroon header
+- **Activity log** section with consistent styling
 
-### Step 5 — Register & Auth Pages (`Register.tsx`, `AdminLogin.tsx`, `LoginSelect.tsx`, `PendingApproval.tsx`)
-- Apply same maroon/gold/cream palette as login page
+### Design Patterns Applied Uniformly
+- **Section headings**: Cormorant Garamond, `text-[#7D1E24]`, with gold `w-12 h-0.5 bg-[#C49A3C]` underline, optional "See All" link
+- **Card containers**: `bg-white rounded-2xl border border-[#EDE3CC] shadow-[0_2px_24px_rgba(125,30,36,0.06)]`
+- **Stat numbers**: `font-['Cormorant_Garamond'] text-4xl font-bold text-[#7D1E24]`
+- **Icon circles**: `w-10 h-10 rounded-full bg-[#F5E9CE]` with gold icons
+- **Empty states**: gold icon + Cormorant heading on cream background
 
-### Step 6 — Dashboard Layout (`DashboardLayout.tsx`)
-- Main content area: `bg-[#FAF6EE]`
-
-### Step 7 — Dashboard Overview Pages (Student, Tutor, Admin)
-- Welcome banner: `bg-[#7D1E24]` with gold text
-- Stat cards: white with `border-[#EDE3CC]`, icon circles `bg-[#F5E9CE]` with gold icons, stat numbers in Cormorant Garamond `text-[#7D1E24]`
-- Page titles: Cormorant Garamond in `#7D1E24`
-
-### Step 8 — All Dashboard Sub-pages (~15 files)
-Apply consistent styling to: StudentLiveClasses, StudentChat, StudentFeedback, DashboardAssignments, DashboardProfile, DashboardCurriculum, TutorLiveClasses, TutorMessages, TutorCurriculum, InstructorAssignments, InstructorStudents, AdminBatches, AdminFeedback, AdminLiveClasses, and remaining admin pages.
-
-Key patterns applied uniformly:
-- **Tables**: header `bg-[#5C1219] text-[#E2B95A]`, alternating rows cream/white
-- **Tabs**: container `bg-[#F2EAD6]`, active `bg-[#7D1E24] text-white`
-- **Badges**: verified=green, pending=amber, rejected=red, roles use brand maroon/gold
-- **Buttons**: primary `bg-[#7D1E24]`, accent `bg-[#C49A3C]`, outline `border-[#7D1E24]`
-- **Forms**: inputs with `border-[#EDE3CC]` and gold focus ring
-- **Empty states**: gold icon + Cormorant heading + cream background
-- **Skeletons**: `bg-[#F2EAD6]` animated pulse
-
-### Step 9 — Toast Notifications
-- Update sonner Toaster component styling: info toast with gold border on cream, error with red, success with green
-
-### Step 10 — Skeleton Component (`skeleton.tsx`)
-- Update base color to `bg-[#F2EAD6]`
-
----
-
-## Files Modified (estimated ~25 files)
-`src/index.css`, `tailwind.config.ts`, `src/components/DashboardSidebar.tsx`, `src/components/DashboardLayout.tsx`, `src/components/ui/skeleton.tsx`, `src/pages/Login.tsx`, `src/pages/Register.tsx`, `src/pages/AdminLogin.tsx`, `src/pages/LoginSelect.tsx`, `src/pages/PendingApproval.tsx`, `src/pages/dashboard/DashboardOverview.tsx`, `src/pages/dashboard/StudentLiveClasses.tsx`, `src/pages/dashboard/StudentChat.tsx`, `src/pages/dashboard/StudentFeedback.tsx`, `src/pages/dashboard/DashboardAssignments.tsx`, `src/pages/dashboard/DashboardProfile.tsx`, `src/pages/dashboard/DashboardCurriculum.tsx`, `src/pages/instructor/InstructorOverview.tsx`, `src/pages/instructor/InstructorStudents.tsx`, `src/pages/instructor/InstructorAssignments.tsx`, `src/pages/instructor/TutorLiveClasses.tsx`, `src/pages/instructor/TutorMessages.tsx`, `src/pages/instructor/TutorCurriculum.tsx`, `src/pages/admin/AdminOverview.tsx`, `src/pages/admin/AdminBatches.tsx`, `src/pages/admin/AdminFeedback.tsx`, `src/pages/admin/AdminLiveClasses.tsx`
-
-## Approach
-Will implement in batches: globals first (Steps 1-3), then auth pages (Steps 4-5), then dashboards (Steps 6-8), then polish (Steps 9-10). Each batch will be verified for TypeScript compilation.
+### Technical Notes
+- Will verify `recharts` is installed; add if not
+- Top bar greeting uses `new Date().getHours()` for time-based message
+- All existing data fetching logic preserved; only presentation layer changes
+- Motion animations kept but simplified
 
