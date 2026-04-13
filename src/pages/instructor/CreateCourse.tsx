@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, Save, Plus, Trash2, GripVertical, Video, FileText, Type } from "lucide-react";
+import { ArrowLeft, ArrowRight, Save, Plus, Trash2, GripVertical, Video, FileText, Type, BookOpen, CheckCircle2, Layers, ClipboardList, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { logActivity } from "@/lib/activityLogger";
 
 const steps = ["Details", "Modules & Lessons", "Review"];
+const stepIcons = [ClipboardList, Layers, CheckCircle2];
 
 const lessonTypeIcons: Record<string, any> = { video: Video, pdf: FileText, text: Type };
 
@@ -56,13 +57,11 @@ const CreateCourse = () => {
   const [saving, setSaving] = useState(false);
   const [categories, setCategories] = useState<any[]>([]);
 
-  // Course type choice
   const [courseType, setCourseType] = useState<"new" | "curriculum">("new");
   const [curriculumModules, setCurriculumModules] = useState<CurriculumModule[]>([]);
   const [selectedSemester, setSelectedSemester] = useState("");
   const [selectedSubject, setSelectedSubject] = useState("");
 
-  // Step 1: Course details
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [categoryId, setCategoryId] = useState("");
@@ -71,11 +70,9 @@ const CreateCourse = () => {
   const [previewVideoUrl, setPreviewVideoUrl] = useState("");
   const [tags, setTags] = useState("");
 
-  // Step 2: Modules & Lessons
   const [modules, setModules] = useState<Module[]>([
     { id: crypto.randomUUID(), title: "Module 1", description: "", sort_order: 0, lessons: [] },
   ]);
-
 
   useEffect(() => {
     supabase.from("categories").select("*").then(({ data }) => setCategories(data || []));
@@ -84,10 +81,8 @@ const CreateCourse = () => {
     });
   }, []);
 
-  // Derive available semesters
   const semesters = [...new Set(curriculumModules.map((m) => m.semester))].sort((a, b) => a - b);
 
-  // Derive subjects for selected semester (curriculum mode)
   const subjectsForSemester = selectedSemester
     ? [...new Map(
         curriculumModules
@@ -96,7 +91,6 @@ const CreateCourse = () => {
       ).values()]
     : [];
 
-  // Get the selected curriculum module id for saving sections
   const selectedCurriculumModule = selectedSubject
     ? curriculumModules.find(
         (m) => m.semester === Number(selectedSemester) && m.subject_name === selectedSubject
@@ -150,12 +144,12 @@ const CreateCourse = () => {
     (updated[modIdx].lessons[lesIdx] as any)[field] = value;
     setModules(updated);
   };
+
   const handleSaveCurriculumSections = async () => {
     if (!user || !selectedCurriculumModule) return;
     setSaving(true);
     try {
       for (const mod of modules) {
-        // Create a curriculum_section for each module entry
         const validLessons = mod.lessons.filter((l) => l.video_url || l.pdf_url || l.content_text);
         const { data: newSection, error: secErr } = await supabase.from("curriculum_sections").insert({
           module_id: selectedCurriculumModule.id,
@@ -168,7 +162,6 @@ const CreateCourse = () => {
         } as any).select().single();
         if (secErr) throw secErr;
 
-        // Add links for video lessons
         const videoLessons = validLessons.filter((l) => l.lesson_type === "video" && l.video_url);
         if (videoLessons.length > 0) {
           const linkRows = videoLessons.map((l, i) => ({
@@ -194,7 +187,6 @@ const CreateCourse = () => {
     if (!user) return;
     setSaving(true);
     try {
-      // 1. Create course
       const { data: course, error: courseErr } = await supabase
         .from("courses")
         .insert({
@@ -216,7 +208,6 @@ const CreateCourse = () => {
 
       if (courseErr) throw courseErr;
 
-      // 2. Create modules & lessons
       for (const mod of modules) {
         const { data: dbModule, error: modErr } = await supabase
           .from("course_modules")
@@ -243,7 +234,6 @@ const CreateCourse = () => {
         }
       }
 
-      // 3. Create curriculum_module entry if semester selected
       if (selectedSemester) {
         const semNum = Number(selectedSemester);
         const courseCode = semNum === 9 ? `ADD-${course.id.slice(0, 4).toUpperCase()}` : `SEM${semNum}-${course.id.slice(0, 4).toUpperCase()}`;
@@ -257,7 +247,6 @@ const CreateCourse = () => {
         } as any);
       }
 
-      // 4. Submit for review if requested
       if (submitForReview) {
         await supabase.from("content_reviews").insert({ course_id: course.id, status: "pending" } as any);
       }
@@ -272,79 +261,96 @@ const CreateCourse = () => {
     }
   };
 
+  const brandLabel = "text-[11px] uppercase tracking-widest text-[#8C7B6B] font-semibold";
+  const brandInput = "rounded-xl border-[#EDE3CC] focus:border-[#C49A3C]";
+  const brandCard = "bg-white rounded-2xl border border-[#EDE3CC] shadow-[0_2px_24px_rgba(125,30,36,0.06)]";
+
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="space-y-6 max-w-4xl mx-auto pt-2">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-        <Button variant="ghost" onClick={() => navigate(-1)} className="gap-2 mb-2">
+        <Button variant="ghost" onClick={() => navigate(-1)} className="gap-2 mb-2 text-[#8C7B6B] hover:text-[#7D1E24] hover:bg-[#FAF6EE] rounded-xl">
           <ArrowLeft className="h-4 w-4" /> Back
         </Button>
-        <h1 className="font-serif text-3xl text-foreground">Create New Course</h1>
+        <h1 className="font-serif text-2xl font-semibold text-[#7D1E24]">Create New Course</h1>
+        <div className="w-12 h-0.5 bg-[#C49A3C] mt-1" />
       </motion.div>
 
       {/* Step Indicator */}
       <div className="flex items-center gap-2">
-        {steps.map((s, i) => (
-          <button
-            key={s}
-            onClick={() => setStep(i)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
-              i === step ? "bg-primary text-primary-foreground" : i < step ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"
-            }`}
-          >
-            <span className="w-6 h-6 rounded-full bg-background/20 flex items-center justify-center text-xs font-bold">{i + 1}</span>
-            {s}
-          </button>
-        ))}
+        {steps.map((s, i) => {
+          const Icon = stepIcons[i];
+          return (
+            <button
+              key={s}
+              onClick={() => setStep(i)}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                i === step
+                  ? "bg-[#7D1E24] text-white shadow-lg"
+                  : i < step
+                  ? "bg-[#F5E9CE] text-[#7D1E24]"
+                  : "bg-[#FAF6EE] text-[#8C7B6B] border border-[#EDE3CC]"
+              }`}
+            >
+              <Icon className="h-4 w-4" />
+              <span className="hidden sm:inline">{s}</span>
+              <span className="sm:hidden w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">{i + 1}</span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Step 1: Details */}
       {step === 0 && (
         <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
-          {/* Course type choice */}
-          <Card>
-            <CardHeader><CardTitle>What would you like to do?</CardTitle></CardHeader>
-            <CardContent>
+          <div className={brandCard}>
+            <div className="p-6">
+              <h3 className="font-serif text-lg text-[#7D1E24] mb-1">What would you like to do?</h3>
+              <div className="w-8 h-0.5 bg-[#C49A3C] mb-4" />
               <div className="space-y-3">
                 <div
-                  className="flex items-center space-x-3 p-3 rounded-lg border transition-colors cursor-pointer"
-                  style={{ borderColor: courseType === "new" ? "hsl(var(--primary))" : undefined }}
+                  className={`flex items-center space-x-3 p-4 rounded-xl border-2 transition-all cursor-pointer ${courseType === "new" ? "border-[#7D1E24] bg-[#7D1E24]/5" : "border-[#EDE3CC] hover:border-[#C49A3C]"}`}
                   onClick={() => setCourseType("new")}
                 >
-                  <div className={`h-4 w-4 rounded-full border-2 flex items-center justify-center ${courseType === "new" ? "border-primary" : "border-muted-foreground"}`}>
-                    {courseType === "new" && <div className="h-2 w-2 rounded-full bg-primary" />}
+                  <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center ${courseType === "new" ? "border-[#7D1E24]" : "border-[#8C7B6B]"}`}>
+                    {courseType === "new" && <div className="h-2.5 w-2.5 rounded-full bg-[#7D1E24]" />}
                   </div>
                   <div className="flex-1">
-                    <span className="font-medium">Create a new course</span>
-                    <p className="text-sm text-muted-foreground">Start from scratch with a brand new course</p>
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="h-4 w-4 text-[#C49A3C]" />
+                      <span className="font-serif font-medium text-[#3D2E22]">Create a new course</span>
+                    </div>
+                    <p className="text-sm text-[#8C7B6B] ml-6">Start from scratch with a brand new course</p>
                   </div>
                 </div>
                 <div
-                  className="flex items-center space-x-3 p-3 rounded-lg border transition-colors cursor-pointer"
-                  style={{ borderColor: courseType === "curriculum" ? "hsl(var(--primary))" : undefined }}
+                  className={`flex items-center space-x-3 p-4 rounded-xl border-2 transition-all cursor-pointer ${courseType === "curriculum" ? "border-[#7D1E24] bg-[#7D1E24]/5" : "border-[#EDE3CC] hover:border-[#C49A3C]"}`}
                   onClick={() => setCourseType("curriculum")}
                 >
-                  <div className={`h-4 w-4 rounded-full border-2 flex items-center justify-center ${courseType === "curriculum" ? "border-primary" : "border-muted-foreground"}`}>
-                    {courseType === "curriculum" && <div className="h-2 w-2 rounded-full bg-primary" />}
+                  <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center ${courseType === "curriculum" ? "border-[#7D1E24]" : "border-[#8C7B6B]"}`}>
+                    {courseType === "curriculum" && <div className="h-2.5 w-2.5 rounded-full bg-[#7D1E24]" />}
                   </div>
                   <div className="flex-1">
-                    <span className="font-medium">Add to existing curriculum</span>
-                    <p className="text-sm text-muted-foreground">Add modules and sections to an existing curriculum subject</p>
+                    <div className="flex items-center gap-2">
+                      <BookOpen className="h-4 w-4 text-[#C49A3C]" />
+                      <span className="font-serif font-medium text-[#3D2E22]">Add to existing curriculum</span>
+                    </div>
+                    <p className="text-sm text-[#8C7B6B] ml-6">Add modules and sections to an existing curriculum subject</p>
                   </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
-          {/* Curriculum mode: select semester & subject, then go to modules */}
           {courseType === "curriculum" && (
-            <Card>
-              <CardHeader><CardTitle>Select Curriculum Subject</CardTitle></CardHeader>
-              <CardContent className="space-y-4">
+            <div className={brandCard}>
+              <div className="p-6">
+                <h3 className="font-serif text-lg text-[#7D1E24] mb-1">Select Curriculum Subject</h3>
+                <div className="w-8 h-0.5 bg-[#C49A3C] mb-4" />
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label>Semester *</Label>
+                    <Label className={brandLabel}>Semester *</Label>
                     <Select value={selectedSemester} onValueChange={(v) => { setSelectedSemester(v); setSelectedSubject(""); }}>
-                      <SelectTrigger><SelectValue placeholder="Select semester" /></SelectTrigger>
+                      <SelectTrigger className={`mt-1 ${brandInput}`}><SelectValue placeholder="Select semester" /></SelectTrigger>
                       <SelectContent>
                         {semesters.map((s) => (
                           <SelectItem key={s} value={String(s)}>Semester {s}</SelectItem>
@@ -353,9 +359,9 @@ const CreateCourse = () => {
                     </Select>
                   </div>
                   <div>
-                    <Label>Subject *</Label>
+                    <Label className={brandLabel}>Subject *</Label>
                     <Select value={selectedSubject} onValueChange={setSelectedSubject} disabled={!selectedSemester}>
-                      <SelectTrigger><SelectValue placeholder={selectedSemester ? "Select subject" : "Select semester first"} /></SelectTrigger>
+                      <SelectTrigger className={`mt-1 ${brandInput}`}><SelectValue placeholder={selectedSemester ? "Select subject" : "Select semester first"} /></SelectTrigger>
                       <SelectContent>
                         {subjectsForSemester.map((m) => (
                           <SelectItem key={m.subject_name} value={m.subject_name}>{m.subject_name} ({m.course_code})</SelectItem>
@@ -365,26 +371,26 @@ const CreateCourse = () => {
                   </div>
                 </div>
                 {selectedSubject && (
-                  <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
-                    <p className="text-sm text-muted-foreground">
-                      You will add sections to <span className="font-medium text-foreground">{selectedSubject}</span> — Semester {selectedSemester}
+                  <div className="mt-4 p-3 rounded-xl bg-[#F5E9CE] border border-[#EDE3CC]">
+                    <p className="text-sm text-[#3D2E22]">
+                      You will add sections to <span className="font-serif font-semibold text-[#7D1E24]">{selectedSubject}</span> — Semester {selectedSemester}
                     </p>
                   </div>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           )}
 
-          {/* New course mode: semester placement + course details */}
           {courseType === "new" && (
             <>
-              <Card>
-                <CardHeader><CardTitle>Course Placement</CardTitle></CardHeader>
-                <CardContent className="space-y-4">
+              <div className={brandCard}>
+                <div className="p-6">
+                  <h3 className="font-serif text-lg text-[#7D1E24] mb-1">Course Placement</h3>
+                  <div className="w-8 h-0.5 bg-[#C49A3C] mb-4" />
                   <div>
-                    <Label>Which semester is this course for?</Label>
+                    <Label className={brandLabel}>Which semester is this course for?</Label>
                     <Select value={selectedSemester} onValueChange={setSelectedSemester}>
-                      <SelectTrigger><SelectValue placeholder="Select semester or additional" /></SelectTrigger>
+                      <SelectTrigger className={`mt-1 ${brandInput}`}><SelectValue placeholder="Select semester or additional" /></SelectTrigger>
                       <SelectContent>
                         {semesters.map((s) => (
                           <SelectItem key={s} value={String(s)}>Semester {s}</SelectItem>
@@ -394,35 +400,38 @@ const CreateCourse = () => {
                     </Select>
                   </div>
                   {selectedSemester && (
-                    <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
-                      <p className="text-sm text-muted-foreground">
+                    <div className="mt-4 p-3 rounded-xl bg-[#F5E9CE] border border-[#EDE3CC]">
+                      <p className="text-sm text-[#3D2E22]">
                         This course will appear under{" "}
-                        <span className="font-medium text-foreground">
+                        <span className="font-serif font-semibold text-[#7D1E24]">
                           {selectedSemester === "9" ? "Additional Courses" : `Semester ${selectedSemester}`}
                         </span>{" "}
                         in the curriculum.
                       </p>
                     </div>
                   )}
-                </CardContent>
-              </Card>
+                </div>
+              </div>
 
-              <Card>
-                <CardHeader><CardTitle>Course Details</CardTitle></CardHeader>
-                <CardContent className="space-y-4">
+              <div className={brandCard}>
+                <div className="p-6 space-y-4">
                   <div>
-                    <Label>Course Title *</Label>
-                    <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g., Carnatic Vocal Masterclass" />
+                    <h3 className="font-serif text-lg text-[#7D1E24] mb-1">Course Details</h3>
+                    <div className="w-8 h-0.5 bg-[#C49A3C] mb-4" />
                   </div>
                   <div>
-                    <Label>Description</Label>
-                    <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What will students learn?" rows={4} />
+                    <Label className={brandLabel}>Course Title *</Label>
+                    <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g., Carnatic Vocal Masterclass" className={`mt-1 ${brandInput}`} />
+                  </div>
+                  <div>
+                    <Label className={brandLabel}>Description</Label>
+                    <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What will students learn?" rows={4} className={`mt-1 ${brandInput}`} />
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label>Category</Label>
+                      <Label className={brandLabel}>Category</Label>
                       <Select value={categoryId} onValueChange={setCategoryId}>
-                        <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
+                        <SelectTrigger className={`mt-1 ${brandInput}`}><SelectValue placeholder="Select category" /></SelectTrigger>
                         <SelectContent>
                           {categories.map((c) => (
                             <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
@@ -431,9 +440,9 @@ const CreateCourse = () => {
                       </Select>
                     </div>
                     <div>
-                      <Label>Level</Label>
+                      <Label className={brandLabel}>Level</Label>
                       <Select value={level} onValueChange={setLevel}>
-                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectTrigger className={`mt-1 ${brandInput}`}><SelectValue /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="beginner">Beginner</SelectItem>
                           <SelectItem value="intermediate">Intermediate</SelectItem>
@@ -444,20 +453,20 @@ const CreateCourse = () => {
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label>Duration</Label>
-                      <Input value={duration} onChange={(e) => setDuration(e.target.value)} placeholder="e.g., 6 months" />
+                      <Label className={brandLabel}>Duration</Label>
+                      <Input value={duration} onChange={(e) => setDuration(e.target.value)} placeholder="e.g., 6 months" className={`mt-1 ${brandInput}`} />
                     </div>
                     <div>
-                      <Label>Preview Video URL (YouTube)</Label>
-                      <Input value={previewVideoUrl} onChange={(e) => setPreviewVideoUrl(e.target.value)} placeholder="https://youtube.com/..." />
+                      <Label className={brandLabel}>Preview Video URL</Label>
+                      <Input value={previewVideoUrl} onChange={(e) => setPreviewVideoUrl(e.target.value)} placeholder="https://youtube.com/..." className={`mt-1 ${brandInput}`} />
                     </div>
                   </div>
                   <div>
-                    <Label>Tags (comma-separated)</Label>
-                    <Input value={tags} onChange={(e) => setTags(e.target.value)} placeholder="vocal, carnatic, music" />
+                    <Label className={brandLabel}>Tags (comma-separated)</Label>
+                    <Input value={tags} onChange={(e) => setTags(e.target.value)} placeholder="vocal, carnatic, music" className={`mt-1 ${brandInput}`} />
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             </>
           )}
 
@@ -465,7 +474,7 @@ const CreateCourse = () => {
             <Button
               onClick={() => setStep(1)}
               disabled={courseType === "new" ? (!title || !selectedSemester) : !selectedSubject}
-              className="gap-2"
+              className="gap-2 bg-[#7D1E24] hover:bg-[#5C1219] text-white rounded-xl"
             >
               {courseType === "curriculum" ? "Go to Modules" : "Next"} <ArrowRight className="h-4 w-4" />
             </Button>
@@ -477,46 +486,48 @@ const CreateCourse = () => {
       {step === 1 && (
         <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
           {modules.map((mod, modIdx) => (
-            <Card key={mod.id}>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <div className="flex items-center gap-3 flex-1">
-                  <GripVertical className="h-4 w-4 text-muted-foreground" />
-                  <Input
-                    value={mod.title}
-                    onChange={(e) => updateModule(modIdx, "title", e.target.value)}
-                    className="font-semibold text-lg border-0 p-0 h-auto shadow-none focus-visible:ring-0"
-                  />
+            <motion.div key={mod.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: modIdx * 0.05 }} className={brandCard}>
+              <div className="p-5">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-3 flex-1">
+                    <div className="w-8 h-8 rounded-full bg-[#F5E9CE] flex items-center justify-center">
+                      <GripVertical className="h-4 w-4 text-[#C49A3C]" />
+                    </div>
+                    <Input
+                      value={mod.title}
+                      onChange={(e) => updateModule(modIdx, "title", e.target.value)}
+                      className="font-serif font-semibold text-lg text-[#7D1E24] border-0 p-0 h-auto shadow-none focus-visible:ring-0"
+                    />
+                  </div>
+                  {modules.length > 1 && (
+                    <Button variant="ghost" size="sm" onClick={() => removeModule(modIdx)} className="text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl">
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
-                {modules.length > 1 && (
-                  <Button variant="ghost" size="sm" onClick={() => removeModule(modIdx)} className="text-destructive">
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                )}
-              </CardHeader>
-              <CardContent className="space-y-3">
                 <Input
                   value={mod.description}
                   onChange={(e) => updateModule(modIdx, "description", e.target.value)}
                   placeholder="Module description (optional)"
-                  className="text-sm"
+                  className={`text-sm mb-3 ${brandInput}`}
                 />
 
                 {/* Lessons */}
-                <div className="space-y-2 pl-4 border-l-2 border-primary/20">
+                <div className="space-y-2 pl-4 border-l-2 border-[#C49A3C]/30">
                   {mod.lessons.map((les, lesIdx) => {
                     const LesIcon = lessonTypeIcons[les.lesson_type] || Video;
                     return (
-                      <div key={les.id} className="bg-muted/50 rounded-lg p-3 space-y-2">
+                      <div key={les.id} className="bg-[#FAF6EE] rounded-xl p-3 space-y-2 border border-[#EDE3CC]">
                         <div className="flex items-center gap-2">
-                          <LesIcon className="h-4 w-4 text-primary shrink-0" />
+                          <LesIcon className="h-4 w-4 text-[#7D1E24] shrink-0" />
                           <Input
                             value={les.title}
                             onChange={(e) => updateLesson(modIdx, lesIdx, "title", e.target.value)}
-                            className="flex-1 h-8 text-sm"
+                            className="flex-1 h-8 text-sm border-[#EDE3CC] rounded-lg"
                             placeholder="Lesson title"
                           />
                           <Select value={les.lesson_type} onValueChange={(v) => updateLesson(modIdx, lesIdx, "lesson_type", v)}>
-                            <SelectTrigger className="w-28 h-8 text-xs">
+                            <SelectTrigger className="w-28 h-8 text-xs border-[#EDE3CC] rounded-lg">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -525,16 +536,16 @@ const CreateCourse = () => {
                               <SelectItem value="text">Text</SelectItem>
                             </SelectContent>
                           </Select>
-                          <label className="flex items-center gap-1 text-xs text-muted-foreground cursor-pointer">
+                          <label className="flex items-center gap-1 text-xs text-[#8C7B6B] cursor-pointer">
                             <input
                               type="checkbox"
                               checked={les.is_preview}
                               onChange={(e) => updateLesson(modIdx, lesIdx, "is_preview", e.target.checked)}
-                              className="rounded"
+                              className="rounded accent-[#7D1E24]"
                             />
                             Free
                           </label>
-                          <Button variant="ghost" size="sm" onClick={() => removeLesson(modIdx, lesIdx)} className="h-8 w-8 p-0 text-destructive">
+                          <Button variant="ghost" size="sm" onClick={() => removeLesson(modIdx, lesIdx)} className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg">
                             <Trash2 className="h-3 w-3" />
                           </Button>
                         </div>
@@ -543,7 +554,7 @@ const CreateCourse = () => {
                             value={les.video_url}
                             onChange={(e) => updateLesson(modIdx, lesIdx, "video_url", e.target.value)}
                             placeholder="YouTube URL (unlisted)"
-                            className="h-8 text-xs"
+                            className="h-8 text-xs border-[#EDE3CC] rounded-lg"
                           />
                         )}
                         {les.lesson_type === "pdf" && (
@@ -551,7 +562,7 @@ const CreateCourse = () => {
                             value={les.pdf_url}
                             onChange={(e) => updateLesson(modIdx, lesIdx, "pdf_url", e.target.value)}
                             placeholder="PDF file URL"
-                            className="h-8 text-xs"
+                            className="h-8 text-xs border-[#EDE3CC] rounded-lg"
                           />
                         )}
                         {les.lesson_type === "text" && (
@@ -560,34 +571,34 @@ const CreateCourse = () => {
                             onChange={(e) => updateLesson(modIdx, lesIdx, "content_text", e.target.value)}
                             placeholder="Lesson text content..."
                             rows={3}
-                            className="text-xs"
+                            className="text-xs border-[#EDE3CC] rounded-lg"
                           />
                         )}
                       </div>
                     );
                   })}
-                  <Button variant="ghost" size="sm" onClick={() => addLesson(modIdx)} className="gap-1 text-primary">
+                  <Button variant="ghost" size="sm" onClick={() => addLesson(modIdx)} className="gap-1 text-[#7D1E24] hover:bg-[#FAF6EE] rounded-xl">
                     <Plus className="h-3 w-3" /> Add Lesson
                   </Button>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </motion.div>
           ))}
 
-          <Button variant="outline" onClick={addModule} className="w-full gap-2">
+          <Button variant="outline" onClick={addModule} className="w-full gap-2 border-[#EDE3CC] text-[#7D1E24] hover:bg-[#FAF6EE] rounded-xl border-dashed border-2">
             <Plus className="h-4 w-4" /> Add Module
           </Button>
 
           <div className="flex justify-between mt-4">
-            <Button variant="outline" onClick={() => setStep(0)} className="gap-2">
+            <Button variant="outline" onClick={() => setStep(0)} className="gap-2 border-[#EDE3CC] text-[#8C7B6B] hover:bg-[#FAF6EE] rounded-xl">
               <ArrowLeft className="h-4 w-4" /> Back
             </Button>
             {courseType === "curriculum" ? (
-              <Button onClick={handleSaveCurriculumSections} disabled={saving || modules.length === 0} className="gap-2">
+              <Button onClick={handleSaveCurriculumSections} disabled={saving || modules.length === 0} className="gap-2 bg-[#7D1E24] hover:bg-[#5C1219] text-white rounded-xl">
                 <Save className="h-4 w-4" /> {saving ? "Saving..." : "Save to Curriculum"}
               </Button>
             ) : (
-              <Button onClick={() => setStep(2)} className="gap-2">
+              <Button onClick={() => setStep(2)} className="gap-2 bg-[#7D1E24] hover:bg-[#5C1219] text-white rounded-xl">
                 Next <ArrowRight className="h-4 w-4" />
               </Button>
             )}
@@ -595,31 +606,47 @@ const CreateCourse = () => {
         </motion.div>
       )}
 
-      {/* Step 3: Review (new course only) */}
+      {/* Step 3: Review */}
       {step === 2 && courseType === "new" && (
         <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
-
-          <Card>
-            <CardHeader><CardTitle>Review Summary</CardTitle></CardHeader>
-            <CardContent className="space-y-2 text-sm">
-              <p><span className="font-medium">Title:</span> {title || "—"}</p>
-              <p><span className="font-medium">Level:</span> {level}</p>
-              <p><span className="font-medium">Duration:</span> {duration || "—"}</p>
-              <p><span className="font-medium">Semester:</span> {selectedSemester === "9" ? "Additional" : `Semester ${selectedSemester}`}</p>
-              <p><span className="font-medium">Modules:</span> {modules.length}</p>
-              <p><span className="font-medium">Total Lessons:</span> {modules.reduce((sum, m) => sum + m.lessons.length, 0)}</p>
-            </CardContent>
-          </Card>
+          <div className={brandCard}>
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-full bg-[#F5E9CE] flex items-center justify-center">
+                  <CheckCircle2 className="h-5 w-5 text-[#C49A3C]" />
+                </div>
+                <div>
+                  <h3 className="font-serif text-lg text-[#7D1E24]">Review Summary</h3>
+                  <div className="w-8 h-0.5 bg-[#C49A3C] mt-0.5" />
+                </div>
+              </div>
+              <div className="space-y-3 text-sm">
+                {[
+                  ["Title", title || "—"],
+                  ["Level", level],
+                  ["Duration", duration || "—"],
+                  ["Semester", selectedSemester === "9" ? "Additional" : `Semester ${selectedSemester}`],
+                  ["Modules", String(modules.length)],
+                  ["Total Lessons", String(modules.reduce((sum, m) => sum + m.lessons.length, 0))],
+                ].map(([label, value]) => (
+                  <div key={label} className="flex justify-between items-center py-2 border-b border-[#EDE3CC] last:border-0">
+                    <span className="text-[11px] uppercase tracking-widest text-[#8C7B6B] font-semibold">{label}</span>
+                    <span className="font-serif font-medium text-[#3D2E22]">{value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
 
           <div className="flex justify-between">
-            <Button variant="outline" onClick={() => setStep(1)} className="gap-2">
+            <Button variant="outline" onClick={() => setStep(1)} className="gap-2 border-[#EDE3CC] text-[#8C7B6B] hover:bg-[#FAF6EE] rounded-xl">
               <ArrowLeft className="h-4 w-4" /> Back
             </Button>
             <div className="flex gap-3">
-              <Button variant="outline" onClick={() => handleSave(false)} disabled={saving || !title} className="gap-2">
+              <Button variant="outline" onClick={() => handleSave(false)} disabled={saving || !title} className="gap-2 border-[#EDE3CC] text-[#7D1E24] hover:bg-[#FAF6EE] rounded-xl">
                 <Save className="h-4 w-4" /> Save Draft
               </Button>
-              <Button onClick={() => handleSave(true)} disabled={saving || !title} className="gap-2">
+              <Button onClick={() => handleSave(true)} disabled={saving || !title} className="gap-2 bg-[#C49A3C] hover:bg-[#B08A2E] text-[#3D2E22] rounded-xl">
                 Submit for Review
               </Button>
             </div>
