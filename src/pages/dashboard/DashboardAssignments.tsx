@@ -92,44 +92,42 @@ const DashboardAssignments = () => {
     if (status !== "pending" && status !== "overdue") return "bg-muted text-muted-foreground";
     if (!dueDate) return "bg-muted text-muted-foreground";
     const diffDays = (new Date(dueDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24);
-    if (diffDays < 0) return "bg-destructive/15 text-destructive";
-    if (diffDays < 2) return "bg-orange-100 text-orange-700";
-    return "bg-green-100 text-green-700";
+    if (diffDays < 0) return "bg-red-50 text-red-700";
+    if (diffDays < 2) return "bg-amber-50 text-amber-700";
+    return "bg-green-50 text-green-700";
   };
 
   const renderAssignment = (a: any) => (
-    <Card key={a.id} className="hover:shadow-md transition-all">
+    <Card key={a.id} className="bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] hover:shadow-lg transition-all">
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-foreground text-sm">{a.title}</h3>
-            <p className="text-xs text-muted-foreground mt-0.5">{a.courses?.title}</p>
-            {a.description && <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{a.description}</p>}
+            <h3 className="font-semibold text-brand-charcoal-mid text-sm">{a.title}</h3>
+            <p className="text-xs text-brand-warm-grey mt-0.5">{a.courses?.title}</p>
+            {a.description && <p className="text-xs text-brand-warm-grey mt-1 line-clamp-2">{a.description}</p>}
 
-            {/* Media attachments */}
             <div className="flex gap-2 mt-2 flex-wrap">
               {a.pdf_url && (
-                <Button variant="ghost" size="sm" onClick={() => downloadFile(a.pdf_url)} className="h-7 gap-1 text-xs">
+                <Button variant="ghost" size="sm" onClick={() => downloadFile(a.pdf_url)} className="h-7 gap-1 text-xs text-brand-primary hover:bg-brand-gold-pale">
                   <FileText className="h-3 w-3" /> PDF
                 </Button>
               )}
               {a.video_url && (
                 <a href={a.video_url} target="_blank" rel="noopener noreferrer">
-                  <Button variant="ghost" size="sm" className="h-7 gap-1 text-xs">
+                  <Button variant="ghost" size="sm" className="h-7 gap-1 text-xs text-brand-primary hover:bg-brand-gold-pale">
                     <Video className="h-3 w-3" /> Video
                   </Button>
                 </a>
               )}
               {a.external_link && (
                 <a href={a.external_link} target="_blank" rel="noopener noreferrer">
-                  <Button variant="ghost" size="sm" className="h-7 gap-1 text-xs">
+                  <Button variant="ghost" size="sm" className="h-7 gap-1 text-xs text-brand-primary hover:bg-brand-gold-pale">
                     <ExternalLink className="h-3 w-3" /> Link
                   </Button>
                 </a>
               )}
             </div>
 
-            {/* Graded info */}
             {a.submission?.status === "graded" && (
               <div className="mt-3 p-3 bg-green-50 rounded-xl text-xs">
                 <span className="font-medium text-green-700">Grade: {a.submission.grade}</span>
@@ -144,11 +142,11 @@ const DashboardAssignments = () => {
               </Badge>
             )}
             {!a.submission && (
-              <Button size="sm" onClick={() => setSubmitDialog(a.id)} className="gap-1 text-xs">
+              <Button size="sm" onClick={() => setSubmitDialog(a.id)} className="gap-1 text-xs bg-brand-primary hover:bg-brand-primary-dark text-white rounded-xl">
                 <Upload className="h-3 w-3" /> Submit
               </Button>
             )}
-            {a.status === "submitted" && <Badge variant="secondary" className="text-xs">Awaiting Grade</Badge>}
+            {a.status === "submitted" && <Badge className="bg-amber-50 text-amber-700 border-0 text-xs">Awaiting Grade</Badge>}
           </div>
         </div>
       </CardContent>
@@ -156,27 +154,32 @@ const DashboardAssignments = () => {
   );
 
   const renderEmpty = (msg: string) => (
-    <Card><CardContent className="py-12 text-center">
-      <ClipboardList className="h-10 w-10 text-muted-foreground/40 mx-auto mb-3" />
-      <p className="text-muted-foreground text-sm">{msg}</p>
-    </CardContent></Card>
+    <Card className="bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)]">
+      <CardContent className="py-12 text-center">
+        <div className="w-12 h-12 rounded-full bg-brand-gold-pale flex items-center justify-center mx-auto mb-3">
+          <ClipboardList className="h-6 w-6 text-brand-gold" />
+        </div>
+        <p className="font-serif text-brand-primary font-semibold">{msg}</p>
+      </CardContent>
+    </Card>
   );
 
   return (
-    <div className="space-y-6 pt-12 lg:pt-0">
+    <div className="space-y-6 pt-2">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="font-serif text-3xl font-bold text-foreground">Assignments</h1>
-        <p className="text-muted-foreground mt-1 text-sm">View and submit your assignments</p>
+        <h1 className="font-serif text-2xl font-semibold text-brand-primary">Assignments</h1>
+        <div className="w-12 h-0.5 bg-brand-gold mt-1" />
+        <p className="text-brand-warm-grey mt-2 text-sm">View and submit your assignments</p>
       </motion.div>
 
       {isLoading ? (
         <div className="space-y-3">{[1, 2, 3].map((i) => <Skeleton key={i} className="h-24 rounded-2xl" />)}</div>
       ) : (
         <Tabs defaultValue="pending">
-          <TabsList>
-            <TabsTrigger value="pending">Pending ({pending.length})</TabsTrigger>
-            <TabsTrigger value="submitted">Submitted ({submitted.length})</TabsTrigger>
-            <TabsTrigger value="graded">Graded ({graded.length})</TabsTrigger>
+          <TabsList className="bg-brand-cream-dark rounded-xl p-1">
+            <TabsTrigger value="pending" className="rounded-lg data-[state=active]:bg-brand-primary data-[state=active]:text-white text-brand-warm-grey">Pending ({pending.length})</TabsTrigger>
+            <TabsTrigger value="submitted" className="rounded-lg data-[state=active]:bg-brand-primary data-[state=active]:text-white text-brand-warm-grey">Submitted ({submitted.length})</TabsTrigger>
+            <TabsTrigger value="graded" className="rounded-lg data-[state=active]:bg-brand-primary data-[state=active]:text-white text-brand-warm-grey">Graded ({graded.length})</TabsTrigger>
           </TabsList>
           <TabsContent value="pending" className="mt-4 space-y-3">
             {pending.length === 0 ? renderEmpty("No pending assignments. You're all caught up!") : pending.map(renderAssignment)}
@@ -190,23 +193,22 @@ const DashboardAssignments = () => {
         </Tabs>
       )}
 
-      {/* Submit Dialog */}
       <Dialog open={!!submitDialog} onOpenChange={() => setSubmitDialog(null)}>
-        <DialogContent className="max-w-md">
-          <DialogHeader><DialogTitle>Submit Assignment</DialogTitle></DialogHeader>
+        <DialogContent className="max-w-md rounded-2xl border-brand-parchment">
+          <DialogHeader><DialogTitle className="font-serif text-brand-primary">Submit Assignment</DialogTitle></DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label className="text-xs uppercase tracking-widest">Upload File</Label>
-              <Input type="file" onChange={(e) => setFile(e.target.files?.[0] || null)} className="mt-1" />
+              <Label className="text-[11px] uppercase tracking-widest text-brand-warm-grey font-semibold">Upload File</Label>
+              <Input type="file" onChange={(e) => setFile(e.target.files?.[0] || null)} className="mt-1 border-brand-parchment rounded-xl focus:border-brand-gold focus:ring-brand-gold/20" />
             </div>
             <div>
-              <Label className="text-xs uppercase tracking-widest">Text Response (optional)</Label>
-              <Textarea value={textContent} onChange={(e) => setTextContent(e.target.value)} placeholder="Your response..." rows={4} className="mt-1 rounded-xl" />
+              <Label className="text-[11px] uppercase tracking-widest text-brand-warm-grey font-semibold">Text Response (optional)</Label>
+              <Textarea value={textContent} onChange={(e) => setTextContent(e.target.value)} placeholder="Your response..." rows={4} className="mt-1 rounded-xl border-brand-parchment focus:border-brand-gold focus:ring-brand-gold/20" />
             </div>
             <Button
               onClick={() => submitDialog && submitMutation.mutate(submitDialog)}
               disabled={(!file && !textContent) || submitMutation.isPending}
-              className="w-full"
+              className="w-full bg-brand-primary hover:bg-brand-primary-dark text-white rounded-xl"
             >
               {submitMutation.isPending ? "Submitting..." : "Submit Assignment"}
             </Button>

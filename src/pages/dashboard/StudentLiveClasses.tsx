@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import { Video, Clock, ExternalLink } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,10 +16,7 @@ const StudentLiveClasses = () => {
   const { data: batchIds = [] } = useQuery({
     queryKey: ["student-batch-ids", user?.id],
     queryFn: async () => {
-      const { data } = await supabase
-        .from("batch_enrollments")
-        .select("batch_id")
-        .eq("student_id", user!.id);
+      const { data } = await supabase.from("batch_enrollments").select("batch_id").eq("student_id", user!.id);
       return (data || []).map((b) => b.batch_id);
     },
     enabled: !!user,
@@ -54,38 +50,38 @@ const StudentLiveClasses = () => {
   const renderClassCard = (cls: any, isPast: boolean) => {
     const live = isClassLive(cls);
     return (
-      <Card key={cls.id} className={`overflow-hidden transition-all hover:shadow-lg ${isPast ? "opacity-70" : ""}`}>
+      <Card key={cls.id} className={`bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] overflow-hidden transition-all hover:shadow-lg ${isPast ? "opacity-70" : ""}`}>
         <CardContent className="p-5">
-          <h3 className="font-serif font-bold text-foreground">{cls.title}</h3>
-          <p className="text-sm text-muted-foreground mt-1">{cls.profiles?.display_name || "Tutor"}</p>
-          {cls.description && <p className="text-xs text-muted-foreground mt-2 line-clamp-2">{cls.description}</p>}
+          <h3 className="font-serif font-bold text-brand-charcoal-mid">{cls.title}</h3>
+          <p className="text-sm text-brand-warm-grey mt-1">{cls.profiles?.display_name || "Tutor"}</p>
+          {cls.description && <p className="text-xs text-brand-warm-grey mt-2 line-clamp-2">{cls.description}</p>}
           <div className="mt-3 space-y-1">
-            <p className="text-sm text-foreground">
+            <p className="text-sm text-brand-charcoal-mid">
               {format(new Date(cls.scheduled_at), "EEEE, dd MMMM yyyy 'at' h:mm a")}
             </p>
-            <p className="text-xs text-muted-foreground flex items-center gap-1">
+            <p className="text-xs text-brand-warm-grey flex items-center gap-1">
               <Clock className="h-3 w-3" /> {cls.duration_minutes || 60} minutes
             </p>
           </div>
           <div className="flex items-center gap-2 mt-4 flex-wrap">
-            <Badge variant="outline" className={cls.meeting_platform === "google_meet" ? "border-green-300 text-green-700" : "border-blue-300 text-blue-700"}>
+            <Badge className={`border-0 text-xs ${cls.meeting_platform === "google_meet" ? "bg-green-50 text-green-700" : "bg-blue-50 text-blue-700"}`}>
               {cls.meeting_platform === "google_meet" ? "Google Meet" : "Zoom"}
             </Badge>
             {isPast ? (
-              <Badge variant="secondary">Completed</Badge>
+              <Badge className="bg-brand-cream-dark text-brand-warm-grey border-0">Completed</Badge>
             ) : live ? (
               <>
                 <span className="flex items-center gap-1 text-xs text-green-600 font-semibold">
                   <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" /> LIVE
                 </span>
                 <a href={cls.meeting_link} target="_blank" rel="noopener noreferrer">
-                  <Button size="sm" className="bg-accent text-accent-foreground hover:bg-accent/90 gap-1">
+                  <Button size="sm" className="bg-brand-gold text-brand-charcoal hover:bg-brand-gold-light gap-1 rounded-xl">
                     <ExternalLink className="h-3 w-3" /> Join Class
                   </Button>
                 </a>
               </>
             ) : (
-              <Button size="sm" variant="secondary" disabled className="gap-1 text-xs">
+              <Button size="sm" disabled className="gap-1 text-xs bg-brand-cream-dark text-brand-warm-grey rounded-xl">
                 Not yet live
               </Button>
             )}
@@ -96,16 +92,17 @@ const StudentLiveClasses = () => {
   };
 
   return (
-    <div className="space-y-6 pt-12 lg:pt-0">
+    <div className="space-y-6 pt-2">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="font-serif text-3xl font-bold text-foreground">Live Classes</h1>
-        <p className="text-muted-foreground mt-1 text-sm">Join scheduled live sessions with your tutors</p>
+        <h1 className="font-serif text-2xl font-semibold text-brand-primary">Live Classes</h1>
+        <div className="w-12 h-0.5 bg-brand-gold mt-1" />
+        <p className="text-brand-warm-grey mt-2 text-sm">Join scheduled live sessions with your tutors</p>
       </motion.div>
 
       <Tabs defaultValue="upcoming">
-        <TabsList>
-          <TabsTrigger value="upcoming">Upcoming ({upcoming.length})</TabsTrigger>
-          <TabsTrigger value="past">Past ({past.length})</TabsTrigger>
+        <TabsList className="bg-brand-cream-dark rounded-xl p-1">
+          <TabsTrigger value="upcoming" className="rounded-lg data-[state=active]:bg-brand-primary data-[state=active]:text-white text-brand-warm-grey">Upcoming ({upcoming.length})</TabsTrigger>
+          <TabsTrigger value="past" className="rounded-lg data-[state=active]:bg-brand-primary data-[state=active]:text-white text-brand-warm-grey">Past ({past.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="upcoming" className="mt-4">
@@ -114,10 +111,12 @@ const StudentLiveClasses = () => {
               {[1, 2].map((i) => <Skeleton key={i} className="h-48 rounded-2xl" />)}
             </div>
           ) : upcoming.length === 0 ? (
-            <Card>
+            <Card className="bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)]">
               <CardContent className="py-12 text-center">
-                <Video className="h-12 w-12 text-muted-foreground/40 mx-auto mb-3" />
-                <p className="text-muted-foreground">No upcoming live classes scheduled.</p>
+                <div className="w-12 h-12 rounded-full bg-brand-gold-pale flex items-center justify-center mx-auto mb-3">
+                  <Video className="h-6 w-6 text-brand-gold" />
+                </div>
+                <p className="font-serif text-brand-primary font-semibold">No upcoming live classes scheduled.</p>
               </CardContent>
             </Card>
           ) : (
@@ -129,9 +128,9 @@ const StudentLiveClasses = () => {
 
         <TabsContent value="past" className="mt-4">
           {past.length === 0 ? (
-            <Card>
+            <Card className="bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)]">
               <CardContent className="py-12 text-center">
-                <p className="text-muted-foreground">No past classes yet.</p>
+                <p className="font-serif text-brand-primary font-semibold">No past classes yet.</p>
               </CardContent>
             </Card>
           ) : (
