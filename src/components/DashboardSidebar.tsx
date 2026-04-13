@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, BookOpen, ClipboardList, Calendar, Award, User, LogOut,
-  ChevronLeft, ChevronRight, PlusCircle, Settings, Users, BarChart3, CheckSquare, Tag, Ticket, Menu, X, MessageSquare, Briefcase, CalendarDays, GraduationCap, Activity, BookCheck, FolderOpen
+  ChevronLeft, ChevronRight, PlusCircle, Users, BarChart3, CheckSquare, Tag, Menu, X, MessageSquare, Briefcase, CalendarDays, GraduationCap, Activity, BookCheck, FolderOpen, Video, Star, ShieldCheck
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
@@ -9,52 +9,53 @@ import { Button } from "@/components/ui/button";
 import logo from "@/assets/logo.png";
 
 const studentNav = [
-  { label: "Overview", to: "/dashboard", icon: LayoutDashboard },
-  { label: "My Courses", to: "/dashboard/courses", icon: BookOpen },
-  { label: "Curriculum", to: "/dashboard/curriculum", icon: GraduationCap },
-  { label: "Assignments", to: "/dashboard/assignments", icon: ClipboardList },
-  { label: "Schedule", to: "/dashboard/schedule", icon: Calendar },
-  { label: "Class Log", to: "/dashboard/class-log", icon: BookCheck },
-  { label: "Projects", to: "/dashboard/projects", icon: FolderOpen },
-  { label: "Certificates", to: "/dashboard/certificates", icon: Award },
-  { label: "Profile", to: "/dashboard/profile", icon: User },
+  { label: "Overview", to: "/dashboard/student", icon: LayoutDashboard },
+  { label: "My Courses", to: "/dashboard/student/courses", icon: BookOpen },
+  { label: "Curriculum", to: "/dashboard/student/curriculum", icon: GraduationCap },
+  { label: "Live Classes", to: "/dashboard/student/live-classes", icon: Video },
+  { label: "Assignments", to: "/dashboard/student/assignments", icon: ClipboardList },
+  { label: "Chat", to: "/dashboard/student/chat", icon: MessageSquare },
+  { label: "Feedback", to: "/dashboard/student/feedback", icon: Star },
+  { label: "Certificates", to: "/dashboard/student/certificates", icon: Award },
+  { label: "Profile", to: "/dashboard/student/profile", icon: User },
 ];
 
 const instructorNav = [
-  { label: "Overview", to: "/dashboard/instructor", icon: LayoutDashboard },
-  { label: "My Courses", to: "/dashboard/instructor/courses", icon: BookOpen },
-  { label: "Curriculum", to: "/dashboard/instructor/curriculum", icon: GraduationCap },
-  { label: "Create Course", to: "/dashboard/instructor/create", icon: PlusCircle },
-  { label: "Assignments", to: "/dashboard/instructor/assignments", icon: ClipboardList },
-  { label: "Class Log", to: "/dashboard/instructor/class-log", icon: BookCheck },
-  { label: "Schedule", to: "/dashboard/instructor/schedule", icon: Calendar },
-  { label: "My Students", to: "/dashboard/instructor/students", icon: Users },
-  { label: "Analytics", to: "/dashboard/instructor/analytics", icon: BarChart3 },
-  { label: "Profile", to: "/dashboard/profile", icon: User },
+  { label: "Overview", to: "/dashboard/tutor", icon: LayoutDashboard },
+  { label: "My Students", to: "/dashboard/tutor/students", icon: Users },
+  { label: "Curriculum", to: "/dashboard/tutor/curriculum", icon: GraduationCap },
+  { label: "Live Classes", to: "/dashboard/tutor/live-classes", icon: Video },
+  { label: "Assignments", to: "/dashboard/tutor/assignments", icon: ClipboardList },
+  { label: "Messages", to: "/dashboard/tutor/messages", icon: MessageSquare },
+  { label: "My Courses", to: "/dashboard/tutor/courses", icon: BookOpen },
+  { label: "Create Course", to: "/dashboard/tutor/create", icon: PlusCircle },
+  { label: "Analytics", to: "/dashboard/tutor/analytics", icon: BarChart3 },
+  { label: "Profile", to: "/dashboard/tutor/profile", icon: User },
 ];
-
-import { ShieldCheck } from "lucide-react";
 
 const adminNav = [
   { label: "Overview", to: "/dashboard/admin", icon: LayoutDashboard },
-  { label: "Inquiries", to: "/dashboard/admin/inquiries", icon: MessageSquare },
-  { label: "Curriculum", to: "/dashboard/admin/curriculum", icon: GraduationCap },
+  { label: "Verification", to: "/dashboard/admin/verification", icon: ShieldCheck },
+  { label: "Students", to: "/dashboard/admin/students", icon: Users },
+  { label: "Tutors", to: "/dashboard/admin/tutors", icon: GraduationCap },
+  { label: "Batches", to: "/dashboard/admin/batches", icon: FolderOpen },
+  { label: "Curriculum", to: "/dashboard/admin/curriculum", icon: BookOpen },
+  { label: "Live Classes", to: "/dashboard/admin/live-classes", icon: Video },
+  { label: "Assignments", to: "/dashboard/admin/assignments", icon: ClipboardList },
+  { label: "Feedback", to: "/dashboard/admin/feedback", icon: Star },
+  { label: "Timetable", to: "/dashboard/admin/schedule", icon: Calendar },
+  { label: "Events", to: "/dashboard/admin/events", icon: CalendarDays },
   { label: "Course Approvals", to: "/dashboard/admin/approvals", icon: CheckSquare },
   { label: "All Courses", to: "/dashboard/admin/courses", icon: BookOpen },
-  { label: "Students", to: "/dashboard/admin/students", icon: Users },
-  { label: "Timetable", to: "/dashboard/admin/schedule", icon: Calendar },
   { label: "Categories", to: "/dashboard/admin/categories", icon: Tag },
-  { label: "Jobs & Volunteers", to: "/dashboard/admin/jobs", icon: Briefcase },
-  { label: "Events", to: "/dashboard/admin/events", icon: CalendarDays },
+  { label: "Jobs", to: "/dashboard/admin/jobs", icon: Briefcase },
+  { label: "Inquiries", to: "/dashboard/admin/inquiries", icon: MessageSquare },
   { label: "Subject Allocation", to: "/dashboard/admin/subject-allocation", icon: BookCheck },
   { label: "Activity Log", to: "/dashboard/admin/activity", icon: Activity },
   { label: "Analytics", to: "/dashboard/admin/analytics", icon: BarChart3 },
 ];
 
-const superAdminNav = [
-  ...adminNav,
-  { label: "User Verification", to: "/dashboard/admin/verification", icon: ShieldCheck },
-];
+const superAdminNav = [...adminNav];
 
 const DashboardSidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -65,12 +66,10 @@ const DashboardSidebar = () => {
 
   const navItems = role === "super_admin" ? superAdminNav : role === "admin" ? adminNav : role === "instructor" ? instructorNav : studentNav;
 
-  // Close mobile sidebar on route change
   useEffect(() => {
     setMobileOpen(false);
   }, [location.pathname]);
 
-  // Prevent body scroll when mobile sidebar is open
   useEffect(() => {
     if (mobileOpen) {
       document.body.style.overflow = "hidden";
@@ -81,11 +80,11 @@ const DashboardSidebar = () => {
   }, [mobileOpen]);
 
   const isActive = (path: string) =>
-    path === "/dashboard" || path === "/dashboard/admin" || path === "/dashboard/instructor"
+    path === "/dashboard/student" || path === "/dashboard/admin" || path === "/dashboard/tutor"
       ? location.pathname === path
       : location.pathname.startsWith(path);
 
-  const roleLabel = role === "super_admin" ? "Super Admin" : role === "admin" ? "Admin" : role === "instructor" ? "Educator" : "Student";
+  const roleLabel = role === "super_admin" ? "Super Admin" : role === "admin" ? "Admin" : role === "instructor" ? "Tutor" : "Student";
 
   const initials = profile?.display_name
     ? profile.display_name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase()
@@ -98,7 +97,6 @@ const DashboardSidebar = () => {
 
   const sidebarContent = (isMobile = false) => (
     <>
-      {/* Logo area */}
       <div className="flex items-center justify-between p-4 border-b border-secondary/10">
         {(!collapsed || isMobile) ? (
           <Link to="/" className="flex items-center gap-2.5">
@@ -124,7 +122,6 @@ const DashboardSidebar = () => {
         )}
       </div>
 
-      {/* User avatar + role badge */}
       <div className={`border-b border-secondary/10 ${(collapsed && !isMobile) ? "p-3" : "px-4 py-4"}`}>
         <div className={`flex items-center ${(collapsed && !isMobile) ? "justify-center" : "gap-3"}`}>
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center text-primary-foreground font-bold text-xs shrink-0 shadow-md">
@@ -139,7 +136,6 @@ const DashboardSidebar = () => {
         </div>
       </div>
 
-      {/* Nav items */}
       <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
         {navItems.map((item) => (
           <Link
@@ -161,7 +157,6 @@ const DashboardSidebar = () => {
         ))}
       </nav>
 
-      {/* Logout */}
       <div className="p-3 border-t border-secondary/10">
         <Button
           variant="ghost"
@@ -178,7 +173,6 @@ const DashboardSidebar = () => {
 
   return (
     <>
-      {/* Mobile toggle - only show when sidebar is closed */}
       {!mobileOpen && (
         <button
           onClick={() => setMobileOpen(true)}
@@ -189,7 +183,6 @@ const DashboardSidebar = () => {
         </button>
       )}
 
-      {/* Mobile overlay + sidebar */}
       {mobileOpen && (
         <div
           className="lg:hidden fixed inset-0 z-50 bg-foreground/30 backdrop-blur-sm animate-in fade-in duration-200"
@@ -204,7 +197,6 @@ const DashboardSidebar = () => {
         </div>
       )}
 
-      {/* Desktop sidebar */}
       <aside
         className={`hidden lg:flex sticky top-0 h-screen flex-col border-r border-border/50 bg-card transition-all duration-300 ${
           collapsed ? "w-[72px]" : "w-64"
