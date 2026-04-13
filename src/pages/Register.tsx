@@ -254,7 +254,7 @@ const Register = ({ roleType = "student" }: RegisterProps) => {
             {/* Address */}
             <div>
               <label className="text-sm font-medium text-foreground mb-1.5 block">Address</label>
-              <Textarea placeholder="Full address" value={address} onChange={(e) => setAddress(e.target.value)} className="rounded-xl border-border/50 focus:border-secondary focus:ring-secondary/20" rows={2} />
+              <Textarea placeholder="Full address" value={address} onChange={(e) => setAddress(e.target.value)} className="rounded-xl border-brand-parchment bg-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 text-[14px] text-brand-charcoal" rows={2} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
@@ -391,11 +391,11 @@ const Register = ({ roleType = "student" }: RegisterProps) => {
                 </div>
                 <div>
                   <label className="text-sm font-medium text-foreground mb-1.5 block">Qualifications</label>
-                  <Textarea placeholder="Your educational qualifications" value={qualifications} onChange={(e) => setQualifications(e.target.value)} className="rounded-xl border-border/50 focus:border-secondary focus:ring-secondary/20" rows={2} />
+                  <Textarea placeholder="Your educational qualifications" value={qualifications} onChange={(e) => setQualifications(e.target.value)} className="rounded-xl border-brand-parchment bg-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 text-[14px] text-brand-charcoal" rows={2} />
                 </div>
                 <div>
                   <label className="text-sm font-medium text-foreground mb-1.5 block">Specialization / Bio</label>
-                  <Textarea placeholder="Your specialization and brief bio" value={specialization} onChange={(e) => setSpecialization(e.target.value)} className="rounded-xl border-border/50 focus:border-secondary focus:ring-secondary/20" rows={2} />
+                  <Textarea placeholder="Your specialization and brief bio" value={specialization} onChange={(e) => setSpecialization(e.target.value)} className="rounded-xl border-brand-parchment bg-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 text-[14px] text-brand-charcoal" rows={2} />
                 </div>
                 <div>
                   <label className="text-sm font-medium text-foreground mb-1.5 flex items-center gap-1.5"><Upload className="h-3.5 w-3.5 text-muted-foreground" />Profile Photo</label>
