@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, Music } from "lucide-react";
+import { Eye, EyeOff, Music, GraduationCap, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
@@ -10,21 +10,28 @@ import { useToast } from "@/hooks/use-toast";
 import logo from "@/assets/logo.png";
 import campusVault from "@/assets/campus/NGVaultPassage.jpg";
 
+type LoginTab = "student" | "tutor";
+
 const Login = () => {
+  const [tab, setTab] = useState<LoginTab>("student");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loginSuccess, setLoginSuccess] = useState(false);
-  const { signIn, role, user } = useAuth();
+  const { signIn, role, user, isVerified } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (loginSuccess && user && role) {
+      if (!isVerified) {
+        navigate("/pending-approval", { replace: true });
+        return;
+      }
       navigate(getRoleDashboardPath(role), { replace: true });
     }
-  }, [loginSuccess, user, role, navigate]);
+  }, [loginSuccess, user, role, isVerified, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,6 +45,9 @@ const Login = () => {
       setLoginSuccess(true);
     }
   };
+
+  const registerLink = tab === "student" ? "/register/student" : "/register/tutor";
+  const registerLabel = tab === "student" ? "New student? Register here →" : "New tutor? Register here →";
 
   return (
     <div className="min-h-screen flex">
@@ -63,7 +73,7 @@ const Login = () => {
             Welcome to<br /><span className="text-shimmer-gold">Nada Gurukulam</span>
           </h2>
           <p className="text-primary-foreground/65 text-lg max-w-md leading-relaxed">
-            Your journey into the divine world of Indian classical arts begins here.
+            Where classical arts find their home.
           </p>
           <div className="mt-10 flex items-center gap-3 text-secondary/80">
             <Music className="h-5 w-5" />
@@ -84,7 +94,33 @@ const Login = () => {
           </div>
 
           <h1 className="font-serif text-3xl text-foreground mb-2">Sign In</h1>
-          <p className="text-muted-foreground mb-8">Access your dashboard</p>
+          <p className="text-muted-foreground mb-6">Access your dashboard</p>
+
+          {/* Role tabs */}
+          <div className="flex gap-2 mb-8">
+            <button
+              onClick={() => setTab("student")}
+              className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-medium transition-all border-2 ${
+                tab === "student"
+                  ? "border-secondary bg-secondary/10 text-foreground"
+                  : "border-border bg-transparent text-muted-foreground hover:border-border/80"
+              }`}
+            >
+              <GraduationCap className="h-4 w-4" />
+              Student
+            </button>
+            <button
+              onClick={() => setTab("tutor")}
+              className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-medium transition-all border-2 ${
+                tab === "tutor"
+                  ? "border-secondary bg-secondary/10 text-foreground"
+                  : "border-border bg-transparent text-muted-foreground hover:border-border/80"
+              }`}
+            >
+              <BookOpen className="h-4 w-4" />
+              Tutor
+            </button>
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
@@ -124,20 +160,20 @@ const Login = () => {
           </form>
 
           <div className="text-center text-sm text-muted-foreground mt-8">
-            <p className="mb-2">Don't have an account?</p>
-            <div className="flex items-center justify-center gap-4">
-              <Link to="/register/student" className="text-primary font-medium hover:underline">
-                Register as Student
-              </Link>
-              <span className="text-border">|</span>
-              <Link to="/register/educator" className="text-primary font-medium hover:underline">
-                Register as Educator
-              </Link>
-            </div>
+            <Link to={registerLink} className="text-primary font-medium hover:underline">
+              {registerLabel}
+            </Link>
           </div>
+
           <p className="text-center text-sm mt-3">
             <Link to="/" className="text-muted-foreground hover:text-primary transition-colors">
               ← Back to Home
+            </Link>
+          </p>
+
+          <p className="text-center text-xs text-muted-foreground/50 mt-6">
+            <Link to="/admin-login" className="hover:text-muted-foreground transition-colors">
+              Institution staff? Access admin portal →
             </Link>
           </p>
         </motion.div>
