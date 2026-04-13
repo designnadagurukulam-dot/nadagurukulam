@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import Layout from "./components/Layout";
 import DashboardLayout from "./components/DashboardLayout";
@@ -13,16 +13,14 @@ import Index from "./pages/Index";
 import About from "./pages/About";
 import Events from "./pages/Events";
 import Courses from "./pages/Courses";
-
 import CourseDetail from "./pages/CourseDetail";
 import LessonPlayer from "./pages/LessonPlayer";
 import Faculty from "./pages/Faculty";
 import FacultyDetail from "./pages/FacultyDetail";
-
 import Gallery from "./pages/Gallery";
 import Contact from "./pages/Contact";
-// LoginSelect removed — unified login page
 import Login from "./pages/Login";
+import AdminLogin from "./pages/AdminLogin";
 import Register from "./pages/Register";
 import DashboardOverview from "./pages/dashboard/DashboardOverview";
 import DashboardCourses from "./pages/dashboard/DashboardCourses";
@@ -40,7 +38,6 @@ import AdminApprovals from "./pages/admin/AdminApprovals";
 import AdminCourses from "./pages/admin/AdminCourses";
 import AdminStudents from "./pages/admin/AdminStudents";
 import AdminCategories from "./pages/admin/AdminCategories";
-
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminInquiries from "./pages/admin/AdminInquiries";
 import AdminJobs from "./pages/admin/AdminJobs";
@@ -59,6 +56,7 @@ import InstructorOverview from "./pages/instructor/InstructorOverview";
 import AdminSubjectAllocation from "./pages/admin/AdminSubjectAllocation";
 import AdminUserVerification from "./pages/admin/AdminUserVerification";
 import PendingApproval from "./pages/PendingApproval";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -80,39 +78,47 @@ const App = () => (
             <Route path="/course/:courseId/lesson/:lessonId" element={<LessonPlayer />} />
             <Route path="/faculty" element={<Layout><Faculty /></Layout>} />
             <Route path="/faculty/:id" element={<Layout><FacultyDetail /></Layout>} />
-            
             <Route path="/events" element={<Layout><Events /></Layout>} />
             <Route path="/gallery" element={<Layout><Gallery /></Layout>} />
             <Route path="/contact" element={<Layout><Contact /></Layout>} />
 
             {/* Auth pages */}
             <Route path="/login" element={<Login />} />
+            <Route path="/admin-login" element={<AdminLogin />} />
             <Route path="/register" element={<Register roleType="student" />} />
             <Route path="/register/student" element={<Register roleType="student" />} />
             <Route path="/register/educator" element={<Register roleType="educator" />} />
+            <Route path="/register/tutor" element={<Register roleType="educator" />} />
             <Route path="/pending-approval" element={<PendingApproval />} />
-            {/* Student Dashboard */}
-            <Route path="/dashboard" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardOverview /></DashboardLayout></RoleProtectedRoute>} />
-            <Route path="/dashboard/courses" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardCourses /></DashboardLayout></RoleProtectedRoute>} />
-            <Route path="/dashboard/assignments" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardAssignments /></DashboardLayout></RoleProtectedRoute>} />
-            <Route path="/dashboard/schedule" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardSchedule /></DashboardLayout></RoleProtectedRoute>} />
-            <Route path="/dashboard/certificates" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardCertificates /></DashboardLayout></RoleProtectedRoute>} />
-            <Route path="/dashboard/class-log" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardClassLog /></DashboardLayout></RoleProtectedRoute>} />
-            <Route path="/dashboard/projects" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardProjects /></DashboardLayout></RoleProtectedRoute>} />
-            <Route path="/dashboard/curriculum" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardCurriculum /></DashboardLayout></RoleProtectedRoute>} />
-            <Route path="/dashboard/profile" element={<ProtectedRoute><DashboardLayout><DashboardProfile /></DashboardLayout></ProtectedRoute>} />
 
-            {/* Instructor Dashboard */}
-            <Route path="/dashboard/instructor" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><InstructorOverview /></DashboardLayout></RoleProtectedRoute>} />
-            <Route path="/dashboard/instructor/courses" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><InstructorCourses /></DashboardLayout></RoleProtectedRoute>} />
-            <Route path="/dashboard/instructor/create" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><CreateCourse /></DashboardLayout></RoleProtectedRoute>} />
-            <Route path="/dashboard/instructor/edit/:id" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><CreateCourse /></DashboardLayout></RoleProtectedRoute>} />
-            <Route path="/dashboard/instructor/assignments" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><InstructorAssignments /></DashboardLayout></RoleProtectedRoute>} />
-            <Route path="/dashboard/instructor/students" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><InstructorStudents /></DashboardLayout></RoleProtectedRoute>} />
-            <Route path="/dashboard/instructor/analytics" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><InstructorAnalytics /></DashboardLayout></RoleProtectedRoute>} />
-            <Route path="/dashboard/instructor/class-log" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><InstructorClassLog /></DashboardLayout></RoleProtectedRoute>} />
-            <Route path="/dashboard/instructor/schedule" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><DashboardSchedule /></DashboardLayout></RoleProtectedRoute>} />
-            <Route path="/dashboard/instructor/curriculum" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><AdminCurriculum /></DashboardLayout></RoleProtectedRoute>} />
+            {/* Legacy redirects */}
+            <Route path="/dashboard" element={<Navigate to="/dashboard/student" replace />} />
+            <Route path="/dashboard/instructor" element={<Navigate to="/dashboard/tutor" replace />} />
+            <Route path="/dashboard/instructor/*" element={<Navigate to="/dashboard/tutor" replace />} />
+
+            {/* Student Dashboard */}
+            <Route path="/dashboard/student" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardOverview /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/student/courses" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardCourses /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/student/assignments" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardAssignments /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/student/schedule" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardSchedule /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/student/certificates" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardCertificates /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/student/class-log" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardClassLog /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/student/projects" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardProjects /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/student/curriculum" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardCurriculum /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/student/profile" element={<ProtectedRoute><DashboardLayout><DashboardProfile /></DashboardLayout></ProtectedRoute>} />
+
+            {/* Tutor Dashboard */}
+            <Route path="/dashboard/tutor" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><InstructorOverview /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/tutor/courses" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><InstructorCourses /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/tutor/create" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><CreateCourse /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/tutor/edit/:id" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><CreateCourse /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/tutor/assignments" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><InstructorAssignments /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/tutor/students" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><InstructorStudents /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/tutor/analytics" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><InstructorAnalytics /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/tutor/class-log" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><InstructorClassLog /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/tutor/schedule" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><DashboardSchedule /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/tutor/curriculum" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><AdminCurriculum /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/tutor/profile" element={<ProtectedRoute><DashboardLayout><DashboardProfile /></DashboardLayout></ProtectedRoute>} />
 
             {/* Admin Dashboard */}
             <Route path="/dashboard/admin" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminOverview /></DashboardLayout></RoleProtectedRoute>} />
