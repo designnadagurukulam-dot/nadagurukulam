@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { BookOpen, Plus, Trash2, FileText, PlayCircle, Headphones, Link as LinkIcon, Type } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { BookOpen, Plus, Trash2, FileText, PlayCircle, Headphones, Link as LinkIcon, Type, Library, Sparkles, FolderOpen } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -52,10 +52,6 @@ const TutorCurriculum = () => {
     },
   });
 
-  // Separate own modules from institution modules
-  // We check created_by on sections, and for modules we check if any section was created by this tutor
-  // For simplicity: modules created by admin have no created_by on their sections, tutor-created ones do
-  // Actually we need a way to identify. Let's use batch_id — if module has batch_id matching tutor's batch, it's theirs
   const myBatchIds = new Set(batches.map(b => b.id));
   const myModules = modules.filter(m => m.batch_id && myBatchIds.has(m.batch_id));
   const institutionModules = modules.filter(m => !m.batch_id || !myBatchIds.has(m.batch_id));
@@ -112,9 +108,7 @@ const TutorCurriculum = () => {
       });
       if (error) throw error;
 
-      // If link type, add to links table
       if (topicForm.type === "link" && topicForm.linkUrl) {
-        // get the section we just created
         const { data: newSections } = await supabase.from("curriculum_sections").select("id").eq("module_id", moduleId).eq("title", topicForm.title).order("created_at", { ascending: false }).limit(1);
         if (newSections?.[0]) {
           await supabase.from("curriculum_section_links").insert({ section_id: newSections[0].id, url: topicForm.linkUrl, label: topicForm.title });
@@ -141,81 +135,92 @@ const TutorCurriculum = () => {
   const typeIcon = (type: string) => {
     switch (type) {
       case "youtube": return <PlayCircle className="h-4 w-4 text-red-500" />;
-      case "audio": return <Headphones className="h-4 w-4 text-accent" />;
+      case "audio": return <Headphones className="h-4 w-4 text-[#C49A3C]" />;
       case "pdf": return <FileText className="h-4 w-4 text-blue-500" />;
-      case "link": return <LinkIcon className="h-4 w-4 text-primary" />;
-      default: return <Type className="h-4 w-4 text-muted-foreground" />;
+      case "link": return <LinkIcon className="h-4 w-4 text-[#7D1E24]" />;
+      default: return <Type className="h-4 w-4 text-[#8C7B6B]" />;
     }
   };
 
   const renderModuleGroup = (mods: any[], title: string, isOwn: boolean) => (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="font-serif text-lg font-bold text-foreground">{title}</h2>
-        {!isOwn && <Badge variant="outline" className="text-xs">View Only</Badge>}
+        <div className="flex items-center gap-3">
+          {isOwn ? <Sparkles className="h-5 w-5 text-[#C49A3C]" /> : <Library className="h-5 w-5 text-[#7D1E24]" />}
+          <h2 className="font-serif text-lg font-semibold text-[#7D1E24]">{title}</h2>
+        </div>
+        {!isOwn && <Badge className="bg-[#FAF6EE] text-[#8C7B6B] border-[#EDE3CC] text-[10px] uppercase tracking-widest">View Only</Badge>}
       </div>
       {mods.length === 0 ? (
-        <Card><CardContent className="py-8 text-center text-muted-foreground text-sm">
-          {isOwn ? "No modules created yet. Click '+ New Module' to get started." : "No institution modules available."}
-        </CardContent></Card>
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-2xl border border-[#EDE3CC] shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-10 text-center">
+          <div className="w-14 h-14 rounded-full bg-[#F5E9CE] flex items-center justify-center mx-auto mb-4">
+            <FolderOpen className="h-7 w-7 text-[#C49A3C]" />
+          </div>
+          <h3 className="font-serif text-lg text-[#7D1E24] mb-1">{isOwn ? "No Modules Yet" : "No Institution Modules"}</h3>
+          <p className="text-sm text-[#8C7B6B]">{isOwn ? "Click '+ New Module' to get started." : "No institution modules available."}</p>
+        </motion.div>
       ) : (
-        <Accordion type="multiple" className="space-y-2">
-          {mods.map(mod => {
+        <Accordion type="multiple" className="space-y-3">
+          {mods.map((mod, idx) => {
             const modSections = getSectionsForModule(mod.id);
             return (
-              <AccordionItem key={mod.id} value={mod.id} className="border rounded-xl overflow-hidden">
-                <AccordionTrigger className="px-4 hover:no-underline">
-                  <div className="flex items-center gap-3">
-                    <BookOpen className="h-4 w-4 text-accent shrink-0" />
-                    <span className="font-medium text-sm">{mod.module_name}</span>
-                    <Badge variant="secondary" className="text-[10px]">{mod.course_code}</Badge>
-                    {modSections.length > 0 && <Badge variant="outline" className="text-[10px]">{modSections.length} topics</Badge>}
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent className="px-4 pb-4 space-y-3">
-                  {mod.description && <p className="text-sm text-muted-foreground">{mod.description}</p>}
-                  {modSections.length === 0 ? (
-                    <p className="text-sm text-muted-foreground italic">No content yet.</p>
-                  ) : modSections.map(section => (
-                    <div key={section.id} className="border rounded-xl p-3 space-y-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          {typeIcon(section.content_type)}
-                          <span className="font-medium text-sm">{section.title}</span>
-                          <Badge variant="outline" className="text-[10px] capitalize">{section.content_type}</Badge>
+              <motion.div key={mod.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05 }}>
+                <AccordionItem value={mod.id} className="bg-white rounded-2xl border border-[#EDE3CC] shadow-[0_2px_24px_rgba(125,30,36,0.06)] overflow-hidden">
+                  <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-[#FAF6EE] transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-[#F5E9CE] flex items-center justify-center">
+                        <BookOpen className="h-4 w-4 text-[#C49A3C]" />
+                      </div>
+                      <span className="font-serif font-medium text-sm text-[#3D2E22]">{mod.module_name}</span>
+                      <Badge className="bg-[#7D1E24]/10 text-[#7D1E24] border-0 text-[10px] font-semibold">{mod.course_code}</Badge>
+                      {modSections.length > 0 && <Badge className="bg-[#F5E9CE] text-[#8C7B6B] border-0 text-[10px]">{modSections.length} topics</Badge>}
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="px-5 pb-5 space-y-3">
+                    {mod.description && <p className="text-sm text-[#8C7B6B] pl-11">{mod.description}</p>}
+                    {modSections.length === 0 ? (
+                      <p className="text-sm text-[#8C7B6B] italic pl-11">No content yet.</p>
+                    ) : modSections.map(section => (
+                      <div key={section.id} className="bg-[#FAF6EE] rounded-xl p-4 space-y-2 border border-[#EDE3CC]">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            {typeIcon(section.content_type)}
+                            <span className="font-medium text-sm text-[#3D2E22]">{section.title}</span>
+                            <Badge className="bg-white text-[#8C7B6B] border-[#EDE3CC] text-[10px] capitalize">{section.content_type}</Badge>
+                          </div>
+                          {canEditSection(section) && (
+                            <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-700 hover:bg-red-50 h-7" onClick={() => deleteSection(section.id)}>
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          )}
                         </div>
-                        {canEditSection(section) && (
-                          <Button variant="ghost" size="sm" className="text-destructive h-7" onClick={() => deleteSection(section.id)}>
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
+                        {section.content_type === "text" && section.text_content && (
+                          <p className="text-sm text-[#8C7B6B] whitespace-pre-wrap">{section.text_content}</p>
+                        )}
+                        {section.content_type === "audio" && section.audio_url && (
+                          <AudioPlayer src={section.audio_url} title={section.title} />
+                        )}
+                        {section.pdf_url && (
+                          <a href={section.pdf_url} target="_blank" rel="noopener noreferrer" className="text-sm text-[#7D1E24] underline flex items-center gap-1 hover:text-[#5C1219]">
+                            <FileText className="h-3 w-3" /> View PDF
+                          </a>
+                        )}
+                        {section.youtube_url && (
+                          <div className="aspect-video rounded-xl overflow-hidden bg-[#EDE3CC]">
+                            <iframe src={`https://www.youtube.com/embed/${section.youtube_url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/))([^&?\s]+)/)?.[1] || ""}`}
+                              className="w-full h-full" allowFullScreen />
+                          </div>
                         )}
                       </div>
-                      {section.content_type === "text" && section.text_content && (
-                        <p className="text-sm text-muted-foreground whitespace-pre-wrap">{section.text_content}</p>
-                      )}
-                      {section.content_type === "audio" && section.audio_url && (
-                        <AudioPlayer src={section.audio_url} title={section.title} />
-                      )}
-                      {section.pdf_url && (
-                        <a href={section.pdf_url} target="_blank" rel="noopener noreferrer" className="text-sm text-primary underline flex items-center gap-1">
-                          <FileText className="h-3 w-3" /> View PDF
-                        </a>
-                      )}
-                      {section.youtube_url && (
-                        <div className="aspect-video rounded-lg overflow-hidden bg-muted">
-                          <iframe src={`https://www.youtube.com/embed/${section.youtube_url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/))([^&?\s]+)/)?.[1] || ""}`}
-                            className="w-full h-full" allowFullScreen />
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                  {isOwn && (
-                    <Button variant="outline" size="sm" className="gap-1 text-xs" onClick={() => setAddTopicOpen(mod.id)}>
-                      <Plus className="h-3 w-3" /> Add Topic
-                    </Button>
-                  )}
-                </AccordionContent>
-              </AccordionItem>
+                    ))}
+                    {isOwn && (
+                      <Button onClick={() => setAddTopicOpen(mod.id)} className="gap-1.5 text-xs bg-[#C49A3C] hover:bg-[#B08A2E] text-[#3D2E22] rounded-xl">
+                        <Plus className="h-3 w-3" /> Add Topic
+                      </Button>
+                    )}
+                  </AccordionContent>
+                </AccordionItem>
+              </motion.div>
             );
           })}
         </Accordion>
@@ -224,13 +229,16 @@ const TutorCurriculum = () => {
   );
 
   return (
-    <div className="space-y-6 pt-12 lg:pt-0">
+    <div className="space-y-6 pt-2">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between">
         <div>
-          <h1 className="font-serif text-3xl font-bold text-foreground">Curriculum</h1>
-          <p className="text-muted-foreground mt-1 text-sm">Manage your teaching materials</p>
+          <h1 className="font-serif text-2xl font-semibold text-[#7D1E24]">Curriculum</h1>
+          <div className="w-12 h-0.5 bg-[#C49A3C] mt-1" />
+          <p className="text-[#8C7B6B] mt-2 text-sm">Manage your teaching materials</p>
         </div>
-        <Button onClick={() => setCreateModuleOpen(true)} className="gap-2"><Plus className="h-4 w-4" /> New Module</Button>
+        <Button onClick={() => setCreateModuleOpen(true)} className="gap-2 bg-[#7D1E24] hover:bg-[#5C1219] text-white rounded-xl">
+          <Plus className="h-4 w-4" /> New Module
+        </Button>
       </motion.div>
 
       {isLoading ? (
@@ -244,20 +252,32 @@ const TutorCurriculum = () => {
 
       {/* Create Module Dialog */}
       <Dialog open={createModuleOpen} onOpenChange={setCreateModuleOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader><DialogTitle>Create Curriculum Module</DialogTitle></DialogHeader>
+        <DialogContent className="max-w-md rounded-2xl border-[#EDE3CC]">
+          <DialogHeader>
+            <DialogTitle className="font-serif text-[#7D1E24] text-xl">Create Curriculum Module</DialogTitle>
+            <div className="w-10 h-0.5 bg-[#C49A3C]" />
+          </DialogHeader>
           <div className="space-y-4">
-            <div><Label className="text-xs uppercase tracking-widest">Module Name</Label><Input value={moduleForm.name} onChange={(e) => setModuleForm(p => ({ ...p, name: e.target.value }))} className="mt-1 rounded-xl" /></div>
-            <div><Label className="text-xs uppercase tracking-widest">Course Code</Label><Input value={moduleForm.courseCode} onChange={(e) => setModuleForm(p => ({ ...p, courseCode: e.target.value }))} placeholder="Optional" className="mt-1 rounded-xl" /></div>
             <div>
-              <Label className="text-xs uppercase tracking-widest">Tag to Batch</Label>
+              <Label className="text-[11px] uppercase tracking-widest text-[#8C7B6B] font-semibold">Module Name</Label>
+              <Input value={moduleForm.name} onChange={(e) => setModuleForm(p => ({ ...p, name: e.target.value }))} className="mt-1 rounded-xl border-[#EDE3CC] focus:border-[#C49A3C]" />
+            </div>
+            <div>
+              <Label className="text-[11px] uppercase tracking-widest text-[#8C7B6B] font-semibold">Course Code</Label>
+              <Input value={moduleForm.courseCode} onChange={(e) => setModuleForm(p => ({ ...p, courseCode: e.target.value }))} placeholder="Optional" className="mt-1 rounded-xl border-[#EDE3CC] focus:border-[#C49A3C]" />
+            </div>
+            <div>
+              <Label className="text-[11px] uppercase tracking-widest text-[#8C7B6B] font-semibold">Tag to Batch</Label>
               <Select value={moduleForm.batchId} onValueChange={(v) => setModuleForm(p => ({ ...p, batchId: v }))}>
-                <SelectTrigger className="mt-1 rounded-xl"><SelectValue placeholder="Select batch" /></SelectTrigger>
+                <SelectTrigger className="mt-1 rounded-xl border-[#EDE3CC]"><SelectValue placeholder="Select batch" /></SelectTrigger>
                 <SelectContent>{batches.map(b => <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>)}</SelectContent>
               </Select>
             </div>
-            <div><Label className="text-xs uppercase tracking-widest">Description</Label><Textarea value={moduleForm.description} onChange={(e) => setModuleForm(p => ({ ...p, description: e.target.value }))} className="mt-1 rounded-xl" /></div>
-            <Button onClick={() => createModuleMutation.mutate()} disabled={!moduleForm.name || createModuleMutation.isPending} className="w-full">
+            <div>
+              <Label className="text-[11px] uppercase tracking-widest text-[#8C7B6B] font-semibold">Description</Label>
+              <Textarea value={moduleForm.description} onChange={(e) => setModuleForm(p => ({ ...p, description: e.target.value }))} className="mt-1 rounded-xl border-[#EDE3CC] focus:border-[#C49A3C]" />
+            </div>
+            <Button onClick={() => createModuleMutation.mutate()} disabled={!moduleForm.name || createModuleMutation.isPending} className="w-full bg-[#7D1E24] hover:bg-[#5C1219] text-white rounded-xl">
               {createModuleMutation.isPending ? "Creating..." : "Create Module"}
             </Button>
           </div>
@@ -266,14 +286,20 @@ const TutorCurriculum = () => {
 
       {/* Add Topic Dialog */}
       <Dialog open={!!addTopicOpen} onOpenChange={() => setAddTopicOpen(null)}>
-        <DialogContent className="max-w-md">
-          <DialogHeader><DialogTitle>Add Topic</DialogTitle></DialogHeader>
+        <DialogContent className="max-w-md rounded-2xl border-[#EDE3CC]">
+          <DialogHeader>
+            <DialogTitle className="font-serif text-[#7D1E24] text-xl">Add Topic</DialogTitle>
+            <div className="w-10 h-0.5 bg-[#C49A3C]" />
+          </DialogHeader>
           <div className="space-y-4">
-            <div><Label className="text-xs uppercase tracking-widest">Title</Label><Input value={topicForm.title} onChange={(e) => setTopicForm(p => ({ ...p, title: e.target.value }))} className="mt-1 rounded-xl" /></div>
             <div>
-              <Label className="text-xs uppercase tracking-widest">Type</Label>
+              <Label className="text-[11px] uppercase tracking-widest text-[#8C7B6B] font-semibold">Title</Label>
+              <Input value={topicForm.title} onChange={(e) => setTopicForm(p => ({ ...p, title: e.target.value }))} className="mt-1 rounded-xl border-[#EDE3CC] focus:border-[#C49A3C]" />
+            </div>
+            <div>
+              <Label className="text-[11px] uppercase tracking-widest text-[#8C7B6B] font-semibold">Type</Label>
               <Select value={topicForm.type} onValueChange={(v) => setTopicForm(p => ({ ...p, type: v }))}>
-                <SelectTrigger className="mt-1 rounded-xl"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="mt-1 rounded-xl border-[#EDE3CC]"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="text">Text</SelectItem>
                   <SelectItem value="youtube">YouTube Video</SelectItem>
@@ -284,21 +310,21 @@ const TutorCurriculum = () => {
               </Select>
             </div>
             {topicForm.type === "text" && (
-              <div><Label className="text-xs uppercase tracking-widest">Content</Label><Textarea value={topicForm.textContent} onChange={(e) => setTopicForm(p => ({ ...p, textContent: e.target.value }))} rows={4} className="mt-1 rounded-xl" /></div>
+              <div><Label className="text-[11px] uppercase tracking-widest text-[#8C7B6B] font-semibold">Content</Label><Textarea value={topicForm.textContent} onChange={(e) => setTopicForm(p => ({ ...p, textContent: e.target.value }))} rows={4} className="mt-1 rounded-xl border-[#EDE3CC] focus:border-[#C49A3C]" /></div>
             )}
             {topicForm.type === "youtube" && (
-              <div><Label className="text-xs uppercase tracking-widest">YouTube URL</Label><Input value={topicForm.youtubeUrl} onChange={(e) => setTopicForm(p => ({ ...p, youtubeUrl: e.target.value }))} placeholder="https://youtube.com/watch?v=..." className="mt-1 rounded-xl" /></div>
+              <div><Label className="text-[11px] uppercase tracking-widest text-[#8C7B6B] font-semibold">YouTube URL</Label><Input value={topicForm.youtubeUrl} onChange={(e) => setTopicForm(p => ({ ...p, youtubeUrl: e.target.value }))} placeholder="https://youtube.com/watch?v=..." className="mt-1 rounded-xl border-[#EDE3CC] focus:border-[#C49A3C]" /></div>
             )}
             {topicForm.type === "audio" && (
-              <div><Label className="text-xs uppercase tracking-widest">Audio File</Label><Input type="file" accept="audio/*" onChange={(e) => setTopicForm(p => ({ ...p, audioFile: e.target.files?.[0] || null }))} className="mt-1" /></div>
+              <div><Label className="text-[11px] uppercase tracking-widest text-[#8C7B6B] font-semibold">Audio File</Label><Input type="file" accept="audio/*" onChange={(e) => setTopicForm(p => ({ ...p, audioFile: e.target.files?.[0] || null }))} className="mt-1 border-[#EDE3CC]" /></div>
             )}
             {topicForm.type === "pdf" && (
-              <div><Label className="text-xs uppercase tracking-widest">PDF File</Label><Input type="file" accept=".pdf" onChange={(e) => setTopicForm(p => ({ ...p, pdfFile: e.target.files?.[0] || null }))} className="mt-1" /></div>
+              <div><Label className="text-[11px] uppercase tracking-widest text-[#8C7B6B] font-semibold">PDF File</Label><Input type="file" accept=".pdf" onChange={(e) => setTopicForm(p => ({ ...p, pdfFile: e.target.files?.[0] || null }))} className="mt-1 border-[#EDE3CC]" /></div>
             )}
             {topicForm.type === "link" && (
-              <div><Label className="text-xs uppercase tracking-widest">URL</Label><Input value={topicForm.linkUrl} onChange={(e) => setTopicForm(p => ({ ...p, linkUrl: e.target.value }))} placeholder="https://..." className="mt-1 rounded-xl" /></div>
+              <div><Label className="text-[11px] uppercase tracking-widest text-[#8C7B6B] font-semibold">URL</Label><Input value={topicForm.linkUrl} onChange={(e) => setTopicForm(p => ({ ...p, linkUrl: e.target.value }))} placeholder="https://..." className="mt-1 rounded-xl border-[#EDE3CC] focus:border-[#C49A3C]" /></div>
             )}
-            <Button onClick={() => addTopicOpen && addTopicMutation.mutate(addTopicOpen)} disabled={!topicForm.title || addTopicMutation.isPending} className="w-full">
+            <Button onClick={() => addTopicOpen && addTopicMutation.mutate(addTopicOpen)} disabled={!topicForm.title || addTopicMutation.isPending} className="w-full bg-[#7D1E24] hover:bg-[#5C1219] text-white rounded-xl">
               {addTopicMutation.isPending ? "Adding..." : "Add Topic"}
             </Button>
           </div>
