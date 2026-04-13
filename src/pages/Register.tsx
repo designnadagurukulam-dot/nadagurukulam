@@ -158,10 +158,10 @@ const Register = ({ roleType = "student" }: RegisterProps) => {
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 6 }, (_, i) => currentYear - 2 + i);
 
-  const inputClass = "h-12 rounded-xl border-border/50 focus:border-secondary focus:ring-secondary/20";
+  const inputClass = "h-12 rounded-xl border-brand-parchment bg-white focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 text-[14px] text-brand-charcoal placeholder:text-brand-warm-grey-light";
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex bg-brand-cream">
       {/* Left — decorative */}
       <div className="hidden lg:flex lg:w-[40%] relative overflow-hidden">
         <img src={campusVerandah} alt="Campus verandah walkway" className="absolute inset-0 w-full h-full object-cover" />
