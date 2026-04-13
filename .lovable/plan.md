@@ -1,205 +1,79 @@
 
 
-# Nada Gurukulam — Complete Platform Redesign Plan
+# Nada Gurukulam — Brand Theme Application Plan
 
-This is a very large request spanning 8 phases. I recommend implementing them sequentially, one phase per approval cycle, to keep changes manageable and testable.
-
----
-
-## Phase 1: Auth System Redesign
-
-### What changes
-- **Login page** (`/login`): Add Student/Tutor tab selector with role-appropriate icons. Add subtle "Institution staff? Access admin portal" link at bottom.
-- **New admin login** (`/admin-login`): Minimal centered card, email + password only, no public nav link.
-- **Student registration** (`/register/student`): Expand from current ~6 fields to full 2-column form: DOB, gender, address/city/state/pincode, KYC doc type/number/upload, emergency contacts, terms checkbox.
-- **Tutor registration** (`/register/tutor`): Expand to include DOB, gender, qualifications, years of experience, specialization, profile photo upload, department dropdown.
-- **Pending Approval** (`/pending-approval`): Minor polish — show user's name, update copy to match spec.
-- **Post-login routing**: Update to route student → `/dashboard/student`, instructor → `/dashboard/tutor`, admin → `/dashboard/admin`.
-
-### Files to create
-- `src/pages/AdminLogin.tsx`
-
-### Files to edit
-- `src/pages/Login.tsx` — add tab selector
-- `src/pages/Register.tsx` — split into two full forms with all new fields
-- `src/pages/PendingApproval.tsx` — minor copy update
-- `src/App.tsx` — add `/admin-login` route, update student routes from `/dashboard` to `/dashboard/student`
-- `src/components/RoleProtectedRoute.tsx` — update student path
-- `src/components/DashboardSidebar.tsx` — update student nav paths
-- `src/components/Navbar.tsx` — remove dashboard/admin links from public nav
-
-### Route migration (breaking change)
-All student dashboard routes change from `/dashboard/*` to `/dashboard/student/*`. All instructor routes change from `/dashboard/instructor/*` to `/dashboard/tutor/*`. This affects ~15 route definitions and all sidebar nav links.
+## Summary
+Replace the current Deep Navy + Gold palette with the original nadagurukulam.org **Deep Maroon (#7D1E24) + Saffron Gold (#C49A3C)** palette across all LMS/auth pages. Update fonts from Playfair Display/Inter to Cormorant Garamond/Nunito Sans.
 
 ---
 
-## Phase 2: Database Schema Additions
-
-### New columns on `profiles`
-`date_of_birth`, `gender`, `address`, `city`, `state`, `pincode`, `kyc_document_type`, `kyc_document_number`, `kyc_document_url`, `emergency_contact_name`, `emergency_contact_phone`, `qualifications`, `years_of_experience`, `specialization` (note: `department` already exists).
-
-### New tables
-| Table | Purpose |
-|---|---|
-| `batches` | Groups of students under a course + instructor |
-| `batch_enrollments` | Student-to-batch mapping |
-| `live_classes` | Scheduled video classes with meeting links |
-| `messages` | Tutor-student direct messaging |
-| `feedback` | Anonymous student feedback to admin |
-
-### Modified tables
-- `curriculum_modules` — add `batch_id` column
-- `curriculum_sections` — add `audio_url`, `pdf_url` columns
-- `assignments` — add `video_url`, `external_link`, `batch_id` columns
-
-### New storage buckets
-- `curriculum-materials`, `kyc-documents`, `profile-avatars`
-
-### RLS policies
-Each new table gets appropriate policies using `is_super_or_admin()`, `has_role()`, and `auth.uid()` checks as detailed in the prompt.
-
-### Realtime
-Enable realtime on `messages` table for chat functionality.
+## Scope
+**Changed**: All dashboard, auth, and LMS pages (login, register, pending-approval, student/tutor/admin dashboards, modals, forms, tables, toasts, skeletons, empty states)  
+**Unchanged**: Public pages (`/`, `/about`, `/courses`, `/faculty`, etc.)
 
 ---
 
-## Phase 3: Global UI Theme Overhaul
+## Implementation Steps
 
-### What changes
-- **Color palette shift**: Current deep maroon + gold → deep navy/indigo + gold. This changes `--primary` from maroon (`358 68% 31%`) to navy (`231 72% 25%`).
-- **Sidebar**: Navy background with gold text/accents instead of current light card background.
-- **Typography**: Already using Playfair Display + Inter — just tighten sizes and add uppercase label styling.
-- **Cards**: Update border-radius to 16px, refine shadows.
-- **Buttons**: Update border-radius to 10px, add gold variant.
-- **Forms**: Gold focus glow, uppercase labels.
-- **Tables**: Navy header, alternating rows, gold hover border.
+### Step 1 — Global CSS Variables & Fonts (`src/index.css`)
+- Import Cormorant Garamond + Nunito Sans from Google Fonts
+- Replace `:root` CSS variables: primary from navy `231 72% 25%` → maroon `355 60% 30%`, sidebar from `231 72% 18%` → `355 60% 20%`, accent to saffron gold `40 56% 50%`, background to cream `42 40% 96%`
+- Update `.dark` block accordingly
+- Replace body font-family to Nunito Sans, headings to Cormorant Garamond
+- Update gradient utilities (`gradient-navy` → maroon gradient, gold gradients updated)
+- Add global heading styles (h1-h4 sizes, colors)
 
-### Files to edit
-- `src/index.css` — full CSS variable overhaul
-- `tailwind.config.ts` — update extended colors if needed
-- `src/components/DashboardSidebar.tsx` — navy background styling
-- `src/components/DashboardLayout.tsx` — adjust for new sidebar
-- Multiple dashboard pages — card/table styling updates
+### Step 2 — Tailwind Config (`tailwind.config.ts`)
+- Add `brand` color map with all 13 hex values (#7D1E24, #5C1219, #A8343B, #C49A3C, #E2B95A, #F5E9CE, #FAF6EE, #F2EAD6, #EDE3CC, #1E1610, #3D2E22, #8C7B6B, #C4B5A5)
+- Update fontFamily to Cormorant Garamond (serif) and Nunito Sans (sans)
 
-### Impact
-This is a visual-only change but touches every page. The maroon-to-navy shift is significant and changes the entire brand feel.
+### Step 3 — Sidebar (`DashboardSidebar.tsx`)
+- Update sidebar to use deep maroon (`#5C1219`) background with gold text (`#E2B95A`)
+- Active nav items: `bg-[#7D1E24]` with gold border-left and gold text
+- Inactive: `text-[#C4B5A5]` with hover to gold
+- User section: gold name, role badge `bg-[#C49A3C] text-[#5C1219]`
+- Mobile hamburger bar: `bg-[#5C1219]`
 
----
+### Step 4 — Login Page (`Login.tsx`)
+- Left panel: `bg-[#5C1219]` with Cormorant Garamond institution name in `#E2B95A`
+- Role tabs: active `bg-[#7D1E24] text-white`, inactive `bg-[#F2EAD6] text-[#8C7B6B]`
+- Form inputs: border `#EDE3CC`, focus ring `#C49A3C`
+- Links: gold accent color
 
-## Phase 4: Student Dashboard Redesign
+### Step 5 — Register & Auth Pages (`Register.tsx`, `AdminLogin.tsx`, `LoginSelect.tsx`, `PendingApproval.tsx`)
+- Apply same maroon/gold/cream palette as login page
 
-### New pages to create
-| Page | Route |
-|---|---|
-| `StudentLiveClasses.tsx` | `/dashboard/student/live-classes` |
-| `StudentChat.tsx` | `/dashboard/student/chat` |
-| `StudentFeedback.tsx` | `/dashboard/student/feedback` |
+### Step 6 — Dashboard Layout (`DashboardLayout.tsx`)
+- Main content area: `bg-[#FAF6EE]`
 
-### Pages to heavily rewrite
-- `DashboardOverview.tsx` — new widget layout with batch info, upcoming classes, recent material
-- `DashboardCurriculum.tsx` — split-panel layout filtered by batch
-- `DashboardAssignments.tsx` — three tabs (Pending/Submitted/Graded), media attachments
-- `DashboardProfile.tsx` — three-tab layout with all new fields
+### Step 7 — Dashboard Overview Pages (Student, Tutor, Admin)
+- Welcome banner: `bg-[#7D1E24]` with gold text
+- Stat cards: white with `border-[#EDE3CC]`, icon circles `bg-[#F5E9CE]` with gold icons, stat numbers in Cormorant Garamond `text-[#7D1E24]`
+- Page titles: Cormorant Garamond in `#7D1E24`
 
-### Existing pages with minor updates
-- `DashboardCertificates.tsx` — mostly unchanged
-- `DashboardSchedule.tsx` — may merge into live classes
+### Step 8 — All Dashboard Sub-pages (~15 files)
+Apply consistent styling to: StudentLiveClasses, StudentChat, StudentFeedback, DashboardAssignments, DashboardProfile, DashboardCurriculum, TutorLiveClasses, TutorMessages, TutorCurriculum, InstructorAssignments, InstructorStudents, AdminBatches, AdminFeedback, AdminLiveClasses, and remaining admin pages.
 
-### Sidebar update
-Student nav gets new items: Live Classes, Chat, Feedback. Remove Class Log and Projects (or keep if desired).
+Key patterns applied uniformly:
+- **Tables**: header `bg-[#5C1219] text-[#E2B95A]`, alternating rows cream/white
+- **Tabs**: container `bg-[#F2EAD6]`, active `bg-[#7D1E24] text-white`
+- **Badges**: verified=green, pending=amber, rejected=red, roles use brand maroon/gold
+- **Buttons**: primary `bg-[#7D1E24]`, accent `bg-[#C49A3C]`, outline `border-[#7D1E24]`
+- **Forms**: inputs with `border-[#EDE3CC]` and gold focus ring
+- **Empty states**: gold icon + Cormorant heading + cream background
+- **Skeletons**: `bg-[#F2EAD6]` animated pulse
 
----
+### Step 9 — Toast Notifications
+- Update sonner Toaster component styling: info toast with gold border on cream, error with red, success with green
 
-## Phase 5: Tutor Dashboard Redesign
-
-### New pages to create
-| Page | Route |
-|---|---|
-| `TutorOverview.tsx` | `/dashboard/tutor` |
-| `TutorStudents.tsx` | `/dashboard/tutor/students` |
-| `TutorCurriculum.tsx` | `/dashboard/tutor/curriculum` |
-| `TutorLiveClasses.tsx` | `/dashboard/tutor/live-classes` |
-| `TutorAssignments.tsx` | `/dashboard/tutor/assignments` |
-| `TutorMessages.tsx` | `/dashboard/tutor/messages` |
-| `TutorAnalytics.tsx` | `/dashboard/tutor/analytics` |
-| `TutorProfile.tsx` | `/dashboard/tutor/profile` |
-
-### Key new functionality
-- **Curriculum permissions**: Tutor can create own modules but cannot edit admin-created ones (check `created_by` field).
-- **Live class scheduling**: Form with batch selection, meeting link, platform choice.
-- **Assignment creation**: Rich media attachments (PDF, video, audio, links).
-- **Chat**: Real-time messaging with students using Supabase Realtime on `messages` table.
-
-### Pages to remove/replace
-All existing `src/pages/instructor/*` files get replaced with new `tutor/*` equivalents.
+### Step 10 — Skeleton Component (`skeleton.tsx`)
+- Update base color to `bg-[#F2EAD6]`
 
 ---
 
-## Phase 6: Admin Dashboard Redesign
+## Files Modified (estimated ~25 files)
+`src/index.css`, `tailwind.config.ts`, `src/components/DashboardSidebar.tsx`, `src/components/DashboardLayout.tsx`, `src/components/ui/skeleton.tsx`, `src/pages/Login.tsx`, `src/pages/Register.tsx`, `src/pages/AdminLogin.tsx`, `src/pages/LoginSelect.tsx`, `src/pages/PendingApproval.tsx`, `src/pages/dashboard/DashboardOverview.tsx`, `src/pages/dashboard/StudentLiveClasses.tsx`, `src/pages/dashboard/StudentChat.tsx`, `src/pages/dashboard/StudentFeedback.tsx`, `src/pages/dashboard/DashboardAssignments.tsx`, `src/pages/dashboard/DashboardProfile.tsx`, `src/pages/dashboard/DashboardCurriculum.tsx`, `src/pages/instructor/InstructorOverview.tsx`, `src/pages/instructor/InstructorStudents.tsx`, `src/pages/instructor/InstructorAssignments.tsx`, `src/pages/instructor/TutorLiveClasses.tsx`, `src/pages/instructor/TutorMessages.tsx`, `src/pages/instructor/TutorCurriculum.tsx`, `src/pages/admin/AdminOverview.tsx`, `src/pages/admin/AdminBatches.tsx`, `src/pages/admin/AdminFeedback.tsx`, `src/pages/admin/AdminLiveClasses.tsx`
 
-### New pages to create
-| Page | Route |
-|---|---|
-| `AdminTutors.tsx` | `/dashboard/admin/tutors` |
-| `AdminBatches.tsx` | `/dashboard/admin/batches` |
-| `AdminLiveClasses.tsx` | `/dashboard/admin/live-classes` |
-| `AdminFeedback.tsx` | `/dashboard/admin/feedback` |
-| `AdminSettings.tsx` | `/dashboard/admin/settings` |
-
-### Pages to rewrite
-- `AdminOverview.tsx` — new stat layout with pending approvals, batches, live classes today
-- `AdminStudents.tsx` — full profile drawer, batch assignment, CSV export
-- `AdminCurriculum.tsx` — full CRUD with batch tagging, created-by labels
-- `AdminUserVerification.tsx` — add KYC document preview in slide-in drawer
-
-### Sidebar update
-Admin nav gets new items: Tutors, Batches, Live Classes, Feedback, Settings. Restructured ordering per spec.
-
----
-
-## Phase 7: Routing & Navigation Cleanup
-
-### Route protection updates
-- Student routes: `/dashboard/student/*` → `student` role only
-- Tutor routes: `/dashboard/tutor/*` → `instructor` role only
-- Admin routes: `/dashboard/admin/*` → `admin` or `super_admin`
-- Verification: `/dashboard/admin/verification` → `super_admin` only
-- All unverified users → `/pending-approval`
-
-### Public nav cleanup
-- Remove any dashboard/admin links from public navbar
-- Show "Login" button or avatar + "Go to Dashboard" for logged-in users
-
----
-
-## Phase 8: Audio Player Component
-
-### Create
-- `src/components/AudioPlayer.tsx` — reusable component using HTML5 `<audio>` with `useRef`
-- Navy background, gold accents, play/pause, rewind/forward 10s, progress bar, volume control
-- Props: `src`, `title`
-
----
-
-## Implementation Order & Sizing
-
-| Phase | Estimated Scope | Dependencies |
-|---|---|---|
-| Phase 2 (DB) | 1 migration, ~8 new tables/columns | None — do first |
-| Phase 1 (Auth) | 5 files edit, 1 new file | Phase 2 (new profile columns) |
-| Phase 3 (Theme) | CSS + sidebar overhaul | None |
-| Phase 8 (Audio) | 1 component | None |
-| Phase 4 (Student) | 3 new pages, 4 rewrites | Phase 2 (batches, live_classes, messages, feedback) |
-| Phase 5 (Tutor) | 8 new pages | Phase 2 + Phase 8 |
-| Phase 6 (Admin) | 5 new pages, 4 rewrites | Phase 2 |
-| Phase 7 (Routing) | Route cleanup | All other phases |
-
-### Recommended approach
-I suggest implementing **Phase 2 (DB) + Phase 1 (Auth)** together as the first batch, since auth forms need the new profile columns. Then Phase 3 (Theme) + Phase 8 (Audio). Then Phases 4-6 (dashboards). Finally Phase 7 (routing cleanup).
-
-### Important note on color palette change
-The prompt requests changing from deep maroon to deep navy. This is a significant brand identity shift. The current palette (maroon #86191C + gold #D69D53) is well-established. Confirm this is intentional before proceeding.
-
-### No external paid services needed
-All features use built-in capabilities: Supabase Realtime for chat, HTML5 audio for player, Supabase Storage for files. Zero additional cost.
+## Approach
+Will implement in batches: globals first (Steps 1-3), then auth pages (Steps 4-5), then dashboards (Steps 6-8), then polish (Steps 9-10). Each batch will be verified for TypeScript compilation.
 
