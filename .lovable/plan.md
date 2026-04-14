@@ -1,73 +1,52 @@
 
 
-# Premium Student Dashboard UI Upgrade — Icons, Visuals, and Modern Styling
+# Fix Alignment and Responsiveness Across All Public & Dashboard Pages
 
-## Summary
+## Issues Found (432px Mobile Viewport)
 
-Elevate all student dashboard pages with richer visuals: gradient headers, decorative icons, glassmorphism cards, animated accents, progress rings, and a more polished, modern aesthetic throughout.
+1. **Index.tsx — Founder section**: Grid stacks on mobile but image container has no centering constraint, causing the founder image + decorative quote mark to extend beyond viewport on the left
+2. **Index.tsx — Hero title**: `text-6xl` on mobile is very large for 432px, "Gurukulam" in outline text wraps awkwardly
+3. **About.tsx — Founder section**: Same grid overlap issue — image extends beyond left edge on mobile
+4. **About.tsx — Vision/Mission timeline**: Timeline dot at `left-6` with cards at `ml-16` creates cramped layout on narrow screens; cards have `w-full` but are constrained by parent flex
+5. **About.tsx — Director + Vision sections**: `w-72 h-80` fixed image sizes can overflow on 432px viewport
+6. **Index.tsx — Stats section**: `text-6xl` stat numbers are tight on 2-column mobile grid
+7. **Footer**: Contact info and course list side-by-side at `md` breakpoint can feel cramped on tablet
 
-## Changes by File
+## Files to Change
 
-### 1. `src/pages/dashboard/DashboardOverview.tsx`
-- **Stat cards**: Add gradient backgrounds (e.g., maroon-to-dark for "My Batch", gold shimmer for "Progress"), larger decorative icons with colored circular backgrounds, and a subtle sparkle/shine effect on hover
-- **Welcome banner**: Add a gradient hero strip at the top with a motivational quote and decorative ornament icon (e.g., `Sparkles`, `Flame`)
-- **Study Activity chart**: Add a gradient card header strip, decorative chart icon with gold circle, and a "streak" indicator (e.g., flame icon with day count)
-- **Upcoming Classes**: Add avatar circles for tutors (initials-based), a subtle gradient left-border per class, and a pulsing green dot for live classes
-- **Assignment cards**: Add colored left-accent borders based on urgency (red=overdue, amber=due soon, green=on track)
-- **Quick action CTA**: Upgrade to a gradient background card (maroon-to-gold) with a decorative arrow icon
+### 1. `src/pages/Index.tsx`
+- **Hero title**: Reduce mobile font from `text-6xl` → `text-4xl sm:text-6xl` for better fit
+- **Founder section**: Add `overflow-hidden` to the section container and center the image properly on mobile with `mx-auto` on the vignette-gold wrapper
+- **Stats**: Reduce mobile stat number size from `text-6xl` → `text-4xl sm:text-6xl`
+- **CTA section heading**: Reduce from `text-5xl` → `text-3xl sm:text-5xl` on mobile
 
-### 2. `src/pages/dashboard/DashboardCourses.tsx`
-- **Course cards**: Add a gradient overlay on the image with a decorative play button, shimmer effect on hover
-- **Progress ring**: Make it larger with gradient stroke (maroon-to-gold) and add a checkmark icon when 100%
-- **Empty state**: Add a larger illustrated icon with gradient coloring and encouraging text
+### 2. `src/pages/About.tsx`
+- **Founder section**: Add proper mobile containment — reduce image size on mobile from `w-64 h-72` to `w-56 h-64 sm:w-64 sm:h-72`, ensure the decorative quote mark doesn't overflow
+- **Vision/Mission timeline**: On mobile, increase `ml-16` → `ml-20` or reduce dot size to prevent text cramping; add `overflow-hidden` to the timeline section
+- **Director section**: Reduce mobile image from `w-60 h-72` → `w-52 h-64 sm:w-60 sm:h-72`
+- **Vision section (bottom)**: Reduce image from `w-72 h-80` → `w-60 h-72 sm:w-72 sm:h-80`
+- **Campus heading**: Reduce `text-4xl` for "Our Upcoming Campus" which is long — use `text-3xl sm:text-4xl`
 
-### 3. `src/pages/dashboard/DashboardSchedule.tsx`
-- **Schedule cards**: Add decorative event-type icons (music note for class, tools for workshop, clipboard for exam)
-- **Date column**: Add a subtle radial gradient background, decorative calendar icon
-- **Timeline connector**: Add a vertical dashed line connecting schedule items for a timeline feel
+### 3. `src/components/Footer.tsx`
+- Ensure bottom copyright row wraps properly on narrow screens — add `flex-wrap` and reduce text size
+- Check that social icons row doesn't overflow
 
-### 4. `src/pages/dashboard/DashboardAssignments.tsx`
-- **Tab triggers**: Add icons inside tabs (ClipboardList for Pending, Upload for Submitted, Award for Graded)
-- **Assignment cards**: Add a colored left-border accent, decorative file-type icons (PDF, Video, Link), and hover glow
-- **Submit dialog**: Add a decorative header with upload cloud icon and gradient background
+### 4. `src/pages/Courses.tsx`
+- Verify course cards grid is `grid-cols-1 sm:grid-cols-2` (currently looks OK from screenshots but confirm)
 
-### 5. `src/pages/dashboard/DashboardCertificates.tsx`
-- **Certificate cards**: Add a golden ribbon decoration, shimmer animation on the Award icon, and decorative border pattern
-- **Header area**: Add a trophy/award decorative element with gradient backdrop
+### 5. `src/pages/Contact.tsx`
+- Verify form fields and contact info cards stack properly on mobile
 
-### 6. `src/pages/dashboard/StudentLiveClasses.tsx`
-- **Class cards**: Add tutor avatar with initials, platform-specific colored icons (green for Meet, blue for Zoom), decorative video camera icon with glow for live classes
-- **Tab triggers**: Add Video icon for Upcoming, Clock icon for Past
-- **Live indicator**: Larger pulsing animation with gradient glow ring
+### 6. `src/pages/Events.tsx` & `src/pages/Gallery.tsx`
+- Quick check and fix any grid overflow issues on mobile
 
-### 7. `src/pages/dashboard/StudentFeedback.tsx`
-- **Star rating**: Add a sparkle animation when stars are selected, golden glow effect
-- **Privacy badge**: Upgrade to a gradient card with shield icon and decorative lock
-- **Form card**: Add a decorative header strip with gradient
+### 7. `src/pages/Faculty.tsx`
+- Check faculty grid cards for mobile alignment
 
-### 8. `src/pages/dashboard/StudentChat.tsx`
-- **Tutor list**: Add colored online/offline indicators, decorative message count badges with gradient
-- **Message bubbles**: Add subtle gradient backgrounds (maroon for sent, cream for received), rounded tails
-- **Chat header**: Add decorative gradient strip with tutor avatar
-
-### 9. `src/pages/dashboard/DashboardProfile.tsx`
-- **Profile header**: Add a large avatar circle with gradient border ring and camera icon overlay for future upload
-- **Tab triggers**: Add icons (User for Personal, GraduationCap for Academic, Lock for Security)
-- **Form sections**: Add decorative section headers with icon + gradient underline
-
-### 10. `src/components/DashboardLayout.tsx`
-- **Top bar**: Add a subtle gradient shimmer on the greeting area, decorative "Om" or "Sai Ram" badge with gold styling
-- **Search**: Add a search icon with gold accent on focus
-
-## Visual Patterns Applied Everywhere
-- **Gradient accents**: `bg-gradient-to-r from-brand-primary to-brand-primary-dark` and `from-brand-gold to-brand-gold-light`
-- **Icon circles**: `w-10 h-10 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5` with centered icon
-- **Card hover**: `hover:shadow-[0_4px_30px_rgba(196,154,60,0.15)] hover:-translate-y-0.5 transition-all duration-300`
-- **Decorative dividers**: Gold gradient lines under section titles
-- **Motion stagger**: Increased stagger delays for cascading entrance animations
-
-## Technical Notes
-- All changes use existing Tailwind classes + Lucide icons (no new dependencies)
-- New icons to import: `Sparkles`, `Flame`, `Trophy`, `Target`, `Zap`, `Heart`, `Music`, `Shield`, `Camera`
-- All changes maintain existing mobile responsiveness
+## Key Patterns
+- Replace all `text-6xl` and above with responsive sizes (`text-3xl sm:text-5xl md:text-6xl`)
+- Add `overflow-hidden` to sections with absolute-positioned decorative elements
+- Ensure fixed-width image containers use responsive sizes (`w-56 sm:w-64 md:w-80`)
+- Add `px-4` padding to all section containers for safe mobile margins
+- Fix `flex-wrap` on footer copyright row
 
