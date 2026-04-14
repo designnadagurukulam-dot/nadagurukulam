@@ -343,9 +343,9 @@ const SubjectPanel = ({
 
         {/* Desktop: sidebar + content */}
         <div className="flex gap-0 min-h-[350px]">
-          {/* Chapter sidebar */}
-          <div className="hidden md:block w-[260px] shrink-0 border-r border-brand-parchment/80 bg-gradient-to-b from-brand-cream/30 to-transparent">
-            <ScrollArea className="h-[520px]">
+          {/* Chapter sidebar — sticky */}
+          <div className="hidden md:block w-[260px] shrink-0 border-r border-brand-parchment/80 bg-gradient-to-b from-brand-cream/30 to-transparent self-start sticky top-4">
+            <ScrollArea className="max-h-[calc(100vh-200px)]">
               <div className="p-2 space-y-1">
                 {subject.modules.map((ch, idx) => {
                   const isActive = ch.id === selectedChapterId;
