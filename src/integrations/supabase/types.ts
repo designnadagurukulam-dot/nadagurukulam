@@ -969,7 +969,9 @@ export type Database = {
       }
       live_classes: {
         Row: {
+          audience_type: string | null
           batch_id: string | null
+          class_type: string | null
           course_id: string | null
           created_at: string | null
           description: string | null
@@ -983,7 +985,9 @@ export type Database = {
           title: string
         }
         Insert: {
+          audience_type?: string | null
           batch_id?: string | null
+          class_type?: string | null
           course_id?: string | null
           created_at?: string | null
           description?: string | null
@@ -997,7 +1001,9 @@ export type Database = {
           title: string
         }
         Update: {
+          audience_type?: string | null
           batch_id?: string | null
+          class_type?: string | null
           course_id?: string | null
           created_at?: string | null
           description?: string | null
@@ -1135,6 +1141,7 @@ export type Database = {
           kyc_document_number: string | null
           kyc_document_type: string | null
           kyc_document_url: string | null
+          meet_link: string | null
           phone: string | null
           pincode: string | null
           qualifications: string | null
@@ -1145,6 +1152,7 @@ export type Database = {
           user_id: string
           year_of_commencement: number | null
           years_of_experience: number | null
+          zoom_link: string | null
         }
         Insert: {
           address?: string | null
@@ -1167,6 +1175,7 @@ export type Database = {
           kyc_document_number?: string | null
           kyc_document_type?: string | null
           kyc_document_url?: string | null
+          meet_link?: string | null
           phone?: string | null
           pincode?: string | null
           qualifications?: string | null
@@ -1177,6 +1186,7 @@ export type Database = {
           user_id: string
           year_of_commencement?: number | null
           years_of_experience?: number | null
+          zoom_link?: string | null
         }
         Update: {
           address?: string | null
@@ -1199,6 +1209,7 @@ export type Database = {
           kyc_document_number?: string | null
           kyc_document_type?: string | null
           kyc_document_url?: string | null
+          meet_link?: string | null
           phone?: string | null
           pincode?: string | null
           qualifications?: string | null
@@ -1209,6 +1220,7 @@ export type Database = {
           user_id?: string
           year_of_commencement?: number | null
           years_of_experience?: number | null
+          zoom_link?: string | null
         }
         Relationships: []
       }
