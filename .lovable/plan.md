@@ -1,53 +1,90 @@
 
 
-# Three Fixes: Assignment Popup, PDF Upload, and Tutor Overview
+# Tutor Dashboard — 10 Targeted Changes
 
-## 1. Student Assignments — Open as Popup with Submit Button (`DashboardAssignments.tsx`)
+## Summary
+Restructure the tutor dashboard sidebar, live classes (online/offline tabs with master link auto-fill), My Courses page (tutor-created content only), analytics (4 sections with assignment completion), and add admin ability to manage tutor master meeting links. Requires 2 DB migrations and changes to 5 existing files + 1 new admin tutor detail section.
 
-**Current**: Assignment cards are listed inline with a Submit button on each card.
+## Database Migrations
 
-**Change**: When a student clicks an assignment card, open a **detail popup dialog** showing full assignment info (title, course, description, due date, attached PDF/video/link) with a **Submit button** at the bottom. Remove the inline Submit button from the card list — the card itself becomes clickable.
+### Migration 1: Add master links to profiles
+```sql
+ALTER TABLE profiles 
+  ADD COLUMN IF NOT EXISTS zoom_link TEXT,
+  ADD COLUMN IF NOT EXISTS meet_link TEXT;
+```
 
-- Add a new state `selectedAssignment` to track which assignment detail popup is open
-- Make each assignment card clickable (`onClick` → open detail dialog)
-- New dialog shows: title, course name, description, due date badge, resource buttons (PDF/Video/Link), and grade info if graded
-- Submit button inside the detail dialog opens the existing submit form (or shows submit form inline within the same dialog)
-- Keep the existing submit dialog logic but trigger it from within the detail popup
+### Migration 2: Add fields to live_classes + update RLS
+```sql
+ALTER TABLE live_classes 
+  ADD COLUMN IF NOT EXISTS class_type TEXT DEFAULT 'online',
+  ADD COLUMN IF NOT EXISTS audience_type TEXT DEFAULT 'specific';
 
-## 2. PDF File Upload in Create Course (`CreateCourse.tsx`)
+-- Update student visibility policy
+DROP POLICY IF EXISTS "Students view live classes for their batch" ON live_classes;
+CREATE POLICY "Students view live classes" ON live_classes FOR SELECT USING (
+  (
+    audience_type = 'all' AND instructor_id IN (
+      SELECT b.instructor_id FROM batches b
+      WHERE b.id IN (SELECT be.batch_id FROM batch_enrollments be WHERE be.student_id = auth.uid())
+    )
+  )
+  OR (
+    audience_type = 'specific' AND batch_id IN (
+      SELECT be.batch_id FROM batch_enrollments be WHERE be.student_id = auth.uid()
+    )
+  )
+  OR is_super_or_admin(auth.uid())
+  OR (instructor_id = auth.uid())
+);
+```
 
-**Current**: When lesson type is "pdf", it shows a text input for "PDF file URL" (line 560-566).
+## File Changes
 
-**Change**: Replace the URL input with a **file upload input** that uploads the PDF to the `course-pdfs` storage bucket and stores the resulting path in `les.pdf_url`.
+### 1. `src/components/DashboardSidebar.tsx`
+- Remove "Curriculum" and "My Students" from `instructorNav`
+- Rename "Create Course" → "Update Curriculum"
+- Reorder: Overview, My Courses, Update Curriculum, Live Classes, Assignments, Messages, Analytics, Profile
 
-- Replace the `<Input>` for pdf_url with `<Input type="file" accept=".pdf">`
-- On file select, upload to `course-pdfs` bucket under `lessons/{userId}/{timestamp}_{filename}`
-- Get the public URL and store it in the lesson's `pdf_url` field
-- Show upload progress/status indicator
-- If a PDF is already uploaded, show the filename with a remove option
+### 2. `src/pages/instructor/InstructorCourses.tsx` — Full rewrite
+- Add tabs: "My Courses" + "My Curriculum Modules"
+- My Courses tab: query `courses` where `instructor_id = user.id`
+- My Curriculum tab: query `curriculum_sections` where `created_by = user.id`, joined with `curriculum_modules`
+- Each item shows title, date, batch, edit button
+- Disable delete for content linked to active batches with enrolled students
 
-## 3. Tutor Overview — Show Allocated Courses (`InstructorOverview.tsx`)
+### 3. `src/pages/instructor/TutorLiveClasses.tsx` — Major rewrite
+- Replace 2-tab (Upcoming/Past) with 3-tab (Online/Offline/Past)
+- **Online tab**: upcoming `live_classes` where `class_type = 'online'`, with "+ Schedule Online Class" button
+- **Offline tab**: read-only `schedules` where `instructor_id = user.id`, with "Scheduled by Admin" badge, no join button
+- **Past tab**: combined past online + offline
+- **Schedule modal**: 
+  - Class title, description, audience (All Batches / Specific Batch radio), date, time, duration (15/30/45/60 max), platform (Zoom/Meet radio)
+  - Meeting link auto-filled from `profiles.zoom_link` or `profiles.meet_link` (read-only)
+  - 60-min yellow warning banner about free plan limits
+  - If no link set, show red error and disable save
+  - Insert with `class_type = 'online'`, `audience_type`, `batch_id` (null for all)
+- **Card badges**: Online vs Classroom visual distinction; All Batches vs Specific Batch badge
 
-**Current**: Shows stat cards, today's schedule, teaching activity chart, recent submissions, and a CTA.
+### 4. `src/pages/instructor/InstructorAnalytics.tsx` — Full rewrite
+- **Section 1 — My Courses**: total courses, most accessed, avg completion, bar chart top 5
+- **Section 2 — My Curriculum**: total modules created, total sections, module list with section count
+- **Section 3 — My Batches**: total active batches, total students, per-batch cards with student count, pie chart
+- **Section 4 — Assignment Completion**: total/submitted/pending stats, per-assignment table with completion %, bar chart with color-coded bars
 
-**Change**: Add a new **"My Allocated Subjects"** section that fetches from `subject_allocations` table joined with `curriculum_modules` to show the tutor's allocated subjects (semester, subject name, course code).
+### 5. `src/pages/admin/AdminStudents.tsx` — Add master links section
+- When viewing a tutor profile (role = instructor), show "Master Meeting Links" section
+- Zoom link + Meet link inputs, editable only by super_admin
+- Save button updates `profiles.zoom_link` and `profiles.meet_link`
+- Note: The admin/tutors route already renders `AdminStudents` — we add the links section to the tutor detail view within this component
 
-- Query `subject_allocations` where `instructor_id = user.id`, join with `curriculum_modules` for subject details
-- Display as styled cards with semester badge, subject name, and course code
-- Place between the stat cards and the middle row
+### 6. `src/pages/dashboard/StudentLiveClasses.tsx` — Update query
+- Update the student live classes query to handle the new `audience_type = 'all'` classes (RLS handles visibility, but UI should show "All Batches" badge)
 
-## 4. Tutor Analytics — Remove Two Charts (`InstructorAnalytics.tsx`)
-
-**Current**: Shows 3 stat cards + Enrollment Trends chart + Students per Course chart.
-
-**Change**: Remove the entire `grid grid-cols-1 lg:grid-cols-2` section (lines 80-120) containing both "Enrollment Trends" and "Students per Course" charts. Keep only the stat cards and header.
-
-## Files to Edit
-
-| File | Change |
-|---|---|
-| `src/pages/dashboard/DashboardAssignments.tsx` | Add assignment detail popup with submit button |
-| `src/pages/instructor/CreateCourse.tsx` | Replace PDF URL input with file upload |
-| `src/pages/instructor/InstructorOverview.tsx` | Add "My Allocated Subjects" section |
-| `src/pages/instructor/InstructorAnalytics.tsx` | Remove enrollment trends and students per course charts |
+## Technical Notes
+- No new dependencies needed — uses existing recharts, framer-motion, Lucide icons, Tabs, RadioGroup, Dialog
+- New Lucide icons: `AlertTriangle`, `Building2`, `Radio`
+- All changes maintain existing mobile responsiveness patterns
+- The `assignments` table uses `instructor_id` not `created_by` — queries will use `instructor_id = user.id`
+- `curriculum_sections` has `created_by` field for filtering tutor-created content
 
