@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { Search, Bell } from "lucide-react";
+import { Search, Bell, Sparkles } from "lucide-react";
 import DashboardSidebar from "./DashboardSidebar";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -20,9 +20,13 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => {
         {/* Top greeting bar */}
         <div className="px-3 pt-12 md:px-8 md:pt-6 pb-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
           <div>
-            <p className="text-xs sm:text-sm text-brand-warm-grey">Sai Ram</p>
-            <h2 className="font-serif text-xl sm:text-2xl font-semibold text-brand-primary leading-tight">{roleLabel(role)} {name}</h2>
-            <div className="w-10 h-0.5 bg-brand-gold mt-1" />
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-bold bg-gradient-to-r from-brand-gold/20 to-brand-gold/10 text-brand-gold px-2.5 py-0.5 rounded-full border border-brand-gold/20">
+                <Sparkles className="w-3 h-3" /> Sai Ram
+              </span>
+            </div>
+            <h2 className="font-serif text-xl sm:text-2xl font-semibold text-brand-primary leading-tight mt-1">{roleLabel(role)} {name}</h2>
+            <div className="w-10 h-0.5 bg-gradient-to-r from-brand-gold to-transparent mt-1" />
           </div>
           <div className="flex items-center gap-2 sm:gap-3">
             {/* Mobile search icon */}
@@ -38,8 +42,8 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => {
                 className="pl-9 pr-4 py-2 text-sm rounded-xl border border-brand-parchment bg-white text-brand-charcoal placeholder:text-brand-warm-grey-light focus:outline-none focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 w-52"
               />
             </div>
-            <button className="w-11 h-11 rounded-full bg-white border border-brand-parchment flex items-center justify-center hover:bg-brand-cream-dark transition-colors relative">
-              <Bell className="w-4 h-4 text-brand-warm-grey" />
+            <button className="w-11 h-11 rounded-full bg-white border border-brand-parchment flex items-center justify-center hover:bg-brand-cream-dark transition-colors relative group">
+              <Bell className="w-4 h-4 text-brand-warm-grey group-hover:text-brand-gold transition-colors" />
             </button>
           </div>
         </div>
