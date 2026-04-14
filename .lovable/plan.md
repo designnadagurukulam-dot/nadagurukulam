@@ -1,52 +1,53 @@
 
 
-# Fix Alignment and Responsiveness Across All Public & Dashboard Pages
+# Three Fixes: Assignment Popup, PDF Upload, and Tutor Overview
 
-## Issues Found (432px Mobile Viewport)
+## 1. Student Assignments — Open as Popup with Submit Button (`DashboardAssignments.tsx`)
 
-1. **Index.tsx — Founder section**: Grid stacks on mobile but image container has no centering constraint, causing the founder image + decorative quote mark to extend beyond viewport on the left
-2. **Index.tsx — Hero title**: `text-6xl` on mobile is very large for 432px, "Gurukulam" in outline text wraps awkwardly
-3. **About.tsx — Founder section**: Same grid overlap issue — image extends beyond left edge on mobile
-4. **About.tsx — Vision/Mission timeline**: Timeline dot at `left-6` with cards at `ml-16` creates cramped layout on narrow screens; cards have `w-full` but are constrained by parent flex
-5. **About.tsx — Director + Vision sections**: `w-72 h-80` fixed image sizes can overflow on 432px viewport
-6. **Index.tsx — Stats section**: `text-6xl` stat numbers are tight on 2-column mobile grid
-7. **Footer**: Contact info and course list side-by-side at `md` breakpoint can feel cramped on tablet
+**Current**: Assignment cards are listed inline with a Submit button on each card.
 
-## Files to Change
+**Change**: When a student clicks an assignment card, open a **detail popup dialog** showing full assignment info (title, course, description, due date, attached PDF/video/link) with a **Submit button** at the bottom. Remove the inline Submit button from the card list — the card itself becomes clickable.
 
-### 1. `src/pages/Index.tsx`
-- **Hero title**: Reduce mobile font from `text-6xl` → `text-4xl sm:text-6xl` for better fit
-- **Founder section**: Add `overflow-hidden` to the section container and center the image properly on mobile with `mx-auto` on the vignette-gold wrapper
-- **Stats**: Reduce mobile stat number size from `text-6xl` → `text-4xl sm:text-6xl`
-- **CTA section heading**: Reduce from `text-5xl` → `text-3xl sm:text-5xl` on mobile
+- Add a new state `selectedAssignment` to track which assignment detail popup is open
+- Make each assignment card clickable (`onClick` → open detail dialog)
+- New dialog shows: title, course name, description, due date badge, resource buttons (PDF/Video/Link), and grade info if graded
+- Submit button inside the detail dialog opens the existing submit form (or shows submit form inline within the same dialog)
+- Keep the existing submit dialog logic but trigger it from within the detail popup
 
-### 2. `src/pages/About.tsx`
-- **Founder section**: Add proper mobile containment — reduce image size on mobile from `w-64 h-72` to `w-56 h-64 sm:w-64 sm:h-72`, ensure the decorative quote mark doesn't overflow
-- **Vision/Mission timeline**: On mobile, increase `ml-16` → `ml-20` or reduce dot size to prevent text cramping; add `overflow-hidden` to the timeline section
-- **Director section**: Reduce mobile image from `w-60 h-72` → `w-52 h-64 sm:w-60 sm:h-72`
-- **Vision section (bottom)**: Reduce image from `w-72 h-80` → `w-60 h-72 sm:w-72 sm:h-80`
-- **Campus heading**: Reduce `text-4xl` for "Our Upcoming Campus" which is long — use `text-3xl sm:text-4xl`
+## 2. PDF File Upload in Create Course (`CreateCourse.tsx`)
 
-### 3. `src/components/Footer.tsx`
-- Ensure bottom copyright row wraps properly on narrow screens — add `flex-wrap` and reduce text size
-- Check that social icons row doesn't overflow
+**Current**: When lesson type is "pdf", it shows a text input for "PDF file URL" (line 560-566).
 
-### 4. `src/pages/Courses.tsx`
-- Verify course cards grid is `grid-cols-1 sm:grid-cols-2` (currently looks OK from screenshots but confirm)
+**Change**: Replace the URL input with a **file upload input** that uploads the PDF to the `course-pdfs` storage bucket and stores the resulting path in `les.pdf_url`.
 
-### 5. `src/pages/Contact.tsx`
-- Verify form fields and contact info cards stack properly on mobile
+- Replace the `<Input>` for pdf_url with `<Input type="file" accept=".pdf">`
+- On file select, upload to `course-pdfs` bucket under `lessons/{userId}/{timestamp}_{filename}`
+- Get the public URL and store it in the lesson's `pdf_url` field
+- Show upload progress/status indicator
+- If a PDF is already uploaded, show the filename with a remove option
 
-### 6. `src/pages/Events.tsx` & `src/pages/Gallery.tsx`
-- Quick check and fix any grid overflow issues on mobile
+## 3. Tutor Overview — Show Allocated Courses (`InstructorOverview.tsx`)
 
-### 7. `src/pages/Faculty.tsx`
-- Check faculty grid cards for mobile alignment
+**Current**: Shows stat cards, today's schedule, teaching activity chart, recent submissions, and a CTA.
 
-## Key Patterns
-- Replace all `text-6xl` and above with responsive sizes (`text-3xl sm:text-5xl md:text-6xl`)
-- Add `overflow-hidden` to sections with absolute-positioned decorative elements
-- Ensure fixed-width image containers use responsive sizes (`w-56 sm:w-64 md:w-80`)
-- Add `px-4` padding to all section containers for safe mobile margins
-- Fix `flex-wrap` on footer copyright row
+**Change**: Add a new **"My Allocated Subjects"** section that fetches from `subject_allocations` table joined with `curriculum_modules` to show the tutor's allocated subjects (semester, subject name, course code).
+
+- Query `subject_allocations` where `instructor_id = user.id`, join with `curriculum_modules` for subject details
+- Display as styled cards with semester badge, subject name, and course code
+- Place between the stat cards and the middle row
+
+## 4. Tutor Analytics — Remove Two Charts (`InstructorAnalytics.tsx`)
+
+**Current**: Shows 3 stat cards + Enrollment Trends chart + Students per Course chart.
+
+**Change**: Remove the entire `grid grid-cols-1 lg:grid-cols-2` section (lines 80-120) containing both "Enrollment Trends" and "Students per Course" charts. Keep only the stat cards and header.
+
+## Files to Edit
+
+| File | Change |
+|---|---|
+| `src/pages/dashboard/DashboardAssignments.tsx` | Add assignment detail popup with submit button |
+| `src/pages/instructor/CreateCourse.tsx` | Replace PDF URL input with file upload |
+| `src/pages/instructor/InstructorOverview.tsx` | Add "My Allocated Subjects" section |
+| `src/pages/instructor/InstructorAnalytics.tsx` | Remove enrollment trends and students per course charts |
 
