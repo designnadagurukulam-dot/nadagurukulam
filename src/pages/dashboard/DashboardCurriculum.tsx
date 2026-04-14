@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { BookOpen, Clock, PlayCircle, Headphones, FileText, Type, Link as LinkIcon, ChevronRight } from "lucide-react";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 const getYouTubeId = (url: string): string | null => {
   const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/))([^&?\s]+)/);
@@ -37,7 +37,6 @@ const classifyMaterials = (
     notes: { links: [], textContent: undefined },
   };
 
-  // Classify links
   for (const link of links) {
     if (getYouTubeId(link.url)) {
       materials.videos.links.push(link);
@@ -46,7 +45,6 @@ const classifyMaterials = (
     } else if (isPdfUrl(link.url)) {
       materials.pdfs.links.push(link);
     } else {
-      // Generic external link — put under videos if youtube-type section, else pdfs
       if (section.content_type === "youtube") {
         materials.videos.links.push(link);
       } else {
@@ -55,36 +53,14 @@ const classifyMaterials = (
     }
   }
 
-  // Legacy fields
   if (links.length === 0 && section.content_type === "youtube" && section.youtube_url) {
-    materials.videos.links.push({
-      id: "legacy-yt",
-      section_id: "",
-      url: section.youtube_url,
-      label: null,
-      sort_order: 0,
-      created_at: "",
-    });
+    materials.videos.links.push({ id: "legacy-yt", section_id: "", url: section.youtube_url, label: null, sort_order: 0, created_at: "" });
   }
   if (section.audio_url) {
-    materials.audio.links.push({
-      id: "legacy-audio",
-      section_id: "",
-      url: section.audio_url,
-      label: null,
-      sort_order: 0,
-      created_at: "",
-    });
+    materials.audio.links.push({ id: "legacy-audio", section_id: "", url: section.audio_url, label: null, sort_order: 0, created_at: "" });
   }
   if (section.pdf_url) {
-    materials.pdfs.links.push({
-      id: "legacy-pdf",
-      section_id: "",
-      url: section.pdf_url,
-      label: null,
-      sort_order: 0,
-      created_at: "",
-    });
+    materials.pdfs.links.push({ id: "legacy-pdf", section_id: "", url: section.pdf_url, label: null, sort_order: 0, created_at: "" });
   }
   if (section.content_type === "text" && section.text_content) {
     materials.notes.textContent = section.text_content;
@@ -112,16 +88,11 @@ const TopicContent = ({ section, links }: { section: any; links: MaterialLink[] 
   };
 
   const totalItems = counts.videos + counts.audio + counts.pdfs + counts.notes;
-
-  const handleFilter = (type: MaterialType) => {
-    setActiveFilter((prev) => (prev === type ? "all" : type));
-  };
-
+  const handleFilter = (type: MaterialType) => setActiveFilter((prev) => (prev === type ? "all" : type));
   const showType = (type: MaterialType) => activeFilter === "all" || activeFilter === type;
 
   return (
     <div className="space-y-4">
-      {/* Filter pills */}
       <div className="flex flex-wrap gap-2">
         {(Object.keys(materialMeta) as MaterialType[]).map((type) => {
           const meta = materialMeta[type];
@@ -129,7 +100,6 @@ const TopicContent = ({ section, links }: { section: any; links: MaterialLink[] 
           const count = counts[type];
           const isActive = activeFilter === type;
           const isDisabled = count === 0;
-
           return (
             <button
               key={type}
@@ -150,11 +120,8 @@ const TopicContent = ({ section, links }: { section: any; links: MaterialLink[] 
         })}
       </div>
 
-      {totalItems === 0 && (
-        <p className="text-sm text-brand-warm-grey italic py-2">No materials added yet.</p>
-      )}
+      {totalItems === 0 && <p className="text-sm text-brand-warm-grey italic py-2">No materials added yet.</p>}
 
-      {/* Videos */}
       {showType("videos") && materials.videos.links.map((link, idx) => (
         <div key={link.id || idx} className="space-y-1.5">
           {link.label && (
@@ -164,23 +131,16 @@ const TopicContent = ({ section, links }: { section: any; links: MaterialLink[] 
           )}
           {getYouTubeId(link.url) ? (
             <div className="aspect-video rounded-xl overflow-hidden bg-brand-cream-dark shadow-sm">
-              <iframe
-                src={`https://www.youtube.com/embed/${getYouTubeId(link.url)}`}
-                className="w-full h-full"
-                allowFullScreen
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              />
+              <iframe src={`https://www.youtube.com/embed/${getYouTubeId(link.url)}`} className="w-full h-full" allowFullScreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" />
             </div>
           ) : (
-            <a href={link.url} target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-sm text-brand-primary hover:text-brand-primary/80 underline underline-offset-2">
+            <a href={link.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-brand-primary hover:text-brand-primary/80 underline underline-offset-2">
               <LinkIcon className="h-3.5 w-3.5" /> {link.label || "Watch Video"}
             </a>
           )}
         </div>
       ))}
 
-      {/* Audio */}
       {showType("audio") && materials.audio.links.map((link, idx) => (
         <div key={link.id || idx} className="space-y-1.5">
           {link.label && (
@@ -189,14 +149,11 @@ const TopicContent = ({ section, links }: { section: any; links: MaterialLink[] 
             </p>
           )}
           <div className="bg-amber-50/60 border border-amber-100 rounded-xl p-3">
-            <audio controls className="w-full h-10" preload="metadata">
-              <source src={link.url} />
-            </audio>
+            <audio controls className="w-full h-10" preload="metadata"><source src={link.url} /></audio>
           </div>
         </div>
       ))}
 
-      {/* PDFs */}
       {showType("pdfs") && materials.pdfs.links.map((link, idx) => (
         <a key={link.id || idx} href={link.url} target="_blank" rel="noopener noreferrer"
           className="flex items-center gap-3 p-3 bg-blue-50/60 border border-blue-100 rounded-xl hover:shadow-sm transition-shadow">
@@ -211,18 +168,165 @@ const TopicContent = ({ section, links }: { section: any; links: MaterialLink[] 
         </a>
       ))}
 
-      {/* Notes */}
       {showType("notes") && materials.notes.textContent && (
         <div className="bg-stone-50 border-l-4 border-brand-gold/60 rounded-r-xl p-4">
-          <p className="text-xs font-semibold text-brand-warm-grey mb-2 flex items-center gap-1">
-            <Type className="h-3.5 w-3.5" /> Notes
-          </p>
-          <div className="text-sm text-brand-charcoal-mid whitespace-pre-wrap leading-relaxed">
-            {materials.notes.textContent}
-          </div>
+          <p className="text-xs font-semibold text-brand-warm-grey mb-2 flex items-center gap-1"><Type className="h-3.5 w-3.5" /> Notes</p>
+          <div className="text-sm text-brand-charcoal-mid whitespace-pre-wrap leading-relaxed">{materials.notes.textContent}</div>
         </div>
       )}
     </div>
+  );
+};
+
+/* ─── Subject Card with Sidebar + Content Panel ─── */
+const SubjectPanel = ({
+  subject,
+  sections,
+  sectionLinks,
+}: {
+  subject: { courseCode: string; subjectName: string; modules: any[]; totalHours: number };
+  sections: any[];
+  sectionLinks: MaterialLink[];
+}) => {
+  const [selectedChapterId, setSelectedChapterId] = useState<string | null>(null);
+
+  // Auto-select first chapter
+  useEffect(() => {
+    if (subject.modules.length > 0 && !selectedChapterId) {
+      setSelectedChapterId(subject.modules[0].id);
+    }
+  }, [subject.modules, selectedChapterId]);
+
+  const selectedChapter = subject.modules.find((m) => m.id === selectedChapterId);
+  const topics = selectedChapter ? sections.filter((s) => s.module_id === selectedChapter.id) : [];
+
+  return (
+    <Card className="bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)]">
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between flex-wrap gap-2">
+          <div>
+            <CardTitle className="text-lg font-serif text-brand-charcoal-mid">{subject.subjectName}</CardTitle>
+            <Badge className="mt-1 bg-brand-gold-pale text-brand-primary border-0">{subject.courseCode}</Badge>
+          </div>
+          <div className="flex items-center gap-1 text-sm text-brand-warm-grey">
+            <Clock className="h-4 w-4" /> {subject.totalHours}h
+          </div>
+        </div>
+      </CardHeader>
+
+      <CardContent className="pt-0">
+        {/* Mobile: horizontal chapter strip */}
+        <div className="md:hidden mb-4">
+          <ScrollArea className="w-full">
+            <div className="flex gap-2 pb-2">
+              {subject.modules.map((ch) => {
+                const isActive = ch.id === selectedChapterId;
+                const topicCount = sections.filter((s) => s.module_id === ch.id).length;
+                return (
+                  <button
+                    key={ch.id}
+                    onClick={() => setSelectedChapterId(ch.id)}
+                    className={`shrink-0 px-3 py-2 rounded-lg text-xs font-medium border transition-all ${
+                      isActive
+                        ? "bg-brand-primary/10 border-brand-primary text-brand-primary font-semibold"
+                        : "bg-brand-cream/50 border-brand-parchment text-brand-charcoal-mid hover:bg-brand-cream"
+                    }`}
+                  >
+                    {ch.module_name}
+                    {topicCount > 0 && (
+                      <span className="ml-1.5 text-[10px] opacity-70">({topicCount})</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </ScrollArea>
+        </div>
+
+        {/* Desktop: sidebar + content */}
+        <div className="flex gap-0 min-h-[300px]">
+          {/* Chapter sidebar — hidden on mobile */}
+          <div className="hidden md:block w-[240px] shrink-0 border-r border-brand-parchment">
+            <ScrollArea className="h-[500px] pr-2">
+              <div className="space-y-0.5 py-1">
+                {subject.modules.map((ch) => {
+                  const isActive = ch.id === selectedChapterId;
+                  const topicCount = sections.filter((s) => s.module_id === ch.id).length;
+                  return (
+                    <button
+                      key={ch.id}
+                      onClick={() => setSelectedChapterId(ch.id)}
+                      className={`w-full text-left px-3 py-2.5 rounded-r-lg transition-all text-sm flex items-start gap-2 ${
+                        isActive
+                          ? "bg-brand-primary/10 border-l-[3px] border-brand-primary text-brand-primary font-semibold"
+                          : "border-l-[3px] border-transparent hover:bg-brand-cream-dark/60 text-brand-charcoal-mid hover:text-brand-primary"
+                      }`}
+                    >
+                      <BookOpen className={`h-4 w-4 mt-0.5 shrink-0 ${isActive ? "text-brand-gold" : "text-brand-warm-grey"}`} />
+                      <div className="min-w-0">
+                        <span className="block leading-snug">{ch.module_name}</span>
+                        {topicCount > 0 && (
+                          <span className="text-[10px] text-brand-warm-grey mt-0.5 block">
+                            {topicCount} topic{topicCount > 1 ? "s" : ""}
+                          </span>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </ScrollArea>
+          </div>
+
+          {/* Content panel */}
+          <div className="flex-1 min-w-0 md:pl-5">
+            {selectedChapter ? (
+              <div className="space-y-5">
+                <div>
+                  <h3 className="text-base font-semibold text-brand-charcoal-mid font-serif">
+                    {selectedChapter.module_name}
+                  </h3>
+                  {selectedChapter.description && (
+                    <p className="text-xs text-brand-warm-grey mt-1">{selectedChapter.description}</p>
+                  )}
+                  {selectedChapter.hours && (
+                    <span className="inline-flex items-center gap-1 text-xs text-brand-warm-grey mt-1">
+                      <Clock className="h-3 w-3" /> {selectedChapter.hours}h
+                    </span>
+                  )}
+                </div>
+
+                {topics.length === 0 ? (
+                  <p className="text-sm text-brand-warm-grey italic">No topics added yet.</p>
+                ) : (
+                  <div className="space-y-4">
+                    {topics.map((topic) => {
+                      const topicLinks = sectionLinks.filter((l) => l.section_id === topic.id);
+                      return (
+                        <div
+                          key={topic.id}
+                          className="bg-brand-cream/40 rounded-xl border border-brand-parchment/80 p-4 space-y-3"
+                        >
+                          <h4 className="text-sm font-semibold text-brand-charcoal-mid flex items-center gap-2">
+                            <ChevronRight className="h-3.5 w-3.5 text-brand-gold shrink-0" />
+                            {topic.title}
+                          </h4>
+                          <TopicContent section={topic} links={topicLinks} />
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-full text-brand-warm-grey text-sm">
+                <p>Select a chapter to view topics</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 
@@ -273,9 +377,6 @@ const DashboardCurriculum = () => {
     }));
   };
 
-  const getSectionsForModule = (moduleId: string) => sections.filter((s) => s.module_id === moduleId);
-  const getLinksForSection = (sectionId: string) => sectionLinks.filter((l) => l.section_id === sectionId);
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -297,19 +398,12 @@ const DashboardCurriculum = () => {
       <Tabs defaultValue="1" className="w-full">
         <TabsList className="flex flex-wrap h-auto gap-1 bg-brand-cream-dark p-1.5 rounded-xl mb-6">
           {semesters.map((s) => (
-            <TabsTrigger
-              key={s}
-              value={String(s)}
-              className="px-4 py-2 text-sm font-semibold rounded-lg data-[state=active]:bg-brand-primary data-[state=active]:text-white text-brand-warm-grey"
-            >
+            <TabsTrigger key={s} value={String(s)} className="px-4 py-2 text-sm font-semibold rounded-lg data-[state=active]:bg-brand-primary data-[state=active]:text-white text-brand-warm-grey">
               Sem {s}
             </TabsTrigger>
           ))}
           {hasAdditional && (
-            <TabsTrigger
-              value="9"
-              className="px-4 py-2 text-sm font-semibold rounded-lg data-[state=active]:bg-brand-primary data-[state=active]:text-white text-brand-warm-grey"
-            >
+            <TabsTrigger value="9" className="px-4 py-2 text-sm font-semibold rounded-lg data-[state=active]:bg-brand-primary data-[state=active]:text-white text-brand-warm-grey">
               Additional
             </TabsTrigger>
           )}
@@ -318,9 +412,7 @@ const DashboardCurriculum = () => {
         {[...semesters, ...(hasAdditional ? [9] : [])].map((sem) => (
           <TabsContent key={sem} value={String(sem)} className="space-y-6">
             {sem === 9 && (
-              <p className="text-brand-warm-grey text-sm">
-                Additional courses created by educators outside the standard 8-semester curriculum.
-              </p>
+              <p className="text-brand-warm-grey text-sm">Additional courses created by educators outside the standard 8-semester curriculum.</p>
             )}
 
             {getSubjectsForSemester(sem).length === 0 && (
@@ -331,98 +423,12 @@ const DashboardCurriculum = () => {
             )}
 
             {getSubjectsForSemester(sem).map((subject) => (
-              <Card
+              <SubjectPanel
                 key={subject.courseCode}
-                className="bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)]"
-              >
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between flex-wrap gap-2">
-                    <div>
-                      <CardTitle className="text-lg font-serif text-brand-charcoal-mid">
-                        {subject.subjectName}
-                      </CardTitle>
-                      <Badge className="mt-1 bg-brand-gold-pale text-brand-primary border-0">
-                        {subject.courseCode}
-                      </Badge>
-                    </div>
-                    <div className="flex items-center gap-1 text-sm text-brand-warm-grey">
-                      <Clock className="h-4 w-4" /> {subject.totalHours}h
-                    </div>
-                  </div>
-                </CardHeader>
-
-                <CardContent>
-                  {/* Chapters accordion */}
-                  <Accordion type="multiple" className="w-full">
-                    {subject.modules.map((chapter) => {
-                      const topics = getSectionsForModule(chapter.id);
-                      return (
-                        <AccordionItem
-                          key={chapter.id}
-                          value={chapter.id}
-                          className="border-0 mb-2"
-                        >
-                          <div className="border-l-[3px] border-brand-primary/30 rounded-r-lg hover:border-brand-primary/60 transition-colors">
-                            <AccordionTrigger className="text-left hover:no-underline px-4 py-3 hover:bg-brand-cream-dark/50 rounded-r-lg transition-colors">
-                              <div className="flex items-center gap-3">
-                                <div className="flex items-center justify-center h-7 w-7 rounded-md bg-brand-gold/10 shrink-0">
-                                  <BookOpen className="h-3.5 w-3.5 text-brand-gold" />
-                                </div>
-                                <span className="font-medium text-brand-charcoal-mid text-sm">
-                                  {chapter.module_name}
-                                </span>
-                                {topics.length > 0 && (
-                                  <Badge className="text-[10px] bg-brand-cream-dark text-brand-warm-grey border-0 px-2 py-0.5">
-                                    {topics.length} topic{topics.length > 1 ? "s" : ""}
-                                  </Badge>
-                                )}
-                              </div>
-                            </AccordionTrigger>
-                          </div>
-
-                          <AccordionContent className="pl-5 pt-2 pb-1">
-                            {chapter.description && (
-                              <p className="text-brand-warm-grey text-xs mb-3 pl-4">{chapter.description}</p>
-                            )}
-
-                            {topics.length === 0 ? (
-                              <p className="text-sm text-brand-warm-grey italic pl-4">No topics added yet.</p>
-                            ) : (
-                              <Accordion type="multiple" className="w-full space-y-2">
-                                {topics.map((topic) => {
-                                  const topicLinks = getLinksForSection(topic.id);
-                                  return (
-                                    <AccordionItem
-                                      key={topic.id}
-                                      value={topic.id}
-                                      className="border-0"
-                                    >
-                                      <div className="bg-brand-cream/60 rounded-xl border border-brand-parchment/80 overflow-hidden">
-                                        <AccordionTrigger className="text-left hover:no-underline px-4 py-3 hover:bg-brand-cream transition-colors">
-                                          <div className="flex items-center gap-2">
-                                            <ChevronRight className="h-3.5 w-3.5 text-brand-gold shrink-0 transition-transform duration-200 [[data-state=open]>&]:rotate-90" />
-                                            <span className="font-medium text-sm text-brand-charcoal-mid">
-                                              {topic.title}
-                                            </span>
-                                          </div>
-                                        </AccordionTrigger>
-
-                                        <AccordionContent className="px-4 pb-4 pt-0">
-                                          <TopicContent section={topic} links={topicLinks} />
-                                        </AccordionContent>
-                                      </div>
-                                    </AccordionItem>
-                                  );
-                                })}
-                              </Accordion>
-                            )}
-                          </AccordionContent>
-                        </AccordionItem>
-                      );
-                    })}
-                  </Accordion>
-                </CardContent>
-              </Card>
+                subject={subject}
+                sections={sections}
+                sectionLinks={sectionLinks}
+              />
             ))}
           </TabsContent>
         ))}
