@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Award, Download, ExternalLink, Upload } from "lucide-react";
+import { Award, Download, ExternalLink, Upload, Trophy, Sparkles } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -52,10 +52,15 @@ const DashboardCertificates = () => {
   return (
     <div className="space-y-4 sm:space-y-6 pt-2">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
-        <div>
-          <h1 className="font-serif text-xl sm:text-2xl font-semibold text-brand-primary">Certificates</h1>
-          <div className="w-12 h-0.5 bg-brand-gold mt-1" />
-          <p className="text-brand-warm-grey mt-1.5 sm:mt-2 text-xs sm:text-sm">Your earned certificates and achievements</p>
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-gold/30 to-brand-gold/10 flex items-center justify-center">
+            <Trophy className="w-5 h-5 text-brand-gold" />
+          </div>
+          <div>
+            <h1 className="font-serif text-xl sm:text-2xl font-semibold text-brand-primary">Certificates</h1>
+            <div className="w-12 h-0.5 bg-gradient-to-r from-brand-gold to-transparent mt-1" />
+            <p className="text-brand-warm-grey mt-1 text-xs sm:text-sm">Your earned certificates and achievements</p>
+          </div>
         </div>
         <Dialog open={uploadOpen} onOpenChange={setUploadOpen}>
           <DialogTrigger asChild>
@@ -76,33 +81,36 @@ const DashboardCertificates = () => {
 
       {certificates.length === 0 ? (
         <Card className="text-center p-8 sm:p-12 bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)]">
-          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-brand-gold-pale flex items-center justify-center mx-auto mb-4">
-            <Award className="h-7 w-7 sm:h-8 sm:w-8 text-brand-gold" />
+          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 flex items-center justify-center mx-auto mb-4">
+            <Sparkles className="h-10 w-10 sm:h-12 sm:w-12 text-brand-gold" />
           </div>
           <h3 className="font-serif text-lg sm:text-xl text-brand-primary">No certificates yet</h3>
-          <p className="text-brand-warm-grey mt-2 text-xs sm:text-sm">Complete a course to earn your first certificate!</p>
+          <p className="text-brand-warm-grey mt-2 text-xs sm:text-sm">Complete a course to earn your first certificate! 🏆</p>
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           {certificates.map((cert, i) => (
             <motion.div key={cert.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
-              <Card className="overflow-hidden hover:shadow-xl transition-all duration-500 bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] group">
+              <Card className="overflow-hidden hover:shadow-[0_8px_40px_rgba(196,154,60,0.2)] transition-all duration-500 bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] group">
                 <div className="relative h-36 sm:h-44 flex items-center justify-center overflow-hidden bg-gradient-to-br from-brand-primary to-brand-primary-dark">
                   <div className="absolute inset-0 opacity-10" style={{
                     backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")"
                   }} />
+                  {/* Golden ribbon */}
+                  <div className="absolute top-0 right-6 w-10 h-16 bg-gradient-to-b from-brand-gold to-brand-gold-light" style={{ clipPath: "polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%)" }} />
                   <div className="absolute inset-3 border-2 border-brand-gold/30 rounded-lg" />
                   <div className="absolute inset-5 border border-brand-gold/15 rounded-lg" />
-                  <Award className="h-12 w-12 sm:h-16 sm:w-16 text-brand-gold group-hover:scale-110 transition-transform duration-500 drop-shadow-lg" />
+                  <Award className="h-14 w-14 sm:h-16 sm:w-16 text-brand-gold group-hover:scale-110 transition-transform duration-500 drop-shadow-lg animate-pulse" style={{ animationDuration: "3s" }} />
                 </div>
                 <CardContent className="p-4 sm:p-6 space-y-2 sm:space-y-3">
                   <h3 className="font-serif text-base sm:text-lg font-bold text-brand-charcoal-mid">{cert.course_title}</h3>
-                  <div className="text-[10px] sm:text-xs text-brand-warm-grey">
+                  <div className="text-[10px] sm:text-xs text-brand-warm-grey flex items-center gap-1.5">
+                    <Award className="h-3 w-3 text-brand-gold" />
                     <span>Awarded: {new Date(cert.awarded_at).toLocaleDateString()}</span>
                   </div>
                   <div className="flex gap-2 pt-2 sm:pt-3 flex-wrap">
                     {cert.certificate_url && (
-                      <Button size="sm" className="gap-1.5 border-2 border-brand-gold text-brand-gold bg-transparent hover:bg-brand-gold-pale rounded-xl flex-1 sm:flex-none min-h-[40px] text-xs" asChild>
+                      <Button size="sm" className="gap-1.5 bg-gradient-to-r from-brand-gold to-brand-gold-light text-brand-charcoal hover:from-brand-gold-light hover:to-brand-gold rounded-xl flex-1 sm:flex-none min-h-[40px] text-xs font-bold" asChild>
                         <a href={cert.certificate_url} target="_blank" rel="noreferrer"><Download className="h-3.5 w-3.5" /> Download</a>
                       </Button>
                     )}

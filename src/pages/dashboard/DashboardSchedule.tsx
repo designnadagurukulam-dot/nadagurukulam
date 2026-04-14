@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Clock, Calendar } from "lucide-react";
+import { Clock, Calendar, Music, Wrench, ClipboardCheck, BookOpen } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
@@ -15,6 +15,13 @@ const typeColors: Record<string, string> = {
   practice: "bg-green-50 text-green-700",
   workshop: "bg-blue-50 text-blue-700",
   exam: "bg-red-50 text-red-700",
+};
+
+const typeIcons: Record<string, any> = {
+  class: Music,
+  practice: BookOpen,
+  workshop: Wrench,
+  exam: ClipboardCheck,
 };
 
 const DashboardSchedule = () => {
@@ -50,49 +57,67 @@ const DashboardSchedule = () => {
 
   return (
     <div className="space-y-4 sm:space-y-6 pt-2">
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="font-serif text-xl sm:text-2xl font-semibold text-brand-primary">Schedule</h1>
-        <div className="w-12 h-0.5 bg-brand-gold mt-1" />
-        <p className="text-brand-warm-grey mt-1.5 sm:mt-2 text-xs sm:text-sm">Your upcoming classes and events</p>
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 flex items-center justify-center">
+          <Calendar className="w-5 h-5 text-brand-gold" />
+        </div>
+        <div>
+          <h1 className="font-serif text-xl sm:text-2xl font-semibold text-brand-primary">Schedule</h1>
+          <div className="w-12 h-0.5 bg-gradient-to-r from-brand-gold to-transparent mt-1" />
+          <p className="text-brand-warm-grey mt-1 text-xs sm:text-sm">Your upcoming classes and events</p>
+        </div>
       </motion.div>
 
       {schedule.length === 0 ? (
         <Card className="text-center p-8 sm:p-12 bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)]">
-          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-brand-gold-pale flex items-center justify-center mx-auto mb-4">
-            <Calendar className="h-7 w-7 sm:h-8 sm:w-8 text-brand-gold" />
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 flex items-center justify-center mx-auto mb-4">
+            <Calendar className="h-8 w-8 sm:h-10 sm:w-10 text-brand-gold" />
           </div>
           <h3 className="font-serif text-lg sm:text-xl text-brand-primary">No upcoming classes</h3>
           <p className="text-brand-warm-grey mt-2 text-xs sm:text-sm">Your schedule will appear here when classes are assigned</p>
         </Card>
       ) : (
-        <div className="space-y-3 sm:space-y-4">
-          {schedule.map((s, i) => (
-            <motion.div key={s.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
-              <Card className="hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] overflow-hidden">
-                <CardContent className="p-0">
-                  <div className="flex">
-                    <div className="w-16 sm:w-24 bg-gradient-to-b from-brand-primary to-brand-primary-dark flex flex-col items-center justify-center text-white shrink-0 p-2.5 sm:p-3">
-                      <span className="text-[8px] sm:text-[10px] uppercase tracking-wider font-medium opacity-70">{formatDate(s.start_time)}</span>
-                      <span className="text-xl sm:text-2xl font-extrabold">{new Date(s.start_time).getDate()}</span>
-                    </div>
-                    <div className="flex-1 p-3 sm:p-5 min-w-0">
-                      <div className="flex items-start justify-between gap-2 sm:gap-3">
-                        <div className="min-w-0 flex-1">
-                          <h3 className="font-serif font-bold text-brand-charcoal-mid text-sm sm:text-base truncate">{s.event_title}</h3>
-                          <div className="flex items-center gap-2 sm:gap-4 mt-1.5 sm:mt-2 text-[10px] sm:text-xs text-brand-warm-grey">
-                            <span className="flex items-center gap-1"><Clock className="h-3 w-3 sm:h-3.5 sm:w-3.5" />{formatTime(s.start_time)} – {formatTime(s.end_time)}</span>
+        <div className="relative">
+          {/* Timeline connector */}
+          <div className="absolute left-[31px] sm:left-[47px] top-4 bottom-4 w-px border-l-2 border-dashed border-brand-parchment hidden sm:block" />
+          <div className="space-y-3 sm:space-y-4">
+            {schedule.map((s, i) => {
+              const TypeIcon = typeIcons[s.event_type] || BookOpen;
+              return (
+                <motion.div key={s.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.08 }}>
+                  <Card className="hover:shadow-[0_4px_30px_rgba(196,154,60,0.12)] hover:-translate-y-0.5 transition-all duration-300 bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] overflow-hidden">
+                    <CardContent className="p-0">
+                      <div className="flex">
+                        <div className="w-16 sm:w-24 bg-gradient-to-b from-brand-primary to-brand-primary-dark flex flex-col items-center justify-center text-white shrink-0 p-2.5 sm:p-3 relative">
+                          <span className="text-[8px] sm:text-[10px] uppercase tracking-wider font-medium opacity-70">{formatDate(s.start_time)}</span>
+                          <span className="text-xl sm:text-2xl font-extrabold">{new Date(s.start_time).getDate()}</span>
+                          <div className="absolute -right-2 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-white border-2 border-brand-gold hidden sm:block z-10" />
+                        </div>
+                        <div className="flex-1 p-3 sm:p-5 min-w-0">
+                          <div className="flex items-start justify-between gap-2 sm:gap-3">
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 flex items-center justify-center">
+                                  <TypeIcon className="h-3.5 w-3.5 text-brand-gold" />
+                                </div>
+                                <h3 className="font-serif font-bold text-brand-charcoal-mid text-sm sm:text-base truncate">{s.event_title}</h3>
+                              </div>
+                              <div className="flex items-center gap-2 sm:gap-4 mt-1.5 sm:mt-2 text-[10px] sm:text-xs text-brand-warm-grey">
+                                <span className="flex items-center gap-1"><Clock className="h-3 w-3 sm:h-3.5 sm:w-3.5" />{formatTime(s.start_time)} – {formatTime(s.end_time)}</span>
+                              </div>
+                            </div>
+                            <Badge className={`${typeColors[s.event_type] || "bg-brand-cream-dark text-brand-warm-grey"} border-0 shrink-0 text-[9px] sm:text-[11px] capitalize`}>
+                              {s.event_type}
+                            </Badge>
                           </div>
                         </div>
-                        <Badge className={`${typeColors[s.event_type] || "bg-brand-cream-dark text-brand-warm-grey"} border-0 shrink-0 text-[9px] sm:text-[11px] capitalize`}>
-                          {s.event_type}
-                        </Badge>
                       </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              );
+            })}
+          </div>
         </div>
       )}
     </div>
