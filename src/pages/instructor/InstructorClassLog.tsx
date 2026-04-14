@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { BookCheck, Plus, CheckCircle2, Clock } from "lucide-react";
+import { BookCheck, Plus, CheckCircle2, Clock, FileText } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -57,20 +57,36 @@ const InstructorClassLog = () => {
     <div className="space-y-6 pt-2">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex justify-between items-center">
         <div>
-          <h1 className="font-serif text-2xl font-semibold text-brand-primary">Daily Class Log</h1>
-          <div className="w-12 h-0.5 bg-brand-gold mt-1" />
-          <p className="text-brand-warm-grey mt-2 text-sm">Log topics covered after each class session</p>
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 flex items-center justify-center">
+              <FileText className="w-4 h-4 text-brand-gold" />
+            </div>
+            <h1 className="font-serif text-2xl font-semibold text-brand-primary">Daily Class Log</h1>
+          </div>
+          <div className="w-12 h-0.5 bg-gradient-to-r from-brand-gold to-transparent mt-1 ml-10" />
+          <p className="text-brand-warm-grey mt-2 text-sm ml-10">Log topics covered after each class session</p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild><Button className="gap-2 bg-brand-primary hover:bg-brand-primary-dark text-white rounded-xl"><Plus className="h-4 w-4" /> Log Class</Button></DialogTrigger>
+          <DialogTrigger asChild>
+            <Button className="gap-2 bg-gradient-to-r from-brand-primary to-brand-primary-dark text-white rounded-xl shadow-lg hover:shadow-xl transition-all">
+              <Plus className="h-4 w-4" /> Log Class
+            </Button>
+          </DialogTrigger>
           <DialogContent className="rounded-2xl border-brand-parchment">
-            <DialogHeader><DialogTitle className="font-serif text-brand-primary">Log Class Completion</DialogTitle></DialogHeader>
+            <DialogHeader>
+              <DialogTitle className="font-serif text-brand-primary flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 flex items-center justify-center">
+                  <BookCheck className="w-4 h-4 text-brand-gold" />
+                </div>
+                Log Class Completion
+              </DialogTitle>
+            </DialogHeader>
             <div className="space-y-4">
-              <div><label className="text-[11px] uppercase tracking-widest font-semibold text-brand-warm-grey mb-1.5 block">Topic Covered *</label><Input value={topicCovered} onChange={(e) => setTopicCovered(e.target.value)} placeholder="What topic did you cover today?" className="rounded-xl border-brand-parchment focus:border-brand-gold" /></div>
+              <div><label className="text-[11px] uppercase tracking-widest font-semibold text-brand-warm-grey mb-1.5 block">Topic Covered *</label><Input value={topicCovered} onChange={(e) => setTopicCovered(e.target.value)} placeholder="What topic did you cover today?" className="rounded-xl border-brand-parchment focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20" /></div>
               <div><label className="text-[11px] uppercase tracking-widest font-semibold text-brand-warm-grey mb-1.5 block">Link to Curriculum Section</label><Select value={sectionId} onValueChange={setSectionId}><SelectTrigger className="rounded-xl border-brand-parchment"><SelectValue placeholder="Select curriculum topic" /></SelectTrigger><SelectContent>{sections.map((s) => (<SelectItem key={s.id} value={s.id}>{s.module_name} → {s.title}</SelectItem>))}</SelectContent></Select></div>
               <div><label className="text-[11px] uppercase tracking-widest font-semibold text-brand-warm-grey mb-1.5 block">Date</label><Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="rounded-xl border-brand-parchment" /></div>
-              <div><label className="text-[11px] uppercase tracking-widest font-semibold text-brand-warm-grey mb-1.5 block">Notes</label><Textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Any additional notes..." rows={3} className="rounded-xl border-brand-parchment focus:border-brand-gold" /></div>
-              <Button onClick={handleCreate} className="w-full bg-brand-primary hover:bg-brand-primary-dark text-white rounded-xl">Submit Class Log</Button>
+              <div><label className="text-[11px] uppercase tracking-widest font-semibold text-brand-warm-grey mb-1.5 block">Notes</label><Textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Any additional notes..." rows={3} className="rounded-xl border-brand-parchment focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20" /></div>
+              <Button onClick={handleCreate} className="w-full bg-gradient-to-r from-brand-primary to-brand-primary-dark text-white rounded-xl shadow-lg">Submit Class Log</Button>
             </div>
           </DialogContent>
         </Dialog>
@@ -78,23 +94,28 @@ const InstructorClassLog = () => {
 
       {logs.length === 0 ? (
         <Card className="text-center p-12 bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)]">
-          <div className="w-16 h-16 rounded-full bg-brand-gold-pale flex items-center justify-center mx-auto mb-4"><BookCheck className="h-8 w-8 text-brand-gold" /></div>
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 flex items-center justify-center mx-auto mb-4"><BookCheck className="h-8 w-8 text-brand-gold" /></div>
           <h3 className="font-serif text-xl text-brand-primary">No class logs yet</h3>
-          <p className="text-brand-warm-grey mt-2">Log your first class session to start tracking</p>
+          <p className="text-brand-warm-grey mt-2 text-sm">Log your first class session to start tracking</p>
         </Card>
       ) : (
         <div className="space-y-3">
           {logs.map((log, i) => (
             <motion.div key={log.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
-              <Card className="bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] hover:shadow-lg transition-shadow">
+              <Card className={`bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] hover:shadow-lg transition-all duration-300 border-l-4 ${log.status === "confirmed" ? "border-l-green-400" : "border-l-amber-400"}`}>
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1">
-                      <h3 className="font-medium text-brand-charcoal-mid">{log.topic_covered}</h3>
-                      {log.notes && <p className="text-xs text-brand-warm-grey mt-1">{log.notes}</p>}
-                      <div className="flex items-center gap-3 mt-2 text-xs text-brand-warm-grey"><span className="flex items-center gap-1"><Clock className="h-3 w-3" />{log.date}</span></div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 flex items-center justify-center">
+                          <BookCheck className="h-3.5 w-3.5 text-brand-gold" />
+                        </div>
+                        <h3 className="font-medium text-brand-charcoal-mid">{log.topic_covered}</h3>
+                      </div>
+                      {log.notes && <p className="text-xs text-brand-warm-grey mt-1 ml-9">{log.notes}</p>}
+                      <div className="flex items-center gap-3 mt-2 text-xs text-brand-warm-grey ml-9"><span className="flex items-center gap-1"><Clock className="h-3 w-3" />{log.date}</span></div>
                     </div>
-                    <Badge className={`shrink-0 border-0 text-xs ${log.status === "confirmed" ? "bg-green-50 text-green-700" : "bg-amber-50 text-amber-700"}`}>
+                    <Badge className={`shrink-0 border-0 text-xs font-semibold ${log.status === "confirmed" ? "bg-green-50 text-green-700" : "bg-amber-50 text-amber-700"}`}>
                       {log.status === "confirmed" ? (<span className="flex items-center gap-1"><CheckCircle2 className="h-3 w-3" /> Confirmed</span>) : (<span className="flex items-center gap-1"><Clock className="h-3 w-3" /> Pending</span>)}
                     </Badge>
                   </div>

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Video, Plus, Clock, ExternalLink, X } from "lucide-react";
+import { Video, Plus, Clock, ExternalLink, X, Tv, CalendarCheck } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -49,29 +49,40 @@ const TutorLiveClasses = () => {
   const renderCard = (cls: any, isPast: boolean) => {
     const live = isLive(cls);
     return (
-      <Card key={cls.id} className={`bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] overflow-hidden transition-all hover:shadow-lg ${isPast ? "opacity-70" : ""} ${cls.status === "cancelled" ? "opacity-50" : ""}`}>
+      <Card key={cls.id} className={`bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] overflow-hidden transition-all hover:shadow-lg duration-300 ${isPast ? "opacity-70" : ""} ${cls.status === "cancelled" ? "opacity-50" : ""} ${live ? "ring-2 ring-green-400/50" : ""}`}>
+        {/* Top gradient strip */}
+        <div className={`h-1 ${live ? "bg-gradient-to-r from-green-400 to-green-500" : cls.status === "cancelled" ? "bg-red-300" : "bg-gradient-to-r from-brand-gold to-brand-primary"}`} />
         <CardContent className="p-5">
           <div className="flex items-start justify-between">
-            <div>
-              <h3 className="font-serif font-bold text-brand-charcoal-mid">{cls.title}</h3>
-              <p className="text-xs text-brand-warm-grey mt-1">{cls.batches?.name || "No batch"}</p>
-              {cls.description && <p className="text-xs text-brand-warm-grey mt-2 line-clamp-2">{cls.description}</p>}
+            <div className="flex items-start gap-3">
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${cls.meeting_platform === "google_meet" ? "bg-green-50" : "bg-blue-50"}`}>
+                <Tv className={`h-5 w-5 ${cls.meeting_platform === "google_meet" ? "text-green-600" : "text-blue-600"}`} />
+              </div>
+              <div>
+                <h3 className="font-serif font-bold text-brand-charcoal-mid">{cls.title}</h3>
+                <p className="text-xs text-brand-warm-grey mt-1">{cls.batches?.name || "No batch"}</p>
+                {cls.description && <p className="text-xs text-brand-warm-grey mt-2 line-clamp-2">{cls.description}</p>}
+              </div>
             </div>
             {cls.status === "cancelled" && <Badge className="text-xs bg-red-50 text-red-700 border-0">Cancelled</Badge>}
+            {live && (
+              <span className="flex items-center gap-1.5 text-xs text-green-600 font-bold bg-green-50 px-3 py-1 rounded-full">
+                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" /> LIVE
+              </span>
+            )}
           </div>
-          <div className="mt-3 space-y-1">
+          <div className="mt-3 space-y-1 ml-13">
             <p className="text-sm text-brand-charcoal-mid">{format(new Date(cls.scheduled_at), "EEEE, dd MMMM yyyy 'at' h:mm a")}</p>
             <p className="text-xs text-brand-warm-grey flex items-center gap-1"><Clock className="h-3 w-3" /> {cls.duration_minutes || 60} minutes</p>
           </div>
-          <div className="flex items-center gap-2 mt-4 flex-wrap">
-            <Badge className={`border-0 text-xs ${cls.meeting_platform === "google_meet" ? "bg-green-50 text-green-700" : "bg-blue-50 text-blue-700"}`}>
+          <div className="flex items-center gap-2 mt-4 flex-wrap ml-13">
+            <Badge className={`border-0 text-xs font-semibold ${cls.meeting_platform === "google_meet" ? "bg-green-50 text-green-700" : "bg-blue-50 text-blue-700"}`}>
               {cls.meeting_platform === "google_meet" ? "Google Meet" : "Zoom"}
             </Badge>
-            {live && <span className="flex items-center gap-1 text-xs text-green-600 font-semibold"><span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" /> LIVE</span>}
             {!isPast && cls.status !== "cancelled" && (
               <>
                 <a href={cls.meeting_link} target="_blank" rel="noopener noreferrer">
-                  <Button size="sm" className="gap-1 text-xs border-2 border-brand-primary text-brand-primary bg-transparent hover:bg-brand-gold-pale rounded-xl"><ExternalLink className="h-3 w-3" /> Open Link</Button>
+                  <Button size="sm" className="gap-1 text-xs bg-gradient-to-r from-brand-primary to-brand-primary-dark text-white rounded-xl shadow-sm"><ExternalLink className="h-3 w-3" /> Open Link</Button>
                 </a>
                 <Button size="sm" variant="ghost" className="text-red-600 text-xs hover:bg-red-50 rounded-xl" onClick={() => cancelMutation.mutate(cls.id)}><X className="h-3 w-3 mr-1" /> Cancel</Button>
               </>
@@ -86,22 +97,31 @@ const TutorLiveClasses = () => {
     <div className="space-y-6 pt-2">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between">
         <div>
-          <h1 className="font-serif text-2xl font-semibold text-brand-primary">Live Classes</h1>
-          <div className="w-12 h-0.5 bg-brand-gold mt-1" />
-          <p className="text-brand-warm-grey mt-2 text-sm">Schedule and manage your live sessions</p>
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 flex items-center justify-center">
+              <Video className="w-4 h-4 text-brand-gold" />
+            </div>
+            <h1 className="font-serif text-2xl font-semibold text-brand-primary">Live Classes</h1>
+          </div>
+          <div className="w-12 h-0.5 bg-gradient-to-r from-brand-gold to-transparent mt-1 ml-10" />
+          <p className="text-brand-warm-grey mt-2 text-sm ml-10">Schedule and manage your live sessions</p>
         </div>
-        <Button onClick={() => setCreateOpen(true)} className="gap-2 bg-brand-primary hover:bg-brand-primary-dark text-white rounded-xl"><Plus className="h-4 w-4" /> Schedule Class</Button>
+        <Button onClick={() => setCreateOpen(true)} className="gap-2 bg-gradient-to-r from-brand-primary to-brand-primary-dark text-white rounded-xl shadow-lg hover:shadow-xl transition-all"><Plus className="h-4 w-4" /> Schedule</Button>
       </motion.div>
 
       <Tabs defaultValue="upcoming">
         <TabsList className="bg-brand-cream-dark rounded-xl p-1">
-          <TabsTrigger value="upcoming" className="rounded-lg data-[state=active]:bg-brand-primary data-[state=active]:text-white text-brand-warm-grey">Upcoming ({upcoming.length})</TabsTrigger>
-          <TabsTrigger value="past" className="rounded-lg data-[state=active]:bg-brand-primary data-[state=active]:text-white text-brand-warm-grey">Past ({past.length})</TabsTrigger>
+          <TabsTrigger value="upcoming" className="rounded-lg data-[state=active]:bg-brand-primary data-[state=active]:text-white text-brand-warm-grey gap-1.5">
+            <CalendarCheck className="h-3.5 w-3.5" /> Upcoming ({upcoming.length})
+          </TabsTrigger>
+          <TabsTrigger value="past" className="rounded-lg data-[state=active]:bg-brand-primary data-[state=active]:text-white text-brand-warm-grey gap-1.5">
+            <Clock className="h-3.5 w-3.5" /> Past ({past.length})
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="upcoming" className="mt-4">
           {isLoading ? (<div className="grid grid-cols-1 md:grid-cols-2 gap-4">{[1, 2].map((i) => <Skeleton key={i} className="h-48 rounded-2xl" />)}</div>
           ) : upcoming.length === 0 ? (
-            <Card className="bg-white rounded-2xl border border-brand-parchment"><CardContent className="py-12 text-center"><div className="w-12 h-12 rounded-full bg-brand-gold-pale flex items-center justify-center mx-auto mb-3"><Video className="h-6 w-6 text-brand-gold" /></div><p className="font-serif text-brand-primary font-semibold">No upcoming classes. Schedule one!</p></CardContent></Card>
+            <Card className="bg-white rounded-2xl border border-brand-parchment"><CardContent className="py-12 text-center"><div className="w-14 h-14 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 flex items-center justify-center mx-auto mb-3"><Video className="h-6 w-6 text-brand-gold" /></div><p className="font-serif text-brand-primary font-semibold">No upcoming classes</p><p className="text-xs text-brand-warm-grey mt-1">Schedule one to get started!</p></CardContent></Card>
           ) : (<div className="grid grid-cols-1 md:grid-cols-2 gap-4">{upcoming.map((cls) => renderCard(cls, false))}</div>)}
         </TabsContent>
         <TabsContent value="past" className="mt-4">
@@ -112,9 +132,16 @@ const TutorLiveClasses = () => {
 
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent className="max-w-md rounded-2xl border-brand-parchment">
-          <DialogHeader><DialogTitle className="font-serif text-brand-primary">Schedule Live Class</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <DialogTitle className="font-serif text-brand-primary flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 flex items-center justify-center">
+                <Video className="w-4 h-4 text-brand-gold" />
+              </div>
+              Schedule Live Class
+            </DialogTitle>
+          </DialogHeader>
           <div className="space-y-4">
-            <div><Label className="text-[11px] uppercase tracking-widest text-brand-warm-grey font-semibold">Title</Label><Input value={form.title} onChange={(e) => updateField("title", e.target.value)} placeholder="Class title" className="mt-1 rounded-xl border-brand-parchment focus:border-brand-gold" /></div>
+            <div><Label className="text-[11px] uppercase tracking-widest text-brand-warm-grey font-semibold">Title</Label><Input value={form.title} onChange={(e) => updateField("title", e.target.value)} placeholder="Class title" className="mt-1 rounded-xl border-brand-parchment focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20" /></div>
             <div><Label className="text-[11px] uppercase tracking-widest text-brand-warm-grey font-semibold">Description</Label><Textarea value={form.description} onChange={(e) => updateField("description", e.target.value)} placeholder="Optional description" className="mt-1 rounded-xl border-brand-parchment focus:border-brand-gold" /></div>
             <div><Label className="text-[11px] uppercase tracking-widest text-brand-warm-grey font-semibold">Batch</Label><Select value={form.batch_id} onValueChange={(v) => updateField("batch_id", v)}><SelectTrigger className="mt-1 rounded-xl border-brand-parchment"><SelectValue placeholder="Select batch" /></SelectTrigger><SelectContent>{batches.map((b) => <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>)}</SelectContent></Select></div>
             <div className="grid grid-cols-2 gap-3">
@@ -125,12 +152,12 @@ const TutorLiveClasses = () => {
             <div>
               <Label className="text-[11px] uppercase tracking-widest text-brand-warm-grey font-semibold">Platform</Label>
               <div className="flex gap-3 mt-1">
-                <Button type="button" size="sm" onClick={() => updateField("platform", "zoom")} className={`rounded-xl ${form.platform === "zoom" ? "bg-brand-primary text-white" : "border-2 border-brand-primary text-brand-primary bg-transparent"}`}>Zoom</Button>
-                <Button type="button" size="sm" onClick={() => updateField("platform", "google_meet")} className={`rounded-xl ${form.platform === "google_meet" ? "bg-brand-primary text-white" : "border-2 border-brand-primary text-brand-primary bg-transparent"}`}>Google Meet</Button>
+                <Button type="button" size="sm" onClick={() => updateField("platform", "zoom")} className={`rounded-xl ${form.platform === "zoom" ? "bg-blue-600 text-white shadow-lg" : "border-2 border-blue-300 text-blue-600 bg-transparent hover:bg-blue-50"}`}>Zoom</Button>
+                <Button type="button" size="sm" onClick={() => updateField("platform", "google_meet")} className={`rounded-xl ${form.platform === "google_meet" ? "bg-green-600 text-white shadow-lg" : "border-2 border-green-300 text-green-600 bg-transparent hover:bg-green-50"}`}>Google Meet</Button>
               </div>
             </div>
             <div><Label className="text-[11px] uppercase tracking-widest text-brand-warm-grey font-semibold">Meeting Link</Label><Input value={form.link} onChange={(e) => updateField("link", e.target.value)} placeholder="Paste Zoom/Meet invite link" className="mt-1 rounded-xl border-brand-parchment focus:border-brand-gold" /></div>
-            <Button onClick={() => createMutation.mutate()} disabled={!form.title || !form.batch_id || !form.date || !form.time || !form.link || createMutation.isPending} className="w-full bg-brand-primary hover:bg-brand-primary-dark text-white rounded-xl">
+            <Button onClick={() => createMutation.mutate()} disabled={!form.title || !form.batch_id || !form.date || !form.time || !form.link || createMutation.isPending} className="w-full bg-gradient-to-r from-brand-primary to-brand-primary-dark text-white rounded-xl shadow-lg">
               {createMutation.isPending ? "Scheduling..." : "Schedule Class"}
             </Button>
           </div>
