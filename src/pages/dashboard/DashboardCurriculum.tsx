@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   BookOpen, Clock, PlayCircle, Headphones, FileText, Type,
-  Link as LinkIcon, ChevronRight, GraduationCap, Sparkles,
+  ChevronRight, GraduationCap, Sparkles,
   Music, Download, Play, FolderOpen, Layers, Quote, Hash
 } from "lucide-react";
 
@@ -419,7 +419,7 @@ const SubjectPanel = ({
                   </div>
                 ) : (
                   <div className="space-y-5">
-                    {topics.map((topic, tIdx) => {
+                    {topics.map((topic) => {
                       const topicLinks = sectionLinks.filter((l) => l.section_id === topic.id);
                       return (
                         <div
