@@ -21,19 +21,15 @@ const AdminLiveClasses = () => {
       const { data } = await supabase.from("live_classes").select("*").order("scheduled_at", { ascending: false });
       const items = data || [];
       setClasses(items);
-
       const instrIds = [...new Set(items.map(c => c.instructor_id))];
       const batchIds = [...new Set(items.map(c => c.batch_id).filter(Boolean))];
-
       const [profRes, batchRes] = await Promise.all([
         instrIds.length > 0 ? supabase.from("profiles").select("user_id, display_name").in("user_id", instrIds) : { data: [] },
         batchIds.length > 0 ? supabase.from("batches").select("id, name").in("id", batchIds) : { data: [] },
       ]);
-
       const pm: Record<string, string> = {};
       (profRes.data || []).forEach(p => { pm[p.user_id] = p.display_name || "Tutor"; });
       setProfiles(pm);
-
       const bm: Record<string, string> = {};
       (batchRes.data || []).forEach(b => { bm[b.id] = b.name; });
       setBatches(bm);
@@ -55,42 +51,42 @@ const AdminLiveClasses = () => {
   const renderTable = (list: any[]) => {
     if (list.length === 0) {
       return (
-        <div className="bg-white rounded-2xl border border-[#EDE3CC] shadow-[0_2px_24px_rgba(125,30,36,0.06)] py-16 text-center">
-          <div className="w-14 h-14 rounded-full bg-[#F5E9CE] flex items-center justify-center mx-auto mb-4">
-            <Video className="h-7 w-7 text-[#C49A3C]" />
+        <div className="bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] py-16 text-center">
+          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 flex items-center justify-center mx-auto mb-4">
+            <Video className="h-7 w-7 text-brand-gold" />
           </div>
-          <h3 className="font-serif text-xl text-[#7D1E24]">No Classes Found</h3>
-          <p className="text-sm text-[#8C7B6B] mt-1">No live classes in this category</p>
+          <h3 className="font-serif text-xl text-brand-primary">No Classes Found</h3>
+          <p className="text-sm text-brand-warm-grey mt-1">No live classes in this category</p>
         </div>
       );
     }
     return (
-      <div className="bg-white rounded-2xl border border-[#EDE3CC] shadow-[0_2px_24px_rgba(125,30,36,0.06)] overflow-hidden">
+      <div className="bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] overflow-hidden">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow className="bg-[#5C1219] hover:bg-[#5C1219]">
-                <TableHead className="text-[#E2B95A] text-[11px] uppercase tracking-widest font-semibold">Title</TableHead>
-                <TableHead className="text-[#E2B95A] text-[11px] uppercase tracking-widest font-semibold">Instructor</TableHead>
-                <TableHead className="text-[#E2B95A] text-[11px] uppercase tracking-widest font-semibold">Batch</TableHead>
-                <TableHead className="text-[#E2B95A] text-[11px] uppercase tracking-widest font-semibold">Date & Time</TableHead>
-                <TableHead className="text-[#E2B95A] text-[11px] uppercase tracking-widest font-semibold">Platform</TableHead>
-                <TableHead className="text-[#E2B95A] text-[11px] uppercase tracking-widest font-semibold">Status</TableHead>
-                <TableHead className="text-[#E2B95A] text-[11px] uppercase tracking-widest font-semibold text-right">Link</TableHead>
+              <TableRow className="bg-gradient-to-r from-brand-primary-dark to-brand-primary hover:bg-brand-primary-dark">
+                <TableHead className="text-brand-gold-light text-[11px] uppercase tracking-widest font-semibold">Title</TableHead>
+                <TableHead className="text-brand-gold-light text-[11px] uppercase tracking-widest font-semibold">Instructor</TableHead>
+                <TableHead className="text-brand-gold-light text-[11px] uppercase tracking-widest font-semibold">Batch</TableHead>
+                <TableHead className="text-brand-gold-light text-[11px] uppercase tracking-widest font-semibold">Date & Time</TableHead>
+                <TableHead className="text-brand-gold-light text-[11px] uppercase tracking-widest font-semibold">Platform</TableHead>
+                <TableHead className="text-brand-gold-light text-[11px] uppercase tracking-widest font-semibold">Status</TableHead>
+                <TableHead className="text-brand-gold-light text-[11px] uppercase tracking-widest font-semibold text-right">Link</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {list.map((c, i) => (
-                <TableRow key={c.id} className={`${i % 2 === 1 ? "bg-[#FAF6EE]" : "bg-white"} hover:bg-[#FAF6EE] transition-colors border-b border-[#EDE3CC]`}>
-                  <TableCell className="font-medium text-[#3D2E22]">{c.title}</TableCell>
-                  <TableCell className="text-[#3D2E22]">{profiles[c.instructor_id] || "—"}</TableCell>
-                  <TableCell className="text-[#8C7B6B]">{c.batch_id ? (batches[c.batch_id] || "—") : "—"}</TableCell>
-                  <TableCell className="text-sm text-[#3D2E22]">
+                <TableRow key={c.id} className={`${i % 2 === 1 ? "bg-brand-cream" : "bg-white"} hover:bg-brand-cream transition-colors border-b border-brand-parchment`}>
+                  <TableCell className="font-medium text-brand-charcoal">{c.title}</TableCell>
+                  <TableCell className="text-brand-charcoal">{profiles[c.instructor_id] || "—"}</TableCell>
+                  <TableCell className="text-brand-warm-grey">{c.batch_id ? (batches[c.batch_id] || "—") : "—"}</TableCell>
+                  <TableCell className="text-sm text-brand-charcoal">
                     {new Date(c.scheduled_at).toLocaleString()}
-                    <span className="text-[#8C7B6B] ml-1">({c.duration_minutes || 60}m)</span>
+                    <span className="text-brand-warm-grey ml-1">({c.duration_minutes || 60}m)</span>
                   </TableCell>
                   <TableCell>
-                    <Badge className="bg-[#F5E9CE] text-[#8B6914] border border-[#EDE3CC] gap-1">
+                    <Badge className="bg-brand-gold-pale text-brand-gold-dark border border-brand-parchment gap-1">
                       <Monitor className="h-3 w-3" />
                       {c.meeting_platform || "zoom"}
                     </Badge>
@@ -103,14 +99,14 @@ const AdminLiveClasses = () => {
                     ) : (
                       <Badge className={c.status === "completed"
                         ? "bg-green-50 text-green-700 border border-green-200"
-                        : "bg-[#FAF6EE] text-[#7D1E24] border border-[#EDE3CC]"
+                        : "bg-brand-cream text-brand-primary border border-brand-parchment"
                       }>
                         {c.status || "scheduled"}
                       </Badge>
                     )}
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button size="sm" variant="ghost" asChild className="hover:bg-[#F5E9CE] text-[#7D1E24]">
+                    <Button size="sm" variant="ghost" asChild className="hover:bg-brand-gold-pale text-brand-primary">
                       <a href={c.meeting_link} target="_blank" rel="noopener noreferrer">
                         <ExternalLink className="h-4 w-4" />
                       </a>
@@ -137,13 +133,13 @@ const AdminLiveClasses = () => {
   return (
     <div className="space-y-6 pt-2">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-[#F5E9CE] flex items-center justify-center">
-            <Video className="h-5 w-5 text-[#7D1E24]" />
+        <div className="flex items-center gap-2">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-primary to-brand-primary-dark flex items-center justify-center">
+            <Video className="h-5 w-5 text-white" />
           </div>
           <div>
-            <h1 className="font-serif text-2xl font-semibold text-[#7D1E24]">Live Classes</h1>
-            <div className="w-12 h-0.5 bg-[#C49A3C] mt-1" />
+            <h1 className="font-serif text-2xl font-semibold text-brand-primary">Live Classes</h1>
+            <div className="w-12 h-0.5 bg-gradient-to-r from-brand-gold to-transparent mt-1" />
           </div>
         </div>
       </motion.div>
@@ -151,18 +147,18 @@ const AdminLiveClasses = () => {
       {/* Summary */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[
-          { label: "Total Classes", value: classes.length, icon: Video, color: "#7D1E24" },
-          { label: "Upcoming", value: upcoming.length, icon: Clock, color: "#C49A3C" },
-          { label: "Completed", value: past.length, icon: Monitor, color: "#5C1219" },
+          { label: "Total Classes", value: classes.length, icon: Video, gradient: "from-brand-primary to-brand-primary-dark" },
+          { label: "Upcoming", value: upcoming.length, icon: Clock, gradient: "from-brand-gold to-amber-600" },
+          { label: "Completed", value: past.length, icon: Monitor, gradient: "from-brand-primary-dark to-rose-900" },
         ].map((s, i) => (
           <motion.div key={s.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
-            <div className="bg-white rounded-2xl border border-[#EDE3CC] shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-5 flex items-center gap-4">
-              <div className="w-11 h-11 rounded-full bg-[#F5E9CE] flex items-center justify-center">
-                <s.icon className="h-5 w-5" style={{ color: s.color }} />
+            <div className="group bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-5 flex items-center gap-4 hover:-translate-y-0.5 hover:shadow-[0_4px_30px_rgba(196,154,60,0.15)] transition-all duration-300">
+              <div className={`w-11 h-11 rounded-full bg-gradient-to-br ${s.gradient} flex items-center justify-center shadow-lg`}>
+                <s.icon className="h-5 w-5 text-white" />
               </div>
               <div>
-                <p className="font-serif text-3xl font-bold text-[#7D1E24]">{s.value}</p>
-                <p className="text-[11px] uppercase tracking-widest text-[#8C7B6B] font-semibold">{s.label}</p>
+                <p className="font-serif text-3xl font-bold text-brand-primary">{s.value}</p>
+                <p className="text-[11px] uppercase tracking-widest text-brand-warm-grey font-semibold">{s.label}</p>
               </div>
             </div>
           </motion.div>
@@ -170,11 +166,11 @@ const AdminLiveClasses = () => {
       </div>
 
       <Tabs defaultValue="upcoming">
-        <TabsList className="bg-[#FAF6EE] border border-[#EDE3CC] rounded-xl p-1">
-          <TabsTrigger value="upcoming" className="rounded-lg data-[state=active]:bg-[#7D1E24] data-[state=active]:text-white text-[#8C7B6B]">
+        <TabsList className="bg-brand-cream border border-brand-parchment rounded-xl p-1">
+          <TabsTrigger value="upcoming" className="rounded-lg data-[state=active]:bg-brand-primary data-[state=active]:text-white text-brand-warm-grey">
             Upcoming ({upcoming.length})
           </TabsTrigger>
-          <TabsTrigger value="past" className="rounded-lg data-[state=active]:bg-[#7D1E24] data-[state=active]:text-white text-[#8C7B6B]">
+          <TabsTrigger value="past" className="rounded-lg data-[state=active]:bg-brand-primary data-[state=active]:text-white text-brand-warm-grey">
             Past ({past.length})
           </TabsTrigger>
         </TabsList>
