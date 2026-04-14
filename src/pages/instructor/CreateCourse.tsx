@@ -558,12 +558,33 @@ const CreateCourse = () => {
                           />
                         )}
                         {les.lesson_type === "pdf" && (
-                          <Input
-                            value={les.pdf_url}
-                            onChange={(e) => updateLesson(modIdx, lesIdx, "pdf_url", e.target.value)}
-                            placeholder="PDF file URL"
-                            className="h-8 text-xs border-[#EDE3CC] rounded-lg"
-                          />
+                          <div className="space-y-1">
+                            {les.pdf_url ? (
+                              <div className="flex items-center gap-2 p-2 bg-[#FAF6EE] rounded-lg border border-[#EDE3CC]">
+                                <FileText className="h-3.5 w-3.5 text-[#7D1E24] shrink-0" />
+                                <span className="text-xs text-[#3D2E22] truncate flex-1">{les.pdf_url.split('/').pop()}</span>
+                                <Button variant="ghost" size="sm" className="h-6 px-2 text-[10px] text-red-500 hover:text-red-700 hover:bg-red-50 rounded" onClick={() => updateLesson(modIdx, lesIdx, "pdf_url", "")}>Remove</Button>
+                              </div>
+                            ) : (
+                              <Input
+                                type="file"
+                                accept=".pdf"
+                                onChange={async (e) => {
+                                  const f = e.target.files?.[0];
+                                  if (!f || !user) return;
+                                  const filePath = `lessons/${user.id}/${Date.now()}_${f.name}`;
+                                  const { error } = await supabase.storage.from("course-pdfs").upload(filePath, f);
+                                  if (error) {
+                                    toast({ title: "Upload failed", description: error.message, variant: "destructive" });
+                                    return;
+                                  }
+                                  updateLesson(modIdx, lesIdx, "pdf_url", filePath);
+                                  toast({ title: "PDF uploaded successfully!" });
+                                }}
+                                className="h-8 text-xs border-[#EDE3CC] rounded-lg"
+                              />
+                            )}
+                          </div>
                         )}
                         {les.lesson_type === "text" && (
                           <Textarea
