@@ -1,81 +1,68 @@
 
 
-# Fill Sample Data for End-to-End Testing
+# Redesign Student Curriculum UI — Chapters, Topics, and Material Filters
 
-## Current State
-- **6 courses** exist (Carnatic Vocal, Hindustani Vocal, Bharatanatyam, Mridangam, Tabla, Sitar) — all have `instructor_id = NULL`
-- **85 curriculum modules** exist across semesters 1-8, but **0 curriculum sections** (no actual content)
-- **0 batches**, **0 enrollments**, **0 course modules/lessons**, **0 assignments**, **0 live classes**, **0 feedback**
-- **4 instructors** (Lakshay, Test Instructor, Zaid, Educator 2) — only Educator 2 is verified
-- **5 students** (vikas, Srinivas, Harshit, Educator 1, Student 1) — only Student 1 is verified
-- **2 admins** (Lakshay Saxena as super_admin, Admin as admin)
+## Summary
 
-## Data to Insert
+Restructure the curriculum page terminology and UI to follow the hierarchy: **Semester → Subject → Chapter → Topic → Materials (Videos / Audios / PDFs / Notes)**. Each topic opens to reveal fixed filter buttons at the top for material types, with a polished card-based layout.
 
-### 1. Verify key test accounts
-Update profiles to set `is_verified = true` for:
-- Instructor "Lakshay" (d5f82758) — will be the primary test tutor
-- Student "vikas testing" (03f117cf) — primary test student
-- Student "Srinivas V" (a0830260) — secondary test student
+## Terminology Changes
 
-### 2. Assign instructors to courses
-- Carnatic Vocal → Lakshay (d5f82758)
-- Hindustani Vocal → Zaid (75a44a3e)
-- Bharatanatyam → Test Instructor (b2574ad8)
-- Mridangam → Educator 2 (894094ec)
-- Tabla → Lakshay
-- Sitar → Zaid
+| Current term | New term |
+|---|---|
+| Module | Chapter |
+| Section | Topic |
+| "sections" badge | "topics" badge |
 
-### 3. Create batches (3 batches)
-- "Carnatic Vocal - Batch A" linked to Carnatic Vocal course + Lakshay
-- "Hindustani Vocal - Batch A" linked to Hindustani Vocal + Zaid
-- "Bharatanatyam - Batch A" linked to Bharatanatyam + Test Instructor
+## New UI Layout
 
-### 4. Enroll students
-- Enroll vikas + Srinivas + Student 1 in Carnatic Vocal
-- Enroll vikas in Hindustani Vocal
-- Enroll Srinivas in Bharatanatyam
-- Add batch enrollments for the same students
+```text
+┌─ Semester Tabs (1-8, Additional) ──────────────────┐
+│                                                      │
+│  ┌─ Subject Card (e.g. "Foundation Course") ───────┐ │
+│  │  Course Code Badge    Total Hours               │ │
+│  │                                                  │ │
+│  │  ▶ Chapter 1: Recapitulation of fundamentals    │ │
+│  │    ┌──────────────────────────────────────────┐  │ │
+│  │    │  ▶ Topic: Introduction to Sarali Varisai │  │ │
+│  │    │    ┌─────────────────────────────────┐    │  │ │
+│  │    │    │ [▶ Videos] [🎵 Audio] [📄 PDF]  │    │  │ │
+│  │    │    │ [📝 Notes]    ← filter buttons   │    │  │ │
+│  │    │    │                                  │    │  │ │
+│  │    │    │  (filtered content below)        │    │  │ │
+│  │    │    └─────────────────────────────────┘    │  │ │
+│  │    └──────────────────────────────────────────┘  │ │
+│  └──────────────────────────────────────────────────┘ │
+└──────────────────────────────────────────────────────┘
+```
 
-### 5. Create course modules & lessons (for Carnatic Vocal)
-- Module 1: "Introduction to Carnatic Music" (3 lessons: video, PDF, text)
-- Module 2: "Swaras and Ragas" (3 lessons: video, audio via YouTube, PDF)
-- Module 3: "Varnam Practice" (2 lessons: video, text)
-- Use real public YouTube URLs for Carnatic music content
-- Use curriculum-materials bucket references for PDFs
+## Implementation Details
 
-### 6. Fill curriculum sections with mixed media
-For 8-10 curriculum modules in semester 1, add sections with:
-- **Video** sections (YouTube URLs of Carnatic music lectures)
-- **PDF** sections (sample PDF links)
-- **Audio** sections (YouTube audio links)
-- **Text** sections (rich descriptive content)
-- Add curriculum_section_links for multi-resource sections
+### Single file change: `src/pages/dashboard/DashboardCurriculum.tsx`
 
-### 7. Create assignments (3 assignments)
-- "Sarali Varisai Practice" for Carnatic Vocal (due in 7 days, with PDF)
-- "Raga Identification Quiz" for Carnatic Vocal (due in 14 days, text-based)
-- "Composition Analysis" for Hindustani Vocal (due in 10 days)
+1. **Update all labels**: "module" → "Chapter", "section" → "Topic" throughout the UI text and badges.
 
-### 8. Create live classes (3 classes)
-- Upcoming Zoom class for Carnatic Vocal batch
-- Upcoming Google Meet class for Hindustani Vocal batch
-- One completed class (past date)
+2. **Classify content types**: Create a helper that categorizes each topic's materials:
+   - **Videos**: YouTube links (from `curriculum_section_links` or legacy `youtube_url`)
+   - **Audio**: Links containing audio keywords or sections with `content_type === 'audio'` (future-proof)
+   - **PDFs**: Links ending in `.pdf` or labeled as PDF
+   - **Notes**: Text content (`content_type === 'text'`)
 
-### 9. Create schedules (5 schedule entries)
-- Weekly recurring classes for Carnatic Vocal
-- Mix of class, exam, and event types
+3. **Fixed filter buttons at the top of each Topic**:
+   - Pill-shaped toggle buttons in maroon/gold theme: `Videos`, `Audio`, `PDFs`, `Notes`
+   - Show count on each pill (e.g., "Videos (2)")
+   - Default: show all materials; clicking a filter shows only that type
+   - Disabled/greyed-out pills for types with 0 items
 
-### 10. Create events (2 events)
-- "Annual Music Festival 2026" — upcoming
-- "Guest Lecture: Evolution of Ragas" — upcoming
+4. **Visual styling upgrades**:
+   - Chapter rows: left maroon accent border, gold BookOpen icon, subtle hover effect
+   - Topic cards: rounded-xl with cream background, slight shadow
+   - Material type icons: PlayCircle (red) for videos, Headphones (brand-gold) for audio, FileText (blue) for PDFs, Type (grey) for notes
+   - YouTube embeds in rounded containers with proper aspect ratio
+   - Text notes in a styled blockquote-like container
 
-### 11. Create feedback (3 entries)
-- Anonymous feedback from students about courses and teaching
+5. **Nested accordion structure**: Chapters accordion → Topics accordion inside each chapter, keeping the hierarchy clear and collapsible.
 
-### 12. Create sample subject allocations
-- Allocate curriculum modules to instructors for academic year 2025-26
-
-## Implementation
-All done via the database insert tool — no schema changes needed. Approximately 12-15 insert operations covering all tables. This will populate every dashboard section with realistic data for testing.
+### Data Note
+Currently only `youtube` and `text` content types exist in the database. The UI will be future-proofed for `audio` and `pdf` types. PDF links will be detected by URL pattern (`.pdf` extension), and audio by URL pattern or a future `audio` content_type.
 
