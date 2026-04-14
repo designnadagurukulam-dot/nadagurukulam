@@ -13,21 +13,12 @@ import { format, subMinutes, addMinutes } from "date-fns";
 const StudentLiveClasses = () => {
   const { user } = useAuth();
 
-  const { data: batchIds = [] } = useQuery({
-    queryKey: ["student-batch-ids", user?.id],
-    queryFn: async () => {
-      const { data } = await supabase.from("batch_enrollments").select("batch_id").eq("student_id", user!.id);
-      return (data || []).map((b) => b.batch_id);
-    },
-    enabled: !!user,
-  });
-
   const { data: classes = [], isLoading } = useQuery({
-    queryKey: ["student-live-classes", batchIds],
+    queryKey: ["student-live-classes", user?.id],
     queryFn: async () => {
-      if (!batchIds.length) return [];
+      // RLS handles visibility for both audience_type='all' and 'specific'
       const { data: rawData, error } = await supabase
-        .from("live_classes").select("*").in("batch_id", batchIds).order("scheduled_at", { ascending: false });
+        .from("live_classes").select("*, batches(name)").order("scheduled_at", { ascending: false });
       if (error) throw error;
       const instructorIds = [...new Set((rawData || []).map((c) => c.instructor_id))];
       let profilesMap: Record<string, { display_name: string | null; avatar_url: string | null }> = {};
@@ -37,7 +28,7 @@ const StudentLiveClasses = () => {
       }
       return (rawData || []).map((c) => ({ ...c, profiles: profilesMap[c.instructor_id] || null }));
     },
-    enabled: batchIds.length > 0,
+    enabled: !!user,
   });
 
   const now = new Date();
@@ -58,7 +49,6 @@ const StudentLiveClasses = () => {
       <Card key={cls.id} className={`bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] overflow-hidden transition-all duration-300 hover:shadow-[0_4px_30px_rgba(196,154,60,0.15)] ${isPast ? "opacity-70" : ""} ${live ? "ring-2 ring-green-400/50" : ""}`}>
         <CardContent className="p-3.5 sm:p-5">
           <div className="flex items-start gap-3">
-            {/* Tutor avatar */}
             <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-gradient-to-br from-brand-gold/30 to-brand-gold/10 flex items-center justify-center text-brand-primary font-bold text-xs shrink-0 border border-brand-gold/20">
               {getInitials(cls.profiles?.display_name || "T")}
             </div>
@@ -90,6 +80,12 @@ const StudentLiveClasses = () => {
             <Badge className={`border-0 text-[10px] sm:text-xs ${cls.meeting_platform === "google_meet" ? "bg-green-50 text-green-700" : "bg-blue-50 text-blue-700"}`}>
               {cls.meeting_platform === "google_meet" ? "🟢 Google Meet" : "🔵 Zoom"}
             </Badge>
+            {/* Audience badge */}
+            {cls.audience_type === "all" ? (
+              <span className="bg-green-50 text-green-700 text-[9px] px-2 py-0.5 rounded-full font-bold">All Batches</span>
+            ) : cls.batches?.name ? (
+              <span className="bg-brand-cream text-brand-primary text-[9px] px-2 py-0.5 rounded-full font-bold border border-brand-parchment">{cls.batches.name}</span>
+            ) : null}
             {isPast ? (
               <Badge className="bg-brand-cream-dark text-brand-warm-grey border-0 text-[10px] sm:text-xs">Completed</Badge>
             ) : live ? (

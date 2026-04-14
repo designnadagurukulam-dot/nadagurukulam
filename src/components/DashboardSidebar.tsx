@@ -22,13 +22,11 @@ const studentNav = [
 
 const instructorNav = [
   { label: "Overview", to: "/dashboard/tutor", icon: LayoutDashboard },
-  { label: "My Students", to: "/dashboard/tutor/students", icon: Users },
-  { label: "Curriculum", to: "/dashboard/tutor/curriculum", icon: GraduationCap },
+  { label: "My Courses", to: "/dashboard/tutor/courses", icon: BookOpen },
+  { label: "Update Curriculum", to: "/dashboard/tutor/create", icon: PlusCircle },
   { label: "Live Classes", to: "/dashboard/tutor/live-classes", icon: Video },
   { label: "Assignments", to: "/dashboard/tutor/assignments", icon: ClipboardList },
   { label: "Messages", to: "/dashboard/tutor/messages", icon: MessageSquare },
-  { label: "My Courses", to: "/dashboard/tutor/courses", icon: BookOpen },
-  { label: "Create Course", to: "/dashboard/tutor/create", icon: PlusCircle },
   { label: "Analytics", to: "/dashboard/tutor/analytics", icon: BarChart3 },
   { label: "Profile", to: "/dashboard/tutor/profile", icon: User },
 ];
