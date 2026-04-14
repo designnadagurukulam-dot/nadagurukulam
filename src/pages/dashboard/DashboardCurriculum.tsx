@@ -117,9 +117,9 @@ const TopicContent = ({ section, links }: { section: any; links: MaterialLink[] 
   const showType = (type: MaterialType) => activeFilter === "all" || activeFilter === type;
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4 sm:space-y-5">
       {/* Glossy Filter Pills */}
-      <div className="flex flex-wrap gap-2.5">
+      <div className="flex flex-wrap gap-2">
         {(Object.keys(materialMeta) as MaterialType[]).map((type) => {
           const meta = materialMeta[type];
           const Icon = meta.icon;
@@ -131,7 +131,7 @@ const TopicContent = ({ section, links }: { section: any; links: MaterialLink[] 
               key={type}
               onClick={() => !isDisabled && handleFilter(type)}
               disabled={isDisabled}
-              className={`group inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold border backdrop-blur-sm transition-all duration-300 ${
+              className={`group inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-xl text-[10px] sm:text-xs font-bold border backdrop-blur-sm transition-all duration-300 min-h-[40px] ${
                 isDisabled
                   ? "opacity-30 cursor-not-allowed bg-muted/20 text-muted-foreground border-transparent"
                   : isActive
@@ -139,12 +139,12 @@ const TopicContent = ({ section, links }: { section: any; links: MaterialLink[] 
                     : `${meta.inactiveClass} hover:scale-[1.03]`
               }`}
             >
-              <span className={`flex items-center justify-center w-6 h-6 rounded-full ${isActive ? "bg-white/25" : meta.iconBg} transition-colors duration-300`}>
-                <Icon className="h-3.5 w-3.5" />
+              <span className={`flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full ${isActive ? "bg-white/25" : meta.iconBg} transition-colors duration-300`}>
+                <Icon className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
               </span>
               {meta.label}
               {count > 0 && (
-                <span className={`ml-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${isActive ? "bg-white/25" : "bg-brand-cream-dark"}`}>
+                <span className={`ml-0.5 text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded-full ${isActive ? "bg-white/25" : "bg-brand-cream-dark"}`}>
                   {count}
                 </span>
               )}
@@ -309,7 +309,7 @@ const SubjectPanel = ({
 
       <CardContent className="pt-0 relative z-10">
         {/* Mobile: horizontal chapter strip */}
-        <div className="md:hidden mb-4">
+        <div className="md:hidden mb-3">
           <ScrollArea className="w-full">
             <div className="flex gap-2 pb-2">
               {subject.modules.map((ch, idx) => {
@@ -319,7 +319,7 @@ const SubjectPanel = ({
                   <button
                     key={ch.id}
                     onClick={() => setSelectedChapterId(ch.id)}
-                    className={`shrink-0 flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-semibold border transition-all duration-300 ${
+                    className={`shrink-0 flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-[11px] font-semibold border transition-all duration-300 min-h-[44px] ${
                       isActive
                         ? "bg-gradient-to-r from-brand-primary to-brand-primary/90 text-white border-transparent shadow-md scale-105"
                         : "bg-white border-brand-parchment text-brand-charcoal-mid hover:bg-brand-cream hover:shadow-sm"
@@ -328,9 +328,9 @@ const SubjectPanel = ({
                     <span className={`flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-black ${isActive ? "bg-white/25 text-white" : "bg-brand-gold/15 text-brand-primary"}`}>
                       {idx + 1}
                     </span>
-                    <span className="truncate max-w-[120px]">{ch.module_name}</span>
+                    <span className="truncate max-w-[110px]">{ch.module_name}</span>
                     {topicCount > 0 && (
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${isActive ? "bg-white/20" : "bg-brand-cream-dark"}`}>
+                      <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold ${isActive ? "bg-white/20" : "bg-brand-cream-dark"}`}>
                         {topicCount}
                       </span>
                     )}
@@ -389,52 +389,52 @@ const SubjectPanel = ({
           </div>
 
           {/* Content panel */}
-          <div className="flex-1 min-w-0 md:pl-6">
+          <div className="flex-1 min-w-0 md:pl-5">
             {selectedChapter ? (
-              <div className="space-y-6 animate-fade-in">
+              <div className="space-y-4 sm:space-y-6 animate-fade-in">
                 {/* Chapter header */}
-                <div className="bg-gradient-to-r from-brand-cream/80 to-brand-gold/5 rounded-xl p-4 border border-brand-parchment/60">
+                <div className="bg-gradient-to-r from-brand-cream/80 to-brand-gold/5 rounded-xl p-3 sm:p-4 border border-brand-parchment/60">
                   <div className="flex items-center gap-2 mb-1">
-                    <Sparkles className="h-4 w-4 text-brand-gold" />
-                    <h3 className="text-base font-bold text-brand-charcoal-mid font-serif">
+                    <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-brand-gold" />
+                    <h3 className="text-sm sm:text-base font-bold text-brand-charcoal-mid font-serif">
                       {selectedChapter.module_name}
                     </h3>
                   </div>
                   {selectedChapter.description && (
-                    <p className="text-xs text-brand-warm-grey mt-1 ml-6">{selectedChapter.description}</p>
+                    <p className="text-[10px] sm:text-xs text-brand-warm-grey mt-1 ml-5 sm:ml-6">{selectedChapter.description}</p>
                   )}
                   {selectedChapter.hours && (
-                    <span className="inline-flex items-center gap-1 text-xs text-brand-warm-grey mt-2 ml-6 bg-white/60 px-2 py-0.5 rounded-full">
+                    <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs text-brand-warm-grey mt-2 ml-5 sm:ml-6 bg-white/60 px-2 py-0.5 rounded-full">
                       <Clock className="h-3 w-3 text-brand-gold" /> {selectedChapter.hours}h
                     </span>
                   )}
                 </div>
 
                 {topics.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-12 text-center">
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-primary/10 flex items-center justify-center mb-3">
-                      <Sparkles className="h-7 w-7 text-brand-gold" />
+                  <div className="flex flex-col items-center justify-center py-10 sm:py-12 text-center">
+                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-primary/10 flex items-center justify-center mb-3">
+                      <Sparkles className="h-6 w-6 sm:h-7 sm:w-7 text-brand-gold" />
                     </div>
-                    <p className="text-sm text-brand-warm-grey font-medium">Topics coming soon — stay tuned!</p>
+                    <p className="text-xs sm:text-sm text-brand-warm-grey font-medium">Topics coming soon — stay tuned!</p>
                   </div>
                 ) : (
-                  <div className="space-y-5">
+                  <div className="space-y-3 sm:space-y-5">
                     {topics.map((topic) => {
                       const topicLinks = sectionLinks.filter((l) => l.section_id === topic.id);
                       return (
                         <div
                           key={topic.id}
-                          className="bg-white rounded-2xl border border-brand-parchment/80 shadow-[0_2px_16px_rgba(196,154,60,0.08)] hover:shadow-[0_4px_24px_rgba(196,154,60,0.14)] transition-all duration-300 overflow-hidden"
+                          className="bg-white rounded-xl sm:rounded-2xl border border-brand-parchment/80 shadow-[0_2px_16px_rgba(196,154,60,0.08)] hover:shadow-[0_4px_24px_rgba(196,154,60,0.14)] transition-all duration-300 overflow-hidden"
                         >
                           {/* Topic header with accent border */}
-                          <div className="border-l-4 border-brand-gold p-5">
-                            <h4 className="text-sm font-bold text-brand-charcoal-mid flex items-center gap-2.5">
-                              <span className="flex items-center justify-center w-6 h-6 rounded-lg bg-gradient-to-br from-brand-gold/20 to-amber-100 shrink-0">
-                                <Hash className="h-3.5 w-3.5 text-brand-gold" />
+                          <div className="border-l-4 border-brand-gold p-3 sm:p-5">
+                            <h4 className="text-xs sm:text-sm font-bold text-brand-charcoal-mid flex items-center gap-2">
+                              <span className="flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-gradient-to-br from-brand-gold/20 to-amber-100 shrink-0">
+                                <Hash className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-brand-gold" />
                               </span>
                               <span className="font-serif">{topic.title}</span>
                             </h4>
-                            <div className="mt-4 ml-8">
+                            <div className="mt-3 sm:mt-4 ml-0 sm:ml-8">
                               <TopicContent section={topic} links={topicLinks} />
                             </div>
                           </div>
@@ -518,19 +518,19 @@ const DashboardCurriculum = () => {
   }
 
   return (
-    <div className="space-y-6 pt-2">
+    <div className="space-y-4 sm:space-y-6 pt-2">
       {/* Hero Header */}
-      <div className="relative bg-gradient-to-r from-brand-primary/5 via-brand-gold/5 to-brand-primary/5 rounded-2xl p-6 border border-brand-parchment overflow-hidden">
+      <div className="relative bg-gradient-to-r from-brand-primary/5 via-brand-gold/5 to-brand-primary/5 rounded-2xl p-4 sm:p-6 border border-brand-parchment overflow-hidden">
         <div className="absolute -top-4 -right-4 opacity-[0.06]">
-          <GraduationCap className="h-32 w-32 text-brand-primary" />
+          <GraduationCap className="h-24 w-24 sm:h-32 sm:w-32 text-brand-primary" />
         </div>
-        <div className="relative flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-gold to-amber-500 flex items-center justify-center shadow-lg shrink-0">
-            <GraduationCap className="h-6 w-6 text-white" />
+        <div className="relative flex items-center gap-3 sm:gap-4">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-brand-gold to-amber-500 flex items-center justify-center shadow-lg shrink-0">
+            <GraduationCap className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
           </div>
           <div>
-            <h1 className="font-serif text-2xl font-bold text-brand-primary">My Curriculum</h1>
-            <p className="text-brand-warm-grey text-sm mt-0.5">
+            <h1 className="font-serif text-xl sm:text-2xl font-bold text-brand-primary">My Curriculum</h1>
+            <p className="text-brand-warm-grey text-xs sm:text-sm mt-0.5">
               Explore your semester-wise chapters, topics & study materials
             </p>
           </div>
@@ -538,18 +538,18 @@ const DashboardCurriculum = () => {
       </div>
 
       <Tabs defaultValue="1" className="w-full">
-        <TabsList className="flex flex-wrap h-auto gap-1.5 bg-white p-2 rounded-xl mb-6 border border-brand-parchment shadow-sm">
+        <TabsList className="flex flex-wrap h-auto gap-1 sm:gap-1.5 bg-white p-1.5 sm:p-2 rounded-xl mb-4 sm:mb-6 border border-brand-parchment shadow-sm">
           {semesters.map((s) => (
             <TabsTrigger
               key={s}
               value={String(s)}
-              className="group px-4 py-2.5 text-sm font-bold rounded-lg transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-brand-primary data-[state=active]:to-brand-primary/90 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:scale-105 text-brand-warm-grey hover:bg-brand-cream-dark/60"
+              className="group px-2.5 sm:px-4 py-2 sm:py-2.5 text-[11px] sm:text-sm font-bold rounded-lg transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-brand-primary data-[state=active]:to-brand-primary/90 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:scale-105 text-brand-warm-grey hover:bg-brand-cream-dark/60 min-h-[36px] sm:min-h-[40px]"
             >
-              <span className="flex items-center gap-1.5">
-                <span className="w-5 h-5 rounded-full bg-current/10 flex items-center justify-center text-[10px] font-black group-data-[state=active]:bg-white/20">
+              <span className="flex items-center gap-1 sm:gap-1.5">
+                <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-current/10 flex items-center justify-center text-[9px] sm:text-[10px] font-black group-data-[state=active]:bg-white/20">
                   {s}
                 </span>
-                Sem {s}
+                <span className="hidden sm:inline">Sem</span> {s}
               </span>
             </TabsTrigger>
           ))}
