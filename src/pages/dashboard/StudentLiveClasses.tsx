@@ -26,11 +26,23 @@ const StudentLiveClasses = () => {
     queryKey: ["student-live-classes", batchIds],
     queryFn: async () => {
       if (!batchIds.length) return [];
-      const { data, error } = await supabase
+      const { data: rawData, error } = await supabase
         .from("live_classes")
-        .select("*, profiles!live_classes_instructor_id_fkey(display_name, avatar_url)")
+        .select("*")
         .in("batch_id", batchIds)
         .order("scheduled_at", { ascending: false });
+      if (error) throw error;
+      // Fetch instructor profiles for display names
+      const instructorIds = [...new Set((rawData || []).map((c) => c.instructor_id))];
+      let profilesMap: Record<string, { display_name: string | null; avatar_url: string | null }> = {};
+      if (instructorIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from("profiles")
+          .select("user_id, display_name, avatar_url")
+          .in("user_id", instructorIds);
+        (profiles || []).forEach((p) => { profilesMap[p.user_id] = p; });
+      }
+      const data = (rawData || []).map((c) => ({ ...c, profiles: profilesMap[c.instructor_id] || null }));
       if (error) throw error;
       return data || [];
     },

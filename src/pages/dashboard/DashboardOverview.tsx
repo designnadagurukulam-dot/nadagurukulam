@@ -37,12 +37,21 @@ const DashboardOverview = () => {
       if (batchIds.length > 0) {
         const { data } = await supabase
           .from("live_classes")
-          .select("*, profiles!live_classes_instructor_id_fkey(display_name)")
+          .select("*")
           .in("batch_id", batchIds)
           .gte("scheduled_at", now)
           .order("scheduled_at")
           .limit(4);
-        classes = data || [];
+        // Fetch instructor profiles
+        const instructorIds = [...new Set((data || []).map((c) => c.instructor_id))];
+        if (instructorIds.length > 0) {
+          const { data: profiles } = await supabase.from("profiles").select("user_id, display_name").in("user_id", instructorIds);
+          const profilesMap: Record<string, any> = {};
+          (profiles || []).forEach((p) => { profilesMap[p.user_id] = p; });
+          classes = (data || []).map((c) => ({ ...c, profiles: profilesMap[c.instructor_id] || null }));
+        } else {
+          classes = data || [];
+        }
       }
 
       const weekStart = new Date();
