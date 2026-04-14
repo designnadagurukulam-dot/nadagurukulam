@@ -37,7 +37,7 @@ const DashboardOverview = () => {
       if (batchIds.length > 0) {
         const { data } = await supabase
           .from("live_classes")
-          .select("*, profiles!live_classes_instructor_id_fkey(display_name)")
+          .select("*")
           .in("batch_id", batchIds)
           .gte("scheduled_at", now)
           .order("scheduled_at")
