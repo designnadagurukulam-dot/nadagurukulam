@@ -226,7 +226,7 @@ const Index = () => {
             <img src={logo} alt="Nada Gurukulam" className="h-12 md:h-16 w-auto object-contain" />
           </motion.div>
 
-          <motion.h1 className="font-serif text-6xl sm:text-7xl md:text-8xl lg:text-[7rem] font-extrabold text-primary-foreground leading-[0.95] mb-8" style={{ textShadow: "0 6px 60px hsl(0 0% 0% / 0.6)" }}>
+          <motion.h1 className="font-serif text-4xl sm:text-6xl md:text-8xl lg:text-[7rem] font-extrabold text-primary-foreground leading-[0.95] mb-8" style={{ textShadow: "0 6px 60px hsl(0 0% 0% / 0.6)" }}>
             {"Nada".split("").map((char, i) => (
               <motion.span
                 key={i}
@@ -313,7 +313,7 @@ const Index = () => {
       <SectionDivider />
 
       {/* ══════ FOUNDER'S MESSAGE ══════ */}
-      <section className="py-24 bg-background relative golden-sweep">
+      <section className="py-24 bg-background relative golden-sweep overflow-hidden">
         <div className="container mx-auto px-4 max-w-6xl">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
@@ -325,7 +325,7 @@ const Index = () => {
             <div className="md:col-span-2 flex justify-center">
               <div className="relative vignette-gold">
                 <motion.div
-                  className="w-64 h-72 md:w-80 md:h-96 rounded-2xl overflow-hidden shadow-2xl golden-frame"
+                  className="w-56 h-64 sm:w-64 sm:h-72 md:w-80 md:h-96 rounded-2xl overflow-hidden shadow-2xl golden-frame"
                   whileInView={{ scale: [0.92, 1] }}
                   viewport={{ once: true }}
                   transition={{ duration: 1 }}
@@ -476,7 +476,7 @@ const Index = () => {
                   transition={{ delay: i * 0.15, duration: 0.5 }}
                   className={`text-center relative ${i < 3 ? "md:border-r md:border-primary-foreground/10" : ""}`}
                 >
-                  <p className="font-serif text-6xl md:text-7xl font-extrabold text-shimmer-gold mb-3">
+                  <p className="font-serif text-4xl sm:text-6xl md:text-7xl font-extrabold text-shimmer-gold mb-3">
                     {count}{s.suffix}
                   </p>
                   <div className="w-12 h-0.5 bg-secondary/40 mx-auto mb-3" />
@@ -669,7 +669,7 @@ const Index = () => {
         <div className="relative z-10 container mx-auto px-4 text-center">
           <motion.div initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }}>
             <Music className="h-10 w-10 text-secondary/40 mx-auto mb-6" />
-            <h2 className="font-serif text-5xl md:text-7xl font-extrabold text-primary-foreground mb-5 leading-tight">
+            <h2 className="font-serif text-3xl sm:text-5xl md:text-7xl font-extrabold text-primary-foreground mb-5 leading-tight">
               Begin Your Musical<br />
               <span className="text-shimmer-gold">Journey Today</span>
             </h2>

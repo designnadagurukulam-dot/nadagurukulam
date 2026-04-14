@@ -141,7 +141,7 @@ const Footer = () => {
 
         {/* Bottom bar */}
         <div className="border-t border-primary-foreground/8 relative z-10">
-          <div className="container mx-auto px-4 py-5 flex flex-col md:flex-row items-center justify-between text-xs text-primary-foreground/40">
+          <div className="container mx-auto px-4 py-5 flex flex-col md:flex-row items-center justify-between text-[11px] sm:text-xs text-primary-foreground/40 flex-wrap gap-1 text-center">
             <p>© {new Date().getFullYear()} Nada Gurukulam. All rights reserved.</p>
             <p className="mt-1 md:mt-0">Sri Sathya Sai University for Human Excellence</p>
           </div>

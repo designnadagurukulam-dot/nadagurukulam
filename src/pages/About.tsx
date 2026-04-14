@@ -65,7 +65,7 @@ const About = () => {
       <SectionDivider />
 
       {/* ══════ FOUNDER ══════ */}
-      <section className="py-24 bg-background golden-sweep relative">
+      <section className="py-24 bg-background golden-sweep relative overflow-hidden">
         <div className="container mx-auto px-4 max-w-6xl">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
@@ -76,7 +76,7 @@ const About = () => {
           >
             <div className="md:col-span-2 flex justify-center">
               <div className="relative vignette-gold">
-                <div className="w-64 h-72 md:w-80 md:h-96 rounded-2xl overflow-hidden shadow-2xl golden-frame">
+                <div className="w-56 h-64 sm:w-64 sm:h-72 md:w-80 md:h-96 rounded-2xl overflow-hidden shadow-2xl golden-frame">
                   <img
                     src={founderImg}
                     alt="Sadguru Sri Madhusudan Sai"
@@ -127,13 +127,13 @@ const About = () => {
       <SectionDivider />
 
       {/* ══════ VISION & MISSION — Timeline style ══════ */}
-      <section className="py-24 section-glass">
+      <section className="py-24 section-glass overflow-hidden">
         <div className="container mx-auto px-4 max-w-4xl">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="font-serif text-4xl md:text-5xl font-extrabold text-center mb-16"
+            className="font-serif text-3xl sm:text-4xl md:text-5xl font-extrabold text-center mb-16"
           >
             Our <span className="text-gradient-gold">Foundation</span>
           </motion.h2>
@@ -187,7 +187,7 @@ const About = () => {
                 </div>
 
                 {/* Card */}
-                <div className={`ml-16 md:ml-0 ${i % 2 === 0 ? "md:mr-[55%]" : "md:ml-[55%]"} w-full md:w-[40%]`}>
+                <div className={`ml-20 md:ml-0 ${i % 2 === 0 ? "md:mr-[55%]" : "md:ml-[55%]"} w-full md:w-[40%]`}>
                   <div className="card-glass-gold rounded-2xl p-8 hover:shadow-xl transition-shadow duration-500">
                     <h3 className="font-serif text-2xl md:text-3xl font-bold mb-4">{item.title}</h3>
                     <p className="text-muted-foreground leading-relaxed text-base">{item.desc}</p>
@@ -235,7 +235,7 @@ const About = () => {
             </div>
             <div className="md:col-span-2 flex justify-center order-1 md:order-2">
               <div className="relative vignette-gold">
-                <div className="w-60 h-72 md:w-72 md:h-80 rounded-2xl overflow-hidden shadow-2xl golden-frame">
+                <div className="w-52 h-64 sm:w-60 sm:h-72 md:w-72 md:h-80 rounded-2xl overflow-hidden shadow-2xl golden-frame">
                   <img
                     src={directorImg}
                     alt="Smt. Revathi Ramachandran"
@@ -261,7 +261,7 @@ const About = () => {
           >
             <div className="md:col-span-2 flex justify-center">
               <div className="relative vignette-gold">
-                <div className="w-72 h-80 md:w-96 md:h-[28rem] rounded-2xl overflow-hidden shadow-2xl golden-frame">
+                <div className="w-60 h-72 sm:w-72 sm:h-80 md:w-96 md:h-[28rem] rounded-2xl overflow-hidden shadow-2xl golden-frame">
                   <img
                     src={leadershipImg}
                     alt="Smt Revathi Ramachandran - Director"
@@ -322,7 +322,7 @@ const About = () => {
           >
             <div className="flex items-center justify-center gap-3 mb-3">
               <Building2 className="h-6 w-6 text-secondary" />
-              <h2 className="font-serif text-4xl md:text-5xl font-extrabold">Our Upcoming Campus</h2>
+              <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-extrabold">Our Upcoming Campus</h2>
             </div>
             <p className="text-muted-foreground max-w-2xl mx-auto text-sm tracking-wide">
               A world-class campus at Sathya Sai Grama, designed to inspire creativity and devotion.
@@ -375,7 +375,7 @@ const About = () => {
             transition={{ duration: 0.7 }}
           >
             <div className="w-16 h-0.5 bg-secondary mx-auto mb-6 rounded-full" />
-            <h2 className="font-serif text-4xl md:text-6xl font-extrabold mb-4 text-primary-foreground">
+            <h2 className="font-serif text-3xl sm:text-4xl md:text-6xl font-extrabold mb-4 text-primary-foreground">
               Our Philosophy
             </h2>
             <h3 className="font-serif text-lg md:text-xl text-shimmer-gold font-semibold mb-6">
