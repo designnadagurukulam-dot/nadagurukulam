@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Video, ExternalLink, Monitor, Clock, Radio, Sparkles } from "lucide-react";
+import { Video, ExternalLink, Monitor, Clock, Radio } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";

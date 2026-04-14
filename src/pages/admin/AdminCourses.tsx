@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { BookOpen, Search, Trash2, Eye, GraduationCap, IndianRupee, Layers, Sparkles } from "lucide-react";
+import { BookOpen, Search, Trash2, Eye, GraduationCap, IndianRupee, Layers } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";

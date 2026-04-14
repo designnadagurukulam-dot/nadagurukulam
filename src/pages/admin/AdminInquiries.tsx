@@ -11,12 +11,6 @@ import { logActivity } from "@/lib/activityLogger";
 import { Mail, Phone, MessageSquare, Trash2, Calendar } from "lucide-react";
 import { format } from "date-fns";
 
-const statusColors: Record<string, string> = {
-  new: "bg-blue-50 text-blue-700 border border-blue-200",
-  contacted: "bg-amber-50 text-amber-700 border border-amber-200",
-  resolved: "bg-green-50 text-green-700 border border-green-200",
-  dismissed: "bg-gray-50 text-gray-500 border border-gray-200",
-};
 
 const AdminInquiries = () => {
   const queryClient = useQueryClient();

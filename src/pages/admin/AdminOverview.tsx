@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   BookOpen, Users, Clock, DollarSign, GraduationCap, Video,
-  MessageSquare, ShieldCheck, ArrowRight, Layers, CheckSquare, Calendar, BarChart3,
+  MessageSquare, ShieldCheck, ArrowRight, Layers, CheckSquare, Calendar,
   Sparkles, Crown, Zap, TrendingUp
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";

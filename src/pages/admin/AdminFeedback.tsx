@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { MessageSquare, Star, Filter, MessageCircle, Eye, Sparkles } from "lucide-react";
+import { MessageSquare, Star, Filter, MessageCircle, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
