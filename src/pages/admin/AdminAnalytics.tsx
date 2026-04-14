@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { TrendingUp, Users, BookOpen, IndianRupee, Award } from "lucide-react";
+import { TrendingUp, Users, BookOpen, IndianRupee, Award, BarChart3, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -48,37 +48,44 @@ const AdminAnalytics = () => {
   if (loading) {
     return (
       <div className="flex justify-center py-20">
-        <div className="h-10 w-10 border-4 border-[#7D1E24] border-t-transparent rounded-full animate-spin" />
+        <div className="h-10 w-10 border-4 border-brand-primary border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   const statCards = [
-    { label: "Total Enrollments", value: totals.enrollments, icon: Users, color: "#7D1E24" },
-    { label: "Total Courses", value: totals.courses, icon: BookOpen, color: "#C49A3C" },
-    { label: "Revenue", value: `₹${totals.revenue.toLocaleString()}`, icon: IndianRupee, color: "#5C1219" },
-    { label: "Certificates", value: totals.certificates, icon: Award, color: "#8B6914" },
+    { label: "Total Enrollments", value: totals.enrollments, icon: Users, gradient: "from-brand-primary to-brand-primary-dark" },
+    { label: "Total Courses", value: totals.courses, icon: BookOpen, gradient: "from-brand-gold to-amber-600" },
+    { label: "Revenue", value: `₹${totals.revenue.toLocaleString()}`, icon: IndianRupee, gradient: "from-emerald-700 to-green-600" },
+    { label: "Certificates", value: totals.certificates, icon: Award, gradient: "from-brand-gold-dark to-brand-gold" },
   ];
 
   return (
     <div className="space-y-6 pt-2">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="font-serif text-2xl font-semibold text-[#7D1E24]">Analytics</h1>
-        <div className="w-12 h-0.5 bg-[#C49A3C] mt-1" />
-        <p className="text-sm text-[#8C7B6B] mt-2">Platform insights and trends</p>
+        <div className="flex items-center gap-2">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-gold to-amber-600 flex items-center justify-center">
+            <BarChart3 className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <h1 className="font-serif text-2xl font-semibold text-brand-primary">Analytics</h1>
+            <div className="w-12 h-0.5 bg-gradient-to-r from-brand-gold to-transparent mt-1" />
+          </div>
+        </div>
+        <p className="text-sm text-brand-warm-grey mt-2">Platform insights and trends</p>
       </motion.div>
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {statCards.map((s, i) => (
           <motion.div key={s.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
-            <div className="bg-white rounded-2xl border border-[#EDE3CC] shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-5 flex items-center gap-4">
-              <div className="w-11 h-11 rounded-full bg-[#F5E9CE] flex items-center justify-center">
-                <s.icon className="h-5 w-5" style={{ color: s.color }} />
+            <div className="group bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-5 flex items-center gap-4 hover:-translate-y-0.5 hover:shadow-[0_4px_30px_rgba(196,154,60,0.15)] transition-all duration-300">
+              <div className={`w-11 h-11 rounded-full bg-gradient-to-br ${s.gradient} flex items-center justify-center shadow-lg`}>
+                <s.icon className="h-5 w-5 text-white" />
               </div>
               <div>
-                <p className="font-serif text-3xl font-bold text-[#7D1E24]">{s.value}</p>
-                <p className="text-[11px] uppercase tracking-widest text-[#8C7B6B] font-semibold">{s.label}</p>
+                <p className="font-serif text-3xl font-bold text-brand-primary">{s.value}</p>
+                <p className="text-[11px] uppercase tracking-widest text-brand-warm-grey font-semibold">{s.label}</p>
               </div>
             </div>
           </motion.div>
@@ -87,10 +94,13 @@ const AdminAnalytics = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Enrollments Chart */}
-        <div className="bg-white rounded-2xl border border-[#EDE3CC] shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-6">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+          className="bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-6 hover:shadow-[0_4px_30px_rgba(196,154,60,0.15)] transition-all duration-300">
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-8 h-8 rounded-full bg-[#F5E9CE] flex items-center justify-center"><TrendingUp className="h-4 w-4 text-[#7D1E24]" /></div>
-            <h3 className="font-serif text-lg text-[#7D1E24]">Enrollment Trends</h3>
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-primary to-brand-primary-dark flex items-center justify-center">
+              <TrendingUp className="h-4 w-4 text-white" />
+            </div>
+            <h3 className="font-serif text-lg text-brand-primary">Enrollment Trends</h3>
           </div>
           {enrollmentsByMonth.length > 0 ? (
             <ResponsiveContainer width="100%" height={260}>
@@ -102,14 +112,17 @@ const AdminAnalytics = () => {
                 <Bar dataKey="count" fill="#7D1E24" radius={[6, 6, 0, 0]} name="Enrollments" />
               </BarChart>
             </ResponsiveContainer>
-          ) : <p className="text-[#8C7B6B] text-center py-8">No enrollment data yet</p>}
-        </div>
+          ) : <p className="text-brand-warm-grey text-center py-8">No enrollment data yet</p>}
+        </motion.div>
 
         {/* Revenue Chart */}
-        <div className="bg-white rounded-2xl border border-[#EDE3CC] shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-6">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
+          className="bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-6 hover:shadow-[0_4px_30px_rgba(196,154,60,0.15)] transition-all duration-300">
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-8 h-8 rounded-full bg-[#F5E9CE] flex items-center justify-center"><IndianRupee className="h-4 w-4 text-[#C49A3C]" /></div>
-            <h3 className="font-serif text-lg text-[#7D1E24]">Revenue Trends</h3>
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-gold to-amber-600 flex items-center justify-center">
+              <IndianRupee className="h-4 w-4 text-white" />
+            </div>
+            <h3 className="font-serif text-lg text-brand-primary">Revenue Trends</h3>
           </div>
           {revenueByMonth.length > 0 ? (
             <ResponsiveContainer width="100%" height={260}>
@@ -121,14 +134,17 @@ const AdminAnalytics = () => {
                 <Line type="monotone" dataKey="amount" stroke="#C49A3C" strokeWidth={2} dot={{ r: 4, fill: "#C49A3C" }} name="Revenue (₹)" />
               </LineChart>
             </ResponsiveContainer>
-          ) : <p className="text-[#8C7B6B] text-center py-8">No revenue data yet</p>}
-        </div>
+          ) : <p className="text-brand-warm-grey text-center py-8">No revenue data yet</p>}
+        </motion.div>
 
         {/* Courses by Status */}
-        <div className="bg-white rounded-2xl border border-[#EDE3CC] shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-6">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
+          className="bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-6 hover:shadow-[0_4px_30px_rgba(196,154,60,0.15)] transition-all duration-300">
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-8 h-8 rounded-full bg-[#F5E9CE] flex items-center justify-center"><BookOpen className="h-4 w-4 text-[#7D1E24]" /></div>
-            <h3 className="font-serif text-lg text-[#7D1E24]">Courses by Status</h3>
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-primary-dark to-rose-900 flex items-center justify-center">
+              <BookOpen className="h-4 w-4 text-white" />
+            </div>
+            <h3 className="font-serif text-lg text-brand-primary">Courses by Status</h3>
           </div>
           {coursesByStatus.length > 0 ? (
             <ResponsiveContainer width="100%" height={260}>
@@ -140,29 +156,35 @@ const AdminAnalytics = () => {
                 <Legend />
               </PieChart>
             </ResponsiveContainer>
-          ) : <p className="text-[#8C7B6B] text-center py-8">No course data yet</p>}
-        </div>
+          ) : <p className="text-brand-warm-grey text-center py-8">No course data yet</p>}
+        </motion.div>
 
         {/* Top Courses */}
-        <div className="bg-white rounded-2xl border border-[#EDE3CC] shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-6">
-          <h3 className="font-serif text-lg text-[#7D1E24] mb-4">Top Courses by Enrollment</h3>
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}
+          className="bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-6 hover:shadow-[0_4px_30px_rgba(196,154,60,0.15)] transition-all duration-300">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-gold to-amber-600 flex items-center justify-center">
+              <Sparkles className="h-4 w-4 text-white" />
+            </div>
+            <h3 className="font-serif text-lg text-brand-primary">Top Courses by Enrollment</h3>
+          </div>
           {topCourses.length > 0 ? (
             <div className="space-y-4">
               {topCourses.map((c, i) => (
                 <div key={i} className="flex items-center gap-3">
-                  <span className="font-serif text-2xl font-bold text-[#7D1E24] w-8">{i + 1}</span>
+                  <span className="font-serif text-2xl font-bold text-brand-primary w-8">{i + 1}</span>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-[#3D2E22] truncate">{c.title}</p>
-                    <div className="h-2 bg-[#FAF6EE] rounded-full mt-1.5">
+                    <p className="font-medium text-brand-charcoal truncate">{c.title}</p>
+                    <div className="h-2 bg-brand-cream rounded-full mt-1.5">
                       <div className="h-full rounded-full transition-all" style={{ width: `${(c.count / topCourses[0].count) * 100}%`, background: "linear-gradient(90deg, #7D1E24, #C49A3C)" }} />
                     </div>
                   </div>
-                  <span className="text-sm font-medium text-[#8C7B6B] whitespace-nowrap">{c.count} enrolled</span>
+                  <span className="text-sm font-medium text-brand-warm-grey whitespace-nowrap">{c.count} enrolled</span>
                 </div>
               ))}
             </div>
-          ) : <p className="text-[#8C7B6B] text-center py-8">No enrollment data yet</p>}
-        </div>
+          ) : <p className="text-brand-warm-grey text-center py-8">No enrollment data yet</p>}
+        </motion.div>
       </div>
     </div>
   );

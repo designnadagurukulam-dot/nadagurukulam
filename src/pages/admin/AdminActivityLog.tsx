@@ -15,8 +15,8 @@ const actionColors: Record<string, string> = {
   login: "bg-green-50 text-green-700 border border-green-200",
   logout: "bg-gray-50 text-gray-500 border border-gray-200",
   signup: "bg-blue-50 text-blue-700 border border-blue-200",
-  "course.created": "bg-[#F5E9CE] text-[#7D1E24] border border-[#EDE3CC]",
-  "course.updated": "bg-[#F5E9CE] text-[#7D1E24] border border-[#EDE3CC]",
+  "course.created": "bg-brand-gold-pale text-brand-primary border border-brand-parchment",
+  "course.updated": "bg-brand-gold-pale text-brand-primary border border-brand-parchment",
   "course.approved": "bg-green-50 text-green-700 border border-green-200",
   "course.rejected": "bg-red-50 text-red-600 border border-red-200",
   "course.deleted": "bg-red-50 text-red-600 border border-red-200",
@@ -33,14 +33,14 @@ const actionColors: Record<string, string> = {
   "coupon.deleted": "bg-red-50 text-red-600 border border-red-200",
   "coupon.toggled": "bg-amber-50 text-amber-700 border border-amber-200",
   "job.created": "bg-blue-50 text-blue-700 border border-blue-200",
-  "job.updated": "bg-[#F5E9CE] text-[#7D1E24] border border-[#EDE3CC]",
+  "job.updated": "bg-brand-gold-pale text-brand-primary border border-brand-parchment",
   "job.deleted": "bg-red-50 text-red-600 border border-red-200",
   "job.toggled": "bg-amber-50 text-amber-700 border border-amber-200",
   "event.created": "bg-blue-50 text-blue-700 border border-blue-200",
-  "event.updated": "bg-[#F5E9CE] text-[#7D1E24] border border-[#EDE3CC]",
+  "event.updated": "bg-brand-gold-pale text-brand-primary border border-brand-parchment",
   "event.deleted": "bg-red-50 text-red-600 border border-red-200",
   "category.created": "bg-blue-50 text-blue-700 border border-blue-200",
-  "category.updated": "bg-[#F5E9CE] text-[#7D1E24] border border-[#EDE3CC]",
+  "category.updated": "bg-brand-gold-pale text-brand-primary border border-brand-parchment",
   "category.deleted": "bg-red-50 text-red-600 border border-red-200",
   "volunteer.submitted": "bg-blue-50 text-blue-700 border border-blue-200",
   "volunteer.status_updated": "bg-amber-50 text-amber-700 border border-amber-200",
@@ -103,24 +103,24 @@ const AdminActivityLog = () => {
     <div className="space-y-6 pt-2">
       <div>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-[#F5E9CE] flex items-center justify-center">
-            <Activity className="h-5 w-5 text-[#7D1E24]" />
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-primary to-brand-primary-dark flex items-center justify-center">
+            <Activity className="h-5 w-5 text-white" />
           </div>
           <div>
-            <h1 className="font-serif text-2xl font-semibold text-[#7D1E24]">Activity Log</h1>
-            <div className="w-12 h-0.5 bg-[#C49A3C] mt-1" />
+            <h1 className="font-serif text-2xl font-semibold text-brand-primary">Activity Log</h1>
+            <div className="w-12 h-0.5 bg-gradient-to-r from-brand-gold to-transparent mt-1" />
           </div>
         </div>
-        <p className="text-sm text-[#8C7B6B] mt-2">Track all platform activity in real-time</p>
+        <p className="text-sm text-brand-warm-grey mt-2">Track all platform activity in real-time</p>
       </div>
 
       <div className="flex flex-wrap gap-3">
         <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#8C7B6B]" />
-          <Input placeholder="Search actions..." value={search} onChange={(e) => { setSearch(e.target.value); setPage(0); }} className="pl-9 border-[#EDE3CC] rounded-xl focus:border-[#C49A3C]" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-warm-grey" />
+          <Input placeholder="Search actions..." value={search} onChange={(e) => { setSearch(e.target.value); setPage(0); }} className="pl-9 border-brand-parchment rounded-xl focus:border-brand-gold" />
         </div>
         <Select value={actionFilter} onValueChange={(v) => { setActionFilter(v); setPage(0); }}>
-          <SelectTrigger className="w-48 border-[#EDE3CC] rounded-xl"><SelectValue placeholder="All actions" /></SelectTrigger>
+          <SelectTrigger className="w-48 border-brand-parchment rounded-xl"><SelectValue placeholder="All actions" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Actions</SelectItem>
             {(actionTypes as string[]).sort().map((a) => <SelectItem key={a} value={a}>{a}</SelectItem>)}
@@ -130,39 +130,39 @@ const AdminActivityLog = () => {
 
       {isLoading ? (
         <div className="flex justify-center py-12">
-          <div className="h-8 w-8 border-4 border-[#7D1E24] border-t-transparent rounded-full animate-spin" />
+          <div className="h-8 w-8 border-4 border-brand-primary border-t-transparent rounded-full animate-spin" />
         </div>
       ) : !data?.logs?.length ? (
-        <div className="bg-white rounded-2xl border border-[#EDE3CC] shadow-[0_2px_24px_rgba(125,30,36,0.06)] py-16 text-center">
-          <div className="w-14 h-14 rounded-full bg-[#F5E9CE] flex items-center justify-center mx-auto mb-4">
-            <Activity className="h-7 w-7 text-[#C49A3C]" />
+        <div className="bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] py-16 text-center">
+          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 flex items-center justify-center mx-auto mb-4">
+            <Activity className="h-7 w-7 text-brand-gold" />
           </div>
-          <h3 className="font-serif text-xl text-[#7D1E24]">No Activity Logs</h3>
-          <p className="text-sm text-[#8C7B6B] mt-1">Activity will appear here as users interact with the platform</p>
+          <h3 className="font-serif text-xl text-brand-primary">No Activity Logs</h3>
+          <p className="text-sm text-brand-warm-grey mt-1">Activity will appear here as users interact with the platform</p>
         </div>
       ) : (
         <>
-          <div className="bg-white rounded-2xl border border-[#EDE3CC] shadow-[0_2px_24px_rgba(125,30,36,0.06)] overflow-hidden">
+          <div className="bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] overflow-hidden">
             <Table>
               <TableHeader>
-                <TableRow className="bg-[#5C1219] hover:bg-[#5C1219]">
-                  <TableHead className="text-[#E2B95A] text-[11px] uppercase tracking-widest font-semibold">Time</TableHead>
-                  <TableHead className="text-[#E2B95A] text-[11px] uppercase tracking-widest font-semibold">User</TableHead>
-                  <TableHead className="text-[#E2B95A] text-[11px] uppercase tracking-widest font-semibold">Action</TableHead>
-                  <TableHead className="text-[#E2B95A] text-[11px] uppercase tracking-widest font-semibold">Entity</TableHead>
-                  <TableHead className="text-[#E2B95A] text-[11px] uppercase tracking-widest font-semibold">Details</TableHead>
+                <TableRow className="bg-gradient-to-r from-brand-primary-dark to-brand-primary hover:bg-brand-primary-dark">
+                  <TableHead className="text-brand-gold-light text-[11px] uppercase tracking-widest font-semibold">Time</TableHead>
+                  <TableHead className="text-brand-gold-light text-[11px] uppercase tracking-widest font-semibold">User</TableHead>
+                  <TableHead className="text-brand-gold-light text-[11px] uppercase tracking-widest font-semibold">Action</TableHead>
+                  <TableHead className="text-brand-gold-light text-[11px] uppercase tracking-widest font-semibold">Entity</TableHead>
+                  <TableHead className="text-brand-gold-light text-[11px] uppercase tracking-widest font-semibold">Details</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {data.logs.map((log: any, i: number) => (
-                  <TableRow key={log.id} className={`${i % 2 === 1 ? "bg-[#FAF6EE]" : "bg-white"} hover:bg-[#FAF6EE] transition-colors border-b border-[#EDE3CC]`}>
-                    <TableCell className="text-xs text-[#8C7B6B] whitespace-nowrap">{format(new Date(log.created_at), "MMM dd, HH:mm:ss")}</TableCell>
-                    <TableCell className="font-medium text-sm text-[#3D2E22]">{log.display_name}</TableCell>
+                  <TableRow key={log.id} className={`${i % 2 === 1 ? "bg-brand-cream" : "bg-white"} hover:bg-brand-cream transition-colors border-b border-brand-parchment`}>
+                    <TableCell className="text-xs text-brand-warm-grey whitespace-nowrap">{format(new Date(log.created_at), "MMM dd, HH:mm:ss")}</TableCell>
+                    <TableCell className="font-medium text-sm text-brand-charcoal">{log.display_name}</TableCell>
                     <TableCell>
                       <Badge className={`text-xs ${actionColors[log.action] || "bg-gray-50 text-gray-500 border border-gray-200"}`}>{log.action}</Badge>
                     </TableCell>
-                    <TableCell className="text-sm text-[#8C7B6B]">{log.entity_type || "—"}</TableCell>
-                    <TableCell className="text-xs text-[#8C7B6B] max-w-[200px] truncate">{log.metadata ? JSON.stringify(log.metadata).slice(0, 80) : "—"}</TableCell>
+                    <TableCell className="text-sm text-brand-warm-grey">{log.entity_type || "—"}</TableCell>
+                    <TableCell className="text-xs text-brand-warm-grey max-w-[200px] truncate">{log.metadata ? JSON.stringify(log.metadata).slice(0, 80) : "—"}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -170,12 +170,12 @@ const AdminActivityLog = () => {
           </div>
 
           <div className="flex items-center justify-between">
-            <p className="text-sm text-[#8C7B6B]">Showing {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, data.total)} of {data.total}</p>
+            <p className="text-sm text-brand-warm-grey">Showing {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, data.total)} of {data.total}</p>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage(page - 1)} className="border-[#EDE3CC] rounded-xl hover:bg-[#FAF6EE]">
+              <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage(page - 1)} className="border-brand-parchment rounded-xl hover:bg-brand-cream">
                 <ChevronLeft className="h-4 w-4" />
               </Button>
-              <Button variant="outline" size="sm" disabled={page >= totalPages - 1} onClick={() => setPage(page + 1)} className="border-[#EDE3CC] rounded-xl hover:bg-[#FAF6EE]">
+              <Button variant="outline" size="sm" disabled={page >= totalPages - 1} onClick={() => setPage(page + 1)} className="border-brand-parchment rounded-xl hover:bg-brand-cream">
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
