@@ -35,53 +35,53 @@ const DashboardCourses = () => {
   }
 
   return (
-    <div className="space-y-6 pt-2">
+    <div className="space-y-4 sm:space-y-6 pt-2">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="font-serif text-2xl font-semibold text-brand-primary">My Courses</h1>
+        <h1 className="font-serif text-xl sm:text-2xl font-semibold text-brand-primary">My Courses</h1>
         <div className="w-12 h-0.5 bg-brand-gold mt-1" />
-        <p className="text-brand-warm-grey mt-2 text-sm">Track your enrolled courses and progress</p>
+        <p className="text-brand-warm-grey mt-1.5 sm:mt-2 text-xs sm:text-sm">Track your enrolled courses and progress</p>
       </motion.div>
 
       {courses.length === 0 ? (
-        <Card className="text-center p-12 bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)]">
-          <div className="w-16 h-16 rounded-full bg-brand-gold-pale flex items-center justify-center mx-auto mb-4">
-            <BookOpen className="h-8 w-8 text-brand-gold" />
+        <Card className="text-center p-8 sm:p-12 bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)]">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-brand-gold-pale flex items-center justify-center mx-auto mb-4">
+            <BookOpen className="h-7 w-7 sm:h-8 sm:w-8 text-brand-gold" />
           </div>
-          <h3 className="font-serif text-xl text-brand-primary">No courses enrolled</h3>
-          <p className="text-brand-warm-grey mt-2">Browse available courses and enroll to get started</p>
+          <h3 className="font-serif text-lg sm:text-xl text-brand-primary">No courses enrolled</h3>
+          <p className="text-brand-warm-grey mt-2 text-xs sm:text-sm">Browse available courses and enroll to get started</p>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {courses.map((course, i) => (
             <motion.div key={course.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
               <Card className="overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-500 group cursor-pointer bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)]">
-                <div className="h-44 overflow-hidden relative bg-brand-cream-dark">
+                <div className="h-36 sm:h-44 overflow-hidden relative bg-brand-cream-dark">
                   {course.image_url ? (
                     <img src={course.image_url} alt={course.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-brand-primary/20 to-brand-gold/20">
-                      <BookOpen className="h-12 w-12 text-brand-warm-grey" />
+                      <BookOpen className="h-10 w-10 sm:h-12 sm:w-12 text-brand-warm-grey" />
                     </div>
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                  {course.level && <Badge className="absolute top-3 right-3 bg-brand-gold text-brand-charcoal border-0 shadow-md">{course.level}</Badge>}
+                  {course.level && <Badge className="absolute top-2.5 sm:top-3 right-2.5 sm:right-3 bg-brand-gold text-brand-charcoal border-0 shadow-md text-[10px] sm:text-xs">{course.level}</Badge>}
                 </div>
-                <CardContent className="p-5 space-y-4">
-                  <h3 className="font-serif text-lg font-bold text-brand-charcoal-mid">{course.title}</h3>
-                  <div className="flex items-center gap-4 text-xs text-brand-warm-grey">
-                    {course.instructor_name && <span className="flex items-center gap-1"><User className="h-3.5 w-3.5" />{course.instructor_name}</span>}
-                    {course.duration && <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" />{course.duration}</span>}
+                <CardContent className="p-3.5 sm:p-5 space-y-3 sm:space-y-4">
+                  <h3 className="font-serif text-base sm:text-lg font-bold text-brand-charcoal-mid line-clamp-2">{course.title}</h3>
+                  <div className="flex items-center gap-3 sm:gap-4 text-[10px] sm:text-xs text-brand-warm-grey flex-wrap">
+                    {course.instructor_name && <span className="flex items-center gap-1"><User className="h-3 w-3 sm:h-3.5 sm:w-3.5" />{course.instructor_name}</span>}
+                    {course.duration && <span className="flex items-center gap-1"><Clock className="h-3 w-3 sm:h-3.5 sm:w-3.5" />{course.duration}</span>}
                   </div>
-                  <div className="flex items-center gap-4">
-                    <div className="relative w-14 h-14 shrink-0">
-                      <svg className="w-14 h-14 -rotate-90" viewBox="0 0 56 56">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <div className="relative w-12 h-12 sm:w-14 sm:h-14 shrink-0">
+                      <svg className="w-12 h-12 sm:w-14 sm:h-14 -rotate-90" viewBox="0 0 56 56">
                         <circle cx="28" cy="28" r="24" fill="none" stroke="#EDE3CC" strokeWidth="4" />
                         <circle cx="28" cy="28" r="24" fill="none" stroke="#7D1E24" strokeWidth="4" strokeLinecap="round"
                           strokeDasharray={`${course.progress * 1.508} ${150.8 - course.progress * 1.508}`} />
                       </svg>
-                      <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-brand-charcoal-mid">{course.progress}%</span>
+                      <span className="absolute inset-0 flex items-center justify-center text-[10px] sm:text-xs font-bold text-brand-charcoal-mid">{course.progress}%</span>
                     </div>
-                    <div className="text-xs text-brand-warm-grey">
+                    <div className="text-[10px] sm:text-xs text-brand-warm-grey">
                       <p className="font-medium text-brand-charcoal-mid">{course.progress === 100 ? "Completed" : "In Progress"}</p>
                       <p>{course.progress}% completed</p>
                     </div>

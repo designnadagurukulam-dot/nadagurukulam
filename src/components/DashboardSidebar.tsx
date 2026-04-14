@@ -98,7 +98,7 @@ const DashboardSidebar = () => {
   const sidebarContent = (isMobile = false) => (
     <>
       {/* Logo area */}
-      <div className="px-6 py-5 border-b border-brand-primary">
+      <div className="px-4 sm:px-6 py-4 sm:py-5 border-b border-brand-primary">
         {(!collapsed || isMobile) ? (
           <Link to="/" className="flex items-center gap-2.5">
             <img src={logo} alt="Logo" className="h-9" />
@@ -115,7 +115,7 @@ const DashboardSidebar = () => {
       </div>
 
       {/* User avatar + role badge */}
-      <div className={`border-b border-brand-primary ${(collapsed && !isMobile) ? "p-3" : "px-5 py-4"}`}>
+      <div className={`border-b border-brand-primary ${(collapsed && !isMobile) ? "p-3" : "px-4 sm:px-5 py-3 sm:py-4"}`}>
         <div className={`flex items-center ${(collapsed && !isMobile) ? "justify-center" : "gap-3"}`}>
           <div className="w-10 h-10 rounded-full bg-brand-gold flex items-center justify-center text-brand-primary-dark font-bold text-xs shrink-0 shadow-md">
             {initials}
@@ -135,7 +135,7 @@ const DashboardSidebar = () => {
           <Link
             key={item.to}
             to={item.to}
-            className={`flex items-center gap-3 px-4 py-2.5 text-[13px] uppercase tracking-widest transition-all duration-200 rounded-lg mx-1 ${
+            className={`flex items-center gap-3 px-3 sm:px-4 py-3 text-[13px] uppercase tracking-widest transition-all duration-200 rounded-lg mx-1 min-h-[44px] ${
               isActive(item.to)
                 ? "text-brand-gold-light bg-brand-primary border-l-4 border-brand-gold font-semibold"
                 : "text-brand-warm-grey-light hover:text-brand-gold-light hover:bg-brand-primary/60"
@@ -150,7 +150,7 @@ const DashboardSidebar = () => {
 
       {/* Certificate promo card (student only) */}
       {role === "student" && (!collapsed || isMobile) && (
-        <div className="mx-3 mb-3 p-4 rounded-xl border border-brand-gold/30 bg-brand-primary/40">
+        <div className="mx-3 mb-3 p-3 sm:p-4 rounded-xl border border-brand-gold/30 bg-brand-primary/40">
           <div className="w-9 h-9 rounded-full bg-brand-gold-pale flex items-center justify-center mb-2">
             <Award className="w-[18px] h-[18px] text-brand-gold" />
           </div>
@@ -164,7 +164,7 @@ const DashboardSidebar = () => {
         <Button
           variant="ghost"
           size="sm"
-          className="w-full justify-start gap-3 text-brand-warm-grey-light hover:text-white hover:bg-brand-primary/60 rounded-xl text-[12px]"
+          className="w-full justify-start gap-3 text-brand-warm-grey-light hover:text-white hover:bg-brand-primary/60 rounded-xl text-[12px] min-h-[44px]"
           onClick={handleSignOut}
         >
           <LogOut className="h-4 w-4 shrink-0" />
@@ -176,11 +176,11 @@ const DashboardSidebar = () => {
 
   return (
     <>
-      {/* Mobile toggle */}
+      {/* Mobile toggle — 44x44 tap target */}
       {!mobileOpen && (
         <button
           onClick={() => setMobileOpen(true)}
-          className="lg:hidden fixed top-3 left-3 z-50 p-2.5 rounded-xl bg-brand-primary-dark shadow-lg"
+          className="lg:hidden fixed top-2.5 left-2.5 z-50 w-11 h-11 flex items-center justify-center rounded-xl bg-brand-primary-dark shadow-lg"
           aria-label="Open menu"
         >
           <Menu className="h-5 w-5 text-brand-gold-light" />
@@ -194,11 +194,11 @@ const DashboardSidebar = () => {
           onClick={() => setMobileOpen(false)}
         >
           <aside
-            className="w-72 max-w-[85vw] h-full flex flex-col bg-brand-primary-dark shadow-2xl animate-in slide-in-from-left duration-300"
+            className="w-[85vw] max-w-80 h-full flex flex-col bg-brand-primary-dark shadow-2xl animate-in slide-in-from-left duration-300"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-end p-2">
-              <button onClick={() => setMobileOpen(false)} className="p-1.5 rounded-lg hover:bg-brand-primary text-brand-warm-grey-light">
+              <button onClick={() => setMobileOpen(false)} className="w-11 h-11 flex items-center justify-center rounded-lg hover:bg-brand-primary text-brand-warm-grey-light">
                 <X className="h-5 w-5" />
               </button>
             </div>

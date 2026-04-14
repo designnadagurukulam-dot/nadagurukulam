@@ -49,41 +49,41 @@ const DashboardSchedule = () => {
   const formatTime = (iso: string) => new Date(iso).toLocaleTimeString("en", { hour: "numeric", minute: "2-digit" });
 
   return (
-    <div className="space-y-6 pt-2">
+    <div className="space-y-4 sm:space-y-6 pt-2">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="font-serif text-2xl font-semibold text-brand-primary">Schedule</h1>
+        <h1 className="font-serif text-xl sm:text-2xl font-semibold text-brand-primary">Schedule</h1>
         <div className="w-12 h-0.5 bg-brand-gold mt-1" />
-        <p className="text-brand-warm-grey mt-2 text-sm">Your upcoming classes and events</p>
+        <p className="text-brand-warm-grey mt-1.5 sm:mt-2 text-xs sm:text-sm">Your upcoming classes and events</p>
       </motion.div>
 
       {schedule.length === 0 ? (
-        <Card className="text-center p-12 bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)]">
-          <div className="w-16 h-16 rounded-full bg-brand-gold-pale flex items-center justify-center mx-auto mb-4">
-            <Calendar className="h-8 w-8 text-brand-gold" />
+        <Card className="text-center p-8 sm:p-12 bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)]">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-brand-gold-pale flex items-center justify-center mx-auto mb-4">
+            <Calendar className="h-7 w-7 sm:h-8 sm:w-8 text-brand-gold" />
           </div>
-          <h3 className="font-serif text-xl text-brand-primary">No upcoming classes</h3>
-          <p className="text-brand-warm-grey mt-2">Your schedule will appear here when classes are assigned</p>
+          <h3 className="font-serif text-lg sm:text-xl text-brand-primary">No upcoming classes</h3>
+          <p className="text-brand-warm-grey mt-2 text-xs sm:text-sm">Your schedule will appear here when classes are assigned</p>
         </Card>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {schedule.map((s, i) => (
             <motion.div key={s.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
               <Card className="hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] overflow-hidden">
                 <CardContent className="p-0">
                   <div className="flex">
-                    <div className="w-20 md:w-24 bg-gradient-to-b from-brand-primary to-brand-primary-dark flex flex-col items-center justify-center text-white shrink-0 p-3">
-                      <span className="text-[10px] uppercase tracking-wider font-medium opacity-70">{formatDate(s.start_time)}</span>
-                      <span className="text-2xl font-extrabold">{new Date(s.start_time).getDate()}</span>
+                    <div className="w-16 sm:w-24 bg-gradient-to-b from-brand-primary to-brand-primary-dark flex flex-col items-center justify-center text-white shrink-0 p-2.5 sm:p-3">
+                      <span className="text-[8px] sm:text-[10px] uppercase tracking-wider font-medium opacity-70">{formatDate(s.start_time)}</span>
+                      <span className="text-xl sm:text-2xl font-extrabold">{new Date(s.start_time).getDate()}</span>
                     </div>
-                    <div className="flex-1 p-4 md:p-5">
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <h3 className="font-serif font-bold text-brand-charcoal-mid text-sm md:text-base">{s.event_title}</h3>
-                          <div className="flex items-center gap-4 mt-2 text-xs text-brand-warm-grey">
-                            <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" />{formatTime(s.start_time)} – {formatTime(s.end_time)}</span>
+                    <div className="flex-1 p-3 sm:p-5 min-w-0">
+                      <div className="flex items-start justify-between gap-2 sm:gap-3">
+                        <div className="min-w-0 flex-1">
+                          <h3 className="font-serif font-bold text-brand-charcoal-mid text-sm sm:text-base truncate">{s.event_title}</h3>
+                          <div className="flex items-center gap-2 sm:gap-4 mt-1.5 sm:mt-2 text-[10px] sm:text-xs text-brand-warm-grey">
+                            <span className="flex items-center gap-1"><Clock className="h-3 w-3 sm:h-3.5 sm:w-3.5" />{formatTime(s.start_time)} – {formatTime(s.end_time)}</span>
                           </div>
                         </div>
-                        <Badge className={`${typeColors[s.event_type] || "bg-brand-cream-dark text-brand-warm-grey"} border-0 shrink-0 text-[11px] capitalize`}>
+                        <Badge className={`${typeColors[s.event_type] || "bg-brand-cream-dark text-brand-warm-grey"} border-0 shrink-0 text-[9px] sm:text-[11px] capitalize`}>
                           {s.event_type}
                         </Badge>
                       </div>
