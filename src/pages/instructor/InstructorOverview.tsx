@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Users, Video, ClipboardList, BookOpen, ArrowRight, Calendar, Flame, Sparkles, TrendingUp } from "lucide-react";
+import { Users, Video, ClipboardList, BookOpen, ArrowRight, Calendar, Flame, Sparkles, TrendingUp, GraduationCap } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,18 +19,14 @@ const statGradients = [
   "from-[hsl(25_60%_45%)] to-[hsl(15_55%_35%)]",
   "from-[hsl(340_50%_35%)] to-brand-primary-dark",
 ];
-const statIconBgs = [
-  "bg-white/20",
-  "bg-white/20",
-  "bg-white/20",
-  "bg-white/20",
-];
+const statIconBgs = ["bg-white/20", "bg-white/20", "bg-white/20", "bg-white/20"];
 
 const InstructorOverview = () => {
   const { profile, user } = useAuth();
   const [stats, setStats] = useState({ students: 0, upcomingClasses: 0, pendingGrading: 0, activeBatches: 0 });
   const [todayClasses, setTodayClasses] = useState<any[]>([]);
   const [recentSubmissions, setRecentSubmissions] = useState<any[]>([]);
+  const [allocatedSubjects, setAllocatedSubjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activityData] = useState(() =>
     weekDays.map((day) => ({ day, hours: Math.floor(Math.random() * 5 + 1) }))
@@ -77,9 +74,16 @@ const InstructorOverview = () => {
         }
       }
 
+      // Fetch allocated subjects
+      const { data: allocations } = await supabase
+        .from("subject_allocations")
+        .select("*, curriculum_modules(subject_name, course_code, module_name, semester)")
+        .eq("instructor_id", user.id);
+
       setStats({ students: studentCount, upcomingClasses: upcomingCount || 0, pendingGrading, activeBatches: batches?.length || 0 });
       setTodayClasses(todayCls || []);
       setRecentSubmissions(recent);
+      setAllocatedSubjects(allocations || []);
       setLoading(false);
     };
     fetchData();
@@ -116,7 +120,7 @@ const InstructorOverview = () => {
         </div>
       </motion.div>
 
-      {/* Stat cards — gradient style */}
+      {/* Stat cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         {statCards.map((stat, i) => (
           <motion.div key={stat.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
@@ -132,6 +136,51 @@ const InstructorOverview = () => {
           </motion.div>
         ))}
       </div>
+
+      {/* My Allocated Subjects */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
+        <div className="flex items-center gap-2 mb-3">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-primary/15 to-brand-primary/5 flex items-center justify-center">
+            <GraduationCap className="w-4 h-4 text-brand-primary" />
+          </div>
+          <div>
+            <h3 className="font-serif text-lg font-semibold text-brand-primary">My Allocated Subjects</h3>
+            <div className="w-10 h-0.5 bg-gradient-to-r from-brand-gold to-transparent mt-1" />
+          </div>
+        </div>
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {[1,2,3].map(i => <Skeleton key={i} className="h-24 rounded-2xl" />)}
+          </div>
+        ) : allocatedSubjects.length === 0 ? (
+          <div className="bg-white rounded-2xl border border-brand-parchment p-8 text-center">
+            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 mx-auto flex items-center justify-center mb-3">
+              <GraduationCap className="w-6 h-6 text-brand-gold" />
+            </div>
+            <p className="font-serif text-brand-charcoal-mid text-sm">No subjects allocated yet</p>
+            <p className="text-xs text-brand-warm-grey mt-1">Contact admin for subject allocation</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {allocatedSubjects.map((alloc: any) => (
+              <div key={alloc.id} className="bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-4 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-serif font-semibold text-brand-charcoal-mid text-sm truncate">{alloc.curriculum_modules?.subject_name}</p>
+                    <p className="text-xs text-brand-warm-grey mt-0.5">{alloc.curriculum_modules?.course_code}</p>
+                  </div>
+                  <Badge className="bg-brand-primary/10 text-brand-primary border-0 text-[10px] shrink-0">
+                    Sem {alloc.curriculum_modules?.semester}
+                  </Badge>
+                </div>
+                <div className="mt-2 flex items-center gap-2 text-[10px] text-brand-warm-grey">
+                  <span className="bg-brand-cream rounded-md px-2 py-0.5">{alloc.academic_year}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </motion.div>
 
       {/* Middle row */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
@@ -225,9 +274,7 @@ const InstructorOverview = () => {
             <p className="text-xs text-brand-warm-grey mt-1">Submissions will appear here</p>
           </div>
         ) : (
-          /* Mobile: card layout, Desktop: table */
           <>
-            {/* Desktop table */}
             <div className="hidden sm:block rounded-2xl border border-brand-parchment overflow-hidden bg-white shadow-[0_2px_24px_rgba(125,30,36,0.04)]">
               <table className="w-full">
                 <thead>
@@ -256,7 +303,6 @@ const InstructorOverview = () => {
                 </tbody>
               </table>
             </div>
-            {/* Mobile cards */}
             <div className="sm:hidden space-y-2">
               {recentSubmissions.map((sub: any) => (
                 <div key={sub.id} className="bg-white rounded-2xl border border-brand-parchment p-4 shadow-sm">
@@ -277,7 +323,7 @@ const InstructorOverview = () => {
         )}
       </motion.div>
 
-      {/* Quick action — gradient CTA */}
+      {/* Quick action CTA */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55 }}>
         <div className="relative overflow-hidden bg-gradient-to-r from-brand-primary to-brand-primary-dark rounded-2xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4 text-white">
           <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(circle at 90% 50%, hsl(33 62% 58%), transparent 40%)" }} />

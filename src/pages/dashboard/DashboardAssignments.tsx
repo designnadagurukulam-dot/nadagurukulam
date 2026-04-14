@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ClipboardList, FileText, Upload, ExternalLink, Video, Award, CloudUpload, Clock } from "lucide-react";
+import { ClipboardList, FileText, Upload, ExternalLink, Video, Award, CloudUpload, Clock, Eye, Calendar } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,7 +20,8 @@ import { logActivity } from "@/lib/activityLogger";
 const DashboardAssignments = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const [submitDialog, setSubmitDialog] = useState<string | null>(null);
+  const [selectedAssignment, setSelectedAssignment] = useState<any>(null);
+  const [showSubmitForm, setShowSubmitForm] = useState(false);
   const [textContent, setTextContent] = useState("");
   const [file, setFile] = useState<File | null>(null);
 
@@ -70,7 +71,7 @@ const DashboardAssignments = () => {
     onSuccess: (_, assignmentId) => {
       queryClient.invalidateQueries({ queryKey: ["student-assignments"] });
       logActivity("assignment.submitted", "assignment", assignmentId);
-      setSubmitDialog(null); setTextContent(""); setFile(null);
+      setSelectedAssignment(null); setShowSubmitForm(false); setTextContent(""); setFile(null);
       toast.success("Assignment submitted!");
     },
     onError: (err: any) => toast.error(err.message),
@@ -101,8 +102,19 @@ const DashboardAssignments = () => {
     return "border-l-green-500";
   };
 
+  const openDetail = (a: any) => {
+    setSelectedAssignment(a);
+    setShowSubmitForm(false);
+    setTextContent("");
+    setFile(null);
+  };
+
   const renderAssignment = (a: any) => (
-    <Card key={a.id} className={`bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] hover:shadow-[0_4px_30px_rgba(196,154,60,0.15)] transition-all duration-300 border-l-4 ${getLeftBorder(a.due_date, a.status)}`}>
+    <Card
+      key={a.id}
+      onClick={() => openDetail(a)}
+      className={`bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] hover:shadow-[0_4px_30px_rgba(196,154,60,0.15)] transition-all duration-300 border-l-4 ${getLeftBorder(a.due_date, a.status)} cursor-pointer hover:-translate-y-0.5`}
+    >
       <CardContent className="p-3 sm:p-4">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 sm:gap-3">
           <div className="flex-1 min-w-0">
@@ -114,35 +126,6 @@ const DashboardAssignments = () => {
             </div>
             <p className="text-[10px] sm:text-xs text-brand-warm-grey mt-1 ml-9">{a.courses?.title}</p>
             {a.description && <p className="text-[10px] sm:text-xs text-brand-warm-grey mt-1 ml-9 line-clamp-2">{a.description}</p>}
-
-            <div className="flex gap-2 mt-2 ml-9 flex-wrap">
-              {a.pdf_url && (
-                <Button variant="ghost" size="sm" onClick={() => downloadFile(a.pdf_url)} className="h-7 gap-1 text-[10px] sm:text-xs text-brand-primary hover:bg-brand-gold-pale rounded-lg">
-                  <FileText className="h-3 w-3" /> PDF
-                </Button>
-              )}
-              {a.video_url && (
-                <a href={a.video_url} target="_blank" rel="noopener noreferrer">
-                  <Button variant="ghost" size="sm" className="h-7 gap-1 text-[10px] sm:text-xs text-brand-primary hover:bg-brand-gold-pale rounded-lg">
-                    <Video className="h-3 w-3" /> Video
-                  </Button>
-                </a>
-              )}
-              {a.external_link && (
-                <a href={a.external_link} target="_blank" rel="noopener noreferrer">
-                  <Button variant="ghost" size="sm" className="h-7 gap-1 text-[10px] sm:text-xs text-brand-primary hover:bg-brand-gold-pale rounded-lg">
-                    <ExternalLink className="h-3 w-3" /> Link
-                  </Button>
-                </a>
-              )}
-            </div>
-
-            {a.submission?.status === "graded" && (
-              <div className="mt-3 ml-9 p-2.5 sm:p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl text-xs border border-green-100">
-                <span className="font-medium text-green-700 flex items-center gap-1"><Award className="h-3.5 w-3.5" /> Grade: {a.submission.grade}</span>
-                {a.submission.feedback && <p className="text-green-600 mt-1">{a.submission.feedback}</p>}
-              </div>
-            )}
           </div>
           <div className="flex sm:flex-col items-center sm:items-end gap-2 shrink-0 ml-9 sm:ml-0">
             {a.due_date && (
@@ -150,12 +133,11 @@ const DashboardAssignments = () => {
                 {a.status === "overdue" ? "Overdue" : `Due ${format(new Date(a.due_date), "MMM dd")}`}
               </Badge>
             )}
-            {!a.submission && (
-              <Button size="sm" onClick={() => setSubmitDialog(a.id)} className="gap-1 text-[10px] sm:text-xs bg-brand-primary hover:bg-brand-primary-dark text-white rounded-xl min-h-[36px] w-full sm:w-auto">
-                <Upload className="h-3 w-3" /> Submit
-              </Button>
-            )}
             {a.status === "submitted" && <Badge className="bg-amber-50 text-amber-700 border-0 text-[10px] sm:text-xs">Awaiting Grade</Badge>}
+            {a.status === "graded" && <Badge className="bg-green-50 text-green-700 border-0 text-[10px] sm:text-xs">Graded</Badge>}
+            <Button variant="ghost" size="sm" className="h-7 gap-1 text-[10px] sm:text-xs text-brand-primary hover:bg-brand-gold-pale rounded-lg" onClick={(e) => { e.stopPropagation(); openDetail(a); }}>
+              <Eye className="h-3 w-3" /> View
+            </Button>
           </div>
         </div>
       </CardContent>
@@ -175,6 +157,8 @@ const DashboardAssignments = () => {
       </Card>
     );
   };
+
+  const a = selectedAssignment;
 
   return (
     <div className="space-y-4 sm:space-y-6 pt-2">
@@ -216,37 +200,129 @@ const DashboardAssignments = () => {
         </Tabs>
       )}
 
-      <Dialog open={!!submitDialog} onOpenChange={() => setSubmitDialog(null)}>
-        <DialogContent className="max-w-[95vw] sm:max-w-md rounded-2xl border-brand-parchment overflow-hidden p-0">
-          <div className="bg-gradient-to-r from-brand-primary to-brand-primary-dark p-4 sm:p-5">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
-                <CloudUpload className="w-5 h-5 text-brand-gold" />
+      {/* Assignment Detail Popup */}
+      <Dialog open={!!selectedAssignment} onOpenChange={(open) => { if (!open) { setSelectedAssignment(null); setShowSubmitForm(false); } }}>
+        <DialogContent className="max-w-[95vw] sm:max-w-lg rounded-2xl border-brand-parchment overflow-hidden p-0 max-h-[90vh] overflow-y-auto">
+          {a && (
+            <>
+              {/* Header */}
+              <div className="bg-gradient-to-r from-brand-primary to-brand-primary-dark p-4 sm:p-5">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0 mt-0.5">
+                    <ClipboardList className="w-5 h-5 text-brand-gold" />
+                  </div>
+                  <DialogHeader className="text-left flex-1">
+                    <DialogTitle className="font-serif text-white text-lg leading-snug">{a.title}</DialogTitle>
+                    <p className="text-white/60 text-xs mt-1">{a.courses?.title}</p>
+                  </DialogHeader>
+                </div>
               </div>
-              <DialogHeader className="text-left">
-                <DialogTitle className="font-serif text-white text-lg">Submit Assignment</DialogTitle>
-                <p className="text-white/60 text-xs">Upload your work or type a response</p>
-              </DialogHeader>
-            </div>
-          </div>
-          <div className="p-4 sm:p-5 space-y-4">
-            <div>
-              <Label className="text-[11px] uppercase tracking-widest text-brand-warm-grey font-semibold">Upload File</Label>
-              <Input type="file" onChange={(e) => setFile(e.target.files?.[0] || null)} className="mt-1 border-brand-parchment rounded-xl focus:border-brand-gold focus:ring-brand-gold/20 h-11" />
-            </div>
-            <div>
-              <Label className="text-[11px] uppercase tracking-widest text-brand-warm-grey font-semibold">Text Response (optional)</Label>
-              <Textarea value={textContent} onChange={(e) => setTextContent(e.target.value)} placeholder="Your response..." rows={4} className="mt-1 rounded-xl border-brand-parchment focus:border-brand-gold focus:ring-brand-gold/20" />
-            </div>
-            <Button
-              onClick={() => submitDialog && submitMutation.mutate(submitDialog)}
-              disabled={(!file && !textContent) || submitMutation.isPending}
-              className="w-full bg-brand-primary hover:bg-brand-primary-dark text-white rounded-xl min-h-[44px] gap-2"
-            >
-              <Upload className="h-4 w-4" />
-              {submitMutation.isPending ? "Submitting..." : "Submit Assignment"}
-            </Button>
-          </div>
+
+              <div className="p-4 sm:p-5 space-y-4">
+                {/* Due date & status badges */}
+                <div className="flex flex-wrap gap-2">
+                  {a.due_date && (
+                    <Badge className={`${getDueBadgeColor(a.due_date, a.status)} border-0 text-xs gap-1`}>
+                      <Calendar className="h-3 w-3" />
+                      {a.status === "overdue" ? "Overdue" : `Due ${format(new Date(a.due_date), "MMM dd, yyyy")}`}
+                    </Badge>
+                  )}
+                  {a.status === "submitted" && <Badge className="bg-amber-50 text-amber-700 border-0 text-xs">Awaiting Grade</Badge>}
+                  {a.status === "graded" && <Badge className="bg-green-50 text-green-700 border-0 text-xs">Graded</Badge>}
+                  {(a.status === "pending" || a.status === "overdue") && !a.submission && <Badge className="bg-blue-50 text-blue-700 border-0 text-xs">Not Submitted</Badge>}
+                </div>
+
+                {/* Description */}
+                {a.description && (
+                  <div className="bg-brand-cream rounded-xl p-3">
+                    <p className="text-xs font-semibold text-brand-charcoal-mid mb-1 uppercase tracking-wider">Description</p>
+                    <p className="text-sm text-brand-charcoal-mid leading-relaxed">{a.description}</p>
+                  </div>
+                )}
+
+                {/* Resources */}
+                {(a.pdf_url || a.video_url || a.external_link) && (
+                  <div>
+                    <p className="text-xs font-semibold text-brand-charcoal-mid mb-2 uppercase tracking-wider">Resources</p>
+                    <div className="flex flex-wrap gap-2">
+                      {a.pdf_url && (
+                        <Button variant="outline" size="sm" onClick={() => downloadFile(a.pdf_url)} className="gap-1.5 text-xs text-brand-primary border-brand-parchment hover:bg-brand-gold-pale rounded-xl">
+                          <FileText className="h-3.5 w-3.5" /> Download PDF
+                        </Button>
+                      )}
+                      {a.video_url && (
+                        <a href={a.video_url} target="_blank" rel="noopener noreferrer">
+                          <Button variant="outline" size="sm" className="gap-1.5 text-xs text-brand-primary border-brand-parchment hover:bg-brand-gold-pale rounded-xl">
+                            <Video className="h-3.5 w-3.5" /> Watch Video
+                          </Button>
+                        </a>
+                      )}
+                      {a.external_link && (
+                        <a href={a.external_link} target="_blank" rel="noopener noreferrer">
+                          <Button variant="outline" size="sm" className="gap-1.5 text-xs text-brand-primary border-brand-parchment hover:bg-brand-gold-pale rounded-xl">
+                            <ExternalLink className="h-3.5 w-3.5" /> External Link
+                          </Button>
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Grade info if graded */}
+                {a.submission?.status === "graded" && (
+                  <div className="p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-100">
+                    <span className="font-medium text-green-700 flex items-center gap-1.5 text-sm">
+                      <Award className="h-4 w-4" /> Grade: {a.submission.grade}
+                    </span>
+                    {a.submission.feedback && <p className="text-green-600 mt-1.5 text-sm">{a.submission.feedback}</p>}
+                  </div>
+                )}
+
+                {/* Submit section */}
+                {!a.submission && !showSubmitForm && (
+                  <Button
+                    onClick={() => setShowSubmitForm(true)}
+                    className="w-full bg-brand-primary hover:bg-brand-primary-dark text-white rounded-xl min-h-[44px] gap-2"
+                  >
+                    <Upload className="h-4 w-4" /> Submit Assignment
+                  </Button>
+                )}
+
+                {/* Submit form inline */}
+                {!a.submission && showSubmitForm && (
+                  <div className="space-y-3 border-t border-brand-parchment pt-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <CloudUpload className="w-4 h-4 text-brand-gold" />
+                      <p className="text-xs font-semibold text-brand-charcoal-mid uppercase tracking-wider">Your Submission</p>
+                    </div>
+                    <div>
+                      <Label className="text-[11px] uppercase tracking-widest text-brand-warm-grey font-semibold">Upload File</Label>
+                      <Input type="file" onChange={(e) => setFile(e.target.files?.[0] || null)} className="mt-1 border-brand-parchment rounded-xl focus:border-brand-gold focus:ring-brand-gold/20 h-11" />
+                    </div>
+                    <div>
+                      <Label className="text-[11px] uppercase tracking-widest text-brand-warm-grey font-semibold">Text Response (optional)</Label>
+                      <Textarea value={textContent} onChange={(e) => setTextContent(e.target.value)} placeholder="Your response..." rows={4} className="mt-1 rounded-xl border-brand-parchment focus:border-brand-gold focus:ring-brand-gold/20" />
+                    </div>
+                    <Button
+                      onClick={() => submitMutation.mutate(a.id)}
+                      disabled={(!file && !textContent) || submitMutation.isPending}
+                      className="w-full bg-brand-primary hover:bg-brand-primary-dark text-white rounded-xl min-h-[44px] gap-2"
+                    >
+                      <Upload className="h-4 w-4" />
+                      {submitMutation.isPending ? "Submitting..." : "Submit Assignment"}
+                    </Button>
+                  </div>
+                )}
+
+                {a.submission && a.status === "submitted" && (
+                  <div className="p-3 bg-amber-50 rounded-xl border border-amber-100 text-center">
+                    <p className="text-sm text-amber-700 font-medium">Your submission is being reviewed</p>
+                    <p className="text-xs text-amber-600 mt-1">Submitted on {format(new Date(a.submission.submitted_at), "MMM dd, yyyy h:mm a")}</p>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
         </DialogContent>
       </Dialog>
     </div>
