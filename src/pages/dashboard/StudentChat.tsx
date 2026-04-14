@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { MessageSquare, Send } from "lucide-react";
+import { MessageSquare, Send, ArrowLeft } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -91,13 +91,13 @@ const StudentChat = () => {
   return (
     <div className="pt-2 h-[calc(100vh-3.5rem)] lg:h-[calc(100vh-2rem)]">
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-full flex flex-col">
-        <div className="mb-4">
-          <h1 className="font-serif text-2xl font-semibold text-brand-primary">Chat</h1>
+        <div className="mb-3 sm:mb-4">
+          <h1 className="font-serif text-xl sm:text-2xl font-semibold text-brand-primary">Chat</h1>
           <div className="w-12 h-0.5 bg-brand-gold mt-1" />
-          <p className="text-brand-warm-grey text-sm mt-2">Message your tutors</p>
+          <p className="text-brand-warm-grey text-xs sm:text-sm mt-1.5 sm:mt-2">Message your tutors</p>
         </div>
 
-        <div className="flex-1 flex gap-4 min-h-0">
+        <div className="flex-1 flex gap-3 sm:gap-4 min-h-0">
           {/* Tutor list - desktop */}
           <Card className="w-72 shrink-0 hidden md:flex flex-col bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)]">
             <CardContent className="p-3 flex-1 overflow-y-auto space-y-1">
@@ -108,7 +108,7 @@ const StudentChat = () => {
                   <button
                     key={tutor.user_id}
                     onClick={() => setSelectedTutor(tutor.user_id)}
-                    className={`w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all ${
+                    className={`w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all min-h-[48px] ${
                       selectedTutor === tutor.user_id ? "bg-brand-gold-pale border border-brand-gold/30" : "hover:bg-brand-cream"
                     }`}
                   >
@@ -134,19 +134,26 @@ const StudentChat = () => {
           <div className="md:hidden w-full">
             {!selectedTutor ? (
               <Card className="flex-1 bg-white rounded-2xl border border-brand-parchment">
-                <CardContent className="p-3 space-y-1">
-                  {tutors.map((tutor: any) => (
-                    <button key={tutor.user_id} onClick={() => setSelectedTutor(tutor.user_id)}
-                      className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-brand-cream text-left">
-                      <div className="w-10 h-10 rounded-full bg-brand-gold-pale flex items-center justify-center text-brand-primary font-bold text-xs">
-                        {getInitials(tutor.display_name)}
-                      </div>
-                      <div className="flex-1"><p className="text-sm font-medium text-brand-charcoal-mid">{tutor.display_name}</p></div>
-                      {(unreadCounts as any)[tutor.user_id] > 0 && (
-                        <Badge className="bg-brand-gold text-brand-charcoal text-xs border-0">{(unreadCounts as any)[tutor.user_id]}</Badge>
-                      )}
-                    </button>
-                  ))}
+                <CardContent className="p-2 space-y-1">
+                  {tutors.length === 0 ? (
+                    <p className="text-sm text-brand-warm-grey text-center py-8">No tutors assigned yet.</p>
+                  ) : (
+                    tutors.map((tutor: any) => (
+                      <button key={tutor.user_id} onClick={() => setSelectedTutor(tutor.user_id)}
+                        className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-brand-cream text-left min-h-[52px]">
+                        <div className="w-11 h-11 rounded-full bg-brand-gold-pale flex items-center justify-center text-brand-primary font-bold text-xs shrink-0">
+                          {getInitials(tutor.display_name)}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-brand-charcoal-mid truncate">{tutor.display_name}</p>
+                          <p className="text-xs text-brand-warm-grey">Tutor</p>
+                        </div>
+                        {(unreadCounts as any)[tutor.user_id] > 0 && (
+                          <Badge className="bg-brand-gold text-brand-charcoal text-xs border-0">{(unreadCounts as any)[tutor.user_id]}</Badge>
+                        )}
+                      </button>
+                    ))
+                  )}
                 </CardContent>
               </Card>
             ) : null}
@@ -155,23 +162,25 @@ const StudentChat = () => {
           {/* Chat area */}
           {selectedTutor && (
             <Card className="flex-1 flex flex-col min-h-0 bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)]">
-              <div className="p-4 border-b border-brand-parchment flex items-center gap-3">
-                <button className="md:hidden text-sm text-brand-primary font-medium" onClick={() => setSelectedTutor(null)}>← Back</button>
-                <div className="w-8 h-8 rounded-full bg-brand-gold-pale flex items-center justify-center text-brand-primary font-bold text-xs">
+              <div className="p-3 sm:p-4 border-b border-brand-parchment flex items-center gap-3">
+                <button className="md:hidden w-9 h-9 flex items-center justify-center rounded-lg hover:bg-brand-cream text-brand-primary" onClick={() => setSelectedTutor(null)}>
+                  <ArrowLeft className="h-5 w-5" />
+                </button>
+                <div className="w-9 h-9 rounded-full bg-brand-gold-pale flex items-center justify-center text-brand-primary font-bold text-xs shrink-0">
                   {getInitials(selectedTutorProfile?.display_name || "")}
                 </div>
-                <p className="font-semibold text-sm text-brand-charcoal-mid">{selectedTutorProfile?.display_name}</p>
+                <p className="font-semibold text-sm text-brand-charcoal-mid truncate">{selectedTutorProfile?.display_name}</p>
               </div>
-              <ScrollArea className="flex-1 p-4">
+              <ScrollArea className="flex-1 p-3 sm:p-4">
                 <div className="space-y-3">
                   {messages.length === 0 ? (
-                    <p className="text-center text-brand-warm-grey text-sm py-12">No messages yet. Say hello!</p>
+                    <p className="text-center text-brand-warm-grey text-sm py-10 sm:py-12">No messages yet. Say hello!</p>
                   ) : (
                     messages.map((msg: any) => {
                       const isMine = msg.sender_id === user?.id;
                       return (
                         <div key={msg.id} className={`flex ${isMine ? "justify-end" : "justify-start"}`}>
-                          <div className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-sm ${
+                          <div className={`max-w-[85%] sm:max-w-[75%] px-3.5 sm:px-4 py-2.5 rounded-2xl text-sm ${
                             isMine
                               ? "bg-brand-primary text-white rounded-br-md"
                               : "bg-brand-cream-dark text-brand-charcoal-mid rounded-bl-md"
@@ -188,14 +197,14 @@ const StudentChat = () => {
                   <div ref={messagesEndRef} />
                 </div>
               </ScrollArea>
-              <div className="p-3 border-t border-brand-parchment flex gap-2">
+              <div className="p-2.5 sm:p-3 border-t border-brand-parchment flex gap-2">
                 <Input
                   value={message} onChange={(e) => setMessage(e.target.value)}
                   placeholder="Type a message..."
-                  className="rounded-xl border-brand-parchment focus:border-brand-gold focus:ring-brand-gold/20"
+                  className="rounded-xl border-brand-parchment focus:border-brand-gold focus:ring-brand-gold/20 h-11"
                   onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
                 />
-                <Button onClick={handleSend} disabled={!message.trim() || sending} size="icon" className="bg-brand-primary hover:bg-brand-primary-dark shrink-0 rounded-xl">
+                <Button onClick={handleSend} disabled={!message.trim() || sending} size="icon" className="bg-brand-primary hover:bg-brand-primary-dark shrink-0 rounded-xl w-11 h-11">
                   <Send className="h-4 w-4" />
                 </Button>
               </div>

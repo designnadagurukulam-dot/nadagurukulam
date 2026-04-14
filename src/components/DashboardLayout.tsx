@@ -18,13 +18,18 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => {
       <DashboardSidebar />
       <main className="flex-1 overflow-y-auto">
         {/* Top greeting bar */}
-        <div className="px-4 pt-14 md:px-8 md:pt-6 pb-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="px-3 pt-12 md:px-8 md:pt-6 pb-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
           <div>
-            <p className="text-sm text-brand-warm-grey">Sai Ram</p>
-            <h2 className="font-serif text-2xl font-semibold text-brand-primary leading-tight">{roleLabel(role)} {name}</h2>
+            <p className="text-xs sm:text-sm text-brand-warm-grey">Sai Ram</p>
+            <h2 className="font-serif text-xl sm:text-2xl font-semibold text-brand-primary leading-tight">{roleLabel(role)} {name}</h2>
             <div className="w-10 h-0.5 bg-brand-gold mt-1" />
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Mobile search icon */}
+            <button className="sm:hidden w-11 h-11 rounded-full bg-white border border-brand-parchment flex items-center justify-center hover:bg-brand-cream-dark transition-colors">
+              <Search className="w-4 h-4 text-brand-warm-grey" />
+            </button>
+            {/* Desktop search bar */}
             <div className="relative hidden sm:block">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-[15px] h-[15px] text-brand-warm-grey" />
               <input
@@ -33,12 +38,12 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => {
                 className="pl-9 pr-4 py-2 text-sm rounded-xl border border-brand-parchment bg-white text-brand-charcoal placeholder:text-brand-warm-grey-light focus:outline-none focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 w-52"
               />
             </div>
-            <button className="w-9 h-9 rounded-full bg-white border border-brand-parchment flex items-center justify-center hover:bg-brand-cream-dark transition-colors relative">
+            <button className="w-11 h-11 rounded-full bg-white border border-brand-parchment flex items-center justify-center hover:bg-brand-cream-dark transition-colors relative">
               <Bell className="w-4 h-4 text-brand-warm-grey" />
             </button>
           </div>
         </div>
-        <div className="px-4 md:px-8 pb-8">
+        <div className="px-3 md:px-8 pb-8">
           {children}
         </div>
       </main>

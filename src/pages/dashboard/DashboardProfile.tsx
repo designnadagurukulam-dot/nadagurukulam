@@ -91,44 +91,44 @@ const DashboardProfile = () => {
   );
 
   return (
-    <div className="space-y-6 max-w-3xl pt-2">
+    <div className="space-y-4 sm:space-y-6 max-w-3xl pt-2">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="font-serif text-2xl font-semibold text-brand-primary">Profile Settings</h1>
+        <h1 className="font-serif text-xl sm:text-2xl font-semibold text-brand-primary">Profile Settings</h1>
         <div className="w-12 h-0.5 bg-brand-gold mt-1" />
-        <p className="text-brand-warm-grey mt-2 text-sm">Manage your account information</p>
+        <p className="text-brand-warm-grey mt-1.5 sm:mt-2 text-xs sm:text-sm">Manage your account information</p>
       </motion.div>
 
       {/* Avatar card */}
       <Card className="bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] overflow-hidden">
-        <div className="h-24 bg-brand-primary relative" />
-        <CardContent className="relative px-6 pb-6">
-          <div className="w-20 h-20 rounded-full bg-brand-gold flex items-center justify-center text-brand-charcoal font-bold text-2xl -mt-10 border-4 border-white shadow-lg">
+        <div className="h-20 sm:h-24 bg-brand-primary relative" />
+        <CardContent className="relative px-4 sm:px-6 pb-4 sm:pb-6">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-brand-gold flex items-center justify-center text-brand-charcoal font-bold text-xl sm:text-2xl -mt-8 sm:-mt-10 border-4 border-white shadow-lg">
             {initials}
           </div>
-          <div className="mt-3">
-            <p className="font-serif text-lg font-bold text-brand-charcoal-mid">{formData.display_name || "Your Name"}</p>
-            <div className="flex items-center gap-2 mt-1">
-              <p className="text-sm text-brand-warm-grey">{user?.email}</p>
+          <div className="mt-2 sm:mt-3">
+            <p className="font-serif text-base sm:text-lg font-bold text-brand-charcoal-mid">{formData.display_name || "Your Name"}</p>
+            <div className="flex items-center gap-2 mt-1 flex-wrap">
+              <p className="text-xs sm:text-sm text-brand-warm-grey truncate max-w-[200px] sm:max-w-none">{user?.email}</p>
               <span className="text-[10px] uppercase tracking-[0.15em] font-bold bg-brand-gold-pale text-brand-primary px-2 py-0.5 rounded-full">{roleLabel}</span>
             </div>
             {formData.enrollment_id && (
-              <p className="text-xs text-brand-warm-grey mt-1">Enrollment ID: <span className="font-mono font-medium">{formData.enrollment_id}</span></p>
+              <p className="text-[10px] sm:text-xs text-brand-warm-grey mt-1">Enrollment ID: <span className="font-mono font-medium">{formData.enrollment_id}</span></p>
             )}
           </div>
         </CardContent>
       </Card>
 
       <Tabs defaultValue="personal">
-        <TabsList className="bg-brand-cream-dark rounded-xl p-1">
-          <TabsTrigger value="personal" className="rounded-lg data-[state=active]:bg-brand-primary data-[state=active]:text-white text-brand-warm-grey">Personal Info</TabsTrigger>
-          <TabsTrigger value="academic" className="rounded-lg data-[state=active]:bg-brand-primary data-[state=active]:text-white text-brand-warm-grey">Academic Info</TabsTrigger>
-          <TabsTrigger value="security" className="rounded-lg data-[state=active]:bg-brand-primary data-[state=active]:text-white text-brand-warm-grey">Security</TabsTrigger>
+        <TabsList className="bg-brand-cream-dark rounded-xl p-1 w-full overflow-x-auto flex">
+          <TabsTrigger value="personal" className="rounded-lg data-[state=active]:bg-brand-primary data-[state=active]:text-white text-brand-warm-grey text-[11px] sm:text-sm flex-1 min-h-[40px] whitespace-nowrap">Personal</TabsTrigger>
+          <TabsTrigger value="academic" className="rounded-lg data-[state=active]:bg-brand-primary data-[state=active]:text-white text-brand-warm-grey text-[11px] sm:text-sm flex-1 min-h-[40px] whitespace-nowrap">Academic</TabsTrigger>
+          <TabsTrigger value="security" className="rounded-lg data-[state=active]:bg-brand-primary data-[state=active]:text-white text-brand-warm-grey text-[11px] sm:text-sm flex-1 min-h-[40px] whitespace-nowrap">Security</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="personal" className="mt-4 space-y-4">
+        <TabsContent value="personal" className="mt-3 sm:mt-4 space-y-3 sm:space-y-4">
           <Card className="bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)]">
-            <CardContent className="p-6 space-y-5">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <CardContent className="p-4 sm:p-6 space-y-4 sm:space-y-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                 <Field label="Full Name" icon={User} value={formData.display_name} onChange={(v: string) => update("display_name", v)} />
                 <Field label="Email" icon={Mail} value={user?.email} disabled />
                 <Field label="Phone" icon={Phone} value={formData.phone} onChange={(v: string) => update("phone", v)} placeholder="+91 9876543210" />
@@ -150,7 +150,7 @@ const DashboardProfile = () => {
                 </label>
                 <Textarea value={formData.address || ""} onChange={(e) => update("address", e.target.value)} placeholder="Full address" rows={2} className="rounded-xl border-brand-parchment focus:border-brand-gold" />
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
                 <Field label="City" value={formData.city} onChange={(v: string) => update("city", v)} />
                 <Field label="State" value={formData.state} onChange={(v: string) => update("state", v)} />
                 <Field label="Pincode" value={formData.pincode} onChange={(v: string) => update("pincode", v)} />
@@ -161,15 +161,18 @@ const DashboardProfile = () => {
               </div>
             </CardContent>
           </Card>
-          <Button onClick={handleSave} disabled={saving} className="gap-2 bg-brand-primary hover:bg-brand-primary-dark text-white rounded-xl">
-            <Save className="h-4 w-4" /> {saving ? "Saving..." : "Save Changes"}
-          </Button>
+          {/* Sticky save on mobile */}
+          <div className="sticky bottom-0 bg-brand-cream/95 backdrop-blur-sm py-3 -mx-3 px-3 sm:static sm:bg-transparent sm:backdrop-blur-none sm:py-0 sm:mx-0 sm:px-0">
+            <Button onClick={handleSave} disabled={saving} className="gap-2 bg-brand-primary hover:bg-brand-primary-dark text-white rounded-xl w-full sm:w-auto min-h-[44px]">
+              <Save className="h-4 w-4" /> {saving ? "Saving..." : "Save Changes"}
+            </Button>
+          </div>
         </TabsContent>
 
-        <TabsContent value="academic" className="mt-4">
+        <TabsContent value="academic" className="mt-3 sm:mt-4">
           <Card className="bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)]">
-            <CardHeader><CardTitle className="text-lg font-serif text-brand-primary">{role === "instructor" ? "Educator Details" : "Student Details"}</CardTitle></CardHeader>
-            <CardContent className="space-y-5">
+            <CardHeader className="p-4 sm:p-6 pb-2 sm:pb-3"><CardTitle className="text-base sm:text-lg font-serif text-brand-primary">{role === "instructor" ? "Educator Details" : "Student Details"}</CardTitle></CardHeader>
+            <CardContent className="p-4 sm:p-6 pt-0 space-y-4 sm:space-y-5">
               {role === "student" && (
                 <>
                   <Field label="Roll Number" icon={Hash} value={formData.roll_number} disabled />
@@ -199,15 +202,15 @@ const DashboardProfile = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="security" className="mt-4">
+        <TabsContent value="security" className="mt-3 sm:mt-4">
           <Card className="bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)]">
-            <CardHeader><CardTitle className="text-lg font-serif text-brand-primary flex items-center gap-2"><Lock className="h-5 w-5" /> Change Password</CardTitle></CardHeader>
-            <CardContent className="space-y-5">
+            <CardHeader className="p-4 sm:p-6 pb-2 sm:pb-3"><CardTitle className="text-base sm:text-lg font-serif text-brand-primary flex items-center gap-2"><Lock className="h-4 w-4 sm:h-5 sm:w-5" /> Change Password</CardTitle></CardHeader>
+            <CardContent className="p-4 sm:p-6 pt-0 space-y-4 sm:space-y-5">
               <Field label="New Password" icon={Lock} type="password" value={passwords.new}
                 onChange={(v: string) => setPasswords((p) => ({ ...p, new: v }))} placeholder="Enter new password" />
               <Field label="Confirm Password" icon={Lock} type="password" value={passwords.confirm}
                 onChange={(v: string) => setPasswords((p) => ({ ...p, confirm: v }))} placeholder="Confirm new password" />
-              <Button onClick={handlePasswordChange} disabled={changingPassword || !passwords.new} className="gap-2 bg-brand-primary hover:bg-brand-primary-dark text-white rounded-xl">
+              <Button onClick={handlePasswordChange} disabled={changingPassword || !passwords.new} className="gap-2 bg-brand-primary hover:bg-brand-primary-dark text-white rounded-xl w-full sm:w-auto min-h-[44px]">
                 <Shield className="h-4 w-4" /> {changingPassword ? "Changing..." : "Change Password"}
               </Button>
             </CardContent>
