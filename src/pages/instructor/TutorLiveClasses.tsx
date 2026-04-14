@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Video, Plus, Clock, ExternalLink, X, Tv, CalendarCheck, Building2, AlertTriangle, History } from "lucide-react";
+import { Video, Plus, Clock, ExternalLink, X, Tv, Building2, AlertTriangle, History } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

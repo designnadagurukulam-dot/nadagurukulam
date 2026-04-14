@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Search, ShieldCheck, GraduationCap, UserCog, FileSpreadsheet, FileText, Users, BookOpen, Video, Save, X } from "lucide-react";
+import { Search, ShieldCheck, GraduationCap, UserCog, FileSpreadsheet, FileText, Users, BookOpen, Video, Save } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
