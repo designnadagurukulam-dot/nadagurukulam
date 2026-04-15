@@ -36,6 +36,7 @@ import InstructorAnalytics from "./pages/instructor/InstructorAnalytics";
 import AdminOverview from "./pages/admin/AdminOverview";
 import AdminApprovals from "./pages/admin/AdminApprovals";
 import AdminCourses from "./pages/admin/AdminCourses";
+import AdminAssignments from "./pages/admin/AdminAssignments";
 import AdminStudents from "./pages/admin/AdminStudents";
 import AdminCategories from "./pages/admin/AdminCategories";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
@@ -141,7 +142,7 @@ const App = () => (
             <Route path="/dashboard/admin" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminOverview /></DashboardLayout></RoleProtectedRoute>} />
             {/* Admin sidebar links that point to filtered views of existing pages */}
             <Route path="/dashboard/admin/tutors" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminStudents /></DashboardLayout></RoleProtectedRoute>} />
-            <Route path="/dashboard/admin/assignments" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminCourses /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/admin/assignments" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminAssignments /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/admin/inquiries" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminInquiries /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/admin/approvals" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminApprovals /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/admin/courses" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminCourses /></DashboardLayout></RoleProtectedRoute>} />

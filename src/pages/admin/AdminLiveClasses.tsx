@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Video, ExternalLink, Monitor, Clock, Radio } from "lucide-react";
+import { Video, ExternalLink, Monitor, Clock, Radio, Wifi, WifiOff, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -12,7 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 const AdminLiveClasses = () => {
   const [classes, setClasses] = useState<any[]>([]);
-  const [profiles, setProfiles] = useState<Record<string, string>>({});
+  const [profiles, setProfiles] = useState<Record<string, any>>({});
   const [batches, setBatches] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
 
@@ -24,11 +24,11 @@ const AdminLiveClasses = () => {
       const instrIds = [...new Set(items.map(c => c.instructor_id))];
       const batchIds = [...new Set(items.map(c => c.batch_id).filter(Boolean))];
       const [profRes, batchRes] = await Promise.all([
-        instrIds.length > 0 ? supabase.from("profiles").select("user_id, display_name").in("user_id", instrIds) : { data: [] },
+        instrIds.length > 0 ? supabase.from("profiles").select("user_id, display_name, zoom_link, meet_link").in("user_id", instrIds) : { data: [] },
         batchIds.length > 0 ? supabase.from("batches").select("id, name").in("id", batchIds) : { data: [] },
       ]);
-      const pm: Record<string, string> = {};
-      (profRes.data || []).forEach(p => { pm[p.user_id] = p.display_name || "Tutor"; });
+      const pm: Record<string, any> = {};
+      (profRes.data || []).forEach(p => { pm[p.user_id] = p; });
       setProfiles(pm);
       const bm: Record<string, string> = {};
       (batchRes.data || []).forEach(b => { bm[b.id] = b.name; });
@@ -39,14 +39,17 @@ const AdminLiveClasses = () => {
   }, []);
 
   const now = new Date();
-  const upcoming = classes.filter(c => new Date(c.scheduled_at) >= now);
-  const past = classes.filter(c => new Date(c.scheduled_at) < now);
-
   const isLive = (c: any) => {
     const start = new Date(c.scheduled_at);
     const end = new Date(start.getTime() + (c.duration_minutes || 60) * 60000);
     return now >= start && now <= end;
   };
+
+  const liveNowCount = classes.filter(isLive).length;
+  const upcoming = classes.filter(c => new Date(c.scheduled_at) >= now);
+  const past = classes.filter(c => new Date(c.scheduled_at) < now && !isLive(c));
+  const onlineClasses = classes.filter(c => c.class_type !== "offline");
+  const offlineClasses = classes.filter(c => c.class_type === "offline");
 
   const renderTable = (list: any[]) => {
     if (list.length === 0) {
@@ -68,52 +71,69 @@ const AdminLiveClasses = () => {
               <TableRow className="bg-gradient-to-r from-brand-primary-dark to-brand-primary hover:bg-brand-primary-dark">
                 <TableHead className="text-brand-gold-light text-[11px] uppercase tracking-widest font-semibold">Title</TableHead>
                 <TableHead className="text-brand-gold-light text-[11px] uppercase tracking-widest font-semibold">Instructor</TableHead>
+                <TableHead className="text-brand-gold-light text-[11px] uppercase tracking-widest font-semibold">Type</TableHead>
+                <TableHead className="text-brand-gold-light text-[11px] uppercase tracking-widest font-semibold">Audience</TableHead>
                 <TableHead className="text-brand-gold-light text-[11px] uppercase tracking-widest font-semibold">Batch</TableHead>
                 <TableHead className="text-brand-gold-light text-[11px] uppercase tracking-widest font-semibold">Date & Time</TableHead>
-                <TableHead className="text-brand-gold-light text-[11px] uppercase tracking-widest font-semibold">Platform</TableHead>
                 <TableHead className="text-brand-gold-light text-[11px] uppercase tracking-widest font-semibold">Status</TableHead>
                 <TableHead className="text-brand-gold-light text-[11px] uppercase tracking-widest font-semibold text-right">Link</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {list.map((c, i) => (
-                <TableRow key={c.id} className={`${i % 2 === 1 ? "bg-brand-cream" : "bg-white"} hover:bg-brand-cream transition-colors border-b border-brand-parchment`}>
-                  <TableCell className="font-medium text-brand-charcoal">{c.title}</TableCell>
-                  <TableCell className="text-brand-charcoal">{profiles[c.instructor_id] || "—"}</TableCell>
-                  <TableCell className="text-brand-warm-grey">{c.batch_id ? (batches[c.batch_id] || "—") : "—"}</TableCell>
-                  <TableCell className="text-sm text-brand-charcoal">
-                    {new Date(c.scheduled_at).toLocaleString()}
-                    <span className="text-brand-warm-grey ml-1">({c.duration_minutes || 60}m)</span>
-                  </TableCell>
-                  <TableCell>
-                    <Badge className="bg-brand-gold-pale text-brand-gold-dark border border-brand-parchment gap-1">
-                      <Monitor className="h-3 w-3" />
-                      {c.meeting_platform || "zoom"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    {isLive(c) ? (
-                      <Badge className="bg-red-500 text-white animate-pulse gap-1">
-                        <Radio className="h-3 w-3" /> LIVE
-                      </Badge>
-                    ) : (
-                      <Badge className={c.status === "completed"
-                        ? "bg-green-50 text-green-700 border border-green-200"
-                        : "bg-brand-cream text-brand-primary border border-brand-parchment"
+              {list.map((c, i) => {
+                const prof = profiles[c.instructor_id];
+                return (
+                  <TableRow key={c.id} className={`${i % 2 === 1 ? "bg-brand-cream" : "bg-white"} hover:bg-brand-cream transition-colors border-b border-brand-parchment`}>
+                    <TableCell className="font-medium text-brand-charcoal">{c.title}</TableCell>
+                    <TableCell className="text-brand-charcoal">{prof?.display_name || "—"}</TableCell>
+                    <TableCell>
+                      <Badge className={c.class_type === "offline"
+                        ? "bg-brand-cream text-brand-charcoal-mid border border-brand-parchment gap-1"
+                        : "bg-blue-50 text-blue-700 border border-blue-200 gap-1"
                       }>
-                        {c.status || "scheduled"}
+                        {c.class_type === "offline" ? <WifiOff className="h-3 w-3" /> : <Wifi className="h-3 w-3" />}
+                        {c.class_type === "offline" ? "Offline" : "Online"}
                       </Badge>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button size="sm" variant="ghost" asChild className="hover:bg-brand-gold-pale text-brand-primary">
-                      <a href={c.meeting_link} target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="h-4 w-4" />
-                      </a>
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={c.audience_type === "all"
+                        ? "bg-brand-gold-pale text-brand-gold-dark border border-brand-gold/30 text-[10px]"
+                        : "bg-brand-cream text-brand-warm-grey border border-brand-parchment text-[10px]"
+                      }>
+                        {c.audience_type === "all" ? "All Batches" : "Specific Batch"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-brand-warm-grey">{c.batch_id ? (batches[c.batch_id] || "—") : "—"}</TableCell>
+                    <TableCell className="text-sm text-brand-charcoal">
+                      {new Date(c.scheduled_at).toLocaleString()}
+                      <span className="text-brand-warm-grey ml-1">({c.duration_minutes || 60}m)</span>
+                    </TableCell>
+                    <TableCell>
+                      {isLive(c) ? (
+                        <Badge className="bg-red-500 text-white animate-pulse gap-1">
+                          <Radio className="h-3 w-3" /> LIVE
+                        </Badge>
+                      ) : (
+                        <Badge className={c.status === "completed"
+                          ? "bg-green-50 text-green-700 border border-green-200"
+                          : "bg-brand-cream text-brand-primary border border-brand-parchment"
+                        }>
+                          {c.status || "scheduled"}
+                        </Badge>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {c.class_type !== "offline" && c.meeting_link && (
+                        <Button size="sm" variant="ghost" asChild className="hover:bg-brand-gold-pale text-brand-primary">
+                          <a href={c.meeting_link} target="_blank" rel="noopener noreferrer">
+                            <ExternalLink className="h-4 w-4" />
+                          </a>
+                        </Button>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </div>
@@ -145,20 +165,21 @@ const AdminLiveClasses = () => {
       </motion.div>
 
       {/* Summary */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
           { label: "Total Classes", value: classes.length, icon: Video, gradient: "from-brand-primary to-brand-primary-dark" },
-          { label: "Upcoming", value: upcoming.length, icon: Clock, gradient: "from-brand-gold to-amber-600" },
-          { label: "Completed", value: past.length, icon: Monitor, gradient: "from-brand-primary-dark to-rose-900" },
+          { label: "Live Now", value: liveNowCount, icon: Radio, gradient: "from-red-500 to-red-700" },
+          { label: "Online", value: onlineClasses.length, icon: Wifi, gradient: "from-blue-500 to-blue-700" },
+          { label: "Offline", value: offlineClasses.length, icon: WifiOff, gradient: "from-brand-warm-grey to-brand-charcoal-mid" },
         ].map((s, i) => (
           <motion.div key={s.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
-            <div className="group bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-5 flex items-center gap-4 hover:-translate-y-0.5 hover:shadow-[0_4px_30px_rgba(196,154,60,0.15)] transition-all duration-300">
-              <div className={`w-11 h-11 rounded-full bg-gradient-to-br ${s.gradient} flex items-center justify-center shadow-lg`}>
-                <s.icon className="h-5 w-5 text-white" />
+            <div className="group bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-5 flex items-center gap-3 hover:-translate-y-0.5 hover:shadow-[0_4px_30px_rgba(196,154,60,0.15)] transition-all duration-300">
+              <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${s.gradient} flex items-center justify-center shadow-lg`}>
+                <s.icon className="h-4 w-4 text-white" />
               </div>
               <div>
-                <p className="font-serif text-3xl font-bold text-brand-primary">{s.value}</p>
-                <p className="text-[11px] uppercase tracking-widest text-brand-warm-grey font-semibold">{s.label}</p>
+                <p className="font-serif text-2xl font-bold text-brand-primary">{s.value}</p>
+                <p className="text-[10px] uppercase tracking-widest text-brand-warm-grey font-semibold">{s.label}</p>
               </div>
             </div>
           </motion.div>

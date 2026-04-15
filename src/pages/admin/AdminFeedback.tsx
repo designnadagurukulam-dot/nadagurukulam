@@ -1,12 +1,16 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { MessageSquare, Star, Filter, MessageCircle, Eye, ChevronDown, ChevronUp } from "lucide-react";
+import { MessageSquare, Star, Filter, MessageCircle, Eye, ChevronDown, ChevronUp, Download } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
+
+const RATING_COLORS = ["#ef4444", "#f97316", "#eab308", "#84cc16", "#22c55e"];
 
 const AdminFeedback = () => {
   const [feedback, setFeedback] = useState<any[]>([]);
@@ -25,7 +29,6 @@ const AdminFeedback = () => {
 
       const nonAnon = items.filter(f => !f.is_anonymous).map(f => f.student_id);
       const instructorIds = [...new Set(items.map(f => f.instructor_id).filter(Boolean))];
-
       const allIds = [...new Set([...nonAnon, ...instructorIds])];
       if (allIds.length > 0) {
         const { data: profs } = await supabase.from("profiles").select("user_id, display_name").in("user_id", allIds);
@@ -43,17 +46,105 @@ const AdminFeedback = () => {
     fetchData();
   }, []);
 
-  const categories = [...new Set(feedback.map(f => f.category).filter(Boolean))];
+  const parseCategoriesJson = (f: any): any[] | null => {
+    try {
+      const cats = f.categories;
+      if (Array.isArray(cats) && cats.length > 0) return cats;
+      return null;
+    } catch { return null; }
+  };
 
-  const filtered = feedback.filter(f => {
-    if (categoryFilter !== "all" && f.category !== categoryFilter) return false;
-    if (ratingFilter !== "all" && f.rating?.toString() !== ratingFilter) return false;
-    return true;
-  });
+  // Extract all unique categories from both legacy and JSONB
+  const allCategories = useMemo(() => {
+    const cats = new Set<string>();
+    feedback.forEach(f => {
+      if (f.category) cats.add(f.category);
+      const jsonCats = parseCategoriesJson(f);
+      if (jsonCats) jsonCats.forEach((c: any) => { if (c.category) cats.add(c.category); });
+    });
+    return [...cats];
+  }, [feedback]);
 
-  const avgRating = feedback.length > 0
-    ? (feedback.reduce((s, f) => s + (f.rating || 0), 0) / feedback.filter(f => f.rating).length).toFixed(1)
-    : "—";
+  // Compute average rating across all categories
+  const avgRating = useMemo(() => {
+    let totalRating = 0;
+    let ratingCount = 0;
+    feedback.forEach(f => {
+      const cats = parseCategoriesJson(f);
+      if (cats) {
+        cats.forEach((c: any) => { if (c.rating) { totalRating += c.rating; ratingCount++; } });
+      } else if (f.rating) {
+        totalRating += f.rating;
+        ratingCount++;
+      }
+    });
+    return ratingCount > 0 ? (totalRating / ratingCount).toFixed(1) : "—";
+  }, [feedback]);
+
+  // Rating distribution
+  const ratingDistribution = useMemo(() => {
+    const dist = [0, 0, 0, 0, 0]; // 1-5 stars
+    feedback.forEach(f => {
+      const cats = parseCategoriesJson(f);
+      if (cats) {
+        cats.forEach((c: any) => { if (c.rating >= 1 && c.rating <= 5) dist[c.rating - 1]++; });
+      } else if (f.rating >= 1 && f.rating <= 5) {
+        dist[f.rating - 1]++;
+      }
+    });
+    return dist.map((count, i) => ({ stars: `${i + 1}★`, count }));
+  }, [feedback]);
+
+  // Filter by category (supports JSONB)
+  const filtered = useMemo(() => {
+    return feedback.filter(f => {
+      if (categoryFilter !== "all") {
+        const cats = parseCategoriesJson(f);
+        const legacyMatch = f.category === categoryFilter;
+        const jsonMatch = cats?.some((c: any) => c.category === categoryFilter);
+        if (!legacyMatch && !jsonMatch) return false;
+      }
+      if (ratingFilter !== "all") {
+        const cats = parseCategoriesJson(f);
+        if (cats) {
+          const hasRating = cats.some((c: any) => c.rating?.toString() === ratingFilter);
+          if (!hasRating) return false;
+        } else if (f.rating?.toString() !== ratingFilter) return false;
+      }
+      return true;
+    });
+  }, [feedback, categoryFilter, ratingFilter]);
+
+  const exportCSV = () => {
+    const rows = [["Date", "Student", "Anonymous", "Category", "Rating", "Message"]];
+    feedback.forEach(f => {
+      const cats = parseCategoriesJson(f);
+      const name = f.is_anonymous ? "Anonymous" : (profiles[f.student_id] || "Student");
+      if (cats) {
+        cats.forEach((c: any) => {
+          rows.push([
+            f.submitted_at ? new Date(f.submitted_at).toLocaleDateString() : "",
+            name, f.is_anonymous ? "Yes" : "No",
+            c.category || "", c.rating?.toString() || "", c.comment || "",
+          ]);
+        });
+      } else {
+        rows.push([
+          f.submitted_at ? new Date(f.submitted_at).toLocaleDateString() : "",
+          name, f.is_anonymous ? "Yes" : "No",
+          f.category || "", f.rating?.toString() || "", f.message || "",
+        ]);
+      }
+    });
+    const csv = rows.map(r => r.map(c => `"${(c || "").replace(/"/g, '""')}"`).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `feedback_export_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   if (loading) {
     return (
@@ -65,25 +156,22 @@ const AdminFeedback = () => {
     );
   }
 
-  const parseCategoriesJson = (f: any): any[] | null => {
-    try {
-      const cats = f.categories;
-      if (Array.isArray(cats) && cats.length > 0) return cats;
-      return null;
-    } catch { return null; }
-  };
-
   return (
     <div className="space-y-6 pt-2">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-        <div className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-gold to-amber-600 flex items-center justify-center">
-            <MessageSquare className="h-5 w-5 text-white" />
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div className="flex items-center gap-2">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-gold to-amber-600 flex items-center justify-center">
+              <MessageSquare className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h1 className="font-serif text-2xl font-semibold text-brand-primary">Student Feedback</h1>
+              <div className="w-12 h-0.5 bg-gradient-to-r from-brand-gold to-transparent mt-1" />
+            </div>
           </div>
-          <div>
-            <h1 className="font-serif text-2xl font-semibold text-brand-primary">Student Feedback</h1>
-            <div className="w-12 h-0.5 bg-gradient-to-r from-brand-gold to-transparent mt-1" />
-          </div>
+          <Button variant="outline" size="sm" onClick={exportCSV} className="border-brand-parchment rounded-xl hover:bg-brand-cream gap-1">
+            <Download className="h-4 w-4 text-brand-gold" /> Export CSV
+          </Button>
         </div>
       </motion.div>
 
@@ -111,6 +199,24 @@ const AdminFeedback = () => {
         ))}
       </div>
 
+      {/* Rating Distribution Chart */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+        className="bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-5">
+        <h3 className="font-serif text-lg text-brand-primary mb-3">Rating Distribution</h3>
+        <ResponsiveContainer width="100%" height={100}>
+          <BarChart data={ratingDistribution} layout="vertical" barCategoryGap="20%">
+            <XAxis type="number" hide />
+            <YAxis dataKey="stars" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#8C7B6B' }} width={30} />
+            <Tooltip formatter={(v: number) => [`${v}`, 'Ratings']} contentStyle={{ borderRadius: 12, border: '1px solid #EDE3CC', fontSize: 12 }} />
+            <Bar dataKey="count" radius={[0, 6, 6, 0]}>
+              {ratingDistribution.map((_, i) => (
+                <Cell key={i} fill={RATING_COLORS[i]} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </motion.div>
+
       {/* Filters */}
       <div className="flex flex-wrap gap-3 items-center">
         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 flex items-center justify-center">
@@ -120,7 +226,7 @@ const AdminFeedback = () => {
           <SelectTrigger className="w-40 border-brand-parchment rounded-xl"><SelectValue placeholder="Category" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Categories</SelectItem>
-            {categories.map(c => <SelectItem key={c} value={c!}>{c}</SelectItem>)}
+            {allCategories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
           </SelectContent>
         </Select>
         <Select value={ratingFilter} onValueChange={setRatingFilter}>
@@ -168,7 +274,6 @@ const AdminFeedback = () => {
                         )}
                       </div>
 
-                      {/* Multi-category display */}
                       {cats ? (
                         <div>
                           <button
