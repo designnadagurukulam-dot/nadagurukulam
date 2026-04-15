@@ -14,7 +14,7 @@ const studentNav = [
   { label: "Curriculum", to: "/dashboard/student/curriculum", icon: GraduationCap },
   { label: "Live Classes", to: "/dashboard/student/live-classes", icon: Video },
   { label: "Assignments", to: "/dashboard/student/assignments", icon: ClipboardList },
-  { label: "Chat", to: "/dashboard/student/chat", icon: MessageSquare },
+  { label: "Reach Out", to: "/dashboard/student/chat", icon: MessageSquare },
   { label: "Feedback", to: "/dashboard/student/feedback", icon: Star },
   { label: "Certificates", to: "/dashboard/student/certificates", icon: Award },
   { label: "Profile", to: "/dashboard/student/profile", icon: User },
@@ -53,7 +53,10 @@ const adminNav = [
   { label: "Analytics", to: "/dashboard/admin/analytics", icon: BarChart3 },
 ];
 
-const superAdminNav = [...adminNav];
+const superAdminNav = [
+  ...adminNav,
+  { label: "Message Monitor", to: "/dashboard/admin/messages", icon: MessageSquare },
+];
 
 const DashboardSidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -148,13 +151,17 @@ const DashboardSidebar = () => {
 
       {/* Certificate promo card (student only) */}
       {role === "student" && (!collapsed || isMobile) && (
-        <div className="mx-3 mb-3 p-3 sm:p-4 rounded-xl border border-brand-gold/30 bg-brand-primary/40">
+        <button
+          onClick={() => navigate('/dashboard/student/courses')}
+          className="mx-3 mb-3 p-3 sm:p-4 rounded-xl border border-brand-gold/30 bg-brand-primary/40 hover:bg-brand-primary/60 transition-colors cursor-pointer group text-left w-[calc(100%-1.5rem)]"
+        >
           <div className="w-9 h-9 rounded-full bg-brand-gold-pale flex items-center justify-center mb-2">
-            <Award className="w-[18px] h-[18px] text-brand-gold" />
+            <Award className="w-[18px] h-[18px] text-brand-gold group-hover:scale-110 transition-transform" />
           </div>
           <p className="font-serif text-sm font-semibold text-brand-gold-light">Earn Your Certificate!</p>
           <p className="text-[11px] text-brand-warm-grey-light mt-0.5">Complete your course to get certified</p>
-        </div>
+          <p className="text-brand-gold text-[10px] font-semibold mt-1.5">View My Courses →</p>
+        </button>
       )}
 
       {/* Logout */}

@@ -64,6 +64,7 @@ import AdminUserVerification from "./pages/admin/AdminUserVerification";
 import AdminBatches from "./pages/admin/AdminBatches";
 import AdminFeedback from "./pages/admin/AdminFeedback";
 import AdminLiveClasses from "./pages/admin/AdminLiveClasses";
+import AdminMessages from "./pages/admin/AdminMessages";
 import PendingApproval from "./pages/PendingApproval";
 import LoginSelect from "./pages/LoginSelect";
 
@@ -157,6 +158,7 @@ const App = () => (
             <Route path="/dashboard/admin/batches" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminBatches /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/admin/feedback" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminFeedback /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/admin/live-classes" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminLiveClasses /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/admin/messages" element={<RoleProtectedRoute allowedRoles={["super_admin"]}><DashboardLayout><AdminMessages /></DashboardLayout></RoleProtectedRoute>} />
 
             <Route path="*" element={<Layout><NotFound /></Layout>} />
           </Routes>

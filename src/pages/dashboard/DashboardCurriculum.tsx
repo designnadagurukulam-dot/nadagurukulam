@@ -8,7 +8,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   BookOpen, Clock, PlayCircle, Headphones, FileText, Type,
   ChevronRight, GraduationCap, Sparkles,
-  Music, Download, Play, FolderOpen, Layers, Quote, Hash
+  Music, Download, Play, FolderOpen, Layers, Quote, Hash,
+  Eye, ExternalLink, X as XIcon
 } from "lucide-react";
 
 const getYouTubeId = (url: string): string | null => {
@@ -104,6 +105,8 @@ const materialMeta: Record<MaterialType, { label: string; icon: typeof PlayCircl
 const TopicContent = ({ section, links }: { section: any; links: MaterialLink[] }) => {
   const materials = classifyMaterials(section, links);
   const [activeFilter, setActiveFilter] = useState<MaterialType | "all">("all");
+  const [previewingPdfId, setPreviewingPdfId] = useState<string | null>(null);
+  const [pdfPopoverId, setPdfPopoverId] = useState<string | null>(null);
 
   const counts: Record<MaterialType, number> = {
     videos: materials.videos.links.length,
@@ -216,22 +219,79 @@ const TopicContent = ({ section, links }: { section: any; links: MaterialLink[] 
         </div>
       ))}
 
-      {/* PDFs — Paper-texture Download Card */}
-      {showType("pdfs") && materials.pdfs.links.map((link, idx) => (
-        <a key={link.id || idx} href={link.url} target="_blank" rel="noopener noreferrer"
-          className="group flex items-center gap-4 p-4 bg-gradient-to-r from-blue-50/80 via-white to-blue-50/30 border border-blue-100 rounded-2xl hover:shadow-lg hover:shadow-blue-100/40 transition-all duration-300 hover:scale-[1.01] animate-fade-in">
-          <div className="flex items-center justify-center h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-md shrink-0 group-hover:shadow-lg transition-shadow">
-            <FileText className="h-5 w-5 text-white" />
+      {/* PDFs — with Preview/Open popover */}
+      {showType("pdfs") && materials.pdfs.links.map((link, idx) => {
+        const linkKey = link.id || `pdf-${idx}`;
+        const isPopoverOpen = pdfPopoverId === linkKey;
+        const isPreviewing = previewingPdfId === linkKey;
+        return (
+          <div key={linkKey} className="animate-fade-in space-y-2">
+            <div
+              onClick={() => setPdfPopoverId(isPopoverOpen ? null : linkKey)}
+              className="group flex items-center gap-4 p-4 bg-gradient-to-r from-blue-50/80 via-white to-blue-50/30 border border-blue-100 rounded-2xl hover:shadow-lg hover:shadow-blue-100/40 transition-all duration-300 hover:scale-[1.01] cursor-pointer">
+              <div className="flex items-center justify-center h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-md shrink-0 group-hover:shadow-lg transition-shadow">
+                <FileText className="h-5 w-5 text-white" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-bold text-brand-charcoal-mid truncate">{link.label || "View PDF Document"}</p>
+                <p className="text-xs text-brand-warm-grey truncate mt-0.5">{link.url.split("/").pop()}</p>
+              </div>
+              <div className="flex items-center justify-center h-9 w-9 rounded-full bg-blue-100 shrink-0 group-hover:bg-blue-200 transition-colors">
+                <Download className="h-4 w-4 text-blue-600" />
+              </div>
+            </div>
+
+            {/* PDF Options Popover */}
+            {isPopoverOpen && !isPreviewing && (
+              <div className="bg-white border border-brand-parchment rounded-2xl shadow-lg p-4 space-y-2">
+                <button
+                  onClick={() => { setPreviewingPdfId(linkKey); setPdfPopoverId(null); }}
+                  className="w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-brand-cream transition-colors text-left"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-brand-cream flex items-center justify-center shrink-0">
+                    <Eye className="h-4 w-4 text-brand-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-brand-charcoal-mid">Preview here</p>
+                    <p className="text-[10px] text-brand-warm-grey">View the PDF inline without leaving the page</p>
+                  </div>
+                </button>
+                <a
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setPdfPopoverId(null)}
+                  className="w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-brand-cream transition-colors"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-brand-cream flex items-center justify-center shrink-0">
+                    <ExternalLink className="h-4 w-4 text-brand-gold" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-brand-charcoal-mid">Open in new tab</p>
+                    <p className="text-[10px] text-brand-warm-grey">Open the full PDF in a new browser tab</p>
+                  </div>
+                </a>
+              </div>
+            )}
+
+            {/* Inline PDF Preview */}
+            {isPreviewing && (
+              <div className="rounded-2xl border border-brand-parchment overflow-hidden shadow-md">
+                <div className="flex items-center justify-between bg-gradient-to-r from-blue-50 to-blue-100/50 px-4 py-2 border-b border-blue-100">
+                  <p className="text-xs font-semibold text-brand-charcoal-mid truncate">{link.label || "PDF Preview"}</p>
+                  <div className="flex items-center gap-2">
+                    <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-[10px] text-blue-600 font-semibold hover:underline">Open full</a>
+                    <button onClick={() => setPreviewingPdfId(null)} className="w-6 h-6 rounded-full bg-white flex items-center justify-center hover:bg-red-50 transition-colors">
+                      <XIcon className="h-3 w-3 text-brand-warm-grey" />
+                    </button>
+                  </div>
+                </div>
+                <iframe src={`${link.url}#toolbar=0&navpanes=0`} className="w-full h-[400px] bg-white" title={link.label || "PDF"} />
+              </div>
+            )}
           </div>
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-bold text-brand-charcoal-mid truncate">{link.label || "View PDF Document"}</p>
-            <p className="text-xs text-brand-warm-grey truncate mt-0.5">{link.url.split("/").pop()}</p>
-          </div>
-          <div className="flex items-center justify-center h-9 w-9 rounded-full bg-blue-100 shrink-0 group-hover:bg-blue-200 transition-colors">
-            <Download className="h-4 w-4 text-blue-600" />
-          </div>
-        </a>
-      ))}
+        );
+      })}
 
       {/* Notes — Elegant Blockquote */}
       {showType("notes") && materials.notes.textContent && (
