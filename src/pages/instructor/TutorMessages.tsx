@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { MessageSquare, Send } from "lucide-react";
+import { MessageSquare, Send, ArrowLeft, Search } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,7 @@ const TutorMessages = () => {
   const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const { data: students = [] } = useQuery({
@@ -31,6 +32,10 @@ const TutorMessages = () => {
     },
     enabled: !!user,
   });
+
+  const filteredStudents = students.filter((s: any) =>
+    !searchQuery || s.display_name?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const { data: messages = [] } = useQuery({
     queryKey: ["chat-messages", user?.id, selectedStudent],
@@ -78,85 +83,111 @@ const TutorMessages = () => {
   const getInitials = (name: string) => name?.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase() || "?";
   const selectedProfile = students.find((s: any) => s.user_id === selectedStudent);
 
+  const renderStudentItem = (s: any, isMobile = false) => (
+    <button key={s.user_id} onClick={() => setSelectedStudent(s.user_id)}
+      className={`w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all ${isMobile ? 'min-h-[52px]' : 'min-h-[48px]'} ${selectedStudent === s.user_id ? "bg-gradient-to-r from-brand-gold-pale to-brand-cream border border-brand-gold/30 shadow-sm" : "hover:bg-brand-cream"}`}>
+      <div className="relative">
+        <div className={`${isMobile ? 'w-11 h-11' : 'w-10 h-10'} rounded-full bg-gradient-to-br from-brand-primary to-brand-primary-dark flex items-center justify-center text-white font-bold text-xs shrink-0 shadow-sm`}>
+          {getInitials(s.display_name)}
+        </div>
+        <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium text-brand-charcoal-mid truncate">{s.display_name}</p>
+        <p className="text-xs text-brand-warm-grey">Student</p>
+      </div>
+      {(unreadCounts as any)[s.user_id] > 0 && (
+        <Badge className="bg-gradient-to-r from-brand-gold to-[hsl(35_62%_55%)] text-white text-[10px] h-5 min-w-[20px] flex items-center justify-center border-0 shadow-sm">
+          {(unreadCounts as any)[s.user_id]}
+        </Badge>
+      )}
+    </button>
+  );
+
   return (
     <div className="pt-2 h-[calc(100vh-3.5rem)] lg:h-[calc(100vh-2rem)]">
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-full flex flex-col">
-        <div className="mb-4">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 flex items-center justify-center">
-              <MessageSquare className="w-4 h-4 text-brand-gold" />
-            </div>
-            <h1 className="font-serif text-2xl font-semibold text-brand-primary">Messages</h1>
+        <div className="mb-3 sm:mb-4 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 flex items-center justify-center">
+            <MessageSquare className="w-5 h-5 text-brand-gold" />
           </div>
-          <div className="w-12 h-0.5 bg-gradient-to-r from-brand-gold to-transparent mt-1 ml-10" />
-          <p className="text-brand-warm-grey text-sm mt-2 ml-10">Chat with your students</p>
+          <div>
+            <h1 className="font-serif text-xl sm:text-2xl font-semibold text-brand-primary">Reach Out</h1>
+            <div className="w-12 h-0.5 bg-gradient-to-r from-brand-gold to-transparent mt-0.5" />
+            <p className="text-brand-warm-grey text-xs sm:text-sm mt-0.5">Chat with your students</p>
+          </div>
         </div>
 
-        <div className="flex-1 flex gap-4 min-h-0">
+        <div className="flex-1 flex gap-3 sm:gap-4 min-h-0">
+          {/* Desktop student list */}
           <Card className="w-72 shrink-0 hidden md:flex flex-col bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)]">
+            <div className="p-3 pb-0">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-warm-grey" />
+                <Input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search students..." className="pl-9 h-10 rounded-xl border-brand-parchment focus:border-brand-gold text-sm" />
+              </div>
+            </div>
             <CardContent className="p-3 flex-1 overflow-y-auto space-y-1">
-              {students.length === 0 ? (
+              {filteredStudents.length === 0 ? (
                 <p className="text-sm text-brand-warm-grey text-center py-8">No students in your batches yet.</p>
-              ) : students.map((s: any) => (
-                <button key={s.user_id} onClick={() => setSelectedStudent(s.user_id)}
-                  className={`w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all ${selectedStudent === s.user_id ? "bg-brand-gold-pale border border-brand-gold/30 shadow-sm" : "hover:bg-brand-cream"}`}>
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-primary to-brand-primary-dark flex items-center justify-center text-white font-bold text-xs shrink-0 shadow-sm">
-                    {getInitials(s.display_name)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-brand-charcoal-mid truncate">{s.display_name}</p>
-                    <p className="text-xs text-brand-warm-grey">Student</p>
-                  </div>
-                  {(unreadCounts as any)[s.user_id] > 0 && (
-                    <Badge className="bg-gradient-to-r from-brand-gold to-[hsl(35_62%_55%)] text-white text-[10px] h-5 min-w-[20px] flex items-center justify-center border-0 shadow-sm">
-                      {(unreadCounts as any)[s.user_id]}
-                    </Badge>
-                  )}
-                </button>
-              ))}
+              ) : filteredStudents.map((s: any) => renderStudentItem(s))}
             </CardContent>
           </Card>
 
+          {/* Mobile student list */}
           <div className="md:hidden w-full">
             {!selectedStudent && (
               <Card className="flex-1 bg-white rounded-2xl border border-brand-parchment">
-                <CardContent className="p-3 space-y-1">
-                  {students.map((s: any) => (
-                    <button key={s.user_id} onClick={() => setSelectedStudent(s.user_id)} className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-brand-cream text-left">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-primary to-brand-primary-dark flex items-center justify-center text-white font-bold text-xs">{getInitials(s.display_name)}</div>
-                      <div className="flex-1"><p className="text-sm font-medium text-brand-charcoal-mid">{s.display_name}</p></div>
-                      {(unreadCounts as any)[s.user_id] > 0 && (<Badge className="bg-gradient-to-r from-brand-gold to-[hsl(35_62%_55%)] text-white text-xs border-0">{(unreadCounts as any)[s.user_id]}</Badge>)}
-                    </button>
-                  ))}
+                <div className="p-2 pb-0">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-warm-grey" />
+                    <Input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search students..." className="pl-9 h-10 rounded-xl border-brand-parchment focus:border-brand-gold text-sm" />
+                  </div>
+                </div>
+                <CardContent className="p-2 space-y-1">
+                  {filteredStudents.length === 0 ? (
+                    <p className="text-sm text-brand-warm-grey text-center py-8">No students found.</p>
+                  ) : filteredStudents.map((s: any) => renderStudentItem(s, true))}
                 </CardContent>
               </Card>
             )}
           </div>
 
+          {/* Chat area */}
           {selectedStudent && (
-            <Card className="flex-1 flex flex-col min-h-0 bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)]">
-              {/* Chat header with gradient strip */}
-              <div className="relative">
-                <div className="h-1 bg-gradient-to-r from-brand-gold to-brand-primary" />
-                <div className="p-4 border-b border-brand-parchment flex items-center gap-3">
-                  <button className="md:hidden text-sm text-brand-primary font-medium" onClick={() => setSelectedStudent(null)}>← Back</button>
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-primary to-brand-primary-dark flex items-center justify-center text-white font-bold text-xs shadow-sm">{getInitials(selectedProfile?.display_name || "")}</div>
-                  <div>
-                    <p className="font-semibold text-sm text-brand-charcoal-mid">{selectedProfile?.display_name}</p>
-                    <p className="text-[10px] text-brand-warm-grey">Student</p>
+            <Card className="flex-1 flex flex-col min-h-0 bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] overflow-hidden">
+              <div className="bg-gradient-to-r from-brand-primary to-brand-primary-dark p-3 sm:p-4 flex items-center gap-3">
+                <button className="md:hidden w-9 h-9 flex items-center justify-center rounded-lg hover:bg-white/10 text-white" onClick={() => setSelectedStudent(null)}>
+                  <ArrowLeft className="h-5 w-5" />
+                </button>
+                <div className="relative">
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-brand-gold to-brand-gold-light flex items-center justify-center text-brand-primary font-bold text-xs shrink-0">
+                    {getInitials(selectedProfile?.display_name || "")}
                   </div>
+                  <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-brand-primary" />
+                </div>
+                <div>
+                  <p className="font-semibold text-sm text-white truncate">{selectedProfile?.display_name}</p>
+                  <p className="text-[10px] text-white/50">Student · Online</p>
                 </div>
               </div>
-              <ScrollArea className="flex-1 p-4">
+              <ScrollArea className="flex-1 p-3 sm:p-4">
                 <div className="space-y-3">
-                  {messages.length === 0 ? (<p className="text-center text-brand-warm-grey text-sm py-12">No messages yet. Say hello!</p>) :
+                  {messages.length === 0 ? (
+                    <div className="text-center py-10 sm:py-12">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 flex items-center justify-center mx-auto mb-3">
+                        <MessageSquare className="w-5 h-5 text-brand-gold" />
+                      </div>
+                      <p className="text-brand-warm-grey text-sm">No messages yet. Say hello! 👋</p>
+                    </div>
+                  ) :
                     messages.map((msg: any) => {
                       const isMine = msg.sender_id === user?.id;
                       return (
                         <div key={msg.id} className={`flex ${isMine ? "justify-end" : "justify-start"}`}>
-                          <div className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-sm shadow-sm ${isMine ? "bg-gradient-to-br from-brand-primary to-brand-primary-dark text-white rounded-br-md" : "bg-brand-cream text-brand-charcoal-mid rounded-bl-md border border-brand-parchment"}`}>
+                          <div className={`max-w-[85%] sm:max-w-[75%] px-3.5 sm:px-4 py-2.5 rounded-2xl text-sm shadow-sm ${isMine ? "bg-gradient-to-br from-brand-primary to-brand-primary-dark text-white rounded-br-md" : "bg-brand-cream-dark text-brand-charcoal-mid rounded-bl-md border border-brand-parchment"}`}>
                             <p>{msg.content}</p>
-                            <p className={`text-[10px] mt-1 ${isMine ? "text-white/60" : "text-brand-warm-grey"}`}>{format(new Date(msg.created_at), "h:mm a")}</p>
+                            <p className={`text-[10px] mt-1 ${isMine ? "text-white/50" : "text-brand-warm-grey"}`}>{format(new Date(msg.created_at), "h:mm a")}</p>
                           </div>
                         </div>
                       );
@@ -164,9 +195,9 @@ const TutorMessages = () => {
                   <div ref={messagesEndRef} />
                 </div>
               </ScrollArea>
-              <div className="p-3 border-t border-brand-parchment flex gap-2">
-                <Input value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Type a message..." className="rounded-xl border-brand-parchment focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20" onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()} />
-                <Button onClick={handleSend} disabled={!message.trim() || sending} size="icon" className="bg-gradient-to-r from-brand-primary to-brand-primary-dark shrink-0 rounded-xl shadow-lg"><Send className="h-4 w-4" /></Button>
+              <div className="p-2.5 sm:p-3 border-t border-brand-parchment flex gap-2 bg-white">
+                <Input value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Type a message..." className="rounded-xl border-brand-parchment focus:border-brand-gold focus:ring-brand-gold/20 h-11" onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()} />
+                <Button onClick={handleSend} disabled={!message.trim() || sending} size="icon" className="bg-gradient-to-r from-brand-primary to-brand-primary-dark hover:from-brand-primary-dark hover:to-brand-primary shrink-0 rounded-xl w-11 h-11 shadow-lg"><Send className="h-4 w-4" /></Button>
               </div>
             </Card>
           )}
@@ -174,7 +205,7 @@ const TutorMessages = () => {
           {!selectedStudent && (
             <Card className="flex-1 hidden md:flex items-center justify-center bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)]">
               <CardContent className="text-center">
-                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 flex items-center justify-center mx-auto mb-3"><MessageSquare className="h-6 w-6 text-brand-gold" /></div>
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 flex items-center justify-center mx-auto mb-3"><MessageSquare className="h-7 w-7 text-brand-gold" /></div>
                 <p className="font-serif text-brand-primary font-semibold">Select a student to start chatting</p>
                 <p className="text-xs text-brand-warm-grey mt-1">Your conversations will appear here</p>
               </CardContent>
