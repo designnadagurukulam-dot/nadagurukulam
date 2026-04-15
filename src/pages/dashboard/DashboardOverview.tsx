@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ClipboardList, ArrowRight, Video, Users, BarChart3, BookOpen, Sparkles, Flame, TrendingUp } from "lucide-react";
-import { Link } from "react-router-dom";
+import { ClipboardList, ArrowRight, Video, Users, BarChart3, BookOpen, Sparkles, Flame, TrendingUp, ChevronRight, FileText, PlayCircle, Headphones } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { format, subMinutes, addMinutes } from "date-fns";
+import { format, subMinutes, addMinutes, formatDistanceToNow } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 
@@ -27,9 +27,11 @@ const statIconBgs = [
 
 const DashboardOverview = () => {
   const { profile, user } = useAuth();
+  const navigate = useNavigate();
   const [stats, setStats] = useState({ batch: "—", classesThisWeek: 0, pendingAssignments: 0, progress: 0 });
   const [upcomingClasses, setUpcomingClasses] = useState<any[]>([]);
   const [pendingAssignments, setPendingAssignments] = useState<any[]>([]);
+  const [recentActivity, setRecentActivity] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activityData] = useState(() =>
     weekDays.map((day, i) => ({ day, minutes: Math.floor(Math.random() * 90 + 10) }))
@@ -110,6 +112,15 @@ const DashboardOverview = () => {
         ? Math.round(progressData.reduce((s, p) => s + p.progress_pct, 0) / progressData.length)
         : 0;
 
+      // Recent activity — last 5 lesson_progress entries
+      const { data: recentProgress } = await supabase
+        .from("lesson_progress")
+        .select("id, updated_at, lesson_id, course_lessons(title, lesson_type)")
+        .eq("user_id", user.id)
+        .order("updated_at", { ascending: false })
+        .limit(5);
+      setRecentActivity(recentProgress || []);
+
       setStats({ batch: batchName, classesThisWeek: weekClassCount, pendingAssignments: pending.length, progress: avgProgress });
       setUpcomingClasses(classes);
       setPendingAssignments(pending);
@@ -119,10 +130,10 @@ const DashboardOverview = () => {
   }, [user]);
 
   const statCards = [
-    { label: "My Batch", value: stats.batch, icon: Users },
-    { label: "Classes This Week", value: stats.classesThisWeek, icon: Video },
-    { label: "Pending Assignments", value: stats.pendingAssignments, icon: ClipboardList },
-    { label: "Study Progress", value: `${stats.progress}%`, icon: BarChart3 },
+    { label: "My Batch", value: stats.batch, icon: Users, route: null },
+    { label: "Classes This Week", value: stats.classesThisWeek, icon: Video, route: "/dashboard/student/live-classes" },
+    { label: "Pending Assignments", value: stats.pendingAssignments, icon: ClipboardList, route: "/dashboard/student/assignments" },
+    { label: "Study Progress", value: `${stats.progress}%`, icon: BarChart3, route: "/dashboard/student/curriculum" },
   ];
 
   const isClassLive = (scheduledAt: string, durationMin: number) => {
@@ -142,6 +153,13 @@ const DashboardOverview = () => {
 
   const getInitials = (name: string) => name?.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase() || "?";
 
+  const getLessonTypeIcon = (type: string) => {
+    if (type === "video") return { icon: PlayCircle, bg: "bg-red-100", color: "text-red-600" };
+    if (type === "pdf") return { icon: FileText, bg: "bg-blue-100", color: "text-blue-600" };
+    if (type === "audio") return { icon: Headphones, bg: "bg-amber-100", color: "text-amber-600" };
+    return { icon: FileText, bg: "bg-stone-100", color: "text-stone-600" };
+  };
+
   return (
     <div className="space-y-4 sm:space-y-6 pt-2">
       {/* Motivational hero strip */}
@@ -160,19 +178,29 @@ const DashboardOverview = () => {
         </div>
       </motion.div>
 
-      {/* Stat cards — gradient style */}
+      {/* Stat cards — clickable */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
         {statCards.map((stat, i) => (
           <motion.div key={stat.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
-            <div className={`bg-gradient-to-br ${statGradients[i]} rounded-2xl p-3 sm:p-5 relative overflow-hidden group hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300`}>
+            <div
+              onClick={() => stat.route && navigate(stat.route)}
+              className={`bg-gradient-to-br ${statGradients[i]} rounded-2xl p-3 sm:p-5 relative overflow-hidden group hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 ${stat.route ? 'cursor-pointer' : ''}`}
+            >
               <div className="absolute top-0 right-0 w-20 h-20 bg-white/5 rounded-full -mr-6 -mt-6 group-hover:scale-150 transition-transform duration-500" />
               <div className={`w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br ${statIconBgs[i]} flex items-center justify-center mb-2 sm:mb-3`}>
                 <stat.icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </div>
-              <p className="font-serif text-2xl sm:text-3xl font-bold text-white mt-1 truncate">
-                {loading ? <Skeleton className="h-7 sm:h-8 w-16 bg-white/20" /> : stat.value}
-              </p>
-              <p className="text-[10px] sm:text-[11px] text-white/70 uppercase tracking-wider mt-1">{stat.label}</p>
+              <div className="flex items-end justify-between">
+                <div>
+                  <p className="font-serif text-2xl sm:text-3xl font-bold text-white mt-1 truncate">
+                    {loading ? <Skeleton className="h-7 sm:h-8 w-16 bg-white/20" /> : stat.value}
+                  </p>
+                  <p className="text-[10px] sm:text-[11px] text-white/70 uppercase tracking-wider mt-1">{stat.label}</p>
+                </div>
+                {stat.route && (
+                  <ChevronRight className="w-4 h-4 text-white/40 opacity-0 group-hover:opacity-100 transition-opacity" />
+                )}
+              </div>
             </div>
           </motion.div>
         ))}
@@ -197,7 +225,7 @@ const DashboardOverview = () => {
               </div>
             </div>
           </div>
-          <div className="px-3 sm:px-5 pb-3 sm:pb-5">
+          <div className="px-3 sm:px-5 pb-1">
             <ResponsiveContainer width="100%" height={100}>
               <BarChart data={activityData} barCategoryGap="25%">
                 <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#8C7B6B' }} />
@@ -211,9 +239,35 @@ const DashboardOverview = () => {
               </BarChart>
             </ResponsiveContainer>
           </div>
+          {/* Recent Activity List */}
+          {recentActivity.length > 0 && (
+            <div className="px-3 sm:px-5 pb-3 sm:pb-5 border-t border-brand-parchment/50">
+              <p className="text-[10px] uppercase tracking-widest text-brand-warm-grey font-semibold pt-2.5 pb-2">Recent Activity</p>
+              <div className="space-y-1.5">
+                {recentActivity.map((item: any) => {
+                  const lesson = item.course_lessons;
+                  const meta = getLessonTypeIcon(lesson?.lesson_type || "text");
+                  const Icon = meta.icon;
+                  return (
+                    <div key={item.id} className="flex items-center gap-2.5 py-1.5">
+                      <div className={`w-7 h-7 rounded-lg ${meta.bg} flex items-center justify-center shrink-0`}>
+                        <Icon className={`w-3.5 h-3.5 ${meta.color}`} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-medium text-brand-charcoal-mid truncate">{lesson?.title || "Lesson"}</p>
+                      </div>
+                      <p className="text-[10px] text-brand-warm-grey shrink-0">
+                        {formatDistanceToNow(new Date(item.updated_at), { addSuffix: true })}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </motion.div>
 
-        {/* Upcoming Classes */}
+        {/* Upcoming Classes — clickable */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
           className="lg:col-span-3 bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] overflow-hidden">
           <div className="bg-gradient-to-r from-brand-primary/5 to-brand-gold/5 px-3 sm:px-5 pt-3 sm:pt-5 pb-2">
@@ -245,8 +299,9 @@ const DashboardOverview = () => {
                 {upcomingClasses.map((cls) => {
                   const live = isClassLive(cls.scheduled_at, cls.duration_minutes);
                   return (
-                    <div key={cls.id} className={`flex items-center gap-2.5 sm:gap-3 p-2.5 sm:p-3 rounded-xl hover:bg-brand-cream transition-all duration-200 border ${live ? 'border-green-200 bg-green-50/30' : 'border-transparent'}`}>
-                      {/* Tutor avatar */}
+                    <div key={cls.id}
+                      onClick={() => navigate('/dashboard/student/live-classes')}
+                      className={`flex items-center gap-2.5 sm:gap-3 p-2.5 sm:p-3 rounded-xl hover:bg-brand-cream transition-all duration-200 border cursor-pointer group ${live ? 'border-green-200 bg-green-50/30' : 'border-transparent hover:border-brand-gold/30'}`}>
                       <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-brand-gold/30 to-brand-gold/10 flex items-center justify-center text-brand-primary font-bold text-[10px] sm:text-xs shrink-0 border border-brand-gold/20">
                         {getInitials(cls.profiles?.display_name || "T")}
                       </div>
@@ -258,16 +313,19 @@ const DashboardOverview = () => {
                         </p>
                         {live && <span className="text-[10px] text-green-600 font-bold uppercase flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" /> LIVE NOW</span>}
                       </div>
-                      <div className="text-right shrink-0">
-                        <p className="text-[10px] sm:text-xs font-semibold text-brand-charcoal-mid">{format(new Date(cls.scheduled_at), "h:mm a")}</p>
-                        <p className="text-[10px] sm:text-[11px] text-brand-warm-grey">{format(new Date(cls.scheduled_at), "MMM dd")}</p>
-                        {live && (
-                          <a href={cls.meeting_link} target="_blank" rel="noopener noreferrer">
-                            <Button size="sm" className="mt-1 h-6 text-[10px] bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg px-2.5">
-                              Join →
-                            </Button>
-                          </a>
-                        )}
+                      <div className="text-right shrink-0 flex items-center gap-1">
+                        <div>
+                          <p className="text-[10px] sm:text-xs font-semibold text-brand-charcoal-mid">{format(new Date(cls.scheduled_at), "h:mm a")}</p>
+                          <p className="text-[10px] sm:text-[11px] text-brand-warm-grey">{format(new Date(cls.scheduled_at), "MMM dd")}</p>
+                          {live && (
+                            <a href={cls.meeting_link} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+                              <Button size="sm" className="mt-1 h-6 text-[10px] bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg px-2.5">
+                                Join →
+                              </Button>
+                            </a>
+                          )}
+                        </div>
+                        <ChevronRight className="w-3.5 h-3.5 text-brand-warm-grey opacity-0 group-hover:opacity-100 transition-opacity" />
                       </div>
                     </div>
                   );
@@ -278,7 +336,7 @@ const DashboardOverview = () => {
         </motion.div>
       </div>
 
-      {/* Assignments — Card layout with urgency borders */}
+      {/* Assignments — clickable cards */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}>
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
@@ -306,20 +364,25 @@ const DashboardOverview = () => {
           </div>
         ) : (
           <>
-            {/* Mobile: card layout with urgency left-border */}
+            {/* Mobile: card layout */}
             <div className="sm:hidden space-y-2.5">
               {pendingAssignments.map((a) => {
                 const due = getDueLabel(a.due_date);
                 return (
-                  <div key={a.id} className={`bg-white rounded-xl border border-brand-parchment p-3 shadow-sm border-l-4 ${due.border}`}>
+                  <div key={a.id}
+                    onClick={() => navigate('/dashboard/student/assignments')}
+                    className={`bg-white rounded-xl border border-brand-parchment p-3 shadow-sm border-l-4 ${due.border} cursor-pointer group hover:border-brand-gold/30 transition-all`}>
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-medium text-brand-charcoal-mid truncate">{a.title}</p>
                         <p className="text-[10px] text-brand-warm-grey truncate">{a.courses?.title}</p>
                       </div>
-                      <span className={`${due.cls} text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full font-bold shrink-0`}>
-                        {due.text}
-                      </span>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <span className={`${due.cls} text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full font-bold`}>
+                          {due.text}
+                        </span>
+                        <ChevronRight className="w-3.5 h-3.5 text-brand-warm-grey opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
                     </div>
                     {a.due_date && (
                       <p className="text-[10px] text-brand-warm-grey mt-1.5">Due: {format(new Date(a.due_date), "MMM dd, yyyy")}</p>
@@ -342,18 +405,27 @@ const DashboardOverview = () => {
                   {pendingAssignments.map((a, i) => {
                     const due = getDueLabel(a.due_date);
                     return (
-                      <tr key={a.id} className={`${i % 2 === 0 ? 'bg-white' : 'bg-brand-cream'} border-b border-brand-cream-dark hover:bg-brand-gold-pale/30 transition-colors`}>
+                      <tr key={a.id}
+                        onClick={() => navigate('/dashboard/student/assignments')}
+                        className={`${i % 2 === 0 ? 'bg-white' : 'bg-brand-cream'} border-b border-brand-cream-dark hover:bg-brand-gold-pale/30 transition-colors cursor-pointer group`}>
                         <td className="px-5 py-3.5">
-                          <p className="text-sm font-medium text-brand-charcoal-mid">{a.title}</p>
-                          <p className="text-xs text-brand-warm-grey">{a.courses?.title}</p>
+                          <div className="flex items-center gap-2">
+                            <div>
+                              <p className="text-sm font-medium text-brand-charcoal-mid">{a.title}</p>
+                              <p className="text-xs text-brand-warm-grey">{a.courses?.title}</p>
+                            </div>
+                          </div>
                         </td>
                         <td className="px-5 py-3.5 text-sm text-brand-charcoal-mid">
                           {a.due_date ? format(new Date(a.due_date), "MMM dd, yyyy") : "—"}
                         </td>
                         <td className="px-5 py-3.5">
-                          <span className={`${due.cls} text-[10px] uppercase tracking-widest px-2.5 py-0.5 rounded-full font-bold`}>
-                            {due.text}
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className={`${due.cls} text-[10px] uppercase tracking-widest px-2.5 py-0.5 rounded-full font-bold`}>
+                              {due.text}
+                            </span>
+                            <ChevronRight className="w-3.5 h-3.5 text-brand-warm-grey opacity-0 group-hover:opacity-100 transition-opacity" />
+                          </div>
                         </td>
                       </tr>
                     );
