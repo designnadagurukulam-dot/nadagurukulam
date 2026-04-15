@@ -26,8 +26,10 @@ const AdminMessages = () => {
   const [thread, setThread] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const isSuperAdmin = role === "super_admin";
 
-  if (role !== "super_admin") {
+  useEffect(() => {
+    if (!isSuperAdmin) return;
     return (
       <div className="flex items-center justify-center h-[60vh]">
         <div className="text-center">
@@ -41,7 +43,6 @@ const AdminMessages = () => {
     );
   }
 
-  useEffect(() => {
     const fetchConversations = async () => {
       const { data: allMessages } = await supabase
         .from("messages")
