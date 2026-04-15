@@ -1,90 +1,72 @@
 
 
-# Tutor Dashboard — 10 Targeted Changes
+# 8 Student Dashboard Changes — Implementation Plan
 
 ## Summary
-Restructure the tutor dashboard sidebar, live classes (online/offline tabs with master link auto-fill), My Courses page (tutor-created content only), analytics (4 sections with assignment completion), and add admin ability to manage tutor master meeting links. Requires 2 DB migrations and changes to 5 existing files + 1 new admin tutor detail section.
+Eight targeted changes to the Student Dashboard plus one Super Admin page. Includes 3 DB migrations, 6 modified files, and 2 new files.
 
 ## Database Migrations
 
-### Migration 1: Add master links to profiles
+### Migration: Combined schema changes
 ```sql
-ALTER TABLE profiles 
-  ADD COLUMN IF NOT EXISTS zoom_link TEXT,
-  ADD COLUMN IF NOT EXISTS meet_link TEXT;
-```
+-- Change 5: Student edits ungraded submission (additive — existing policies stay)
+CREATE POLICY "Student edits own ungraded submission" ON assignment_submissions
+FOR UPDATE USING (student_id = auth.uid() AND grade IS NULL);
 
-### Migration 2: Add fields to live_classes + update RLS
-```sql
-ALTER TABLE live_classes 
-  ADD COLUMN IF NOT EXISTS class_type TEXT DEFAULT 'online',
-  ADD COLUMN IF NOT EXISTS audience_type TEXT DEFAULT 'specific';
+-- Change 6: Multi-category feedback
+ALTER TABLE feedback ADD COLUMN IF NOT EXISTS categories JSONB DEFAULT '[]';
 
--- Update student visibility policy
-DROP POLICY IF EXISTS "Students view live classes for their batch" ON live_classes;
-CREATE POLICY "Students view live classes" ON live_classes FOR SELECT USING (
-  (
-    audience_type = 'all' AND instructor_id IN (
-      SELECT b.instructor_id FROM batches b
-      WHERE b.id IN (SELECT be.batch_id FROM batch_enrollments be WHERE be.student_id = auth.uid())
-    )
+-- Change 8: Super admin message moderation
+DROP POLICY IF EXISTS "Users see own messages" ON messages;
+CREATE POLICY "Users see own messages or super admin sees all" ON messages
+FOR SELECT USING (
+  sender_id = auth.uid()
+  OR receiver_id = auth.uid()
+  OR EXISTS (
+    SELECT 1 FROM user_roles
+    WHERE user_id = auth.uid() AND role = 'super_admin'
   )
-  OR (
-    audience_type = 'specific' AND batch_id IN (
-      SELECT be.batch_id FROM batch_enrollments be WHERE be.student_id = auth.uid()
-    )
-  )
-  OR is_super_or_admin(auth.uid())
-  OR (instructor_id = auth.uid())
 );
 ```
 
 ## File Changes
 
-### 1. `src/components/DashboardSidebar.tsx`
-- Remove "Curriculum" and "My Students" from `instructorNav`
-- Rename "Create Course" → "Update Curriculum"
-- Reorder: Overview, My Courses, Update Curriculum, Live Classes, Assignments, Messages, Analytics, Profile
+### 1. `src/pages/dashboard/DashboardOverview.tsx`
+- **Change 1**: Below the study activity bar chart, add a "Recent Activity" list showing last 5 `lesson_progress` entries joined with `course_lessons` for title, with material type icon (PDF/Video/Audio) and "time ago" label. Query `lesson_progress` where `user_id = auth.uid()`, join `course_lessons` via `lesson_id`, order by `updated_at DESC`, limit 5.
+- **Change 2**: Make stat cards clickable — wrap "Classes This Week" with `navigate('/dashboard/student/live-classes')`, "Pending Assignments" with `navigate('/dashboard/student/assignments')`, "Study Progress" with `navigate('/dashboard/student/curriculum')`. Add `cursor-pointer`, `hover:border-[#C49A3C]`, and a `ChevronRight` icon that appears on hover. Make each upcoming class card and pending assignment card clickable to their respective pages.
 
-### 2. `src/pages/instructor/InstructorCourses.tsx` — Full rewrite
-- Add tabs: "My Courses" + "My Curriculum Modules"
-- My Courses tab: query `courses` where `instructor_id = user.id`
-- My Curriculum tab: query `curriculum_sections` where `created_by = user.id`, joined with `curriculum_modules`
-- Each item shows title, date, batch, edit button
-- Disable delete for content linked to active batches with enrolled students
+### 2. `src/pages/dashboard/DashboardCurriculum.tsx`
+- **Change 3**: Already has a detailed subject panel with chapters and topics. No major structural change needed — the `SubjectPanel` component already shows subjects with chapter sidebar and topic content. Enhance by making subject cards in the top-level list clickable to scroll/expand into detail. If not already expandable, add an expand-on-click behavior to each subject heading that opens the two-panel `SubjectPanel` view.
+- **Change 4**: In the PDFs section of `TopicContent`, replace the direct `<a>` link with a click handler that shows a small popover with two options: "Preview here" (expands inline iframe) and "Open in new tab" (opens URL). Add state `previewingPdfId` to track which PDF is being previewed inline. Show iframe with `src={url}#toolbar=0&navpanes=0` height 400px with close button.
 
-### 3. `src/pages/instructor/TutorLiveClasses.tsx` — Major rewrite
-- Replace 2-tab (Upcoming/Past) with 3-tab (Online/Offline/Past)
-- **Online tab**: upcoming `live_classes` where `class_type = 'online'`, with "+ Schedule Online Class" button
-- **Offline tab**: read-only `schedules` where `instructor_id = user.id`, with "Scheduled by Admin" badge, no join button
-- **Past tab**: combined past online + offline
-- **Schedule modal**: 
-  - Class title, description, audience (All Batches / Specific Batch radio), date, time, duration (15/30/45/60 max), platform (Zoom/Meet radio)
-  - Meeting link auto-filled from `profiles.zoom_link` or `profiles.meet_link` (read-only)
-  - 60-min yellow warning banner about free plan limits
-  - If no link set, show red error and disable save
-  - Insert with `class_type = 'online'`, `audience_type`, `batch_id` (null for all)
-- **Card badges**: Online vs Classroom visual distinction; All Batches vs Specific Batch badge
+### 3. `src/pages/dashboard/DashboardAssignments.tsx`
+- **Change 5**: In the "Submitted" tab, add an "Edit Submission" button on cards where `submission.grade === null`. Clicking opens a dialog with pre-filled `text_content`, file display with remove option, and file upload. On save, UPDATE `assignment_submissions` with new text/file. If `grade` is not null, show "Graded — cannot edit" muted text instead.
 
-### 4. `src/pages/instructor/InstructorAnalytics.tsx` — Full rewrite
-- **Section 1 — My Courses**: total courses, most accessed, avg completion, bar chart top 5
-- **Section 2 — My Curriculum**: total modules created, total sections, module list with section count
-- **Section 3 — My Batches**: total active batches, total students, per-batch cards with student count, pie chart
-- **Section 4 — Assignment Completion**: total/submitted/pending stats, per-assignment table with completion %, bar chart with color-coded bars
+### 4. `src/pages/dashboard/StudentFeedback.tsx`
+- **Change 6**: Redesign form to support multiple category blocks. State changes from single `{category, rating, message}` to array `[{category, rating, comment}]`. Each block has category dropdown, star rating, and comment textarea. "+ Add another category" dashed button appends new block. X remove on all blocks except first. On submit, insert with `categories` JSONB column containing the array. Keep the single `message` column for backward compatibility by joining all comments.
 
-### 5. `src/pages/admin/AdminStudents.tsx` — Add master links section
-- When viewing a tutor profile (role = instructor), show "Master Meeting Links" section
-- Zoom link + Meet link inputs, editable only by super_admin
-- Save button updates `profiles.zoom_link` and `profiles.meet_link`
-- Note: The admin/tutors route already renders `AdminStudents` — we add the links section to the tutor detail view within this component
+### 5. `src/pages/admin/AdminFeedback.tsx`
+- **Change 6 continued**: When rendering each feedback row, check for `categories` JSONB field. If present, show expandable list of categories with individual ratings and comments. Fall back to legacy `category + rating + message` display if `categories` is empty/null.
 
-### 6. `src/pages/dashboard/StudentLiveClasses.tsx` — Update query
-- Update the student live classes query to handle the new `audience_type = 'all'` classes (RLS handles visibility, but UI should show "All Batches" badge)
+### 6. `src/components/DashboardSidebar.tsx`
+- **Change 7**: Make the "Earn Your Certificate" card clickable — wrap in `button` with `onClick={() => navigate('/dashboard/student/courses')}`, add hover effect and "View My Courses →" text line.
+- **Change 8A**: Rename "Chat" to "Reach Out" in `studentNav`.
+- **Change 8E**: Add "Message Monitor" to `superAdminNav` only (not `adminNav`), pointing to `/dashboard/admin/messages`.
+
+### 7. `src/pages/dashboard/StudentChat.tsx`
+- **Change 8B**: Rename page title "Chat" → "Reach Out", subtitle → "Message any staff member". Change tutor query to fetch ALL verified instructors + admins instead of only batch tutors. Query `user_roles` for `role IN ('instructor', 'admin')` joined with `profiles` where `is_verified = true`. Add a search input at top of staff list to filter by name.
+
+### 8. `src/pages/admin/AdminMessages.tsx` (NEW)
+- **Change 8E**: New page for Super Admin message monitoring. Left panel: list all conversations (distinct sender+receiver pairs from `messages` table), showing participant names and last message preview. Right panel: read-only message thread for selected conversation. No send button. Access guarded by `super_admin` role check — show "Access Denied" for regular admin.
+
+### 9. `src/App.tsx`
+- Add route `/dashboard/admin/messages` pointing to `AdminMessages` component, restricted to `super_admin` role.
 
 ## Technical Notes
-- No new dependencies needed — uses existing recharts, framer-motion, Lucide icons, Tabs, RadioGroup, Dialog
-- New Lucide icons: `AlertTriangle`, `Building2`, `Radio`
-- All changes maintain existing mobile responsiveness patterns
-- The `assignments` table uses `instructor_id` not `created_by` — queries will use `instructor_id = user.id`
-- `curriculum_sections` has `created_by` field for filtering tutor-created content
+- Change 1 queries `lesson_progress` joined with `course_lessons` (not `study_materials` which doesn't exist — using actual table names)
+- Change 3 uses existing `SubjectPanel` architecture — no new routes needed since the curriculum page already has the two-panel layout
+- Change 7 navigates to existing `/dashboard/student/courses` rather than creating a new "My Courses" page (the existing `DashboardCourses` page serves this purpose)
+- Change 8 RLS update replaces existing "Users see own messages" policy with super_admin visibility
+- All existing routes preserved — only additive changes
+- No new dependencies required
 
