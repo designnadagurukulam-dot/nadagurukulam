@@ -846,6 +846,7 @@ export type Database = {
       feedback: {
         Row: {
           batch_id: string | null
+          categories: Json | null
           category: string | null
           id: string
           instructor_id: string | null
@@ -857,6 +858,7 @@ export type Database = {
         }
         Insert: {
           batch_id?: string | null
+          categories?: Json | null
           category?: string | null
           id?: string
           instructor_id?: string | null
@@ -868,6 +870,7 @@ export type Database = {
         }
         Update: {
           batch_id?: string | null
+          categories?: Json | null
           category?: string | null
           id?: string
           instructor_id?: string | null

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { MessageSquare, Send, ArrowLeft } from "lucide-react";
+import { MessageSquare, Send, ArrowLeft, Search } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,20 +17,35 @@ const StudentChat = () => {
   const [selectedTutor, setSelectedTutor] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const { data: tutors = [] } = useQuery({
-    queryKey: ["student-chat-tutors", user?.id],
+  // Fetch ALL verified instructors + admins
+  const { data: staffList = [] } = useQuery({
+    queryKey: ["student-chat-staff"],
     queryFn: async () => {
-      const { data: enrollments } = await supabase
-        .from("batch_enrollments").select("batch_id, batches(instructor_id)").eq("student_id", user!.id);
-      const instructorIds = [...new Set((enrollments || []).map((e: any) => e.batches?.instructor_id).filter(Boolean))];
-      if (!instructorIds.length) return [];
-      const { data: profiles } = await supabase.from("profiles").select("user_id, display_name, avatar_url").in("user_id", instructorIds);
-      return profiles || [];
+      const { data: roles } = await supabase
+        .from("user_roles")
+        .select("user_id, role")
+        .in("role", ["instructor", "admin"]);
+      if (!roles?.length) return [];
+      const userIds = roles.map(r => r.user_id);
+      const { data: profilesList } = await supabase
+        .from("profiles")
+        .select("user_id, display_name, avatar_url, designation, department, is_verified")
+        .in("user_id", userIds)
+        .eq("is_verified", true);
+      return (profilesList || []).map(p => ({
+        ...p,
+        role: roles.find(r => r.user_id === p.user_id)?.role || "instructor",
+      }));
     },
     enabled: !!user,
   });
+
+  const filteredStaff = staffList.filter((s: any) =>
+    !searchQuery || s.display_name?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const { data: messages = [] } = useQuery({
     queryKey: ["chat-messages", user?.id, selectedTutor],
@@ -86,7 +101,33 @@ const StudentChat = () => {
   };
 
   const getInitials = (name: string) => name?.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase() || "?";
-  const selectedTutorProfile = tutors.find((t: any) => t.user_id === selectedTutor);
+  const selectedStaffProfile = staffList.find((t: any) => t.user_id === selectedTutor);
+
+  const renderStaffItem = (staff: any, isMobile = false) => (
+    <button
+      key={staff.user_id}
+      onClick={() => setSelectedTutor(staff.user_id)}
+      className={`w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all ${isMobile ? 'min-h-[52px]' : 'min-h-[48px]'} ${
+        selectedTutor === staff.user_id ? "bg-gradient-to-r from-brand-gold-pale to-brand-cream border border-brand-gold/30" : "hover:bg-brand-cream"
+      }`}
+    >
+      <div className="relative">
+        <div className={`${isMobile ? 'w-11 h-11' : 'w-10 h-10'} rounded-full bg-gradient-to-br from-brand-gold/30 to-brand-gold/10 flex items-center justify-center text-brand-primary font-bold text-xs shrink-0 border border-brand-gold/20`}>
+          {getInitials(staff.display_name)}
+        </div>
+        <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium text-brand-charcoal-mid truncate">{staff.display_name}</p>
+        <p className="text-xs text-brand-warm-grey truncate">{staff.designation || staff.department || (staff.role === 'admin' ? 'Admin' : 'Tutor')}</p>
+      </div>
+      {(unreadCounts as any)[staff.user_id] > 0 && (
+        <Badge className="bg-gradient-to-r from-brand-primary to-brand-primary-dark text-white text-[10px] h-5 min-w-[20px] flex items-center justify-center border-0">
+          {(unreadCounts as any)[staff.user_id]}
+        </Badge>
+      )}
+    </button>
+  );
 
   return (
     <div className="pt-2 h-[calc(100vh-3.5rem)] lg:h-[calc(100vh-2rem)]">
@@ -96,74 +137,55 @@ const StudentChat = () => {
             <MessageSquare className="w-5 h-5 text-brand-primary" />
           </div>
           <div>
-            <h1 className="font-serif text-xl sm:text-2xl font-semibold text-brand-primary">Chat</h1>
+            <h1 className="font-serif text-xl sm:text-2xl font-semibold text-brand-primary">Reach Out</h1>
             <div className="w-12 h-0.5 bg-gradient-to-r from-brand-gold to-transparent mt-0.5" />
-            <p className="text-brand-warm-grey text-xs sm:text-sm mt-0.5">Message your tutors</p>
+            <p className="text-brand-warm-grey text-xs sm:text-sm mt-0.5">Message any staff member</p>
           </div>
         </div>
 
         <div className="flex-1 flex gap-3 sm:gap-4 min-h-0">
-          {/* Tutor list - desktop */}
+          {/* Staff list - desktop */}
           <Card className="w-72 shrink-0 hidden md:flex flex-col bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)]">
+            <div className="p-3 pb-0">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-warm-grey" />
+                <Input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search staff..."
+                  className="pl-9 h-10 rounded-xl border-brand-parchment focus:border-brand-gold text-sm"
+                />
+              </div>
+            </div>
             <CardContent className="p-3 flex-1 overflow-y-auto space-y-1">
-              {tutors.length === 0 ? (
-                <p className="text-sm text-brand-warm-grey text-center py-8">No tutors assigned yet.</p>
+              {filteredStaff.length === 0 ? (
+                <p className="text-sm text-brand-warm-grey text-center py-8">No staff found.</p>
               ) : (
-                tutors.map((tutor: any) => (
-                  <button
-                    key={tutor.user_id}
-                    onClick={() => setSelectedTutor(tutor.user_id)}
-                    className={`w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all min-h-[48px] ${
-                      selectedTutor === tutor.user_id ? "bg-gradient-to-r from-brand-gold-pale to-brand-cream border border-brand-gold/30" : "hover:bg-brand-cream"
-                    }`}
-                  >
-                    <div className="relative">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-gold/30 to-brand-gold/10 flex items-center justify-center text-brand-primary font-bold text-xs shrink-0 border border-brand-gold/20">
-                        {getInitials(tutor.display_name)}
-                      </div>
-                      <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-brand-charcoal-mid truncate">{tutor.display_name}</p>
-                      <p className="text-xs text-brand-warm-grey">Tutor</p>
-                    </div>
-                    {(unreadCounts as any)[tutor.user_id] > 0 && (
-                      <Badge className="bg-gradient-to-r from-brand-primary to-brand-primary-dark text-white text-[10px] h-5 min-w-[20px] flex items-center justify-center border-0">
-                        {(unreadCounts as any)[tutor.user_id]}
-                      </Badge>
-                    )}
-                  </button>
-                ))
+                filteredStaff.map((staff: any) => renderStaffItem(staff))
               )}
             </CardContent>
           </Card>
 
-          {/* Mobile tutor select */}
+          {/* Mobile staff select */}
           <div className="md:hidden w-full">
             {!selectedTutor ? (
               <Card className="flex-1 bg-white rounded-2xl border border-brand-parchment">
+                <div className="p-2 pb-0">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-warm-grey" />
+                    <Input
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search staff..."
+                      className="pl-9 h-10 rounded-xl border-brand-parchment focus:border-brand-gold text-sm"
+                    />
+                  </div>
+                </div>
                 <CardContent className="p-2 space-y-1">
-                  {tutors.length === 0 ? (
-                    <p className="text-sm text-brand-warm-grey text-center py-8">No tutors assigned yet.</p>
+                  {filteredStaff.length === 0 ? (
+                    <p className="text-sm text-brand-warm-grey text-center py-8">No staff found.</p>
                   ) : (
-                    tutors.map((tutor: any) => (
-                      <button key={tutor.user_id} onClick={() => setSelectedTutor(tutor.user_id)}
-                        className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-brand-cream text-left min-h-[52px]">
-                        <div className="relative">
-                          <div className="w-11 h-11 rounded-full bg-gradient-to-br from-brand-gold/30 to-brand-gold/10 flex items-center justify-center text-brand-primary font-bold text-xs shrink-0 border border-brand-gold/20">
-                            {getInitials(tutor.display_name)}
-                          </div>
-                          <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-brand-charcoal-mid truncate">{tutor.display_name}</p>
-                          <p className="text-xs text-brand-warm-grey">Tutor</p>
-                        </div>
-                        {(unreadCounts as any)[tutor.user_id] > 0 && (
-                          <Badge className="bg-gradient-to-r from-brand-primary to-brand-primary-dark text-white text-xs border-0">{(unreadCounts as any)[tutor.user_id]}</Badge>
-                        )}
-                      </button>
-                    ))
+                    filteredStaff.map((staff: any) => renderStaffItem(staff, true))
                   )}
                 </CardContent>
               </Card>
@@ -173,20 +195,19 @@ const StudentChat = () => {
           {/* Chat area */}
           {selectedTutor && (
             <Card className="flex-1 flex flex-col min-h-0 bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] overflow-hidden">
-              {/* Gradient chat header */}
               <div className="bg-gradient-to-r from-brand-primary to-brand-primary-dark p-3 sm:p-4 flex items-center gap-3">
                 <button className="md:hidden w-9 h-9 flex items-center justify-center rounded-lg hover:bg-white/10 text-white" onClick={() => setSelectedTutor(null)}>
                   <ArrowLeft className="h-5 w-5" />
                 </button>
                 <div className="relative">
                   <div className="w-9 h-9 rounded-full bg-gradient-to-br from-brand-gold to-brand-gold-light flex items-center justify-center text-brand-primary font-bold text-xs shrink-0">
-                    {getInitials(selectedTutorProfile?.display_name || "")}
+                    {getInitials(selectedStaffProfile?.display_name || "")}
                   </div>
                   <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-brand-primary" />
                 </div>
                 <div>
-                  <p className="font-semibold text-sm text-white truncate">{selectedTutorProfile?.display_name}</p>
-                  <p className="text-[10px] text-white/50">Tutor · Online</p>
+                  <p className="font-semibold text-sm text-white truncate">{selectedStaffProfile?.display_name}</p>
+                  <p className="text-[10px] text-white/50">{selectedStaffProfile?.designation || selectedStaffProfile?.department || (selectedStaffProfile?.role === 'admin' ? 'Admin' : 'Tutor')} · Online</p>
                 </div>
               </div>
               <ScrollArea className="flex-1 p-3 sm:p-4">
@@ -240,7 +261,7 @@ const StudentChat = () => {
                 <div className="w-16 h-16 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 flex items-center justify-center mx-auto mb-3">
                   <MessageSquare className="h-7 w-7 text-brand-gold" />
                 </div>
-                <p className="font-serif text-brand-primary font-semibold">Select a tutor to start chatting</p>
+                <p className="font-serif text-brand-primary font-semibold">Select a staff member to start chatting</p>
                 <p className="text-xs text-brand-warm-grey mt-1">Your conversations are private and secure</p>
               </CardContent>
             </Card>

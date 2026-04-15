@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ClipboardList, FileText, Upload, ExternalLink, Video, Award, CloudUpload, Clock, Eye, Calendar } from "lucide-react";
+import { ClipboardList, FileText, Upload, ExternalLink, Video, Award, CloudUpload, Clock, Eye, Calendar, Pencil, X, Trash2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -24,6 +24,12 @@ const DashboardAssignments = () => {
   const [showSubmitForm, setShowSubmitForm] = useState(false);
   const [textContent, setTextContent] = useState("");
   const [file, setFile] = useState<File | null>(null);
+
+  // Edit submission state
+  const [editingSubmission, setEditingSubmission] = useState<any>(null);
+  const [editText, setEditText] = useState("");
+  const [editFile, setEditFile] = useState<File | null>(null);
+  const [removeExistingFile, setRemoveExistingFile] = useState(false);
 
   const { data: assignmentsData = [], isLoading } = useQuery({
     queryKey: ["student-assignments", user?.id],
@@ -77,6 +83,35 @@ const DashboardAssignments = () => {
     onError: (err: any) => toast.error(err.message),
   });
 
+  const editMutation = useMutation({
+    mutationFn: async ({ submissionId, assignmentId }: { submissionId: string; assignmentId: string }) => {
+      let file_url = editingSubmission.file_url;
+
+      if (removeExistingFile && !editFile) {
+        file_url = null;
+      }
+
+      if (editFile) {
+        const filePath = `submissions/${user!.id}/${Date.now()}_${editFile.name}`;
+        const { error: uploadError } = await supabase.storage.from("assignment-files").upload(filePath, editFile);
+        if (uploadError) throw uploadError;
+        file_url = filePath;
+      }
+
+      const { error } = await supabase
+        .from("assignment_submissions")
+        .update({ text_content: editText || null, file_url, updated_at: new Date().toISOString() })
+        .eq("id", submissionId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["student-assignments"] });
+      setEditingSubmission(null); setEditText(""); setEditFile(null); setRemoveExistingFile(false);
+      toast.success("Submission updated!");
+    },
+    onError: (err: any) => toast.error(err.message),
+  });
+
   const downloadFile = async (path: string) => {
     const { data, error } = await supabase.storage.from("assignment-files").createSignedUrl(path, 3600);
     if (error) { toast.error("Failed to get download link"); return; }
@@ -107,6 +142,13 @@ const DashboardAssignments = () => {
     setShowSubmitForm(false);
     setTextContent("");
     setFile(null);
+  };
+
+  const openEditSubmission = (a: any) => {
+    setEditingSubmission(a.submission);
+    setEditText(a.submission?.text_content || "");
+    setEditFile(null);
+    setRemoveExistingFile(false);
   };
 
   const renderAssignment = (a: any) => (
@@ -205,7 +247,6 @@ const DashboardAssignments = () => {
         <DialogContent className="max-w-[95vw] sm:max-w-lg rounded-2xl border-brand-parchment overflow-hidden p-0 max-h-[90vh] overflow-y-auto">
           {a && (
             <>
-              {/* Header */}
               <div className="bg-gradient-to-r from-brand-primary to-brand-primary-dark p-4 sm:p-5">
                 <div className="flex items-start gap-3">
                   <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0 mt-0.5">
@@ -219,7 +260,6 @@ const DashboardAssignments = () => {
               </div>
 
               <div className="p-4 sm:p-5 space-y-4">
-                {/* Due date & status badges */}
                 <div className="flex flex-wrap gap-2">
                   {a.due_date && (
                     <Badge className={`${getDueBadgeColor(a.due_date, a.status)} border-0 text-xs gap-1`}>
@@ -232,7 +272,6 @@ const DashboardAssignments = () => {
                   {(a.status === "pending" || a.status === "overdue") && !a.submission && <Badge className="bg-blue-50 text-blue-700 border-0 text-xs">Not Submitted</Badge>}
                 </div>
 
-                {/* Description */}
                 {a.description && (
                   <div className="bg-brand-cream rounded-xl p-3">
                     <p className="text-xs font-semibold text-brand-charcoal-mid mb-1 uppercase tracking-wider">Description</p>
@@ -240,7 +279,6 @@ const DashboardAssignments = () => {
                   </div>
                 )}
 
-                {/* Resources */}
                 {(a.pdf_url || a.video_url || a.external_link) && (
                   <div>
                     <p className="text-xs font-semibold text-brand-charcoal-mid mb-2 uppercase tracking-wider">Resources</p>
@@ -268,7 +306,6 @@ const DashboardAssignments = () => {
                   </div>
                 )}
 
-                {/* Grade info if graded */}
                 {a.submission?.status === "graded" && (
                   <div className="p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-100">
                     <span className="font-medium text-green-700 flex items-center gap-1.5 text-sm">
@@ -278,7 +315,6 @@ const DashboardAssignments = () => {
                   </div>
                 )}
 
-                {/* Submit section */}
                 {!a.submission && !showSubmitForm && (
                   <Button
                     onClick={() => setShowSubmitForm(true)}
@@ -288,7 +324,6 @@ const DashboardAssignments = () => {
                   </Button>
                 )}
 
-                {/* Submit form inline */}
                 {!a.submission && showSubmitForm && (
                   <div className="space-y-3 border-t border-brand-parchment pt-4">
                     <div className="flex items-center gap-2 mb-2">
@@ -314,15 +349,86 @@ const DashboardAssignments = () => {
                   </div>
                 )}
 
+                {/* Submitted — show edit option if ungraded */}
                 {a.submission && a.status === "submitted" && (
-                  <div className="p-3 bg-amber-50 rounded-xl border border-amber-100 text-center">
-                    <p className="text-sm text-amber-700 font-medium">Your submission is being reviewed</p>
-                    <p className="text-xs text-amber-600 mt-1">Submitted on {format(new Date(a.submission.submitted_at), "MMM dd, yyyy h:mm a")}</p>
+                  <div className="space-y-3">
+                    <div className="p-3 bg-amber-50 rounded-xl border border-amber-100 text-center">
+                      <p className="text-sm text-amber-700 font-medium">Your submission is being reviewed</p>
+                      <p className="text-xs text-amber-600 mt-1">Submitted on {format(new Date(a.submission.submitted_at), "MMM dd, yyyy h:mm a")}</p>
+                    </div>
+                    {!a.submission.grade ? (
+                      <Button
+                        variant="outline"
+                        onClick={() => openEditSubmission(a)}
+                        className="w-full gap-2 text-brand-primary border-brand-parchment hover:bg-brand-gold-pale rounded-xl min-h-[44px]"
+                      >
+                        <Pencil className="h-4 w-4" /> Edit Submission
+                      </Button>
+                    ) : (
+                      <p className="text-xs text-brand-warm-grey text-center">Graded — cannot edit</p>
+                    )}
                   </div>
                 )}
               </div>
             </>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Submission Dialog */}
+      <Dialog open={!!editingSubmission} onOpenChange={(open) => { if (!open) { setEditingSubmission(null); } }}>
+        <DialogContent className="max-w-[95vw] sm:max-w-md rounded-2xl border-brand-parchment">
+          <DialogHeader>
+            <DialogTitle className="font-serif text-brand-primary">Edit Submission</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label className="text-[11px] uppercase tracking-widest text-brand-warm-grey font-semibold">Text Response</Label>
+              <Textarea
+                value={editText}
+                onChange={(e) => setEditText(e.target.value)}
+                placeholder="Your response..."
+                rows={4}
+                className="mt-1 rounded-xl border-brand-parchment focus:border-brand-gold focus:ring-brand-gold/20"
+              />
+            </div>
+
+            {/* Existing file */}
+            {editingSubmission?.file_url && !removeExistingFile && (
+              <div className="flex items-center gap-2 p-2.5 bg-blue-50 rounded-xl border border-blue-100">
+                <FileText className="h-4 w-4 text-blue-600 shrink-0" />
+                <span className="text-xs text-blue-700 flex-1 truncate">{editingSubmission.file_url.split("/").pop()}</span>
+                <button
+                  onClick={() => setRemoveExistingFile(true)}
+                  className="w-7 h-7 rounded-lg bg-red-100 flex items-center justify-center hover:bg-red-200 transition-colors shrink-0"
+                >
+                  <Trash2 className="h-3.5 w-3.5 text-red-600" />
+                </button>
+              </div>
+            )}
+
+            {/* Upload new file */}
+            {(removeExistingFile || !editingSubmission?.file_url) && (
+              <div>
+                <Label className="text-[11px] uppercase tracking-widest text-brand-warm-grey font-semibold">
+                  {removeExistingFile ? "Replace with new file (optional)" : "Attach File (optional)"}
+                </Label>
+                <Input
+                  type="file"
+                  onChange={(e) => setEditFile(e.target.files?.[0] || null)}
+                  className="mt-1 border-brand-parchment rounded-xl focus:border-brand-gold focus:ring-brand-gold/20 h-11"
+                />
+              </div>
+            )}
+
+            <Button
+              onClick={() => editMutation.mutate({ submissionId: editingSubmission.id, assignmentId: editingSubmission.assignment_id })}
+              disabled={editMutation.isPending}
+              className="w-full bg-brand-primary hover:bg-brand-primary-dark text-white rounded-xl min-h-[44px] gap-2"
+            >
+              {editMutation.isPending ? "Saving..." : "Save Changes"}
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

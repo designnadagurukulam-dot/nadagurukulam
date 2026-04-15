@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { MessageSquare, Star, Filter, MessageCircle, Eye } from "lucide-react";
+import { MessageSquare, Star, Filter, MessageCircle, Eye, ChevronDown, ChevronUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -11,25 +11,36 @@ import { supabase } from "@/integrations/supabase/client";
 const AdminFeedback = () => {
   const [feedback, setFeedback] = useState<any[]>([]);
   const [profiles, setProfiles] = useState<Record<string, string>>({});
+  const [instructorProfiles, setInstructorProfiles] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [ratingFilter, setRatingFilter] = useState("all");
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetch = async () => {
+    const fetchData = async () => {
       const { data } = await supabase.from("feedback").select("*").order("submitted_at", { ascending: false });
       const items = data || [];
       setFeedback(items);
+
       const nonAnon = items.filter(f => !f.is_anonymous).map(f => f.student_id);
-      if (nonAnon.length > 0) {
-        const { data: profs } = await supabase.from("profiles").select("user_id, display_name").in("user_id", [...new Set(nonAnon)]);
-        const map: Record<string, string> = {};
-        (profs || []).forEach(p => { map[p.user_id] = p.display_name || "Student"; });
-        setProfiles(map);
+      const instructorIds = [...new Set(items.map(f => f.instructor_id).filter(Boolean))];
+
+      const allIds = [...new Set([...nonAnon, ...instructorIds])];
+      if (allIds.length > 0) {
+        const { data: profs } = await supabase.from("profiles").select("user_id, display_name").in("user_id", allIds);
+        const studentMap: Record<string, string> = {};
+        const instrMap: Record<string, string> = {};
+        (profs || []).forEach(p => {
+          if (nonAnon.includes(p.user_id)) studentMap[p.user_id] = p.display_name || "Student";
+          if (instructorIds.includes(p.user_id)) instrMap[p.user_id] = p.display_name || "Instructor";
+        });
+        setProfiles(studentMap);
+        setInstructorProfiles(instrMap);
       }
       setLoading(false);
     };
-    fetch();
+    fetchData();
   }, []);
 
   const categories = [...new Set(feedback.map(f => f.category).filter(Boolean))];
@@ -53,6 +64,14 @@ const AdminFeedback = () => {
       </div>
     );
   }
+
+  const parseCategoriesJson = (f: any): any[] | null => {
+    try {
+      const cats = f.categories;
+      if (Array.isArray(cats) && cats.length > 0) return cats;
+      return null;
+    } catch { return null; }
+  };
 
   return (
     <div className="space-y-6 pt-2">
@@ -124,38 +143,88 @@ const AdminFeedback = () => {
         </div>
       ) : (
         <div className="space-y-3">
-          {filtered.map((f, i) => (
-            <motion.div key={f.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}>
-              <div className="group bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-5 hover:bg-brand-cream hover:-translate-y-0.5 hover:shadow-[0_4px_30px_rgba(196,154,60,0.15)] transition-all duration-300">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 flex items-center justify-center text-brand-primary font-serif font-bold text-xs">
-                        {f.is_anonymous ? "?" : (profiles[f.student_id] || "S")[0].toUpperCase()}
+          {filtered.map((f, i) => {
+            const cats = parseCategoriesJson(f);
+            const isExpanded = expandedId === f.id;
+            return (
+              <motion.div key={f.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}>
+                <div className="group bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-5 hover:bg-brand-cream hover:-translate-y-0.5 hover:shadow-[0_4px_30px_rgba(196,154,60,0.15)] transition-all duration-300">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2 flex-wrap">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 flex items-center justify-center text-brand-primary font-serif font-bold text-xs">
+                          {f.is_anonymous ? "?" : (profiles[f.student_id] || "S")[0].toUpperCase()}
+                        </div>
+                        <span className="font-medium text-sm text-brand-charcoal">
+                          {f.is_anonymous ? "Anonymous" : (profiles[f.student_id] || "Student")}
+                        </span>
+                        {f.instructor_id && instructorProfiles[f.instructor_id] && (
+                          <Badge className="bg-brand-cream-dark text-brand-charcoal-mid border-0 text-[10px]">
+                            → {instructorProfiles[f.instructor_id]}
+                          </Badge>
+                        )}
+                        {f.category && !cats && (
+                          <Badge className="bg-brand-gold-pale text-brand-gold-dark border border-brand-parchment text-[10px]">{f.category}</Badge>
+                        )}
                       </div>
-                      <span className="font-medium text-sm text-brand-charcoal">
-                        {f.is_anonymous ? "Anonymous" : (profiles[f.student_id] || "Student")}
-                      </span>
-                      {f.category && (
-                        <Badge className="bg-brand-gold-pale text-brand-gold-dark border border-brand-parchment text-[10px]">{f.category}</Badge>
+
+                      {/* Multi-category display */}
+                      {cats ? (
+                        <div>
+                          <button
+                            onClick={() => setExpandedId(isExpanded ? null : f.id)}
+                            className="flex items-center gap-1.5 text-xs text-brand-primary font-semibold mb-2 hover:text-brand-gold transition-colors"
+                          >
+                            {cats.length} categories rated
+                            {isExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+                          </button>
+                          {isExpanded && (
+                            <div className="space-y-2.5 mt-2">
+                              {cats.map((cat: any, ci: number) => (
+                                <div key={ci} className="bg-brand-cream/60 rounded-xl p-3 border border-brand-parchment/50">
+                                  <div className="flex items-center justify-between mb-1">
+                                    <Badge className="bg-brand-gold-pale text-brand-gold-dark border border-brand-parchment text-[10px]">{cat.category}</Badge>
+                                    <div className="flex items-center gap-0.5">
+                                      {Array.from({ length: 5 }).map((_, si) => (
+                                        <Star key={si} className={`h-3 w-3 ${si < cat.rating ? "text-brand-gold fill-brand-gold" : "text-brand-parchment"}`} />
+                                      ))}
+                                    </div>
+                                  </div>
+                                  <p className="text-sm text-brand-charcoal/80 leading-relaxed">{cat.comment}</p>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          {!isExpanded && (
+                            <p className="text-sm text-brand-charcoal/80 leading-relaxed line-clamp-2">{f.message}</p>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-brand-charcoal/80 leading-relaxed">{f.message}</p>
                       )}
+
+                      <p className="text-xs text-brand-warm-grey mt-2">
+                        {f.submitted_at ? new Date(f.submitted_at).toLocaleDateString() : ""}
+                      </p>
                     </div>
-                    <p className="text-sm text-brand-charcoal/80 leading-relaxed">{f.message}</p>
-                    <p className="text-xs text-brand-warm-grey mt-2">
-                      {f.submitted_at ? new Date(f.submitted_at).toLocaleDateString() : ""}
-                    </p>
+                    {f.rating && !cats && (
+                      <div className="flex items-center gap-0.5 shrink-0">
+                        {Array.from({ length: 5 }).map((_, idx) => (
+                          <Star key={idx} className={`h-4 w-4 ${idx < f.rating ? "text-brand-gold fill-brand-gold" : "text-brand-parchment"}`} />
+                        ))}
+                      </div>
+                    )}
+                    {f.rating && cats && (
+                      <div className="flex items-center gap-1 shrink-0">
+                        <Star className="h-4 w-4 text-brand-gold fill-brand-gold" />
+                        <span className="text-sm font-bold text-brand-primary">{f.rating}</span>
+                      </div>
+                    )}
                   </div>
-                  {f.rating && (
-                    <div className="flex items-center gap-0.5 shrink-0">
-                      {Array.from({ length: 5 }).map((_, idx) => (
-                        <Star key={idx} className={`h-4 w-4 ${idx < f.rating ? "text-brand-gold fill-brand-gold" : "text-brand-parchment"}`} />
-                      ))}
-                    </div>
-                  )}
                 </div>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            );
+          })}
         </div>
       )}
     </div>
