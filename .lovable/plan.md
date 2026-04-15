@@ -1,97 +1,93 @@
 
 
-# Admin Panel Integration — Full Alignment with Student & Tutor Dashboards
+# UI Enhancement & Chat Integration Plan
 
 ## Summary
-Audit and upgrade all admin panel pages to ensure proper integration with recent student dashboard changes (multi-category feedback, Reach Out messaging, editable submissions, recent activity) and tutor dashboard changes (live classes with online/offline/past tabs, master meeting links, audience segmentation, assignment completion analytics). This involves updating 8 existing admin pages, enhancing the admin overview with new metrics, and adding missing admin-side views for features that currently exist only in student/tutor dashboards.
+Four areas of work: (1) Unify chat functionality across all dashboards, (2) Redesign Events page with calendar-style UI, (3) Polish landing page styling and alignment, (4) Comprehensive mobile responsiveness fixes across all public pages and menus.
 
 ---
 
 ## Changes
 
-### 1. AdminOverview.tsx — Add Missing Stat Cards & Quick Actions
-**Current gap**: Overview doesn't show ungraded submissions count, unread messages, or new feedback count prominently.
-- Add stat cards: "Ungraded Submissions" (count from `assignment_submissions` where `grade IS NULL`), "Unread Messages" (from `messages` where `is_read = false`)
-- Add quick action: "Message Monitor" (only if super_admin)
-- Replace random mock `activityData` with real activity counts from `activity_logs` grouped by day for the current week
-- Add "Recent Feedback" quick link card showing latest feedback count
+### 1. Chat System — Add to Tutor & Admin Dashboards
 
-### 2. AdminFeedback.tsx — Full Multi-Category Support
-**Current gap**: Filters only work on legacy `category` field, not on `categories` JSONB.
-- Update category filter to scan inside `categories` JSONB array (if present) — extract all unique category names from both legacy `category` and JSONB `categories[].category`
-- Update average rating calculation: for multi-category feedback, compute average across all category ratings, not just the top-level `rating` field
-- Add a "Rating Distribution" mini chart (bar chart showing count of 1-5 star ratings)
-- Add "Export Feedback" button (CSV download) for admin reporting
+**Current state**: StudentChat (Reach Out) is fully functional. TutorMessages has a similar but separate implementation. AdminMessages is read-only for super_admin only.
 
-### 3. AdminLiveClasses.tsx — Align with Tutor Online/Offline/Audience Model
-**Current gap**: Shows flat list without distinguishing online vs offline classes or audience type. No tutor master link visibility.
-- Add a `class_type` filter tab or badge column: Online / Offline (matching tutor's model)
-- Show `audience_type` badge: "All Batches" (gold) vs "Specific Batch" (default) on each row
-- Add a column showing tutor's master Zoom/Meet link (from `profiles.zoom_link`/`profiles.meet_link`) when the class `meeting_link` matches the master link
-- Add "LIVE NOW" count in the summary stats
+**Changes**:
+- **TutorMessages.tsx**: Upgrade to match StudentChat's UI — add search bar, unread badge indicators, empty state illustrations, mobile-responsive stacked layout (list → thread view on tap)
+- **AdminMessages.tsx**: Allow regular admins (not just super_admin) to send messages to tutors and students — add a "New Message" button with staff/student picker. Super admin keeps read-only monitoring mode. Add mobile stacking for thread panels.
+- **DashboardSidebar.tsx**: Rename tutor "Messages" to "Reach Out" for consistency across roles. Add "Messages" link for admin role (not just super_admin).
+- **App.tsx**: Update admin messages route to allow both `admin` and `super_admin` roles.
 
-### 4. AdminStudents.tsx — Add Master Meeting Link Management (Already Partially Done)
-**Current state**: Already has a "Set Meeting Links" dialog for tutors. Verify it works correctly.
-- Ensure the "Set Master Links" button only appears for users with `instructor` role
-- Add a column or filter to show tutors who have NOT set their master links (missing `zoom_link` AND `meet_link`)
-- Make the tutor filter show batch count and student count next to each tutor name
+### 2. Events Page — Calendar-Style UI Redesign
 
-### 5. Admin Assignments Page (Currently Missing — Reuses AdminCourses)
-**Current gap**: Route `/dashboard/admin/assignments` points to `AdminCourses` component, which is wrong — it shows courses, not assignments.
-- Create a new `AdminAssignments.tsx` page that shows:
-  - All assignments across all tutors with instructor name, course name, batch, due date, submission count
-  - Summary stats: Total Assignments, Total Submissions, Ungraded count, Overdue count
-  - Tabs: All / Pending Grading / Graded / Overdue
-  - Click on an assignment row expands to show submissions with student name, submitted date, grade status
-  - Admin can view but not edit grades (grading is tutor's responsibility)
-- Update `App.tsx` to point `/dashboard/admin/assignments` to the new component
+**Current state**: Simple list of event cards with image + metadata.
 
-### 6. AdminMessages.tsx — Polish & Add Conversation Stats
-**Current state**: Already functional for super_admin with read-only thread view.
-- Add summary stats at top: Total Conversations, Total Messages, Active Today
-- Add role badges next to participant names (Student / Instructor / Admin)
-- Add "Flag Conversation" button on each thread that inserts a flag into message metadata
-- Mobile responsive: stack left/right panels vertically on small screens
+**Changes to `Events.tsx`**:
+- Add a visual **monthly calendar grid** at the top showing event dates highlighted with gold dots
+- Use a two-panel layout: left side shows a compact calendar (using the existing `Calendar` component from shadcn), right side shows event cards for the selected date or "all upcoming"
+- Each event card redesigned as a **calendar-style card**: large date badge (day number + month) on the left, event details on the right, with a colored left border (gold for upcoming, muted for past)
+- Add month navigation arrows and "Today" button
+- Past events shown in a collapsible "Past Events" accordion instead of a separate section
+- Mobile: calendar grid collapses to a horizontal scrolling date strip
 
-### 7. AdminSchedule.tsx — Show Tutor Live Classes in Timetable
-**Current gap**: Schedule only shows admin-created schedule entries, not tutor-created live classes.
-- Add a secondary section or tab "Live Classes" that pulls from `live_classes` table, showing them alongside admin schedules
-- Show class_type (Online/Offline) badge and audience_type
-- Keep admin schedule creation form as-is
+### 3. Landing Page — UI Polish & Color Theme Refinement
 
-### 8. AdminAnalytics.tsx — Add Assignment Completion & Feedback Analytics
-**Current gap**: Analytics only shows enrollment, course, and revenue charts. Missing assignment and feedback analytics.
-- Add Section: "Assignment Analytics" — total assignments, completion rate (submissions/assignments × enrolled students), average grade distribution
-- Add Section: "Feedback Analytics" — average rating trend over time, category breakdown pie chart from JSONB `categories`
-- Add Section: "Live Class Analytics" — total classes, online vs offline split, attendance (if tracked)
-- Add Section: "Active Users" — daily active users from `activity_logs` grouped by date for last 30 days
+**Changes to `Index.tsx`**:
+- **Hero**: Increase contrast on subtitle text (from `/50` to `/70` opacity). Add subtle golden border glow around the logo badge.
+- **Founder section**: Tighter spacing on mobile, ensure image doesn't overflow on small screens
+- **Features cards**: Add a subtle gradient background to the section (cream → white → cream) for visual separation
+- **Course carousel**: Add manual swipe/drag support on mobile (currently auto-scroll only)
+- **Stats section**: Ensure numbers are legible on all screen sizes — increase text size on mobile
+- **Faculty strip**: Increase portrait sizes on mobile for better visibility
+- **CTA section**: Add a secondary "Explore Courses" link below the primary button
+- **Testimonials**: Add left/right arrow buttons for manual navigation alongside dots
 
-### 9. AdminBatches.tsx — Show Linked Live Classes & Assignment Count
-**Current gap**: Batch detail only shows enrolled students, not associated live classes or assignments.
-- In the batch detail/enrollment dialog, add tabs: "Students" (existing) | "Live Classes" | "Assignments"
-- "Live Classes" tab: query `live_classes` where `batch_id = batch.id`, show title, date, status
-- "Assignments" tab: query `assignments` where `batch_id = batch.id`, show title, due date, submission count
+**Changes to `index.css`**:
+- Refine `--secondary` to be actual gold (`38 55% 50%`) instead of pale cream for better visual impact on buttons and badges
+- Add a `.calendar-date-badge` utility class for the Events calendar cards
 
-### 10. App.tsx Route Fix
-- Import new `AdminAssignments` component
-- Update `/dashboard/admin/assignments` route to use `AdminAssignments` instead of `AdminCourses`
+### 4. Mobile Responsiveness — Comprehensive Fixes
+
+**Navbar.tsx**:
+- Add safe area padding for notched phones (`env(safe-area-inset-top)`)
+- Ensure mobile menu items have 44px minimum touch targets (currently `py-4` = good)
+- Add a subtle backdrop overlay behind mobile menu
+
+**Footer.tsx**:
+- Stack social icons in a 2-row grid on very small screens (< 375px)
+- Add bottom safe area padding for home indicator
+
+**Index.tsx** (mobile fixes):
+- Hero text: cap at `text-3xl` on 360px screens using `min()` or smaller breakpoint
+- Campus bento grid: single column on mobile instead of 2-col
+- Marquee: reduce speed on mobile for readability
+
+**Events.tsx** (mobile):
+- Calendar strip instead of full grid on small screens
+- Event cards: full-width single column with adequate padding
+
+**DashboardSidebar.tsx**:
+- Ensure sidebar overlay is full-screen with no scroll leak
+- Add swipe-to-close gesture hint on mobile
+
+**General** (across all public pages):
+- Audit all `container mx-auto px-4` sections for consistent horizontal padding
+- Ensure no horizontal overflow on 320px viewport
 
 ---
 
 ## Files Modified
-1. `src/pages/admin/AdminOverview.tsx` — real activity data, new stats
-2. `src/pages/admin/AdminFeedback.tsx` — JSONB-aware filters, export
-3. `src/pages/admin/AdminLiveClasses.tsx` — class_type/audience badges
-4. `src/pages/admin/AdminStudents.tsx` — master link completeness indicator
-5. `src/pages/admin/AdminMessages.tsx` — stats, role badges, mobile responsive
-6. `src/pages/admin/AdminSchedule.tsx` — live classes integration
-7. `src/pages/admin/AdminAnalytics.tsx` — 4 new analytics sections
-8. `src/pages/admin/AdminBatches.tsx` — linked live classes & assignments tabs
-9. `src/App.tsx` — route fix for assignments
-
-## New Files
-1. `src/pages/admin/AdminAssignments.tsx` — dedicated assignments management page
+1. `src/pages/Events.tsx` — Complete calendar-style redesign
+2. `src/pages/Index.tsx` — UI polish, mobile fixes, secondary color usage
+3. `src/index.css` — Secondary color refinement, calendar utilities, mobile safe areas
+4. `src/components/Navbar.tsx` — Mobile menu polish
+5. `src/components/Footer.tsx` — Mobile grid fixes
+6. `src/pages/instructor/TutorMessages.tsx` — Upgraded chat UI matching StudentChat
+7. `src/pages/admin/AdminMessages.tsx` — Admin messaging capability + mobile responsive
+8. `src/components/DashboardSidebar.tsx` — Label consistency, admin messages access
+9. `src/App.tsx` — Route permission update for admin messages
 
 ## No Database Migrations Required
-All data already exists in tables. This is purely UI/query integration work.
+All chat tables and RLS policies already exist.
 
