@@ -46,7 +46,7 @@ const Footer = () => {
               <p className="text-sm text-primary-foreground/65 leading-relaxed">
                 A premier institution for Indian classical music and dance under Sri Sathya Sai University for Human Excellence. Nurturing talent through the traditional Guru-Shishya system.
               </p>
-              <div className="flex gap-3 mt-6">
+              <div className="grid grid-cols-4 xs:flex gap-3 mt-6">
                 {[
                   { Icon: Youtube, href: "#" },
                   { Icon: Instagram, href: "#" },
@@ -56,7 +56,7 @@ const Footer = () => {
                   <a
                     key={i}
                     href={href}
-                    className="p-2.5 rounded-full bg-primary-foreground/8 hover:bg-secondary/30 hover:scale-110 hover:shadow-lg hover:shadow-secondary/20 transition-all duration-300 border border-primary-foreground/10 hover:border-secondary/30"
+                    className="p-2.5 rounded-full bg-primary-foreground/8 hover:bg-secondary/30 hover:scale-110 hover:shadow-lg hover:shadow-secondary/20 transition-all duration-300 border border-primary-foreground/10 hover:border-secondary/30 flex items-center justify-center"
                   >
                     <Icon className="h-4 w-4" />
                   </a>
@@ -140,7 +140,7 @@ const Footer = () => {
         </div>
 
         {/* Bottom bar */}
-        <div className="border-t border-primary-foreground/8 relative z-10">
+        <div className="border-t border-primary-foreground/8 relative z-10" style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}>
           <div className="container mx-auto px-4 py-5 flex flex-col md:flex-row items-center justify-between text-[11px] sm:text-xs text-primary-foreground/40 flex-wrap gap-1 text-center">
             <p>© {new Date().getFullYear()} Nada Gurukulam. All rights reserved.</p>
             <p className="mt-1 md:mt-0">Sri Sathya Sai University for Human Excellence</p>

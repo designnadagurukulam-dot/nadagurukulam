@@ -159,7 +159,7 @@ const App = () => (
             <Route path="/dashboard/admin/batches" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminBatches /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/admin/feedback" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminFeedback /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/admin/live-classes" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminLiveClasses /></DashboardLayout></RoleProtectedRoute>} />
-            <Route path="/dashboard/admin/messages" element={<RoleProtectedRoute allowedRoles={["super_admin"]}><DashboardLayout><AdminMessages /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/admin/messages" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminMessages /></DashboardLayout></RoleProtectedRoute>} />
 
             <Route path="*" element={<Layout><NotFound /></Layout>} />
           </Routes>

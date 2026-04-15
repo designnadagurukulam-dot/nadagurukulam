@@ -44,6 +44,7 @@ const Navbar = () => {
           ? "bg-background/95 backdrop-blur-2xl shadow-xl border-b border-border"
           : "bg-background/50 backdrop-blur-xl border-b border-transparent"
       }`}
+      style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
     >
       <div
         className={`absolute bottom-0 left-0 right-0 h-[2px] transition-opacity duration-500 ${
@@ -115,10 +116,13 @@ const Navbar = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="lg:hidden fixed inset-0 top-[76px] z-40 bg-background/98 backdrop-blur-2xl"
+            className="lg:hidden fixed inset-0 top-[76px] z-40"
+            style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
           >
+            {/* Backdrop overlay */}
+            <div className="absolute inset-0 bg-background/98 backdrop-blur-2xl" />
             <div className="h-1 w-full" style={{ background: "linear-gradient(90deg, hsl(358 68% 28%), hsl(33 62% 58%), hsl(358 68% 28%))" }} />
-            <nav className="container mx-auto flex flex-col gap-1 p-6 pt-6">
+            <nav className="container mx-auto flex flex-col gap-1 p-6 pt-6 relative z-10">
               {navLinks.map((link, i) => (
                 <motion.div
                   key={link.to}
