@@ -221,12 +221,12 @@ const Index = () => {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8 }}
-            className="inline-flex items-center gap-3 px-6 py-2 rounded-full border border-border bg-background/95 backdrop-blur-2xl shadow-xl mb-8"
+            className="inline-flex items-center gap-3 px-6 py-2 rounded-full border border-secondary/40 bg-background/95 backdrop-blur-2xl shadow-xl mb-8 ring-2 ring-secondary/20"
           >
             <img src={logo} alt="Nada Gurukulam" className="h-12 md:h-16 w-auto object-contain" />
           </motion.div>
 
-          <motion.h1 className="font-serif text-4xl sm:text-6xl md:text-8xl lg:text-[7rem] font-extrabold text-primary-foreground leading-[0.95] mb-8" style={{ textShadow: "0 6px 60px hsl(0 0% 0% / 0.6)" }}>
+          <motion.h1 className="font-serif text-3xl sm:text-6xl md:text-8xl lg:text-[7rem] font-extrabold text-primary-foreground leading-[0.95] mb-8" style={{ textShadow: "0 6px 60px hsl(0 0% 0% / 0.6)" }}>
             {"Nada".split("").map((char, i) => (
               <motion.span
                 key={i}
@@ -255,7 +255,7 @@ const Index = () => {
             </span>
           </motion.h1>
 
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.4, duration: 0.8 }} className="text-primary-foreground/50 text-base sm:text-lg md:text-xl mb-14 max-w-2xl mx-auto leading-relaxed tracking-wide">
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.4, duration: 0.8 }} className="text-primary-foreground/70 text-sm sm:text-lg md:text-xl mb-14 max-w-2xl mx-auto leading-relaxed tracking-wide">
             Traditional Guru-Shishya System meets Modern Education in Indian Classical Music & Dance
           </motion.p>
 
@@ -371,7 +371,7 @@ const Index = () => {
       <SectionDivider />
 
       {/* ══════ FEATURES ══════ */}
-      <section className="py-24 section-glass relative">
+      <section className="py-24 relative overflow-hidden" style={{ background: "linear-gradient(180deg, hsl(42 40% 96%), hsl(0 0% 100%) 50%, hsl(42 40% 96%))" }}>
         <div className="container mx-auto px-4">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
             <h2 className="font-serif text-4xl md:text-5xl font-extrabold text-center mb-3">
@@ -476,7 +476,7 @@ const Index = () => {
                   transition={{ delay: i * 0.15, duration: 0.5 }}
                   className={`text-center relative ${i < 3 ? "md:border-r md:border-primary-foreground/10" : ""}`}
                 >
-                  <p className="font-serif text-4xl sm:text-6xl md:text-7xl font-extrabold text-shimmer-gold mb-3">
+                  <p className="font-serif text-3xl sm:text-5xl md:text-7xl font-extrabold text-shimmer-gold mb-3">
                     {count}{s.suffix}
                   </p>
                   <div className="w-12 h-0.5 bg-secondary/40 mx-auto mb-3" />
@@ -564,7 +564,7 @@ const Index = () => {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 max-w-5xl mx-auto auto-rows-[140px] md:auto-rows-[220px]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 max-w-5xl mx-auto auto-rows-[180px] sm:auto-rows-[140px] md:auto-rows-[220px]">
             {campusImages.map((img, i) => (
               <motion.div
                 key={img.alt}
@@ -673,12 +673,17 @@ const Index = () => {
               Begin Your Musical<br />
               <span className="text-shimmer-gold">Journey Today</span>
             </h2>
-            <p className="text-primary-foreground/50 max-w-xl mx-auto mb-14 text-base md:text-lg leading-relaxed">
-              Discover the joy of Indian classical arts at Nada Gurukulam. Reach out to learn more.
-            </p>
-            <Button asChild size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 text-lg px-16 h-16 shadow-2xl hover:shadow-secondary/30 transition-all hover:-translate-y-1 animate-glow-pulse font-bold">
-              <Link to="/contact">Get in Touch</Link>
-            </Button>
+             <p className="text-primary-foreground/50 max-w-xl mx-auto mb-10 text-sm sm:text-base md:text-lg leading-relaxed">
+               Discover the joy of Indian classical arts at Nada Gurukulam. Reach out to learn more.
+             </p>
+             <div className="flex flex-col sm:flex-row items-center gap-4 justify-center">
+               <Button asChild size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 text-base sm:text-lg px-12 sm:px-16 h-14 sm:h-16 shadow-2xl hover:shadow-secondary/30 transition-all hover:-translate-y-1 animate-glow-pulse font-bold">
+                 <Link to="/contact">Get in Touch</Link>
+               </Button>
+               <Link to="/courses" className="text-primary-foreground/50 hover:text-secondary text-sm font-medium underline underline-offset-4 transition-colors">
+                 Explore Courses →
+               </Link>
+             </div>
           </motion.div>
         </div>
       </section>
