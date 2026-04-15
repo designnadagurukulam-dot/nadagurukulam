@@ -16,7 +16,7 @@ const AdminMessages = () => {
   const { user, role } = useAuth();
   const queryClient = useQueryClient();
   const isSuperAdmin = role === "super_admin";
-  const isAdmin = role === "admin";
+  
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedContact, setSelectedContact] = useState<string | null>(null);
   const [message, setMessage] = useState("");
