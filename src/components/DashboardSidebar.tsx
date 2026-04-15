@@ -26,7 +26,7 @@ const instructorNav = [
   { label: "Update Curriculum", to: "/dashboard/tutor/create", icon: PlusCircle },
   { label: "Live Classes", to: "/dashboard/tutor/live-classes", icon: Video },
   { label: "Assignments", to: "/dashboard/tutor/assignments", icon: ClipboardList },
-  { label: "Messages", to: "/dashboard/tutor/messages", icon: MessageSquare },
+  { label: "Reach Out", to: "/dashboard/tutor/messages", icon: MessageSquare },
   { label: "Analytics", to: "/dashboard/tutor/analytics", icon: BarChart3 },
   { label: "Profile", to: "/dashboard/tutor/profile", icon: User },
 ];
@@ -43,6 +43,7 @@ const adminNav = [
   { label: "Feedback", to: "/dashboard/admin/feedback", icon: Star },
   { label: "Timetable", to: "/dashboard/admin/schedule", icon: Calendar },
   { label: "Events", to: "/dashboard/admin/events", icon: CalendarDays },
+  { label: "Messages", to: "/dashboard/admin/messages", icon: MessageSquare },
   { label: "Course Approvals", to: "/dashboard/admin/approvals", icon: CheckSquare },
   { label: "All Courses", to: "/dashboard/admin/courses", icon: BookOpen },
   { label: "Categories", to: "/dashboard/admin/categories", icon: Tag },
@@ -54,8 +55,7 @@ const adminNav = [
 ];
 
 const superAdminNav = [
-  ...adminNav,
-  { label: "Message Monitor", to: "/dashboard/admin/messages", icon: MessageSquare },
+  ...adminNav.map(item => item.label === "Messages" ? { ...item, label: "Message Monitor" } : item),
 ];
 
 const DashboardSidebar = () => {
