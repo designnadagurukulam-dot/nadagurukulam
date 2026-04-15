@@ -3,35 +3,44 @@ import { motion } from "framer-motion";
 import {
   BookOpen, Users, Clock, DollarSign, GraduationCap, Video,
   MessageSquare, ShieldCheck, ArrowRight, Layers, CheckSquare, Calendar,
-  Sparkles, Crown, Zap, TrendingUp
+  Sparkles, Crown, Zap, TrendingUp, ClipboardList, Mail
 } from "lucide-react";
 import { Link } from "react-router-dom";
-
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 
-const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const todayIdx = (new Date().getDay() + 6) % 7;
+const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 const AdminOverview = () => {
+  const { role } = useAuth();
+  const isSuperAdmin = role === "super_admin";
+
   const [stats, setStats] = useState({
     courses: 0, students: 0, instructors: 0, pending: 0,
     revenue: 0, batches: 0, liveClasses: 0, feedback: 0,
+    ungradedSubmissions: 0, unreadMessages: 0,
   });
   const [recentActivity, setRecentActivity] = useState<any[]>([]);
   const [recentCourses, setRecentCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activityData] = useState(() =>
-    weekDays.map((day) => ({ day, actions: Math.floor(Math.random() * 30 + 5) }))
-  );
+  const [activityData, setActivityData] = useState<{ day: string; actions: number }[]>([]);
 
   useEffect(() => {
-    const fetch = async () => {
+    const fetchAll = async () => {
+      // Get start of current week (Monday)
+      const now = new Date();
+      const dayOfWeek = (now.getDay() + 6) % 7;
+      const weekStart = new Date(now);
+      weekStart.setDate(now.getDate() - dayOfWeek);
+      weekStart.setHours(0, 0, 0, 0);
+
       const [
         coursesRes, studentRes, instructorRes, pendingRes,
         ordersRes, batchRes, liveRes, feedbackRes,
         activityRes, recentCoursesRes,
+        ungradedRes, unreadRes, weekActivityRes,
       ] = await Promise.all([
         supabase.from("courses").select("id", { count: "exact", head: true }),
         supabase.from("user_roles").select("id", { count: "exact", head: true }).eq("role", "student"),
@@ -43,20 +52,39 @@ const AdminOverview = () => {
         supabase.from("feedback").select("id", { count: "exact", head: true }),
         supabase.from("activity_logs").select("*").order("created_at", { ascending: false }).limit(5),
         supabase.from("courses").select("id, title, status, created_at").order("created_at", { ascending: false }).limit(5),
+        supabase.from("assignment_submissions").select("id", { count: "exact", head: true }).is("grade", null),
+        supabase.from("messages").select("id", { count: "exact", head: true }).eq("is_read", false),
+        supabase.from("activity_logs").select("created_at").gte("created_at", weekStart.toISOString()),
       ]);
+
       const revenue = (ordersRes.data || []).reduce((s, o) => s + Number(o.amount), 0);
       setStats({
         courses: coursesRes.count || 0, students: studentRes.count || 0,
         instructors: instructorRes.count || 0, pending: pendingRes.count || 0,
         revenue, batches: batchRes.count || 0, liveClasses: liveRes.count || 0,
         feedback: feedbackRes.count || 0,
+        ungradedSubmissions: ungradedRes.count || 0,
+        unreadMessages: unreadRes.count || 0,
       });
       setRecentActivity(activityRes.data || []);
       setRecentCourses(recentCoursesRes.data || []);
+
+      // Build weekly activity chart from real data
+      const dayCounts: Record<string, number> = {};
+      weekDays.forEach(d => { dayCounts[d] = 0; });
+      (weekActivityRes.data || []).forEach(log => {
+        const d = new Date(log.created_at);
+        const idx = (d.getDay() + 6) % 7;
+        if (idx < 7) dayCounts[weekDays[idx]]++;
+      });
+      setActivityData(weekDays.map(day => ({ day, actions: dayCounts[day] })));
+
       setLoading(false);
     };
-    fetch();
+    fetchAll();
   }, []);
+
+  const todayIdx = (new Date().getDay() + 6) % 7;
 
   const statCards = [
     { label: "Total Courses", value: stats.courses, icon: BookOpen, gradient: "from-brand-primary to-brand-primary-dark" },
@@ -64,18 +92,19 @@ const AdminOverview = () => {
     { label: "Tutors", value: stats.instructors, icon: Users, gradient: "from-brand-primary-dark to-rose-900" },
     { label: "Active Batches", value: stats.batches, icon: Layers, gradient: "from-brand-gold to-yellow-700" },
     { label: "Pending Reviews", value: stats.pending, icon: Clock, gradient: "from-amber-500 to-orange-600" },
-    { label: "Live Classes", value: stats.liveClasses, icon: Video, gradient: "from-brand-primary to-pink-800" },
+    { label: "Ungraded Submissions", value: stats.ungradedSubmissions, icon: ClipboardList, gradient: "from-red-600 to-red-800" },
     { label: "Feedback", value: stats.feedback, icon: MessageSquare, gradient: "from-brand-gold-dark to-brand-gold" },
     { label: "Revenue (₹)", value: `₹${stats.revenue.toLocaleString()}`, icon: DollarSign, gradient: "from-emerald-700 to-green-600" },
   ];
 
   const quickActions = [
     { label: "Review Submissions", icon: CheckSquare, to: "/dashboard/admin/approvals", count: stats.pending },
+    { label: "Assignments", icon: ClipboardList, to: "/dashboard/admin/assignments", count: stats.ungradedSubmissions },
     { label: "Manage Batches", icon: Layers, to: "/dashboard/admin/batches" },
     { label: "Manage Users", icon: Users, to: "/dashboard/admin/students" },
     { label: "Verification", icon: ShieldCheck, to: "/dashboard/admin/verification" },
-    { label: "Schedules", icon: Calendar, to: "/dashboard/admin/schedule" },
-    { label: "View Feedback", icon: MessageSquare, to: "/dashboard/admin/feedback" },
+    { label: "View Feedback", icon: MessageSquare, to: "/dashboard/admin/feedback", count: stats.feedback },
+    ...(isSuperAdmin ? [{ label: "Message Monitor", icon: Mail, to: "/dashboard/admin/messages", count: stats.unreadMessages }] : []),
   ];
 
   if (loading) {
@@ -103,10 +132,14 @@ const AdminOverview = () => {
           </div>
           <h1 className="font-serif text-2xl md:text-3xl font-bold">Welcome Back, Administrator</h1>
           <p className="text-white/70 text-sm mt-1.5 max-w-md">Monitor platform health, manage users, and oversee all institutional operations from one place.</p>
-          <div className="flex items-center gap-4 mt-4">
+          <div className="flex items-center gap-4 mt-4 flex-wrap">
             <div className="flex items-center gap-1.5 text-brand-gold text-xs">
               <Sparkles className="h-3.5 w-3.5" />
               <span>{stats.pending} pending review{stats.pending !== 1 ? "s" : ""}</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-white/60 text-xs">
+              <ClipboardList className="h-3.5 w-3.5" />
+              <span>{stats.ungradedSubmissions} ungraded</span>
             </div>
             <div className="flex items-center gap-1.5 text-white/60 text-xs">
               <TrendingUp className="h-3.5 w-3.5" />
