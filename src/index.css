@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Nunito+Sans:wght@300;400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700;800&family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Cabin:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,48 +6,57 @@
 
 @layer base {
   :root {
-    /* Nada Gurukulam Brand Palette — Deep Maroon + Saffron Gold */
-    --background: 42 40% 96%;               /* warm cream #FAF6EE */
-    --foreground: 22 52% 10%;               /* dark charcoal #1E1610 */
+    --maroon-deepest: 1 100% 14%;
+    --maroon-primary: 1 57% 31%;
+    --maroon-medium: 16 84% 36%;
+    --gold-ochre: 33 75% 45%;
+    --gold-ganges: 40 75% 52%;
+    --gold-silk: 38 44% 44%;
+    --sand-warm: 22 33% 76%;
+    --sand-light: 24 32% 85%;
+    --cream-bg: 55 100% 96%;
+
+    --background: 55 100% 97%;
+    --foreground: 2 85% 14%;
 
     --card: 0 0% 100%;
-    --card-foreground: 22 52% 10%;
+    --card-foreground: 2 85% 14%;
 
     --popover: 0 0% 100%;
     --popover-foreground: 22 52% 10%;
 
-    --primary: 355 60% 30%;                 /* deep maroon #7D1E24 */
-    --primary-foreground: 42 80% 97%;       /* near white */
+    --primary: 1 57% 30%;
+    --primary-foreground: 55 100% 97%;
 
-    --secondary: 38 55% 50%;               /* vibrant gold */
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 28 35% 85%;
+    --secondary-foreground: 1 57% 25%;
 
-    --muted: 38 25% 90%;
-    --muted-foreground: 25 25% 42%;
+    --muted: 30 20% 91%;
+    --muted-foreground: 25 20% 42%;
 
-    --accent: 40 56% 50%;                  /* warm saffron gold #C49A3C */
-    --accent-foreground: 22 52% 10%;
+    --accent: 40 75% 52%;
+    --accent-foreground: 2 85% 14%;
 
     --destructive: 0 72% 40%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 35 30% 82%;
-    --input: 35 30% 82%;
-    --ring: 355 60% 30%;
+    --border: 28 25% 80%;
+    --input: 28 25% 80%;
+    --ring: 1 57% 30%;
 
     --radius: 0.75rem;
 
     --olive: 61 100% 20%;
 
     /* Sidebar */
-    --sidebar-background: 355 60% 20%;     /* very deep maroon #5C1219 */
-    --sidebar-foreground: 40 60% 90%;      /* pale gold text */
-    --sidebar-primary: 40 56% 50%;         /* gold for active item */
-    --sidebar-primary-foreground: 355 60% 15%;
-    --sidebar-accent: 355 55% 25%;         /* slightly lighter maroon for hover */
+    --sidebar-background: 1 57% 20%;
+    --sidebar-foreground: 40 70% 88%;
+    --sidebar-primary: 40 75% 52%;
+    --sidebar-primary-foreground: 1 57% 18%;
+    --sidebar-accent: 1 52% 25%;
     --sidebar-accent-foreground: 40 60% 90%;
-    --sidebar-border: 355 55% 28%;
-    --sidebar-ring: 40 56% 50%;
+    --sidebar-border: 1 50% 28%;
+    --sidebar-ring: 40 75% 52%;
   }
 
   .dark {
