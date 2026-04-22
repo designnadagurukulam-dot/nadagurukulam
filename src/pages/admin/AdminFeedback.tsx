@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { MessageSquare, Star, Filter, MessageCircle, Eye, ChevronDown, ChevronUp, Download } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
@@ -60,7 +61,7 @@ const AdminFeedback = () => {
   // Extract all unique categories from both legacy and JSONB
   const allCategories = useMemo(() => {
     const cats = new Set<string>();
-    filtered.forEach(f => {
+    feedback.forEach(f => {
       if (f.category) cats.add(f.category);
       const jsonCats = parseCategoriesJson(f);
       if (jsonCats) jsonCats.forEach((c: any) => { if (c.category) cats.add(c.category); });
@@ -181,8 +182,8 @@ const AdminFeedback = () => {
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-gold to-amber-600 flex items-center justify-center">
-              <MessageSquare className="h-5 w-5 text-white" />
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-secondary to-primary flex items-center justify-center">
+              <MessageSquare className="h-5 w-5 text-primary-foreground" />
             </div>
             <div>
               <h1 className="font-serif text-2xl font-semibold text-brand-primary">Student Feedback</h1>

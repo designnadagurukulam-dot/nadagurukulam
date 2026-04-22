@@ -9,6 +9,7 @@ import {
   Table, TableHeader, TableBody, TableRow, TableHead, TableCell
 } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
+import { getLiveClassBadgeClass, getLiveClassLabel, getLiveClassStatus, isLiveClassPast } from "@/lib/liveClassStatus";
 
 const AdminLiveClasses = () => {
   const [classes, setClasses] = useState<any[]>([]);
@@ -38,16 +39,9 @@ const AdminLiveClasses = () => {
     fetch();
   }, []);
 
-  const now = new Date();
-  const isLive = (c: any) => {
-    const start = new Date(c.scheduled_at);
-    const end = new Date(start.getTime() + (c.duration_minutes || 60) * 60000);
-    return now >= start && now <= end;
-  };
-
-  const liveNowCount = classes.filter(isLive).length;
-  const upcoming = classes.filter(c => new Date(c.scheduled_at) >= now);
-  const past = classes.filter(c => new Date(c.scheduled_at) < now && !isLive(c));
+  const liveNowCount = classes.filter(c => getLiveClassStatus(c) === "live").length;
+  const upcoming = classes.filter(c => !isLiveClassPast(c));
+  const past = classes.filter(isLiveClassPast);
   const onlineClasses = classes.filter(c => c.class_type !== "offline");
   const offlineClasses = classes.filter(c => c.class_type === "offline");
 
@@ -82,6 +76,7 @@ const AdminLiveClasses = () => {
             <TableBody>
               {list.map((c, i) => {
                 const prof = profiles[c.instructor_id];
+                const computedStatus = getLiveClassStatus(c);
                 return (
                   <TableRow key={c.id} className={`${i % 2 === 1 ? "bg-brand-cream" : "bg-white"} hover:bg-brand-cream transition-colors border-b border-brand-parchment`}>
                     <TableCell className="font-medium text-brand-charcoal">{c.title}</TableCell>
@@ -109,18 +104,10 @@ const AdminLiveClasses = () => {
                       <span className="text-brand-warm-grey ml-1">({c.duration_minutes || 60}m)</span>
                     </TableCell>
                     <TableCell>
-                      {isLive(c) ? (
-                        <Badge className="bg-red-500 text-white animate-pulse gap-1">
-                          <Radio className="h-3 w-3" /> LIVE
-                        </Badge>
-                      ) : (
-                        <Badge className={c.status === "completed"
-                          ? "bg-green-50 text-green-700 border border-green-200"
-                          : "bg-brand-cream text-brand-primary border border-brand-parchment"
-                        }>
-                          {c.status || "scheduled"}
-                        </Badge>
-                      )}
+                      <Badge className={`${getLiveClassBadgeClass(computedStatus)} gap-1`}>
+                        {computedStatus === "live" && <Radio className="h-3 w-3" />}
+                        {getLiveClassLabel(computedStatus)}
+                      </Badge>
                     </TableCell>
                     <TableCell className="text-right">
                       {c.class_type !== "offline" && c.meeting_link && (

@@ -16,8 +16,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { format, subMinutes, addMinutes } from "date-fns";
+import { format } from "date-fns";
 import { logActivity } from "@/lib/activityLogger";
+import { getLiveClassStatus, isLiveClassPast } from "@/lib/liveClassStatus";
 
 const TutorLiveClasses = () => {
   const { user } = useAuth();
@@ -58,12 +59,10 @@ const TutorLiveClasses = () => {
   });
 
   const now = new Date();
-  const onlineUpcoming = classes.filter((c: any) => (c.class_type === "online" || !c.class_type) && (new Date(c.scheduled_at) >= now || isLive(c)) && c.status !== "cancelled");
-  const pastOnline = classes.filter((c: any) => (new Date(c.scheduled_at) < now && !isLive(c)) || c.status === "cancelled");
+  const onlineUpcoming = classes.filter((c: any) => (c.class_type === "online" || !c.class_type) && !isLiveClassPast(c));
+  const pastOnline = classes.filter((c: any) => isLiveClassPast(c));
   const upcomingOffline = offlineSchedules.filter((s: any) => new Date(s.start_time) >= now);
   const pastOffline = offlineSchedules.filter((s: any) => new Date(s.start_time) < now);
-
-  function isLive(cls: any) { const start = subMinutes(new Date(cls.scheduled_at), 10); const end = addMinutes(new Date(cls.scheduled_at), cls.duration_minutes || 60); return now >= start && now <= end; }
 
   const masterLink = form.platform === "zoom" ? tutorProfile?.zoom_link : tutorProfile?.meet_link;
   const hasMasterLink = !!masterLink;
@@ -106,7 +105,8 @@ const TutorLiveClasses = () => {
   const updateField = (key: string, value: string) => setForm((p) => ({ ...p, [key]: value }));
 
   const renderOnlineCard = (cls: any, isPast: boolean) => {
-    const live = isLive(cls);
+    const status = getLiveClassStatus(cls);
+    const live = status === "live";
     return (
       <Card key={cls.id} className={`bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] overflow-hidden transition-all hover:shadow-lg duration-300 ${isPast ? "opacity-70" : ""} ${cls.status === "cancelled" ? "opacity-50" : ""} ${live ? "ring-2 ring-green-400/50" : ""}`}>
         <div className={`h-1 ${live ? "bg-gradient-to-r from-green-400 to-green-500" : cls.status === "cancelled" ? "bg-red-300" : "bg-gradient-to-r from-brand-gold to-brand-primary"}`} />
