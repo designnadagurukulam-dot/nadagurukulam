@@ -8,7 +8,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-import { format, subMinutes, addMinutes } from "date-fns";
+import { format } from "date-fns";
+import { getLiveClassStatus, isLiveClassPast } from "@/lib/liveClassStatus";
 
 const StudentLiveClasses = () => {
   const { user } = useAuth();
@@ -31,20 +32,13 @@ const StudentLiveClasses = () => {
     enabled: !!user,
   });
 
-  const now = new Date();
-  const upcoming = classes.filter((c) => new Date(c.scheduled_at) >= now || isClassLive(c));
-  const past = classes.filter((c) => new Date(c.scheduled_at) < now && !isClassLive(c));
-
-  function isClassLive(cls: any) {
-    const start = subMinutes(new Date(cls.scheduled_at), 10);
-    const end = addMinutes(new Date(cls.scheduled_at), cls.duration_minutes || 60);
-    return now >= start && now <= end;
-  }
+  const upcoming = classes.filter((c) => !isLiveClassPast(c));
+  const past = classes.filter((c) => isLiveClassPast(c));
 
   const getInitials = (name: string) => name?.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase() || "?";
 
   const renderClassCard = (cls: any, isPast: boolean) => {
-    const live = isClassLive(cls);
+    const live = getLiveClassStatus(cls) === "live";
     return (
       <Card key={cls.id} className={`bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] overflow-hidden transition-all duration-300 hover:shadow-[0_4px_30px_rgba(196,154,60,0.15)] ${isPast ? "opacity-70" : ""} ${live ? "ring-2 ring-green-400/50" : ""}`}>
         <CardContent className="p-3.5 sm:p-5">
