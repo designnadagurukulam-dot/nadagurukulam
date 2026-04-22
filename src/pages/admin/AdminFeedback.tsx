@@ -61,7 +61,7 @@ const AdminFeedback = () => {
   // Extract all unique categories from both legacy and JSONB
   const allCategories = useMemo(() => {
     const cats = new Set<string>();
-    filtered.forEach(f => {
+    feedback.forEach(f => {
       if (f.category) cats.add(f.category);
       const jsonCats = parseCategoriesJson(f);
       if (jsonCats) jsonCats.forEach((c: any) => { if (c.category) cats.add(c.category); });
