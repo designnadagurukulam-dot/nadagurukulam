@@ -5,7 +5,10 @@ import {
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import logo from "@/assets/logo.png";
 
 const studentNav = [
@@ -66,6 +69,36 @@ const DashboardSidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut, profile, role } = useAuth();
+
+  const { data: counts = {} } = useQuery({
+    queryKey: ["sidebar-counts", role, profile?.user_id],
+    enabled: !!role,
+    queryFn: async () => {
+      const next: Record<string, number> = {};
+      if (role === "admin" || role === "super_admin") {
+        const [profiles, reviews, submissions, messages, feedback] = await Promise.all([
+          supabase.from("profiles").select("id", { count: "exact", head: true }).eq("is_verified", false),
+          supabase.from("content_reviews").select("id", { count: "exact", head: true }).eq("status", "pending"),
+          supabase.from("assignment_submissions").select("id", { count: "exact", head: true }).is("grade", null),
+          supabase.from("messages").select("id", { count: "exact", head: true }).eq("is_read", false),
+          supabase.from("feedback").select("id", { count: "exact", head: true }),
+        ]);
+        next["Verification"] = profiles.count || 0;
+        next["Course Approvals"] = reviews.count || 0;
+        next["Assignments"] = submissions.count || 0;
+        next[role === "super_admin" ? "Message Monitor" : "Messages"] = messages.count || 0;
+        next["Feedback"] = feedback.count || 0;
+      } else if (profile?.user_id) {
+        const [messages, submissions] = await Promise.all([
+          supabase.from("messages").select("id", { count: "exact", head: true }).eq("receiver_id", profile.user_id).eq("is_read", false),
+          role === "student" ? supabase.from("assignment_submissions").select("id", { count: "exact", head: true }).eq("student_id", profile.user_id).eq("status", "submitted") : Promise.resolve({ count: 0 }),
+        ]);
+        next["Reach Out"] = messages.count || 0;
+        next["Assignments"] = submissions.count || 0;
+      }
+      return next;
+    },
+  });
 
   const navItems = role === "super_admin" ? superAdminNav : role === "admin" ? adminNav : role === "instructor" ? instructorNav : studentNav;
 
@@ -146,7 +179,8 @@ const DashboardSidebar = () => {
             title={(collapsed && !isMobile) ? item.label : undefined}
           >
             <item.icon className="w-[18px] h-[18px] shrink-0" />
-            {(!collapsed || isMobile) && <span>{item.label}</span>}
+            {(!collapsed || isMobile) && <span className="flex-1 truncate">{item.label}</span>}
+            {(!collapsed || isMobile) && !!counts[item.label] && <Badge className="ml-auto h-5 min-w-5 rounded-full bg-brand-gold px-1.5 text-[10px] text-brand-primary-dark">{counts[item.label] > 99 ? "99+" : counts[item.label]}</Badge>}
           </Link>
         ))}
       </nav>
