@@ -50,7 +50,7 @@ const Navbar = () => {
         className={`absolute bottom-0 left-0 right-0 h-[2px] transition-opacity duration-500 ${
           scrolled ? "opacity-100" : "opacity-0"
         }`}
-        style={{ background: "linear-gradient(90deg, transparent, hsl(33 62% 58% / 0.5), hsl(33 62% 58% / 0.8), hsl(33 62% 58% / 0.5), transparent)" }}
+        className="bg-gradient-to-r from-transparent via-secondary to-transparent"
       />
 
       <div className="container mx-auto flex h-[76px] items-center justify-between px-4">
@@ -74,9 +74,7 @@ const Navbar = () => {
                 <motion.div
                   layoutId="nav-indicator"
                   className="absolute -bottom-[2px] left-[20%] right-[20%] h-[3px] rounded-full"
-                  style={{ 
-                    background: "linear-gradient(90deg, hsl(33 62% 58%), hsl(35 62% 65%), hsl(33 62% 58%))" 
-                  }}
+                  
                   transition={{ type: "spring", stiffness: 350, damping: 28 }}
                 />
               )}
@@ -93,7 +91,7 @@ const Navbar = () => {
             </div>
           ) : (
             <Link to="/login">
-              <Button size="sm" className="ml-4 bg-white text-black border border-border hover:bg-muted shadow-lg hover:shadow-xl transition-all px-6 font-semibold">
+              <Button size="sm" className="ml-4 bg-background text-foreground border border-border hover:bg-muted shadow-lg hover:shadow-xl transition-all px-6 font-semibold">
                 Login
               </Button>
             </Link>
@@ -121,7 +119,7 @@ const Navbar = () => {
           >
             {/* Backdrop overlay */}
             <div className="absolute inset-0 bg-background/98 backdrop-blur-2xl" />
-            <div className="h-1 w-full" style={{ background: "linear-gradient(90deg, hsl(358 68% 28%), hsl(33 62% 58%), hsl(358 68% 28%))" }} />
+            <div className="h-1 w-full bg-gradient-to-r from-primary via-secondary to-primary" />
             <nav className="container mx-auto flex flex-col gap-1 p-6 pt-6 relative z-10">
               {navLinks.map((link, i) => (
                 <motion.div

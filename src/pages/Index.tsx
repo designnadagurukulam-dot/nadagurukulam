@@ -183,7 +183,7 @@ const Index = () => {
           animate={{ scale: 1 }}
           transition={{ duration: 2.5, ease: "easeOut" }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-[hsl(358_68%_6%/0.92)] via-[hsl(358_68%_12%/0.85)] to-[hsl(358_68%_8%/0.95)]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/95 via-primary/85 to-primary/95" />
         <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 40%, hsl(33 62% 58% / 0.1) 0%, transparent 55%)" }} />
 
         {/* Grain */}
@@ -263,7 +263,7 @@ const Index = () => {
             <Button asChild size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 text-base px-12 shadow-2xl hover:shadow-secondary/30 transition-all hover:-translate-y-1 h-14 animate-glow-pulse font-semibold">
               <Link to="/courses"><Sparkles className="h-4 w-4 mr-2" />Explore Courses</Link>
             </Button>
-            <Button asChild size="lg" className="bg-white text-black hover:bg-white/90 text-base px-12 h-14 font-medium shadow-lg">
+            <Button asChild size="lg" className="bg-background text-foreground hover:bg-background/90 text-base px-12 h-14 font-medium shadow-lg">
               <Link to="/contact">Contact Us</Link>
             </Button>
           </motion.div>
@@ -431,8 +431,8 @@ const Index = () => {
                 <Link to={`/programs/${c.slug || c.id}`} key={i} className="group inline-block mx-3 flex-shrink-0">
                   <div className="relative w-[280px] sm:w-[320px] h-[400px] rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-700 card-premium">
                     <img src={getCourseImage(c)} alt={c.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-[1.2s]" loading="lazy" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[hsl(0_0%_0%/0.92)] via-[hsl(0_0%_0%/0.3)] to-transparent" />
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 bg-gradient-to-t from-[hsl(33_62%_58%/0.12)] via-transparent to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-primary/95 via-primary/30 to-transparent" />
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 bg-gradient-to-t from-secondary/15 via-transparent to-transparent" />
                     {/* Golden corner ornaments */}
                     <div className="absolute top-4 left-4 w-8 h-8 border-t-2 border-l-2 border-secondary/40 rounded-tl-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     <div className="absolute bottom-20 right-4 w-8 h-8 border-b-2 border-r-2 border-secondary/40 rounded-br-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -460,7 +460,7 @@ const Index = () => {
       {/* ══════ STATS ══════ */}
       <section className="relative py-24 overflow-hidden">
         <img src={imgConcert} alt="Performance" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(358_68%_6%/0.96)] to-[hsl(358_68%_8%/0.94)]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/95 to-primary/90" />
         <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E\")" }} />
         <div className="container mx-auto px-4 relative z-10">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-10">
@@ -510,7 +510,7 @@ const Index = () => {
           >
             <div className="relative h-[350px] md:h-[400px] rounded-3xl overflow-hidden shadow-2xl hover:shadow-3xl transition-all duration-700">
               <img src={founderImg} alt="Sadguru Sri Madhusudan Sai" className="absolute inset-0 w-full h-full object-cover object-[center_15%] group-hover:scale-105 transition-transform duration-[1.2s]" loading="lazy" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[hsl(0_69%_8%/0.97)] via-[hsl(0_0%_0%/0.3)] to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-primary/95 via-primary/30 to-transparent" />
               <div className="absolute bottom-0 inset-x-0 p-8 md:p-10">
                 <div className="w-16 h-0.5 bg-secondary mb-4 rounded-full" />
                 <h3 className="font-serif text-3xl md:text-4xl font-extrabold text-primary-foreground mb-2" style={{ textShadow: "0 3px 15px hsl(0 0% 0% / 0.6)" }}>Sadguru Sri Madhusudan Sai</h3>
@@ -575,7 +575,7 @@ const Index = () => {
                 className={`${img.className} rounded-2xl overflow-hidden shadow-xl group relative cursor-pointer`}
               >
                 <img src={img.src} alt={img.alt} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" loading="lazy" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[hsl(0_0%_0%/0.8)] via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-5">
+                <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-5">
                   <span className="text-primary-foreground text-sm font-serif font-semibold" style={{ textShadow: "0 2px 8px hsl(0 0% 0% / 0.6)" }}>{img.alt}</span>
                 </div>
                 {/* Golden frame on hover */}
