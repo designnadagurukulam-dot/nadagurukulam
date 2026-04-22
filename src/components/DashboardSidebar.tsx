@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, BookOpen, ClipboardList, Calendar, Award, User, LogOut,
-  ChevronLeft, ChevronRight, PlusCircle, Users, BarChart3, CheckSquare, Tag, Menu, X, MessageSquare, Briefcase, CalendarDays, GraduationCap, Activity, BookCheck, FolderOpen, Video, Star, ShieldCheck
+  ChevronLeft, ChevronRight, PlusCircle, Users, BarChart3, CheckSquare, Tag, Menu, X, MessageSquare, Briefcase, CalendarDays, GraduationCap, Activity, BookCheck, FolderOpen, Video, Star, ShieldCheck, Waves
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
@@ -24,6 +24,7 @@ const instructorNav = [
   { label: "Overview", to: "/dashboard/tutor", icon: LayoutDashboard },
   { label: "My Courses", to: "/dashboard/tutor/courses", icon: BookOpen },
   { label: "Update Curriculum", to: "/dashboard/tutor/create", icon: PlusCircle },
+  { label: "Lesson Plans", to: "/dashboard/tutor/lesson-plans", icon: BookCheck },
   { label: "Live Classes", to: "/dashboard/tutor/live-classes", icon: Video },
   { label: "Assignments", to: "/dashboard/tutor/assignments", icon: ClipboardList },
   { label: "Reach Out", to: "/dashboard/tutor/messages", icon: MessageSquare },
@@ -34,10 +35,11 @@ const instructorNav = [
 const adminNav = [
   { label: "Overview", to: "/dashboard/admin", icon: LayoutDashboard },
   { label: "Verification", to: "/dashboard/admin/verification", icon: ShieldCheck },
-  { label: "Students", to: "/dashboard/admin/students", icon: Users },
-  { label: "Tutors", to: "/dashboard/admin/tutors", icon: GraduationCap },
+  { label: "Users", to: "/dashboard/admin/students", icon: Users },
+  { label: "Teachers", to: "/dashboard/admin/teachers", icon: GraduationCap },
   { label: "Batches", to: "/dashboard/admin/batches", icon: FolderOpen },
   { label: "Curriculum", to: "/dashboard/admin/curriculum", icon: BookOpen },
+  { label: "Lesson Plans", to: "/dashboard/admin/lesson-plans", icon: BookCheck },
   { label: "Live Classes", to: "/dashboard/admin/live-classes", icon: Video },
   { label: "Assignments", to: "/dashboard/admin/assignments", icon: ClipboardList },
   { label: "Feedback", to: "/dashboard/admin/feedback", icon: Star },
@@ -162,6 +164,12 @@ const DashboardSidebar = () => {
           <p className="text-[11px] text-brand-warm-grey-light mt-0.5">Complete your course to get certified</p>
           <p className="text-brand-gold text-[10px] font-semibold mt-1.5">View My Courses →</p>
         </button>
+      )}
+
+      {(!collapsed || isMobile) && (
+        <div className="px-3 pb-2 text-sidebar-primary/70">
+          <Waves className="h-8 w-full" strokeWidth={1.5} />
+        </div>
       )}
 
       {/* Logout */}

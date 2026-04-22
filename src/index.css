@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Nunito+Sans:wght@300;400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700;800&family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Cabin:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,48 +6,57 @@
 
 @layer base {
   :root {
-    /* Nada Gurukulam Brand Palette — Deep Maroon + Saffron Gold */
-    --background: 42 40% 96%;               /* warm cream #FAF6EE */
-    --foreground: 22 52% 10%;               /* dark charcoal #1E1610 */
+    --maroon-deepest: 1 100% 14%;
+    --maroon-primary: 1 57% 31%;
+    --maroon-medium: 16 84% 36%;
+    --gold-ochre: 33 75% 45%;
+    --gold-ganges: 40 75% 52%;
+    --gold-silk: 38 44% 44%;
+    --sand-warm: 22 33% 76%;
+    --sand-light: 24 32% 85%;
+    --cream-bg: 55 100% 96%;
+
+    --background: 55 100% 97%;
+    --foreground: 2 85% 14%;
 
     --card: 0 0% 100%;
-    --card-foreground: 22 52% 10%;
+    --card-foreground: 2 85% 14%;
 
     --popover: 0 0% 100%;
     --popover-foreground: 22 52% 10%;
 
-    --primary: 355 60% 30%;                 /* deep maroon #7D1E24 */
-    --primary-foreground: 42 80% 97%;       /* near white */
+    --primary: 1 57% 30%;
+    --primary-foreground: 55 100% 97%;
 
-    --secondary: 38 55% 50%;               /* vibrant gold */
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 28 35% 85%;
+    --secondary-foreground: 1 57% 25%;
 
-    --muted: 38 25% 90%;
-    --muted-foreground: 25 25% 42%;
+    --muted: 30 20% 91%;
+    --muted-foreground: 25 20% 42%;
 
-    --accent: 40 56% 50%;                  /* warm saffron gold #C49A3C */
-    --accent-foreground: 22 52% 10%;
+    --accent: 40 75% 52%;
+    --accent-foreground: 2 85% 14%;
 
     --destructive: 0 72% 40%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 35 30% 82%;
-    --input: 35 30% 82%;
-    --ring: 355 60% 30%;
+    --border: 28 25% 80%;
+    --input: 28 25% 80%;
+    --ring: 1 57% 30%;
 
     --radius: 0.75rem;
 
     --olive: 61 100% 20%;
 
     /* Sidebar */
-    --sidebar-background: 355 60% 20%;     /* very deep maroon #5C1219 */
-    --sidebar-foreground: 40 60% 90%;      /* pale gold text */
-    --sidebar-primary: 40 56% 50%;         /* gold for active item */
-    --sidebar-primary-foreground: 355 60% 15%;
-    --sidebar-accent: 355 55% 25%;         /* slightly lighter maroon for hover */
+    --sidebar-background: 1 57% 20%;
+    --sidebar-foreground: 40 70% 88%;
+    --sidebar-primary: 40 75% 52%;
+    --sidebar-primary-foreground: 1 57% 18%;
+    --sidebar-accent: 1 52% 25%;
     --sidebar-accent-foreground: 40 60% 90%;
-    --sidebar-border: 355 55% 28%;
-    --sidebar-ring: 40 56% 50%;
+    --sidebar-border: 1 50% 28%;
+    --sidebar-ring: 40 75% 52%;
   }
 
   .dark {
@@ -99,32 +108,41 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Nunito Sans', 'Helvetica Neue', sans-serif;
-    font-size: 15px;
-    line-height: 1.65;
+    font-family: 'Cabin', 'Gill Sans Nova', sans-serif;
+    font-size: 16px;
+    line-height: 26px;
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Cormorant Garamond', Georgia, serif;
-    font-weight: 600;
+  h1, h2, .font-display {
+    font-family: 'Jost', 'Futura PT', sans-serif;
+    font-weight: 700;
     letter-spacing: -0.01em;
   }
 
-  h1 { font-size: 2.4rem; line-height: 1.2; }
-  h2 { font-size: 1.85rem; line-height: 1.25; }
-  h3 { font-size: 1.4rem; line-height: 1.3; }
-  h4 { font-size: 1.15rem; }
+  h3, h4, .font-serif {
+    font-family: 'EB Garamond', 'Garamond Premiere', serif;
+    font-weight: 600;
+  }
+
+  p, label, td, th, input, button {
+    font-family: 'Cabin', 'Gill Sans Nova', sans-serif;
+  }
+
+  h1 { font-size: 32px; line-height: 44px; }
+  h2 { font-size: 24px; line-height: 34px; }
+  h3 { font-size: 20px; line-height: 28px; }
+  h4 { font-size: 20px; line-height: 28px; }
 
   .font-devanagari {
     font-family: 'Noto Sans Devanagari', sans-serif;
   }
 
   .font-serif {
-    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-family: 'EB Garamond', 'Garamond Premiere', serif;
   }
 
   .font-sans {
-    font-family: 'Nunito Sans', 'Helvetica Neue', sans-serif;
+    font-family: 'Cabin', 'Gill Sans Nova', sans-serif;
   }
 }
 
@@ -192,14 +210,14 @@
     background: hsl(0 0% 100% / 0.08);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1px solid hsl(0 0% 100% / 0.12);
+    box-shadow: 0 2px 16px hsl(var(--primary) / 0.06);
   }
 
   .glass-card-warm {
     background: hsl(30 50% 98% / 0.7);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid hsl(40 56% 50% / 0.15);
+    box-shadow: 0 2px 16px hsl(var(--primary) / 0.06);
   }
 
   /* ─── Section glass ─── */
@@ -240,7 +258,6 @@
     background: linear-gradient(145deg, hsl(42 40% 96% / 0.9), hsl(40 56% 50% / 0.05));
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid hsl(40 56% 50% / 0.2);
     box-shadow: 0 8px 32px hsl(40 56% 50% / 0.08), inset 0 1px 0 hsl(0 0% 100% / 0.5);
   }
 
@@ -417,6 +434,22 @@
     will-change: transform;
   }
 
+  .calendar-date-badge {
+    background: hsl(var(--accent));
+    color: hsl(var(--accent-foreground));
+    box-shadow: 0 2px 16px hsl(var(--primary) / 0.06);
+  }
+
+  .brand-card {
+    background: hsl(var(--card));
+    box-shadow: 0 2px 16px hsl(var(--primary) / 0.06);
+  }
+
+  .typescale-body { font-size: 16px; line-height: 26px; }
+  .typescale-subheading { font-size: 20px; line-height: 28px; }
+  .typescale-heading { font-size: 24px; line-height: 34px; }
+  .typescale-display { font-size: 32px; line-height: 44px; }
+
   /* ─── Gold ring portrait ─── */
   .portrait-gold-ring {
     border: 3px solid hsl(40 56% 50%);
@@ -510,7 +543,7 @@
 
 /* ─── Decorative quote mark ─── */
 .quote-decorative {
-  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-family: 'EB Garamond', 'Garamond Premiere', serif;
   font-size: 6rem;
   line-height: 1;
   color: hsl(40 56% 50% / 0.15);

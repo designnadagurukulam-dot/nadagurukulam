@@ -557,6 +557,50 @@ export type Database = {
           },
         ]
       }
+      course_outcomes: {
+        Row: {
+          co_number: number
+          created_at: string
+          curriculum_module_id: string
+          description: string
+          hours: number | null
+          id: string
+          rbt_levels: string | null
+          sort_order: number | null
+          updated_at: string
+        }
+        Insert: {
+          co_number: number
+          created_at?: string
+          curriculum_module_id: string
+          description: string
+          hours?: number | null
+          id?: string
+          rbt_levels?: string | null
+          sort_order?: number | null
+          updated_at?: string
+        }
+        Update: {
+          co_number?: number
+          created_at?: string
+          curriculum_module_id?: string
+          description?: string
+          hours?: number | null
+          id?: string
+          rbt_levels?: string | null
+          sort_order?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_outcomes_curriculum_module_id_fkey"
+            columns: ["curriculum_module_id"]
+            isOneToOne: false
+            referencedRelation: "curriculum_modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       courses: {
         Row: {
           category: string | null
@@ -633,39 +677,57 @@ export type Database = {
       }
       curriculum_modules: {
         Row: {
+          assessment_cie_marks: number | null
+          assessment_see_marks: number | null
           batch_id: string | null
           course_code: string
+          course_objectives: string[] | null
           created_at: string
           description: string | null
+          exam_hours: string | null
           hours: number | null
           id: string
           module_name: string
+          pedagogy: string | null
+          references_list: string[] | null
           semester: number
           sort_order: number
           subject_name: string
           updated_at: string
         }
         Insert: {
+          assessment_cie_marks?: number | null
+          assessment_see_marks?: number | null
           batch_id?: string | null
           course_code: string
+          course_objectives?: string[] | null
           created_at?: string
           description?: string | null
+          exam_hours?: string | null
           hours?: number | null
           id?: string
           module_name: string
+          pedagogy?: string | null
+          references_list?: string[] | null
           semester: number
           sort_order?: number
           subject_name: string
           updated_at?: string
         }
         Update: {
+          assessment_cie_marks?: number | null
+          assessment_see_marks?: number | null
           batch_id?: string | null
           course_code?: string
+          course_objectives?: string[] | null
           created_at?: string
           description?: string | null
+          exam_hours?: string | null
           hours?: number | null
           id?: string
           module_name?: string
+          pedagogy?: string | null
+          references_list?: string[] | null
           semester?: number
           sort_order?: number
           subject_name?: string
@@ -719,13 +781,17 @@ export type Database = {
       curriculum_sections: {
         Row: {
           audio_url: string | null
+          co_mapping: string | null
           content_type: string
           created_at: string
           created_by: string | null
+          hours_allocated: number | null
           id: string
           module_id: string
           pdf_url: string | null
+          rbt_levels: string | null
           sort_order: number
+          teaching_methodology: string | null
           text_content: string | null
           title: string
           updated_at: string
@@ -733,13 +799,17 @@ export type Database = {
         }
         Insert: {
           audio_url?: string | null
+          co_mapping?: string | null
           content_type?: string
           created_at?: string
           created_by?: string | null
+          hours_allocated?: number | null
           id?: string
           module_id: string
           pdf_url?: string | null
+          rbt_levels?: string | null
           sort_order?: number
+          teaching_methodology?: string | null
           text_content?: string | null
           title: string
           updated_at?: string
@@ -747,13 +817,17 @@ export type Database = {
         }
         Update: {
           audio_url?: string | null
+          co_mapping?: string | null
           content_type?: string
           created_at?: string
           created_by?: string | null
+          hours_allocated?: number | null
           id?: string
           module_id?: string
           pdf_url?: string | null
+          rbt_levels?: string | null
           sort_order?: number
+          teaching_methodology?: string | null
           text_content?: string | null
           title?: string
           updated_at?: string
@@ -810,6 +884,7 @@ export type Database = {
           description: string | null
           end_date: string | null
           event_date: string
+          event_type: string | null
           id: string
           image_url: string | null
           is_active: boolean
@@ -822,6 +897,7 @@ export type Database = {
           description?: string | null
           end_date?: string | null
           event_date: string
+          event_type?: string | null
           id?: string
           image_url?: string | null
           is_active?: boolean
@@ -834,6 +910,7 @@ export type Database = {
           description?: string | null
           end_date?: string | null
           event_date?: string
+          event_type?: string | null
           id?: string
           image_url?: string | null
           is_active?: boolean
@@ -928,6 +1005,116 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      lesson_plan_entries: {
+        Row: {
+          actual_date: string | null
+          co_mapping: string | null
+          created_at: string
+          curriculum_section_id: string | null
+          faculty_remarks: string | null
+          id: string
+          lecture_number: number
+          lesson_plan_id: string
+          module_number: number | null
+          rbt_level: string | null
+          sort_order: number | null
+          topic_title: string | null
+          updated_at: string
+        }
+        Insert: {
+          actual_date?: string | null
+          co_mapping?: string | null
+          created_at?: string
+          curriculum_section_id?: string | null
+          faculty_remarks?: string | null
+          id?: string
+          lecture_number: number
+          lesson_plan_id: string
+          module_number?: number | null
+          rbt_level?: string | null
+          sort_order?: number | null
+          topic_title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          actual_date?: string | null
+          co_mapping?: string | null
+          created_at?: string
+          curriculum_section_id?: string | null
+          faculty_remarks?: string | null
+          id?: string
+          lecture_number?: number
+          lesson_plan_id?: string
+          module_number?: number | null
+          rbt_level?: string | null
+          sort_order?: number | null
+          topic_title?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_plan_entries_curriculum_section_id_fkey"
+            columns: ["curriculum_section_id"]
+            isOneToOne: false
+            referencedRelation: "curriculum_sections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lesson_plan_entries_lesson_plan_id_fkey"
+            columns: ["lesson_plan_id"]
+            isOneToOne: false
+            referencedRelation: "lesson_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lesson_plans: {
+        Row: {
+          academic_semester: string | null
+          contact_hours_per_week: number | null
+          created_at: string
+          curriculum_module_id: string
+          id: string
+          instructor_id: string
+          is_published: boolean | null
+          section: string | null
+          total_periods: number | null
+          updated_at: string
+        }
+        Insert: {
+          academic_semester?: string | null
+          contact_hours_per_week?: number | null
+          created_at?: string
+          curriculum_module_id: string
+          id?: string
+          instructor_id: string
+          is_published?: boolean | null
+          section?: string | null
+          total_periods?: number | null
+          updated_at?: string
+        }
+        Update: {
+          academic_semester?: string | null
+          contact_hours_per_week?: number | null
+          created_at?: string
+          curriculum_module_id?: string
+          id?: string
+          instructor_id?: string
+          is_published?: boolean | null
+          section?: string | null
+          total_periods?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_plans_curriculum_module_id_fkey"
+            columns: ["curriculum_module_id"]
+            isOneToOne: false
+            referencedRelation: "curriculum_modules"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       lesson_progress: {
         Row: {
@@ -1268,35 +1455,53 @@ export type Database = {
       }
       schedules: {
         Row: {
+          batch_id: string | null
           course_id: string | null
           created_at: string
+          curriculum_module_id: string | null
           end_time: string
           event_title: string
           event_type: string
           id: string
           instructor_id: string | null
+          location: string | null
+          paper_code: string | null
+          recurrence_type: string | null
+          schedule_type: string | null
           start_time: string
           user_id: string
         }
         Insert: {
+          batch_id?: string | null
           course_id?: string | null
           created_at?: string
+          curriculum_module_id?: string | null
           end_time: string
           event_title: string
           event_type?: string
           id?: string
           instructor_id?: string | null
+          location?: string | null
+          paper_code?: string | null
+          recurrence_type?: string | null
+          schedule_type?: string | null
           start_time: string
           user_id: string
         }
         Update: {
+          batch_id?: string | null
           course_id?: string | null
           created_at?: string
+          curriculum_module_id?: string | null
           end_time?: string
           event_title?: string
           event_type?: string
           id?: string
           instructor_id?: string | null
+          location?: string | null
+          paper_code?: string | null
+          recurrence_type?: string | null
+          schedule_type?: string | null
           start_time?: string
           user_id?: string
         }
