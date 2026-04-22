@@ -10,15 +10,18 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 
-const RATING_COLORS = ["#ef4444", "#f97316", "#eab308", "#84cc16", "#22c55e"];
+const RATING_COLORS = ["hsl(0 72% 40%)", "hsl(24 95% 53%)", "hsl(40 75% 52%)", "hsl(84 65% 45%)", "hsl(142 71% 45%)"];
 
 const AdminFeedback = () => {
   const [feedback, setFeedback] = useState<any[]>([]);
   const [profiles, setProfiles] = useState<Record<string, string>>({});
   const [instructorProfiles, setInstructorProfiles] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
+  const [instructorFilter, setInstructorFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
-  const [ratingFilter, setRatingFilter] = useState("all");
+  const [ratingFilter, setRatingFilter] = useState("0");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -57,7 +60,7 @@ const AdminFeedback = () => {
   // Extract all unique categories from both legacy and JSONB
   const allCategories = useMemo(() => {
     const cats = new Set<string>();
-    feedback.forEach(f => {
+    filtered.forEach(f => {
       if (f.category) cats.add(f.category);
       const jsonCats = parseCategoriesJson(f);
       if (jsonCats) jsonCats.forEach((c: any) => { if (c.category) cats.add(c.category); });
@@ -95,25 +98,40 @@ const AdminFeedback = () => {
     return dist.map((count, i) => ({ stars: `${i + 1}★`, count }));
   }, [feedback]);
 
-  // Filter by category (supports JSONB)
+  const clearFilters = () => {
+    setInstructorFilter("all");
+    setCategoryFilter("all");
+    setRatingFilter("0");
+    setDateFrom("");
+    setDateTo("");
+  };
+
   const filtered = useMemo(() => {
     return feedback.filter(f => {
+      if (instructorFilter !== "all" && f.instructor_id !== instructorFilter) return false;
       if (categoryFilter !== "all") {
         const cats = parseCategoriesJson(f);
         const legacyMatch = f.category === categoryFilter;
         const jsonMatch = cats?.some((c: any) => c.category === categoryFilter);
         if (!legacyMatch && !jsonMatch) return false;
       }
-      if (ratingFilter !== "all") {
+      const minRating = Number(ratingFilter);
+      if (minRating > 0) {
         const cats = parseCategoriesJson(f);
         if (cats) {
-          const hasRating = cats.some((c: any) => c.rating?.toString() === ratingFilter);
+          const hasRating = cats.some((c: any) => Number(c.rating || 0) >= minRating);
           if (!hasRating) return false;
-        } else if (f.rating?.toString() !== ratingFilter) return false;
+        } else if (Number(f.rating || 0) < minRating) return false;
+      }
+      if (dateFrom && new Date(f.submitted_at) < new Date(dateFrom)) return false;
+      if (dateTo) {
+        const end = new Date(dateTo);
+        end.setHours(23, 59, 59, 999);
+        if (new Date(f.submitted_at) > end) return false;
       }
       return true;
     });
-  }, [feedback, categoryFilter, ratingFilter]);
+  }, [feedback, instructorFilter, categoryFilter, ratingFilter, dateFrom, dateTo]);
 
   const exportCSV = () => {
     const rows = [["Date", "Student", "Anonymous", "Category", "Rating", "Message"]];
@@ -145,6 +163,8 @@ const AdminFeedback = () => {
     a.click();
     URL.revokeObjectURL(url);
   };
+
+  const instructorOptions = Object.entries(instructorProfiles);
 
   if (loading) {
     return (
@@ -207,7 +227,7 @@ const AdminFeedback = () => {
           <BarChart data={ratingDistribution} layout="vertical" barCategoryGap="20%">
             <XAxis type="number" hide />
             <YAxis dataKey="stars" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#8C7B6B' }} width={30} />
-            <Tooltip formatter={(v: number) => [`${v}`, 'Ratings']} contentStyle={{ borderRadius: 12, border: '1px solid #EDE3CC', fontSize: 12 }} />
+            <Tooltip formatter={(v: number) => [`${v}`, 'Ratings']} contentStyle={{ borderRadius: 12, border: '0', boxShadow: '0 2px 16px hsl(1 57% 30% / 0.08)', fontSize: 12 }} />
             <Bar dataKey="count" radius={[0, 6, 6, 0]}>
               {ratingDistribution.map((_, i) => (
                 <Cell key={i} fill={RATING_COLORS[i]} />
@@ -218,24 +238,43 @@ const AdminFeedback = () => {
       </motion.div>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-3 items-center">
+      <div className="flex flex-wrap gap-3 items-center rounded-2xl bg-card p-4 shadow-[0_2px_16px_hsl(var(--primary)/0.06)]">
         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 flex items-center justify-center">
           <Filter className="h-4 w-4 text-brand-gold" />
         </div>
-        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-          <SelectTrigger className="w-40 border-brand-parchment rounded-xl"><SelectValue placeholder="Category" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Categories</SelectItem>
-            {allCategories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-          </SelectContent>
-        </Select>
-        <Select value={ratingFilter} onValueChange={setRatingFilter}>
-          <SelectTrigger className="w-32 border-brand-parchment rounded-xl"><SelectValue placeholder="Rating" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Ratings</SelectItem>
-            {[5, 4, 3, 2, 1].map(r => <SelectItem key={r} value={r.toString()}>{r} Stars</SelectItem>)}
-          </SelectContent>
-        </Select>
+        <div className="flex items-center gap-2">
+          <label className="text-[11px] text-brand-warm-grey uppercase tracking-wide font-bold">About</label>
+          <Select value={instructorFilter} onValueChange={setInstructorFilter}>
+            <SelectTrigger className="w-44"><SelectValue placeholder="Tutor" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Tutors</SelectItem>
+              {instructorOptions.map(([id, name]) => <SelectItem key={id} value={id}>{name}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex items-center gap-2">
+          <label className="text-[11px] text-brand-warm-grey uppercase tracking-wide font-bold">Category</label>
+          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+            <SelectTrigger className="w-44"><SelectValue placeholder="Category" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Categories</SelectItem>
+              {allCategories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex items-center gap-2">
+          <label className="text-[11px] text-brand-warm-grey uppercase tracking-wide font-bold">Min Rating</label>
+          <Select value={ratingFilter} onValueChange={setRatingFilter}>
+            <SelectTrigger className="w-40"><SelectValue placeholder="Rating" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="0">All Ratings</SelectItem>
+              {[1, 2, 3, 4, 5].map(r => <SelectItem key={r} value={r.toString()}>{r}★ and above</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+        <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="w-40" aria-label="Date from" />
+        <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="w-40" aria-label="Date to" />
+        <Button variant="ghost" size="sm" onClick={clearFilters} className="text-brand-warm-grey underline">Clear filters</Button>
       </div>
 
       {/* Feedback List */}
