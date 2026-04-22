@@ -643,7 +643,7 @@ const Index = () => {
       {/* ══════ CTA — Full viewport dramatic ══════ */}
       <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden">
         <img src={imgChorus} alt="Music" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(358_68%_6%/0.96)] to-[hsl(358_68%_8%/0.93)]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/95 to-primary/90" />
         <motion.div
           className="absolute inset-0 opacity-30"
           animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
