@@ -434,6 +434,22 @@
     will-change: transform;
   }
 
+  .calendar-date-badge {
+    background: hsl(var(--accent));
+    color: hsl(var(--accent-foreground));
+    box-shadow: 0 2px 16px hsl(var(--primary) / 0.06);
+  }
+
+  .brand-card {
+    background: hsl(var(--card));
+    box-shadow: 0 2px 16px hsl(var(--primary) / 0.06);
+  }
+
+  .typescale-body { font-size: 16px; line-height: 26px; }
+  .typescale-subheading { font-size: 20px; line-height: 28px; }
+  .typescale-heading { font-size: 24px; line-height: 34px; }
+  .typescale-display { font-size: 32px; line-height: 44px; }
+
   /* ─── Gold ring portrait ─── */
   .portrait-gold-ring {
     border: 3px solid hsl(40 56% 50%);
@@ -527,7 +543,7 @@
 
 /* ─── Decorative quote mark ─── */
 .quote-decorative {
-  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-family: 'EB Garamond', 'Garamond Premiere', serif;
   font-size: 6rem;
   line-height: 1;
   color: hsl(40 56% 50% / 0.15);
