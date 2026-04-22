@@ -131,10 +131,10 @@ const AdminMessages = () => {
 
   const getRoleBadge = (r: string) => {
     const colors: Record<string, string> = {
-      student: "bg-blue-50 text-blue-700 border-blue-200",
+      student: "bg-accent/10 text-accent-foreground border-accent/20",
       instructor: "bg-brand-gold-pale text-brand-gold-dark border-brand-gold/30",
       admin: "bg-brand-primary/10 text-brand-primary border-brand-primary/20",
-      super_admin: "bg-purple-50 text-purple-700 border-purple-200",
+      super_admin: "bg-secondary/10 text-secondary-foreground border-secondary/20",
     };
     return colors[r] || "bg-brand-cream text-brand-warm-grey border-brand-parchment";
   };
@@ -196,7 +196,7 @@ const AdminMessages = () => {
               { label: "Total Messages", value: totalMessages, icon: Mail },
               { label: "Active Today", value: activeToday, icon: Clock },
             ].map((s) => (
-              <div key={s.label} className="bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-3 sm:p-4 flex items-center gap-3">
+              <div key={s.label} className="bg-card rounded-2xl shadow-[0_2px_24px_hsl(var(--primary)/0.06)] p-3 sm:p-4 flex items-center gap-3">
                 <div className="w-9 h-9 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 flex items-center justify-center">
                   <s.icon className="h-4 w-4 text-brand-gold" />
                 </div>
@@ -211,7 +211,7 @@ const AdminMessages = () => {
 
         <div className="flex-1 flex flex-col lg:flex-row gap-3 sm:gap-4 min-h-0">
           {/* Contact list - desktop */}
-          <Card className={`w-full lg:w-80 shrink-0 hidden ${selectedContact ? 'lg:flex' : 'md:flex'} flex-col bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] ${isSuperAdmin ? 'max-h-[50vh] lg:max-h-none' : ''}`}>
+          <Card className={`w-full lg:w-80 shrink-0 hidden ${selectedContact ? 'lg:flex' : 'md:flex'} flex-col bg-card rounded-2xl shadow-[0_2px_24px_hsl(var(--primary)/0.06)] ${isSuperAdmin ? 'max-h-[50vh] lg:max-h-none' : ''}`}>
             <div className="p-3 pb-0">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-warm-grey" />
@@ -253,7 +253,7 @@ const AdminMessages = () => {
                       <Badge className={`${getRoleBadge(c.role)} text-[8px] px-1 py-0 h-4 mt-0.5`}>{c.role}</Badge>
                     </div>
                     {c.unread > 0 && (
-                      <Badge className="bg-gradient-to-r from-brand-primary to-brand-primary-dark text-white text-[10px] h-5 min-w-[20px] flex items-center justify-center border-0">{c.unread}</Badge>
+                      <Badge className="bg-gradient-to-r from-brand-primary to-brand-primary-dark text-primary-foreground text-[10px] h-5 min-w-[20px] flex items-center justify-center border-0">{c.unread}</Badge>
                     )}
                   </button>
                 );
@@ -263,7 +263,7 @@ const AdminMessages = () => {
 
           {/* Mobile contact list */}
           <div className={`${selectedContact ? 'hidden' : 'flex'} md:hidden w-full`}>
-            <Card className="flex-1 bg-white rounded-2xl border border-brand-parchment">
+            <Card className="flex-1 bg-card rounded-2xl shadow-[0_2px_24px_hsl(var(--primary)/0.06)]">
               <div className="p-2 pb-0">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-warm-grey" />
@@ -291,7 +291,7 @@ const AdminMessages = () => {
                         <p className="text-sm font-medium text-brand-charcoal-mid">{c.display_name}</p>
                         <Badge className={`${getRoleBadge(c.role)} text-[8px] px-1 py-0 h-4 mt-0.5`}>{c.role}</Badge>
                       </div>
-                      {c.unread > 0 && <Badge className="bg-brand-primary text-white text-xs border-0">{c.unread}</Badge>}
+                      {c.unread > 0 && <Badge className="bg-brand-primary text-primary-foreground text-xs border-0">{c.unread}</Badge>}
                     </button>
                   );
                 })}
@@ -301,9 +301,9 @@ const AdminMessages = () => {
 
           {/* Thread */}
           {selectedContact ? (
-            <Card className="flex-1 flex flex-col min-h-0 bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] overflow-hidden">
+            <Card className="flex-1 flex flex-col min-h-0 bg-card rounded-2xl shadow-[0_2px_24px_hsl(var(--primary)/0.06)] overflow-hidden">
               <div className="bg-gradient-to-r from-brand-primary to-brand-primary-dark p-3 sm:p-4 flex items-center gap-3">
-                <button className="lg:hidden w-9 h-9 flex items-center justify-center rounded-lg hover:bg-white/10 text-white" onClick={() => setSelectedContact(null)}>
+                <button className="lg:hidden w-9 h-9 flex items-center justify-center rounded-lg hover:bg-white/10 text-primary-foreground" onClick={() => setSelectedContact(null)}>
                   <ArrowLeft className="h-5 w-5" />
                 </button>
                 <div className="w-9 h-9 rounded-full bg-gradient-to-br from-brand-gold to-brand-gold-light flex items-center justify-center text-brand-primary font-bold text-xs shrink-0">
@@ -312,20 +312,20 @@ const AdminMessages = () => {
                 <div className="min-w-0">
                   {isSuperAdmin ? (
                     <>
-                      <p className="font-semibold text-sm text-white truncate">
+                      <p className="font-semibold text-sm text-primary-foreground truncate">
                         {nameMap[threadPartners?.a || ""] || "User"} ↔ {nameMap[threadPartners?.b || ""] || "User"}
                       </p>
                       <div className="flex items-center gap-1.5 mt-0.5">
                         <Badge className={`${getRoleBadge(roleMap[threadPartners?.a || ""])} text-[8px] px-1 py-0 h-4`}>{roleMap[threadPartners?.a || ""]}</Badge>
-                        <span className="text-white/40 text-[10px]">↔</span>
+                        <span className="text-primary-foreground/40 text-[10px]">↔</span>
                         <Badge className={`${getRoleBadge(roleMap[threadPartners?.b || ""])} text-[8px] px-1 py-0 h-4`}>{roleMap[threadPartners?.b || ""]}</Badge>
-                        <span className="text-[10px] text-white/50 ml-1">· {thread.length} messages</span>
+                        <span className="text-[10px] text-primary-foreground/50 ml-1">· {thread.length} messages</span>
                       </div>
                     </>
                   ) : (
                     <>
-                      <p className="font-semibold text-sm text-white truncate">{contacts.find((c: any) => c.user_id === selectedContact)?.display_name}</p>
-                      <p className="text-[10px] text-white/50">{contacts.find((c: any) => c.user_id === selectedContact)?.role} · Online</p>
+                      <p className="font-semibold text-sm text-primary-foreground truncate">{contacts.find((c: any) => c.user_id === selectedContact)?.display_name}</p>
+                      <p className="text-[10px] text-primary-foreground/50">{contacts.find((c: any) => c.user_id === selectedContact)?.role} · Online</p>
                     </>
                   )}
                 </div>
@@ -343,10 +343,10 @@ const AdminMessages = () => {
                     const isLeft = isSuperAdmin ? msg.sender_id === threadPartners?.a : msg.sender_id !== user?.id;
                     return (
                       <div key={msg.id} className={`flex ${isLeft ? "justify-start" : "justify-end"}`}>
-                        <div className={`max-w-[85%] sm:max-w-[75%] px-3.5 py-2.5 rounded-2xl text-sm ${isLeft ? "bg-brand-cream-dark text-brand-charcoal-mid rounded-bl-md" : "bg-gradient-to-br from-brand-primary/80 to-brand-primary-dark text-white rounded-br-md"}`}>
+                        <div className={`max-w-[85%] sm:max-w-[75%] px-3.5 py-2.5 rounded-2xl text-sm ${isLeft ? "bg-brand-cream-dark text-brand-charcoal-mid rounded-bl-md" : "bg-gradient-to-br from-brand-primary/80 to-brand-primary-dark text-primary-foreground rounded-br-md"}`}>
                           {isSuperAdmin && <p className={`text-[10px] font-semibold mb-0.5 ${isLeft ? "text-brand-primary" : "text-brand-gold-light"}`}>{nameMap[msg.sender_id] || "User"}</p>}
                           <p>{msg.content}</p>
-                          <p className={`text-[10px] mt-1 ${isLeft ? "text-brand-warm-grey" : "text-white/50"}`}>{format(new Date(msg.created_at), "h:mm a")}</p>
+                          <p className={`text-[10px] mt-1 ${isLeft ? "text-brand-warm-grey" : "text-primary-foreground/50"}`}>{format(new Date(msg.created_at), "h:mm a")}</p>
                         </div>
                       </div>
                     );
@@ -361,14 +361,14 @@ const AdminMessages = () => {
                   </p>
                 </div>
               ) : (
-                <div className="p-2.5 sm:p-3 border-t border-brand-parchment flex gap-2 bg-white">
+                <div className="p-2.5 sm:p-3 border-t border-brand-parchment flex gap-2 bg-card">
                   <Input value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Type a message..." className="rounded-xl border-brand-parchment focus:border-brand-gold focus:ring-brand-gold/20 h-11" onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()} />
                   <Button onClick={handleSend} disabled={!message.trim() || sending} size="icon" className="bg-gradient-to-r from-brand-primary to-brand-primary-dark shrink-0 rounded-xl w-11 h-11 shadow-lg"><Send className="h-4 w-4" /></Button>
                 </div>
               )}
             </Card>
           ) : (
-            <Card className="flex-1 hidden md:flex items-center justify-center bg-white rounded-2xl border border-brand-parchment">
+            <Card className="flex-1 hidden md:flex items-center justify-center bg-card rounded-2xl shadow-[0_2px_24px_hsl(var(--primary)/0.06)]">
               <CardContent className="text-center">
                 <div className="w-16 h-16 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 flex items-center justify-center mx-auto mb-3">
                   <MessageSquare className="h-7 w-7 text-brand-gold" />

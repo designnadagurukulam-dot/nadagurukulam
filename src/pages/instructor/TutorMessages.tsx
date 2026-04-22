@@ -87,17 +87,17 @@ const TutorMessages = () => {
     <button key={s.user_id} onClick={() => setSelectedStudent(s.user_id)}
       className={`w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all ${isMobile ? 'min-h-[52px]' : 'min-h-[48px]'} ${selectedStudent === s.user_id ? "bg-gradient-to-r from-brand-gold-pale to-brand-cream border border-brand-gold/30 shadow-sm" : "hover:bg-brand-cream"}`}>
       <div className="relative">
-        <div className={`${isMobile ? 'w-11 h-11' : 'w-10 h-10'} rounded-full bg-gradient-to-br from-brand-primary to-brand-primary-dark flex items-center justify-center text-white font-bold text-xs shrink-0 shadow-sm`}>
+        <div className={`${isMobile ? 'w-11 h-11' : 'w-10 h-10'} rounded-full bg-gradient-to-br from-brand-primary to-brand-primary-dark flex items-center justify-center text-primary-foreground font-bold text-xs shrink-0 shadow-sm`}>
           {getInitials(s.display_name)}
         </div>
-        <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
+        <span className="absolute bottom-0 right-0 w-3 h-3 bg-accent rounded-full border-2 border-white" />
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium text-brand-charcoal-mid truncate">{s.display_name}</p>
         <p className="text-xs text-brand-warm-grey">Student</p>
       </div>
       {(unreadCounts as any)[s.user_id] > 0 && (
-        <Badge className="bg-gradient-to-r from-brand-gold to-[hsl(35_62%_55%)] text-white text-[10px] h-5 min-w-[20px] flex items-center justify-center border-0 shadow-sm">
+        <Badge className="bg-gradient-to-r from-brand-gold to-brand-gold-light text-primary-foreground text-[10px] h-5 min-w-[20px] flex items-center justify-center border-0 shadow-sm">
           {(unreadCounts as any)[s.user_id]}
         </Badge>
       )}
@@ -120,7 +120,7 @@ const TutorMessages = () => {
 
         <div className="flex-1 flex gap-3 sm:gap-4 min-h-0">
           {/* Desktop student list */}
-          <Card className="w-72 shrink-0 hidden md:flex flex-col bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)]">
+          <Card className="w-72 shrink-0 hidden md:flex flex-col bg-card rounded-2xl shadow-[0_2px_24px_hsl(var(--primary)/0.06)]">
             <div className="p-3 pb-0">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-warm-grey" />
@@ -137,7 +137,7 @@ const TutorMessages = () => {
           {/* Mobile student list */}
           <div className="md:hidden w-full">
             {!selectedStudent && (
-              <Card className="flex-1 bg-white rounded-2xl border border-brand-parchment">
+              <Card className="flex-1 bg-card rounded-2xl shadow-[0_2px_24px_hsl(var(--primary)/0.06)]">
                 <div className="p-2 pb-0">
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-warm-grey" />
@@ -155,20 +155,20 @@ const TutorMessages = () => {
 
           {/* Chat area */}
           {selectedStudent && (
-            <Card className="flex-1 flex flex-col min-h-0 bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] overflow-hidden">
+            <Card className="flex-1 flex flex-col min-h-0 bg-card rounded-2xl shadow-[0_2px_24px_hsl(var(--primary)/0.06)] overflow-hidden">
               <div className="bg-gradient-to-r from-brand-primary to-brand-primary-dark p-3 sm:p-4 flex items-center gap-3">
-                <button className="md:hidden w-9 h-9 flex items-center justify-center rounded-lg hover:bg-white/10 text-white" onClick={() => setSelectedStudent(null)}>
+                <button className="md:hidden w-9 h-9 flex items-center justify-center rounded-lg hover:bg-white/10 text-primary-foreground" onClick={() => setSelectedStudent(null)}>
                   <ArrowLeft className="h-5 w-5" />
                 </button>
                 <div className="relative">
                   <div className="w-9 h-9 rounded-full bg-gradient-to-br from-brand-gold to-brand-gold-light flex items-center justify-center text-brand-primary font-bold text-xs shrink-0">
                     {getInitials(selectedProfile?.display_name || "")}
                   </div>
-                  <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-brand-primary" />
+                  <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-accent rounded-full border-2 border-brand-primary" />
                 </div>
                 <div>
-                  <p className="font-semibold text-sm text-white truncate">{selectedProfile?.display_name}</p>
-                  <p className="text-[10px] text-white/50">Student · Online</p>
+                  <p className="font-semibold text-sm text-primary-foreground truncate">{selectedProfile?.display_name}</p>
+                  <p className="text-[10px] text-primary-foreground/50">Student · Online</p>
                 </div>
               </div>
               <ScrollArea className="flex-1 p-3 sm:p-4">
@@ -185,9 +185,9 @@ const TutorMessages = () => {
                       const isMine = msg.sender_id === user?.id;
                       return (
                         <div key={msg.id} className={`flex ${isMine ? "justify-end" : "justify-start"}`}>
-                          <div className={`max-w-[85%] sm:max-w-[75%] px-3.5 sm:px-4 py-2.5 rounded-2xl text-sm shadow-sm ${isMine ? "bg-gradient-to-br from-brand-primary to-brand-primary-dark text-white rounded-br-md" : "bg-brand-cream-dark text-brand-charcoal-mid rounded-bl-md border border-brand-parchment"}`}>
+                          <div className={`max-w-[85%] sm:max-w-[75%] px-3.5 sm:px-4 py-2.5 rounded-2xl text-sm shadow-sm ${isMine ? "bg-gradient-to-br from-brand-primary to-brand-primary-dark text-primary-foreground rounded-br-md" : "bg-brand-cream-dark text-brand-charcoal-mid rounded-bl-md border border-brand-parchment"}`}>
                             <p>{msg.content}</p>
-                            <p className={`text-[10px] mt-1 ${isMine ? "text-white/50" : "text-brand-warm-grey"}`}>{format(new Date(msg.created_at), "h:mm a")}</p>
+                            <p className={`text-[10px] mt-1 ${isMine ? "text-primary-foreground/50" : "text-brand-warm-grey"}`}>{format(new Date(msg.created_at), "h:mm a")}</p>
                           </div>
                         </div>
                       );
@@ -195,7 +195,7 @@ const TutorMessages = () => {
                   <div ref={messagesEndRef} />
                 </div>
               </ScrollArea>
-              <div className="p-2.5 sm:p-3 border-t border-brand-parchment flex gap-2 bg-white">
+              <div className="p-2.5 sm:p-3 border-t border-brand-parchment flex gap-2 bg-card">
                 <Input value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Type a message..." className="rounded-xl border-brand-parchment focus:border-brand-gold focus:ring-brand-gold/20 h-11" onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()} />
                 <Button onClick={handleSend} disabled={!message.trim() || sending} size="icon" className="bg-gradient-to-r from-brand-primary to-brand-primary-dark hover:from-brand-primary-dark hover:to-brand-primary shrink-0 rounded-xl w-11 h-11 shadow-lg"><Send className="h-4 w-4" /></Button>
               </div>
@@ -203,7 +203,7 @@ const TutorMessages = () => {
           )}
 
           {!selectedStudent && (
-            <Card className="flex-1 hidden md:flex items-center justify-center bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)]">
+            <Card className="flex-1 hidden md:flex items-center justify-center bg-card rounded-2xl shadow-[0_2px_24px_hsl(var(--primary)/0.06)]">
               <CardContent className="text-center">
                 <div className="w-16 h-16 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 flex items-center justify-center mx-auto mb-3"><MessageSquare className="h-7 w-7 text-brand-gold" /></div>
                 <p className="font-serif text-brand-primary font-semibold">Select a student to start chatting</p>
