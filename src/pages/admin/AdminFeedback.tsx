@@ -182,8 +182,8 @@ const AdminFeedback = () => {
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-gold to-amber-600 flex items-center justify-center">
-              <MessageSquare className="h-5 w-5 text-white" />
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-secondary to-primary flex items-center justify-center">
+              <MessageSquare className="h-5 w-5 text-primary-foreground" />
             </div>
             <div>
               <h1 className="font-serif text-2xl font-semibold text-brand-primary">Student Feedback</h1>
