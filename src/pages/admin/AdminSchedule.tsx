@@ -1,209 +1,208 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Plus, Trash2, Calendar, Clock, Video, Wifi, WifiOff, Radio } from "lucide-react";
+import { addDays, addWeeks, endOfWeek, format, isSameDay, setHours, setMinutes, startOfWeek, subWeeks } from "date-fns";
+import { Calendar, ChevronLeft, ChevronRight, Clock, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { logActivity } from "@/lib/activityLogger";
 
-interface ScheduleEntry { id: string; event_title: string; start_time: string; end_time: string; event_type: string; course_id: string | null; user_id: string; instructor_id: string | null; }
+type ScheduleEntry = {
+  id: string;
+  event_title: string;
+  start_time: string;
+  end_time: string;
+  event_type: string;
+  course_id: string | null;
+  batch_id?: string | null;
+  curriculum_module_id?: string | null;
+  instructor_id: string | null;
+  location?: string | null;
+  recurrence_type?: string | null;
+  user_id: string;
+};
+
+const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const timeSlots = Array.from({ length: 16 }, (_, i) => i + 6);
+const eventTypes = ["class", "lab", "exam", "event", "holiday", "break"];
+
+const getEventStyle = (type: string) => {
+  switch (type) {
+    case "exam": return "bg-destructive/10 text-destructive";
+    case "lab": return "bg-accent/20 text-accent-foreground";
+    case "holiday": return "bg-muted text-muted-foreground";
+    case "break": return "bg-secondary text-secondary-foreground";
+    default: return "bg-primary text-primary-foreground";
+  }
+};
 
 const AdminSchedule = () => {
   const { toast } = useToast();
   const [schedules, setSchedules] = useState<ScheduleEntry[]>([]);
-  const [liveClasses, setLiveClasses] = useState<any[]>([]);
-  const [liveProfiles, setLiveProfiles] = useState<Record<string, string>>({});
-  const [courses, setCourses] = useState<{ id: string; title: string }[]>([]);
+  const [batches, setBatches] = useState<any[]>([]);
+  const [modules, setModules] = useState<any[]>([]);
   const [instructors, setInstructors] = useState<{ user_id: string; display_name: string }[]>([]);
-  const [students, setStudents] = useState<{ user_id: string; display_name: string }[]>([]);
   const [loading, setLoading] = useState(true);
+  const [weekStart, setWeekStart] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }));
+  const [filterMode, setFilterMode] = useState("all");
+  const [filterValue, setFilterValue] = useState("all");
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [title, setTitle] = useState("");
-  const [startTime, setStartTime] = useState("");
-  const [endTime, setEndTime] = useState("");
-  const [eventType, setEventType] = useState("class");
-  const [courseId, setCourseId] = useState("");
-  const [instructorId, setInstructorId] = useState("");
-  const [studentId, setStudentId] = useState("");
+  const [editing, setEditing] = useState<ScheduleEntry | null>(null);
+  const [form, setForm] = useState({ title: "", type: "class", batchId: "", moduleId: "", instructorId: "", start: "", end: "", recurrence: "one_time", location: "" });
+
+  const weekDays = useMemo(() => days.map((_, index) => addDays(weekStart, index)), [weekStart]);
 
   const fetchAll = async () => {
-    const [{ data: sched }, { data: crs }, { data: instrRoles }, { data: studRoles }, { data: lc }] = await Promise.all([
-      supabase.from("schedules").select("*").order("start_time", { ascending: true }),
-      supabase.from("courses").select("id, title"),
+    setLoading(true);
+    const [{ data: sched }, { data: batchData }, { data: moduleData }, { data: instrRoles }] = await Promise.all([
+      supabase.from("schedules").select("*").gte("start_time", weekStart.toISOString()).lte("start_time", endOfWeek(weekStart, { weekStartsOn: 1 }).toISOString()).order("start_time", { ascending: true }),
+      supabase.from("batches").select("id, name, batch_code, course_id"),
+      supabase.from("curriculum_modules").select("id, subject_name, course_code, batch_id, semester").order("semester"),
       supabase.from("user_roles").select("user_id").eq("role", "instructor"),
-      supabase.from("user_roles").select("user_id").eq("role", "student"),
-      supabase.from("live_classes").select("*").order("scheduled_at", { ascending: false }),
     ]);
+    const instructorIds = (instrRoles || []).map((r) => r.user_id);
+    if (instructorIds.length) {
+      const { data: profs } = await supabase.from("profiles").select("user_id, display_name").in("user_id", instructorIds);
+      setInstructors(profs || []);
+    }
     setSchedules((sched as ScheduleEntry[]) || []);
-    setCourses(crs || []);
-    setLiveClasses(lc || []);
-
-    const instrIds = (instrRoles || []).map(r => r.user_id);
-    const lcInstrIds = [...new Set((lc || []).map((c: any) => c.instructor_id))];
-    const allInstrIds = [...new Set([...instrIds, ...lcInstrIds])];
-
-    if (allInstrIds.length > 0) {
-      const { data: profs } = await supabase.from("profiles").select("user_id, display_name").in("user_id", allInstrIds);
-      setInstructors((profs || []).filter(p => instrIds.includes(p.user_id)));
-      const pm: Record<string, string> = {};
-      (profs || []).forEach(p => { pm[p.user_id] = p.display_name || "Tutor"; });
-      setLiveProfiles(pm);
-    }
-    if (studRoles && studRoles.length > 0) {
-      const { data: profs } = await supabase.from("profiles").select("user_id, display_name").in("user_id", studRoles.map(r => r.user_id));
-      setStudents(profs || []);
-    }
+    setBatches(batchData || []);
+    setModules(moduleData || []);
     setLoading(false);
   };
 
-  useEffect(() => { fetchAll(); }, []);
+  useEffect(() => { fetchAll(); }, [weekStart]);
 
-  const handleCreate = async () => {
-    if (!title || !startTime || !endTime) { toast({ title: "Please fill required fields", variant: "destructive" }); return; }
-    let targetStudentIds: string[] = [];
-    if (studentId === "__all__" && courseId) {
-      const { data: enrollments } = await supabase.from("enrollments").select("user_id").eq("course_id", courseId);
-      targetStudentIds = (enrollments || []).map(e => e.user_id);
-      if (targetStudentIds.length === 0) { toast({ title: "No students enrolled in this course", variant: "destructive" }); return; }
-    } else if (studentId && studentId !== "__all__") { targetStudentIds = [studentId]; }
-    else { toast({ title: "Please select a student or 'All Enrolled Students'", variant: "destructive" }); return; }
-    const entries = targetStudentIds.map(sid => ({ event_title: title, start_time: startTime, end_time: endTime, event_type: eventType, course_id: courseId || null, user_id: sid, instructor_id: instructorId || null }));
-    const { error } = await supabase.from("schedules").insert(entries);
-    if (error) { toast({ title: "Failed to create schedule", description: error.message, variant: "destructive" }); }
-    else { toast({ title: "Schedule entry created" }); logActivity("schedule.created", "schedule", undefined, { title, event_type: eventType }); setDialogOpen(false); resetForm(); fetchAll(); }
+  const filteredSchedules = schedules.filter((entry) => {
+    if (filterMode === "batch" && filterValue !== "all") return entry.batch_id === filterValue;
+    if (filterMode === "instructor" && filterValue !== "all") return entry.instructor_id === filterValue;
+    return true;
+  });
+
+  const getEventForSlot = (day: Date, hour: number) => filteredSchedules.find((entry) => {
+    const start = new Date(entry.start_time);
+    return isSameDay(start, day) && start.getHours() === hour;
+  });
+
+  const openSlotEditor = (day: Date, hour: number, event?: ScheduleEntry) => {
+    setEditing(event || null);
+    const start = event ? new Date(event.start_time) : setMinutes(setHours(day, hour), 0);
+    const end = event ? new Date(event.end_time) : setMinutes(setHours(day, hour + 1), 0);
+    setForm({
+      title: event?.event_title || "",
+      type: event?.event_type || "class",
+      batchId: event?.batch_id || "",
+      moduleId: event?.curriculum_module_id || "",
+      instructorId: event?.instructor_id || "",
+      start: format(start, "yyyy-MM-dd'T'HH:mm"),
+      end: format(end, "yyyy-MM-dd'T'HH:mm"),
+      recurrence: event?.recurrence_type || "one_time",
+      location: event?.location || "",
+    });
+    setDialogOpen(true);
   };
 
-  const handleDelete = async (id: string) => { await supabase.from("schedules").delete().eq("id", id); logActivity("schedule.deleted", "schedule", id); toast({ title: "Schedule entry deleted" }); fetchAll(); };
-  const resetForm = () => { setTitle(""); setStartTime(""); setEndTime(""); setEventType("class"); setCourseId(""); setInstructorId(""); setStudentId(""); };
-
-  const now = new Date();
-  const isLive = (c: any) => {
-    const start = new Date(c.scheduled_at);
-    const end = new Date(start.getTime() + (c.duration_minutes || 60) * 60000);
-    return now >= start && now <= end;
+  const saveSchedule = async () => {
+    if (!form.title || !form.start || !form.end) {
+      toast({ title: "Title, start and end time are required", variant: "destructive" });
+      return;
+    }
+    const { data: auth } = await supabase.auth.getUser();
+    const payload: any = {
+      event_title: form.title,
+      event_type: form.type,
+      start_time: new Date(form.start).toISOString(),
+      end_time: new Date(form.end).toISOString(),
+      batch_id: form.batchId || null,
+      curriculum_module_id: form.moduleId || null,
+      instructor_id: form.instructorId || null,
+      location: form.location || null,
+      recurrence_type: form.recurrence,
+      user_id: auth.user?.id || form.instructorId,
+    };
+    const { error } = editing
+      ? await supabase.from("schedules").update(payload).eq("id", editing.id)
+      : await supabase.from("schedules").insert(payload);
+    if (error) {
+      toast({ title: "Failed to save timetable slot", description: error.message, variant: "destructive" });
+      return;
+    }
+    logActivity(editing ? "schedule.updated" : "schedule.created", "schedule", editing?.id, { title: form.title });
+    toast({ title: editing ? "Timetable slot updated" : "Timetable slot created" });
+    setDialogOpen(false);
+    fetchAll();
   };
 
-  if (loading) return <div className="flex justify-center py-20"><div className="h-10 w-10 border-4 border-brand-primary border-t-transparent rounded-full animate-spin" /></div>;
+  const deleteSchedule = async () => {
+    if (!editing) return;
+    const { error } = await supabase.from("schedules").delete().eq("id", editing.id);
+    if (error) return toast({ title: "Failed to delete", description: error.message, variant: "destructive" });
+    logActivity("schedule.deleted", "schedule", editing.id);
+    toast({ title: "Timetable slot deleted" });
+    setDialogOpen(false);
+    fetchAll();
+  };
 
   return (
     <div className="space-y-6 pt-2">
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex justify-between items-center">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h1 className="font-serif text-2xl font-semibold text-brand-primary">Timetable Management</h1>
-          <div className="w-12 h-0.5 bg-gradient-to-r from-brand-gold to-transparent mt-1" />
-          <p className="text-sm text-brand-warm-grey mt-2">Create and manage class schedules</p>
+          <h1 className="font-display text-brand-primary">Weekly Timetable</h1>
+          <div className="mt-1 h-0.5 w-12 bg-gradient-to-r from-brand-gold to-transparent" />
+          <p className="mt-2 text-sm text-brand-warm-grey">Manage classes, labs, exams, events, holidays and breaks in a weekly grid.</p>
         </div>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="gap-2 bg-brand-primary hover:bg-brand-primary-dark text-white rounded-xl"><Plus className="h-4 w-4" /> Add Schedule</Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-lg rounded-2xl border-brand-parchment">
-            <DialogHeader><DialogTitle className="font-serif text-xl text-brand-primary">Create Schedule Entry</DialogTitle></DialogHeader>
-            <div className="space-y-4">
-              <div><label className="text-[11px] uppercase tracking-widest text-brand-warm-grey font-semibold mb-1 block">Title *</label><Input value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. Carnatic Vocal - Lesson 12" className="border-brand-parchment rounded-xl" /></div>
-              <div className="grid grid-cols-2 gap-4">
-                <div><label className="text-[11px] uppercase tracking-widest text-brand-warm-grey font-semibold mb-1 block">Start Time *</label><Input type="datetime-local" value={startTime} onChange={e => setStartTime(e.target.value)} className="border-brand-parchment rounded-xl" /></div>
-                <div><label className="text-[11px] uppercase tracking-widest text-brand-warm-grey font-semibold mb-1 block">End Time *</label><Input type="datetime-local" value={endTime} onChange={e => setEndTime(e.target.value)} className="border-brand-parchment rounded-xl" /></div>
-              </div>
-              <div><label className="text-[11px] uppercase tracking-widest text-brand-warm-grey font-semibold mb-1 block">Type</label>
-                <Select value={eventType} onValueChange={setEventType}><SelectTrigger className="border-brand-parchment rounded-xl"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="class">Class</SelectItem><SelectItem value="practice">Practice Session</SelectItem><SelectItem value="workshop">Workshop</SelectItem><SelectItem value="exam">Exam</SelectItem></SelectContent></Select></div>
-              <div><label className="text-[11px] uppercase tracking-widest text-brand-warm-grey font-semibold mb-1 block">Course</label>
-                <Select value={courseId} onValueChange={setCourseId}><SelectTrigger className="border-brand-parchment rounded-xl"><SelectValue placeholder="Select course" /></SelectTrigger><SelectContent>{courses.map(c => <SelectItem key={c.id} value={c.id}>{c.title}</SelectItem>)}</SelectContent></Select></div>
-              <div><label className="text-[11px] uppercase tracking-widest text-brand-warm-grey font-semibold mb-1 block">Instructor</label>
-                <Select value={instructorId} onValueChange={setInstructorId}><SelectTrigger className="border-brand-parchment rounded-xl"><SelectValue placeholder="Assign instructor" /></SelectTrigger><SelectContent>{instructors.map(i => <SelectItem key={i.user_id} value={i.user_id}>{i.display_name || "Unnamed"}</SelectItem>)}</SelectContent></Select></div>
-              <div><label className="text-[11px] uppercase tracking-widest text-brand-warm-grey font-semibold mb-1 block">Student(s) *</label>
-                <Select value={studentId} onValueChange={setStudentId}><SelectTrigger className="border-brand-parchment rounded-xl"><SelectValue placeholder="Assign to student(s)" /></SelectTrigger><SelectContent>{courseId && <SelectItem value="__all__">📋 All Enrolled Students</SelectItem>}{students.map(s => <SelectItem key={s.user_id} value={s.user_id}>{s.display_name || "Unnamed"}</SelectItem>)}</SelectContent></Select>
-                {studentId === "__all__" && !courseId && <p className="text-xs text-red-500 mt-1">Please select a course first</p>}</div>
-              <Button onClick={handleCreate} className="w-full bg-brand-primary hover:bg-brand-primary-dark text-white rounded-xl">Create Schedule</Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="outline" onClick={() => setWeekStart(subWeeks(weekStart, 1))} className="rounded-xl"><ChevronLeft className="h-4 w-4" /> Previous</Button>
+          <Button variant="outline" onClick={() => setWeekStart(startOfWeek(new Date(), { weekStartsOn: 1 }))} className="rounded-xl">Current Week</Button>
+          <Button variant="outline" onClick={() => setWeekStart(addWeeks(weekStart, 1))} className="rounded-xl">Next <ChevronRight className="h-4 w-4" /></Button>
+        </div>
       </motion.div>
 
-      <div className="bg-brand-cream border border-brand-parchment rounded-xl p-3 text-xs text-brand-warm-grey">
-        <strong className="text-brand-primary">Institutional Timings:</strong> Morning 8:15 AM – 12:15 PM | Lunch Break 12:15 – 1:30 PM | Afternoon 1:30 – 4:00 PM
+      <div className="flex flex-wrap items-center gap-3 rounded-2xl bg-card p-4 shadow-[0_2px_16px_hsl(var(--primary)/0.06)]">
+        <Calendar className="h-4 w-4 text-brand-gold" />
+        <span className="text-sm font-semibold text-brand-primary">{format(weekStart, "MMM d")} – {format(addDays(weekStart, 6), "MMM d, yyyy")}</span>
+        <Select value={filterMode} onValueChange={(value) => { setFilterMode(value); setFilterValue("all"); }}>
+          <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
+          <SelectContent><SelectItem value="all">All</SelectItem><SelectItem value="batch">By Batch</SelectItem><SelectItem value="instructor">By Tutor</SelectItem></SelectContent>
+        </Select>
+        {filterMode !== "all" && (
+          <Select value={filterValue} onValueChange={setFilterValue}>
+            <SelectTrigger className="w-56"><SelectValue placeholder="Select filter" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All {filterMode === "batch" ? "Batches" : "Tutors"}</SelectItem>
+              {filterMode === "batch" ? batches.map((b) => <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>) : instructors.map((i) => <SelectItem key={i.user_id} value={i.user_id}>{i.display_name || "Tutor"}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        )}
       </div>
 
-      <Tabs defaultValue="schedules">
-        <TabsList className="bg-brand-cream border border-brand-parchment rounded-xl p-1">
-          <TabsTrigger value="schedules" className="rounded-lg data-[state=active]:bg-brand-primary data-[state=active]:text-white text-brand-warm-grey">
-            Admin Schedules ({schedules.length})
-          </TabsTrigger>
-          <TabsTrigger value="live" className="rounded-lg data-[state=active]:bg-brand-primary data-[state=active]:text-white text-brand-warm-grey">
-            Tutor Live Classes ({liveClasses.length})
-          </TabsTrigger>
-        </TabsList>
+      {loading ? <div className="flex justify-center py-20"><div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" /></div> : (
+        <div className="overflow-x-auto rounded-2xl bg-card p-2 shadow-[0_2px_16px_hsl(var(--primary)/0.06)]">
+          <table className="min-w-[920px] w-full border-separate border-spacing-0">
+            <thead><tr><th className="w-20 p-3 text-left text-[11px] uppercase tracking-widest text-brand-warm-grey">Time</th>{weekDays.map((day, index) => <th key={day.toISOString()} className="p-3 text-center"><div className="font-display text-sm text-brand-primary">{days[index]}</div><div className="text-xs text-brand-warm-grey">{format(day, "MMM d")}</div></th>)}</tr></thead>
+            <tbody>{timeSlots.map((hour) => <tr key={hour} className="border-b border-border"><td className="p-2 align-top text-xs font-semibold text-brand-warm-grey">{format(setHours(new Date(), hour), "h a")}</td>{weekDays.map((day) => { const event = getEventForSlot(day, hour); return <td key={`${day.toISOString()}-${hour}`} onClick={() => openSlotEditor(day, hour, event)} className="h-16 min-w-28 cursor-pointer p-1 align-top transition-colors hover:bg-brand-cream"><div className="h-full rounded-xl p-1">{event ? <div className={`h-full rounded-lg px-2 py-1.5 text-[11px] font-semibold ${getEventStyle(event.event_type)}`}><p className="truncate">{event.event_title}</p><p className="truncate text-[10px] opacity-75">{instructors.find((i) => i.user_id === event.instructor_id)?.display_name || event.location || "Timetable"}</p></div> : <div className="flex h-full items-center justify-center rounded-lg text-muted-foreground opacity-0 transition-opacity hover:opacity-100"><Plus className="h-4 w-4" /></div>}</div></td>; })}</tr>)}</tbody>
+          </table>
+        </div>
+      )}
 
-        <TabsContent value="schedules" className="mt-4">
-          {schedules.length === 0 ? (
-            <div className="bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] py-16 text-center">
-              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 flex items-center justify-center mx-auto mb-4"><Calendar className="h-7 w-7 text-brand-gold" /></div>
-              <h3 className="font-serif text-xl text-brand-primary">No Schedules Yet</h3>
-              <p className="text-sm text-brand-warm-grey mt-1">Create your first timetable entry</p>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {schedules.map(s => (
-                <div key={s.id} className="bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-4 flex items-center justify-between hover:bg-brand-cream transition-colors">
-                  <div>
-                    <h3 className="font-medium text-brand-charcoal">{s.event_title}</h3>
-                    <div className="flex items-center gap-3 text-xs text-brand-warm-grey mt-1">
-                      <span className="flex items-center gap-1"><Clock className="h-3 w-3 text-brand-gold" />{new Date(s.start_time).toLocaleString()} – {new Date(s.end_time).toLocaleTimeString()}</span>
-                      <Badge className="bg-brand-gold-pale text-brand-gold-dark border border-brand-parchment text-[10px] capitalize">{s.event_type}</Badge>
-                    </div>
-                  </div>
-                  <Button variant="ghost" size="icon" onClick={() => handleDelete(s.id)} className="hover:bg-red-50 text-red-500"><Trash2 className="h-4 w-4" /></Button>
-                </div>
-              ))}
-            </div>
-          )}
-        </TabsContent>
-
-        <TabsContent value="live" className="mt-4">
-          {liveClasses.length === 0 ? (
-            <div className="bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] py-16 text-center">
-              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 flex items-center justify-center mx-auto mb-4"><Video className="h-7 w-7 text-brand-gold" /></div>
-              <h3 className="font-serif text-xl text-brand-primary">No Tutor Live Classes</h3>
-              <p className="text-sm text-brand-warm-grey mt-1">Tutors haven't scheduled any live classes yet</p>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {liveClasses.map(c => (
-                <div key={c.id} className="bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-4 hover:bg-brand-cream transition-colors">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1 flex-wrap">
-                        <h3 className="font-medium text-brand-charcoal">{c.title}</h3>
-                        {isLive(c) && (
-                          <Badge className="bg-red-500 text-white animate-pulse gap-1 text-[10px]">
-                            <Radio className="h-3 w-3" /> LIVE
-                          </Badge>
-                        )}
-                        <Badge className={c.class_type === "offline" ? "bg-brand-cream text-brand-charcoal-mid border border-brand-parchment gap-1 text-[10px]" : "bg-blue-50 text-blue-700 border border-blue-200 gap-1 text-[10px]"}>
-                          {c.class_type === "offline" ? <WifiOff className="h-3 w-3" /> : <Wifi className="h-3 w-3" />}
-                          {c.class_type === "offline" ? "Offline" : "Online"}
-                        </Badge>
-                        <Badge className={c.audience_type === "all" ? "bg-brand-gold-pale text-brand-gold-dark border border-brand-gold/30 text-[10px]" : "bg-brand-cream text-brand-warm-grey border border-brand-parchment text-[10px]"}>
-                          {c.audience_type === "all" ? "All Batches" : "Specific"}
-                        </Badge>
-                      </div>
-                      <div className="flex items-center gap-3 text-xs text-brand-warm-grey">
-                        <span>{liveProfiles[c.instructor_id] || "Tutor"}</span>
-                        <span className="flex items-center gap-1"><Clock className="h-3 w-3 text-brand-gold" />{new Date(c.scheduled_at).toLocaleString()} ({c.duration_minutes || 60}m)</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </TabsContent>
-      </Tabs>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-xl rounded-2xl">
+          <DialogHeader><DialogTitle className="font-display text-brand-primary">{editing ? "Edit Timetable Slot" : "Add Timetable Slot"}</DialogTitle></DialogHeader>
+          <div className="grid gap-4">
+            <div><label className="mb-1 block text-[11px] font-bold uppercase tracking-widest text-brand-warm-grey">Title</label><Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></div>
+            <div className="grid gap-3 sm:grid-cols-2"><div><label className="mb-1 block text-[11px] font-bold uppercase tracking-widest text-brand-warm-grey">Type</label><Select value={form.type} onValueChange={(type) => setForm({ ...form, type })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{eventTypes.map((type) => <SelectItem key={type} value={type}>{type}</SelectItem>)}</SelectContent></Select></div><div><label className="mb-1 block text-[11px] font-bold uppercase tracking-widest text-brand-warm-grey">Recurring</label><Select value={form.recurrence} onValueChange={(recurrence) => setForm({ ...form, recurrence })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="one_time">One-time</SelectItem><SelectItem value="weekly">Weekly</SelectItem><SelectItem value="custom">Custom</SelectItem></SelectContent></Select></div></div>
+            <div className="grid gap-3 sm:grid-cols-2"><div><label className="mb-1 block text-[11px] font-bold uppercase tracking-widest text-brand-warm-grey">Batch</label><Select value={form.batchId} onValueChange={(batchId) => setForm({ ...form, batchId })}><SelectTrigger><SelectValue placeholder="Select batch" /></SelectTrigger><SelectContent>{batches.map((b) => <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>)}</SelectContent></Select></div><div><label className="mb-1 block text-[11px] font-bold uppercase tracking-widest text-brand-warm-grey">Subject</label><Select value={form.moduleId} onValueChange={(moduleId) => setForm({ ...form, moduleId })}><SelectTrigger><SelectValue placeholder="Select subject" /></SelectTrigger><SelectContent>{modules.map((m) => <SelectItem key={m.id} value={m.id}>{m.course_code} · {m.subject_name}</SelectItem>)}</SelectContent></Select></div></div>
+            <div><label className="mb-1 block text-[11px] font-bold uppercase tracking-widest text-brand-warm-grey">Tutor</label><Select value={form.instructorId} onValueChange={(instructorId) => setForm({ ...form, instructorId })}><SelectTrigger><SelectValue placeholder="Assign tutor" /></SelectTrigger><SelectContent>{instructors.map((i) => <SelectItem key={i.user_id} value={i.user_id}>{i.display_name || "Tutor"}</SelectItem>)}</SelectContent></Select></div>
+            <div className="grid gap-3 sm:grid-cols-2"><div><label className="mb-1 block text-[11px] font-bold uppercase tracking-widest text-brand-warm-grey">Start</label><Input type="datetime-local" value={form.start} onChange={(e) => setForm({ ...form, start: e.target.value })} /></div><div><label className="mb-1 block text-[11px] font-bold uppercase tracking-widest text-brand-warm-grey">End</label><Input type="datetime-local" value={form.end} onChange={(e) => setForm({ ...form, end: e.target.value })} /></div></div>
+            <div><label className="mb-1 block text-[11px] font-bold uppercase tracking-widest text-brand-warm-grey">Room / Location</label><Input value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} /></div>
+            <div className="flex justify-between gap-3 pt-2">{editing ? <Button variant="ghost" onClick={deleteSchedule} className="text-destructive"><Trash2 className="h-4 w-4" /> Delete</Button> : <span />}<Button onClick={saveSchedule} className="bg-brand-primary text-primary-foreground hover:bg-brand-primary-dark">Save Slot</Button></div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
