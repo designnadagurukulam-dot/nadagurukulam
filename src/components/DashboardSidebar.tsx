@@ -68,10 +68,10 @@ const DashboardSidebar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { signOut, profile, role } = useAuth();
+  const { signOut, profile, role, user } = useAuth();
 
   const { data: counts = {} } = useQuery({
-    queryKey: ["sidebar-counts", role, profile?.user_id],
+    queryKey: ["sidebar-counts", role, user?.id],
     enabled: !!role,
     queryFn: async () => {
       const next: Record<string, number> = {};
@@ -88,10 +88,10 @@ const DashboardSidebar = () => {
         next["Assignments"] = submissions.count || 0;
         next[role === "super_admin" ? "Message Monitor" : "Messages"] = messages.count || 0;
         next["Feedback"] = feedback.count || 0;
-      } else if (profile?.user_id) {
+      } else if (user?.id) {
         const [messages, submissions] = await Promise.all([
-          supabase.from("messages").select("id", { count: "exact", head: true }).eq("receiver_id", profile.user_id).eq("is_read", false),
-          role === "student" ? supabase.from("assignment_submissions").select("id", { count: "exact", head: true }).eq("student_id", profile.user_id).eq("status", "submitted") : Promise.resolve({ count: 0 }),
+          supabase.from("messages").select("id", { count: "exact", head: true }).eq("receiver_id", user.id).eq("is_read", false),
+          role === "student" ? supabase.from("assignment_submissions").select("id", { count: "exact", head: true }).eq("student_id", user.id).eq("status", "submitted") : Promise.resolve({ count: 0 }),
         ]);
         next["Reach Out"] = messages.count || 0;
         next["Assignments"] = submissions.count || 0;
