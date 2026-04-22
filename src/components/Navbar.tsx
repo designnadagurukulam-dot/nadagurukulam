@@ -47,10 +47,9 @@ const Navbar = () => {
       style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
     >
       <div
-        className={`absolute bottom-0 left-0 right-0 h-[2px] transition-opacity duration-500 ${
+        className={`absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-secondary to-transparent transition-opacity duration-500 ${
           scrolled ? "opacity-100" : "opacity-0"
         }`}
-        className="bg-gradient-to-r from-transparent via-secondary to-transparent"
       />
 
       <div className="container mx-auto flex h-[76px] items-center justify-between px-4">
@@ -73,8 +72,7 @@ const Navbar = () => {
               {location.pathname === link.to && (
                 <motion.div
                   layoutId="nav-indicator"
-                  className="absolute -bottom-[2px] left-[20%] right-[20%] h-[3px] rounded-full"
-                  
+                  className="absolute -bottom-[2px] left-[20%] right-[20%] h-[3px] rounded-full bg-gradient-to-r from-secondary via-accent to-secondary"
                   transition={{ type: "spring", stiffness: 350, damping: 28 }}
                 />
               )}
