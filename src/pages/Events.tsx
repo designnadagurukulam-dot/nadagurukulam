@@ -43,6 +43,8 @@ const Events = () => {
     : upcomingEvents;
 
   const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const eventTone = (type?: string | null) =>
+    type === "concert" ? "bg-primary" : type === "workshop" ? "bg-secondary" : type === "festival" ? "bg-accent" : type === "academic" ? "bg-muted-foreground" : "bg-brand-gold";
 
   return (
     <div>
@@ -69,14 +71,14 @@ const Events = () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* Calendar panel */}
             <div className="lg:col-span-4">
-              <div className="sticky top-24 bg-card rounded-2xl border border-border/50 shadow-lg overflow-hidden">
+              <div className="sticky top-24 overflow-hidden rounded-2xl bg-card shadow-[0_2px_24px_hsl(var(--primary)/0.08)]">
                 {/* Month header */}
                 <div className="flex items-center justify-between p-4 bg-gradient-to-r from-primary to-primary/90">
-                  <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="w-9 h-9 rounded-lg hover:bg-white/10 flex items-center justify-center text-primary-foreground transition-colors">
+                  <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="flex h-11 w-11 items-center justify-center rounded-lg text-primary-foreground transition-colors hover:bg-primary-foreground/10">
                     <ChevronLeft className="h-5 w-5" />
                   </button>
                   <h3 className="font-serif text-lg font-bold text-primary-foreground">{format(currentMonth, "MMMM yyyy")}</h3>
-                  <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="w-9 h-9 rounded-lg hover:bg-white/10 flex items-center justify-center text-primary-foreground transition-colors">
+                  <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="flex h-11 w-11 items-center justify-center rounded-lg text-primary-foreground transition-colors hover:bg-primary-foreground/10">
                     <ChevronRight className="h-5 w-5" />
                   </button>
                 </div>
@@ -116,7 +118,7 @@ const Events = () => {
                       >
                         {format(day, "d")}
                         {dayHasEvent && (
-                          <span className={`absolute bottom-0.5 w-1.5 h-1.5 rounded-full ${isSelected ? "bg-secondary-foreground" : "bg-secondary"}`} />
+                          <span className={`absolute bottom-0.5 h-1.5 w-1.5 rounded-full ${isSelected ? "bg-secondary-foreground" : eventTone(events.find((e: any) => isSameDay(new Date(e.event_date), day))?.event_type)}`} />
                         )}
                       </button>
                     );
@@ -182,7 +184,7 @@ const Events = () => {
                         viewport={{ once: true }}
                         transition={{ delay: i * 0.08, duration: 0.4 }}
                       >
-                        <div className="group flex flex-col sm:flex-row rounded-2xl overflow-hidden bg-card shadow-lg hover:shadow-xl transition-all duration-500 border-l-4 border-l-secondary border border-border/50">
+                        <div className="group flex flex-col overflow-hidden rounded-2xl bg-card shadow-[0_2px_24px_hsl(var(--primary)/0.08)] transition-all duration-500 hover:shadow-[0_12px_36px_hsl(var(--primary)/0.12)] sm:flex-row">
                           {/* Date badge */}
                           <div className="sm:w-24 flex-shrink-0 flex sm:flex-col items-center justify-center gap-2 sm:gap-0 p-4 sm:py-6 bg-gradient-to-b from-secondary/10 to-secondary/5">
                             <span className="text-3xl sm:text-4xl font-extrabold text-primary leading-none">{format(eventDate, "d")}</span>
@@ -201,6 +203,10 @@ const Events = () => {
                             )}
                             <div className="flex-1 p-5 sm:p-6">
                               <div className="flex items-center gap-3 mb-2 flex-wrap">
+                                <span className="inline-flex items-center gap-1.5 text-xs font-semibold capitalize text-muted-foreground">
+                                  <span className={`h-2 w-2 rounded-full ${eventTone(event.event_type)}`} />
+                                  {event.event_type || "Event"}
+                                </span>
                                 <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
                                   <Clock className="h-3 w-3" />
                                   {format(eventDate, "h:mm a")}
