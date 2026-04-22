@@ -1,14 +1,27 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Search, ShieldCheck, GraduationCap, UserCog, FileSpreadsheet, FileText, Users, BookOpen, Video, Save } from "lucide-react";
+import {
+  Search,
+  ShieldCheck,
+  GraduationCap,
+  UserCog,
+  FileSpreadsheet,
+  FileText,
+  Users,
+  BookOpen,
+  Video,
+  Save,
+  UserPlus,
+  CheckCircle2,
+  Clock3,
+  Layers,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { logActivity } from "@/lib/activityLogger";
@@ -17,7 +30,22 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 
-type AppRole = "admin" | "student" | "instructor";
+type AppRole = "super_admin" | "admin" | "student" | "instructor";
+
+type Batch = {
+  id: string;
+  name: string;
+  batch_code: string | null;
+  course_id: string | null;
+  is_active: boolean | null;
+};
+
+type BatchEnrollment = {
+  id: string;
+  batch_id: string;
+  student_id: string;
+  enrolled_at: string | null;
+};
 
 const AdminStudents = () => {
   const { role: currentUserRole } = useAuth();
@@ -26,12 +54,21 @@ const AdminStudents = () => {
   const [profiles, setProfiles] = useState<any[]>([]);
   const [roles, setRoles] = useState<Record<string, AppRole>>({});
   const [enrollCounts, setEnrollCounts] = useState<Record<string, number>>({});
+  const [batches, setBatches] = useState<Batch[]>([]);
+  const [batchEnrollments, setBatchEnrollments] = useState<BatchEnrollment[]>([]);
   const [search, setSearch] = useState("");
-  const [roleFilter, setRoleFilter] = useState<string>("all");
+  const [roleFilter, setRoleFilter] = useState<string>("student");
+  const [programmeFilter, setProgrammeFilter] = useState("all");
+  const [batchFilter, setBatchFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [assignDialogOpen, setAssignDialogOpen] = useState(false);
+  const [assignTargetIds, setAssignTargetIds] = useState<string[]>([]);
+  const [selectedBatchId, setSelectedBatchId] = useState("");
   const [loading, setLoading] = useState(true);
   const [updatingRole, setUpdatingRole] = useState<string | null>(null);
+  const [assigningBatch, setAssigningBatch] = useState(false);
 
-  // Master links dialog state
   const [linksDialogOpen, setLinksDialogOpen] = useState(false);
   const [selectedTutor, setSelectedTutor] = useState<any>(null);
   const [zoomLink, setZoomLink] = useState("");
@@ -39,22 +76,47 @@ const AdminStudents = () => {
   const [savingLinks, setSavingLinks] = useState(false);
 
   const fetchData = async () => {
-    const [profilesRes, rolesRes, enrollRes] = await Promise.all([
+    setLoading(true);
+    const [profilesRes, rolesRes, enrollRes, batchesRes, batchEnrollRes] = await Promise.all([
       supabase.from("profiles").select("*").order("created_at", { ascending: false }),
       supabase.from("user_roles").select("user_id, role"),
       supabase.from("enrollments").select("user_id"),
+      supabase.from("batches").select("id, name, batch_code, course_id, is_active").order("name", { ascending: true }),
+      supabase.from("batch_enrollments").select("id, batch_id, student_id, enrolled_at"),
     ]);
+
     setProfiles(profilesRes.data || []);
     const roleMap: Record<string, AppRole> = {};
-    (rolesRes.data || []).forEach((r) => { roleMap[r.user_id] = r.role as AppRole; });
+    (rolesRes.data || []).forEach((r) => {
+      roleMap[r.user_id] = r.role as AppRole;
+    });
     setRoles(roleMap);
+
     const countMap: Record<string, number> = {};
-    (enrollRes.data || []).forEach((e) => { countMap[e.user_id] = (countMap[e.user_id] || 0) + 1; });
+    (enrollRes.data || []).forEach((e) => {
+      countMap[e.user_id] = (countMap[e.user_id] || 0) + 1;
+    });
     setEnrollCounts(countMap);
+    setBatches(batchesRes.data || []);
+    setBatchEnrollments(batchEnrollRes.data || []);
     setLoading(false);
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const batchById = useMemo(() => new Map(batches.map((b) => [b.id, b])), [batches]);
+
+  const getStudentBatchIds = (userId: string) => batchEnrollments.filter((e) => e.student_id === userId).map((e) => e.batch_id);
+  const getStudentBatchNames = (userId: string) => {
+    const names = getStudentBatchIds(userId).map((id) => batchById.get(id)?.name).filter(Boolean) as string[];
+    return names.length ? names.join(", ") : "Unassigned";
+  };
+
+  const programmeOptions = useMemo(() => {
+    return Array.from(new Set(profiles.map((p) => p.course_name).filter(Boolean))).sort();
+  }, [profiles]);
 
   const handleRoleChange = async (userId: string, newRole: AppRole) => {
     const previousRole = roles[userId] || "student";
@@ -85,10 +147,12 @@ const AdminStudents = () => {
     if (!selectedTutor) return;
     setSavingLinks(true);
     try {
-      const { error } = await supabase.from("profiles").update({ zoom_link: zoomLink || null, meet_link: meetLink || null }).eq("user_id", selectedTutor.user_id);
+      const { error } = await supabase
+        .from("profiles")
+        .update({ zoom_link: zoomLink || null, meet_link: meetLink || null })
+        .eq("user_id", selectedTutor.user_id);
       if (error) throw error;
-      // Update local state
-      setProfiles(prev => prev.map(p => p.user_id === selectedTutor.user_id ? { ...p, zoom_link: zoomLink || null, meet_link: meetLink || null } : p));
+      setProfiles((prev) => prev.map((p) => (p.user_id === selectedTutor.user_id ? { ...p, zoom_link: zoomLink || null, meet_link: meetLink || null } : p)));
       toast.success("Master meeting links updated");
       setLinksDialogOpen(false);
     } catch (err: any) {
@@ -99,22 +163,78 @@ const AdminStudents = () => {
   };
 
   const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
     return profiles.filter((p) => {
-      const matchesSearch = !search || (p.display_name || "").toLowerCase().includes(search.toLowerCase());
       const currentRole = roles[p.user_id] || "student";
+      const batchIds = getStudentBatchIds(p.user_id);
+      const searchable = [p.display_name, p.roll_number, p.enrollment_id, p.phone, p.course_name].filter(Boolean).join(" ").toLowerCase();
+      const matchesSearch = !q || searchable.includes(q);
       const matchesRole = roleFilter === "all" || currentRole === roleFilter;
-      return matchesSearch && matchesRole;
+      const matchesProgramme = programmeFilter === "all" || p.course_name === programmeFilter;
+      const matchesBatch = batchFilter === "all" || batchIds.includes(batchFilter);
+      const matchesStatus = statusFilter === "all" || (statusFilter === "verified" ? p.is_verified : !p.is_verified);
+      return matchesSearch && matchesRole && matchesProgramme && matchesBatch && matchesStatus;
     });
-  }, [profiles, roles, search, roleFilter]);
+  }, [profiles, roles, search, roleFilter, programmeFilter, batchFilter, statusFilter, batchEnrollments, batchById]);
+
+  useEffect(() => {
+    setSelectedIds((prev) => prev.filter((id) => filtered.some((p) => p.user_id === id)));
+  }, [filtered]);
+
+  const openAssignBatch = (userIds: string[]) => {
+    setAssignTargetIds(userIds);
+    setSelectedBatchId("");
+    setAssignDialogOpen(true);
+  };
+
+  const assignBatch = async () => {
+    if (!selectedBatchId || assignTargetIds.length === 0) return;
+    setAssigningBatch(true);
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      const existing = new Set(batchEnrollments.filter((e) => e.batch_id === selectedBatchId).map((e) => e.student_id));
+      const rows = assignTargetIds
+        .filter((userId) => !existing.has(userId))
+        .map((student_id) => ({ batch_id: selectedBatchId, student_id, enrolled_by: userData.user?.id || null }));
+
+      if (rows.length > 0) {
+        const { error } = await supabase.from("batch_enrollments").insert(rows);
+        if (error) throw error;
+      }
+
+      toast.success(rows.length ? `${rows.length} student${rows.length > 1 ? "s" : ""} assigned to batch` : "Selected students are already in this batch");
+      logActivity("students.batch_assigned", "batch", selectedBatchId, { count: rows.length });
+      setAssignDialogOpen(false);
+      setSelectedIds([]);
+      fetchData();
+    } catch (err: any) {
+      toast.error("Failed to assign batch: " + (err.message || "Unknown error"));
+    } finally {
+      setAssigningBatch(false);
+    }
+  };
+
+  const toggleSelected = (userId: string) => {
+    setSelectedIds((prev) => (prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId]));
+  };
+
+  const selectAllVisibleStudents = () => {
+    const ids = filtered.filter((p) => (roles[p.user_id] || "student") === "student").map((p) => p.user_id);
+    setSelectedIds(selectedIds.length === ids.length ? [] : ids);
+  };
 
   const getExportData = () => {
     return filtered.map((p) => ({
       "Enrollment ID": p.enrollment_id || "N/A",
-      "Name": p.display_name || "Unnamed",
-      "Role": roles[p.user_id] || "student",
+      "Roll No": p.roll_number || "-",
+      Name: p.display_name || "Unnamed",
+      Role: roles[p.user_id] || "student",
+      Programme: p.course_name || "-",
+      Batch: getStudentBatchNames(p.user_id),
+      Status: p.is_verified ? "Verified" : "Pending",
       "Courses Enrolled": enrollCounts[p.user_id] || 0,
-      "Joined": new Date(p.created_at).toLocaleDateString(),
-      "Phone": p.phone || "-",
+      Joined: new Date(p.created_at).toLocaleDateString(),
+      Phone: p.phone || "-",
     }));
   };
 
@@ -123,87 +243,93 @@ const AdminStudents = () => {
     doc.setFontSize(16);
     doc.text("Student Data Report", 14, 20);
     doc.setFontSize(10);
-    doc.text(`Generated: ${new Date().toLocaleString()} | Filter: ${roleFilter === "all" ? "All Roles" : roleFilter}`, 14, 28);
+    doc.text(`Generated: ${new Date().toLocaleString()} | Records: ${filtered.length}`, 14, 28);
     const data = getExportData();
     const headers = Object.keys(data[0] || {});
     const rows = data.map((d) => headers.map((h) => String(d[h as keyof typeof d])));
-    autoTable(doc, { head: [headers], body: rows, startY: 34, styles: { fontSize: 9 }, headStyles: { fillColor: [134, 25, 28] } });
-    doc.save(`students_${roleFilter}_${new Date().toISOString().slice(0, 10)}.pdf`);
-    logActivity("students.exported", "export", undefined, { format: "pdf", count: filtered.length, roleFilter });
+    autoTable(doc, { head: [headers], body: rows, startY: 34, styles: { fontSize: 8 }, headStyles: { fillColor: [126, 35, 32] } });
+    doc.save(`students_${new Date().toISOString().slice(0, 10)}.pdf`);
+    logActivity("students.exported", "export", undefined, { format: "pdf", count: filtered.length });
     toast.success("PDF downloaded");
   };
 
   const exportExcel = () => {
-    const data = getExportData();
-    const ws = XLSX.utils.json_to_sheet(data);
+    const ws = XLSX.utils.json_to_sheet(getExportData());
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Students");
-    XLSX.writeFile(wb, `students_${roleFilter}_${new Date().toISOString().slice(0, 10)}.xlsx`);
-    logActivity("students.exported", "export", undefined, { format: "excel", count: filtered.length, roleFilter });
+    XLSX.writeFile(wb, `students_${new Date().toISOString().slice(0, 10)}.xlsx`);
+    logActivity("students.exported", "export", undefined, { format: "excel", count: filtered.length });
     toast.success("Excel downloaded");
   };
 
   const roleColors: Record<string, string> = {
-    admin: "bg-brand-primary/10 text-brand-primary border border-brand-primary/20",
-    instructor: "bg-brand-gold/10 text-brand-gold-dark border border-brand-gold/20",
-    student: "bg-brand-cream text-brand-warm-grey border border-brand-parchment",
+    super_admin: "bg-primary/10 text-primary",
+    admin: "bg-primary/10 text-primary",
+    instructor: "bg-secondary/20 text-secondary-foreground",
+    student: "bg-muted text-muted-foreground",
   };
 
   const roleIcons: Record<string, typeof ShieldCheck> = {
+    super_admin: ShieldCheck,
     admin: ShieldCheck,
     instructor: GraduationCap,
     student: UserCog,
   };
 
-  const studentCount = Object.values(roles).filter(r => r === "student").length;
-  const instructorCount = Object.values(roles).filter(r => r === "instructor").length;
+  const visibleStudentIds = filtered.filter((p) => (roles[p.user_id] || "student") === "student").map((p) => p.user_id);
+  const studentCount = Object.values(roles).filter((r) => r === "student").length;
+  const instructorCount = Object.values(roles).filter((r) => r === "instructor").length;
+  const pendingCount = profiles.filter((p) => !p.is_verified).length;
 
   return (
     <div className="space-y-6 pt-2">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-        <div className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-primary to-brand-primary-dark flex items-center justify-center">
-            <Users className="h-5 w-5 text-white" />
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg">
+              <Users className="h-5 w-5" />
+            </div>
+            <div>
+              <h1 className="font-serif text-2xl font-semibold text-primary">Students & Users</h1>
+              <div className="mt-1 h-0.5 w-12 bg-secondary" />
+            </div>
           </div>
-          <div>
-            <h1 className="font-serif text-2xl font-semibold text-brand-primary">Students & Users</h1>
-            <div className="w-12 h-0.5 bg-gradient-to-r from-brand-gold to-transparent mt-1" />
-          </div>
+          {selectedIds.length > 0 && (
+            <Button onClick={() => openAssignBatch(selectedIds)} className="min-h-11 gap-2 rounded-xl bg-primary text-primary-foreground">
+              <UserPlus className="h-4 w-4" /> Assign {selectedIds.length} to Batch
+            </Button>
+          )}
         </div>
-        <p className="text-sm text-brand-warm-grey mt-2">{profiles.length} total users • {filtered.length} shown</p>
+        <p className="mt-2 text-sm text-muted-foreground">{profiles.length} total users • {filtered.length} shown</p>
       </motion.div>
 
-      {/* Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {[
-          { label: "Total Users", value: profiles.length, icon: Users, gradient: "from-brand-primary to-brand-primary-dark" },
-          { label: "Students", value: studentCount, icon: GraduationCap, gradient: "from-brand-gold to-amber-600" },
-          { label: "Instructors", value: instructorCount, icon: BookOpen, gradient: "from-brand-primary-dark to-rose-900" },
+          { label: "Students", value: studentCount, icon: GraduationCap },
+          { label: "Instructors", value: instructorCount, icon: BookOpen },
+          { label: "Pending Verification", value: pendingCount, icon: Clock3 },
         ].map((s, i) => (
           <motion.div key={s.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
-            <div className="group bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-5 flex items-center gap-4 hover:-translate-y-0.5 hover:shadow-[0_4px_30px_rgba(196,154,60,0.15)] transition-all duration-300">
-              <div className={`w-11 h-11 rounded-full bg-gradient-to-br ${s.gradient} flex items-center justify-center shadow-lg`}>
-                <s.icon className="h-5 w-5 text-white" />
+            <div className="flex items-center gap-4 rounded-2xl bg-card p-5 shadow-[0_2px_16px_hsl(var(--primary)/0.06)]">
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-secondary/20 text-secondary-foreground">
+                <s.icon className="h-5 w-5" />
               </div>
               <div>
-                <p className="font-serif text-3xl font-bold text-brand-primary">{s.value}</p>
-                <p className="text-[11px] uppercase tracking-widest text-brand-warm-grey font-semibold">{s.label}</p>
+                <p className="font-serif text-3xl font-bold text-primary">{s.value}</p>
+                <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">{s.label}</p>
               </div>
             </div>
           </motion.div>
         ))}
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-warm-grey" />
-          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by name..." className="pl-10 border-brand-parchment rounded-xl focus:border-brand-gold" />
+      <div className="grid gap-3 lg:grid-cols-[minmax(220px,1fr)_repeat(4,180px)_auto] lg:items-center">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search name, roll no, ID..." className="min-h-11 rounded-xl pl-10" />
         </div>
         <Select value={roleFilter} onValueChange={setRoleFilter}>
-          <SelectTrigger className="w-[150px] h-10 border-brand-parchment rounded-xl">
-            <SelectValue placeholder="Filter by role" />
-          </SelectTrigger>
+          <SelectTrigger className="min-h-11 rounded-xl"><SelectValue placeholder="Role" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Roles</SelectItem>
             <SelectItem value="student">Students</SelectItem>
@@ -211,64 +337,104 @@ const AdminStudents = () => {
             <SelectItem value="admin">Admins</SelectItem>
           </SelectContent>
         </Select>
+        <Select value={programmeFilter} onValueChange={setProgrammeFilter}>
+          <SelectTrigger className="min-h-11 rounded-xl"><SelectValue placeholder="Programme" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Programmes</SelectItem>
+            {programmeOptions.map((name) => <SelectItem key={name} value={name}>{name}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        <Select value={batchFilter} onValueChange={setBatchFilter}>
+          <SelectTrigger className="min-h-11 rounded-xl"><SelectValue placeholder="Batch" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Batches</SelectItem>
+            {batches.map((b) => <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="min-h-11 rounded-xl"><SelectValue placeholder="Status" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="verified">Verified</SelectItem>
+            <SelectItem value="pending">Pending</SelectItem>
+          </SelectContent>
+        </Select>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={exportPDF} disabled={filtered.length === 0} className="border-brand-parchment rounded-xl hover:bg-brand-cream gap-1">
-            <FileText className="h-4 w-4 text-brand-primary" /> PDF
+          <Button variant="outline" size="sm" onClick={exportPDF} disabled={filtered.length === 0} className="min-h-11 rounded-xl gap-1">
+            <FileText className="h-4 w-4" /> PDF
           </Button>
-          <Button variant="outline" size="sm" onClick={exportExcel} disabled={filtered.length === 0} className="border-brand-parchment rounded-xl hover:bg-brand-cream gap-1">
-            <FileSpreadsheet className="h-4 w-4 text-brand-gold" /> Excel
+          <Button variant="outline" size="sm" onClick={exportExcel} disabled={filtered.length === 0} className="min-h-11 rounded-xl gap-1">
+            <FileSpreadsheet className="h-4 w-4" /> Excel
           </Button>
         </div>
       </div>
 
+      {!loading && visibleStudentIds.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+          <Button variant="outline" size="sm" onClick={selectAllVisibleStudents} className="min-h-10 rounded-xl">
+            {selectedIds.length === visibleStudentIds.length ? "Clear selection" : "Select visible students"}
+          </Button>
+          <span>{selectedIds.length} selected</span>
+        </div>
+      )}
+
       {loading ? (
         <div className="flex justify-center py-12">
-          <div className="h-8 w-8 border-4 border-brand-primary border-t-transparent rounded-full animate-spin" />
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
         </div>
       ) : (
-        <div className="space-y-2">
+        <div className="grid gap-3">
           {filtered.map((p, i) => {
             const currentRole = roles[p.user_id] || "student";
             const RoleIcon = roleIcons[currentRole] || UserCog;
             const isInstructor = currentRole === "instructor";
+            const isStudent = currentRole === "student";
+            const isSelected = selectedIds.includes(p.user_id);
             return (
-              <motion.div key={p.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}>
-                <div className="group bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] hover:bg-brand-cream hover:-translate-y-0.5 hover:shadow-[0_4px_30px_rgba(196,154,60,0.15)] transition-all duration-300">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 flex items-center justify-center text-brand-primary font-bold text-sm shrink-0 font-serif group-hover:from-brand-gold/30 group-hover:to-brand-gold/10 transition-all">
-                        {(p.display_name || "?")[0].toUpperCase()}
+              <motion.div key={p.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.02 }}>
+                <div className="rounded-2xl bg-card p-4 shadow-[0_2px_16px_hsl(var(--primary)/0.06)] transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_24px_hsl(var(--primary)/0.08)]">
+                  <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                    <div className="flex min-w-0 items-start gap-3">
+                      {isStudent && (
+                        <button
+                          type="button"
+                          onClick={() => toggleSelected(p.user_id)}
+                          className={`mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-md ring-1 ring-border ${isSelected ? "bg-primary text-primary-foreground" : "bg-background"}`}
+                          aria-label={`Select ${p.display_name || "student"}`}
+                        >
+                          {isSelected && <CheckCircle2 className="h-4 w-4" />}
+                        </button>
+                      )}
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-secondary/20 text-primary font-bold">
+                        {p.avatar_url ? <img src={p.avatar_url} alt={p.display_name || "User"} className="h-full w-full object-cover" /> : (p.display_name || "?")[0].toUpperCase()}
                       </div>
                       <div className="min-w-0">
-                        <p className="font-medium text-brand-charcoal truncate">{p.display_name || "Unnamed"}</p>
-                        <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-brand-warm-grey">
-                          {p.enrollment_id && (
-                            <span className="font-mono text-brand-primary/70">{p.enrollment_id}</span>
-                          )}
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="truncate font-medium text-foreground">{p.display_name || "Unnamed"}</p>
+                          <Badge className={roleColors[currentRole]}><RoleIcon className="mr-1 h-3 w-3" />{currentRole.replace("_", " ")}</Badge>
+                          <Badge variant={p.is_verified ? "secondary" : "outline"}>{p.is_verified ? "Verified" : "Pending"}</Badge>
+                        </div>
+                        <div className="mt-1 grid gap-1 text-xs text-muted-foreground sm:grid-cols-2 lg:grid-cols-4">
+                          <span>Roll: {p.roll_number || p.enrollment_id || "—"}</span>
+                          <span>Programme: {p.course_name || "—"}</span>
+                          <span>Batch: {getStudentBatchNames(p.user_id)}</span>
                           <span>Joined {new Date(p.created_at).toLocaleDateString()}</span>
-                          <span>{enrollCounts[p.user_id] || 0} courses</span>
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3 ml-auto sm:ml-0">
-                      <Badge className={`${roleColors[currentRole]} gap-1 shrink-0`}>
-                        <RoleIcon className="h-3 w-3" />
-                        {currentRole}
-                      </Badge>
-                      {/* Master Links button for instructors */}
-                      {isInstructor && (
-                        <Button variant="outline" size="sm" onClick={() => openLinksDialog(p)} className="gap-1 text-xs border-brand-parchment rounded-xl hover:bg-brand-cream">
-                          <Video className="h-3 w-3" /> Links
+                    <div className="flex flex-wrap items-center gap-2 lg:justify-end">
+                      {isStudent && (
+                        <Button variant="outline" size="sm" onClick={() => openAssignBatch([p.user_id])} className="min-h-10 rounded-xl gap-1">
+                          <Layers className="h-4 w-4" /> Batch
                         </Button>
                       )}
-                      <Select
-                        value={currentRole}
-                        onValueChange={(val) => handleRoleChange(p.user_id, val as AppRole)}
-                        disabled={updatingRole === p.user_id}
-                      >
-                        <SelectTrigger className="w-[130px] h-8 text-xs border-brand-parchment rounded-xl">
-                          <SelectValue placeholder="Change role" />
-                        </SelectTrigger>
+                      {isInstructor && (
+                        <Button variant="outline" size="sm" onClick={() => openLinksDialog(p)} className="min-h-10 rounded-xl gap-1">
+                          <Video className="h-4 w-4" /> Links
+                        </Button>
+                      )}
+                      <Select value={currentRole} onValueChange={(val) => handleRoleChange(p.user_id, val as AppRole)} disabled={updatingRole === p.user_id}>
+                        <SelectTrigger className="h-10 w-[132px] rounded-xl text-xs"><SelectValue placeholder="Change role" /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="student">Student</SelectItem>
                           <SelectItem value="instructor">Instructor</SelectItem>
@@ -282,64 +448,56 @@ const AdminStudents = () => {
             );
           })}
           {filtered.length === 0 && (
-            <div className="bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] py-12 text-center">
-              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 flex items-center justify-center mx-auto mb-4">
-                <Users className="h-7 w-7 text-brand-gold" />
-              </div>
-              <h3 className="font-serif text-xl text-brand-primary">No Users Found</h3>
+            <div className="rounded-2xl bg-card py-12 text-center shadow-[0_2px_16px_hsl(var(--primary)/0.06)]">
+              <Users className="mx-auto mb-3 h-8 w-8 text-secondary" />
+              <h3 className="font-serif text-xl text-primary">No Users Found</h3>
             </div>
           )}
         </div>
       )}
 
-      {/* Master Meeting Links Dialog */}
-      <Dialog open={linksDialogOpen} onOpenChange={setLinksDialogOpen}>
-        <DialogContent className="max-w-md rounded-2xl border-brand-parchment">
+      <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
+        <DialogContent className="max-w-md rounded-2xl">
           <DialogHeader>
-            <DialogTitle className="font-serif text-brand-primary flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 flex items-center justify-center">
-                <Video className="w-4 h-4 text-brand-gold" />
-              </div>
-              Master Meeting Links
-            </DialogTitle>
+            <DialogTitle className="font-serif text-primary">Assign Batch</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">Assign {assignTargetIds.length} selected student{assignTargetIds.length === 1 ? "" : "s"} to a batch.</p>
+            <Select value={selectedBatchId} onValueChange={setSelectedBatchId}>
+              <SelectTrigger className="min-h-11 rounded-xl"><SelectValue placeholder="Choose batch" /></SelectTrigger>
+              <SelectContent>
+                {batches.map((b) => <SelectItem key={b.id} value={b.id}>{b.name}{b.batch_code ? ` (${b.batch_code})` : ""}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <Button onClick={assignBatch} disabled={!selectedBatchId || assigningBatch} className="min-h-11 w-full rounded-xl bg-primary text-primary-foreground">
+              <UserPlus className="mr-2 h-4 w-4" /> {assigningBatch ? "Assigning..." : "Assign to Batch"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={linksDialogOpen} onOpenChange={setLinksDialogOpen}>
+        <DialogContent className="max-w-md rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="font-serif text-primary">Master Meeting Links</DialogTitle>
           </DialogHeader>
           {selectedTutor && (
             <div className="space-y-4">
-              <p className="text-sm text-brand-warm-grey">
-                <span className="font-semibold text-brand-charcoal">{selectedTutor.display_name}</span> — These links will be auto-filled when this tutor schedules online classes.
-              </p>
-              {!isSuperAdmin && (
-                <p className="text-[10px] text-brand-warm-grey">Only Super Admin can edit master links.</p>
-              )}
-
+              <p className="text-sm text-muted-foreground"><span className="font-semibold text-foreground">{selectedTutor.display_name}</span> — These links auto-fill when this tutor schedules online classes.</p>
               <div>
-                <Label className="text-[10px] uppercase tracking-wide text-brand-warm-grey">Zoom Personal Link</Label>
-                <Input
-                  value={zoomLink}
-                  onChange={(e) => setZoomLink(e.target.value)}
-                  placeholder="https://zoom.us/j/your-personal-room"
-                  className="mt-1 rounded-xl border-brand-parchment"
-                  disabled={!isSuperAdmin}
-                />
+                <Label className="text-[10px] uppercase tracking-wide text-muted-foreground">Zoom Personal Link</Label>
+                <Input value={zoomLink} onChange={(e) => setZoomLink(e.target.value)} placeholder="https://zoom.us/j/your-personal-room" className="mt-1 rounded-xl" disabled={!isSuperAdmin} />
               </div>
-
               <div>
-                <Label className="text-[10px] uppercase tracking-wide text-brand-warm-grey">Google Meet Link</Label>
-                <Input
-                  value={meetLink}
-                  onChange={(e) => setMeetLink(e.target.value)}
-                  placeholder="https://meet.google.com/xxx-xxxx-xxx"
-                  className="mt-1 rounded-xl border-brand-parchment"
-                  disabled={!isSuperAdmin}
-                />
+                <Label className="text-[10px] uppercase tracking-wide text-muted-foreground">Google Meet Link</Label>
+                <Input value={meetLink} onChange={(e) => setMeetLink(e.target.value)} placeholder="https://meet.google.com/xxx-xxxx-xxx" className="mt-1 rounded-xl" disabled={!isSuperAdmin} />
               </div>
-
               {isSuperAdmin ? (
-                <Button onClick={saveMasterLinks} disabled={savingLinks} className="w-full gap-2 bg-gradient-to-r from-brand-primary to-brand-primary-dark text-white rounded-xl shadow-lg">
-                  <Save className="h-4 w-4" /> {savingLinks ? "Saving..." : "Save Links"}
+                <Button onClick={saveMasterLinks} disabled={savingLinks} className="min-h-11 w-full rounded-xl bg-primary text-primary-foreground">
+                  <Save className="mr-2 h-4 w-4" /> {savingLinks ? "Saving..." : "Save Links"}
                 </Button>
               ) : (
-                <p className="text-[10px] text-brand-warm-grey text-center">Only Super Admin can edit master links.</p>
+                <p className="text-center text-xs text-muted-foreground">Only Super Admin can edit master links.</p>
               )}
             </div>
           )}
