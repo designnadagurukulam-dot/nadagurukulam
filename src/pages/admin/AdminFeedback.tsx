@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { MessageSquare, Star, Filter, MessageCircle, Eye, ChevronDown, ChevronUp, Download } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
