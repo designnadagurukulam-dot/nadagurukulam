@@ -68,7 +68,7 @@ const Footer = () => {
             <div>
               <h4 className="font-serif text-lg font-semibold mb-6 relative inline-block">
                 Quick Links
-                <span className="absolute -bottom-1 left-0 w-10 h-[2px] rounded-full"  />
+                <span className="absolute -bottom-1 left-0 w-10 h-[2px] rounded-full bg-gradient-to-r from-secondary to-transparent" />
               </h4>
               <ul className="space-y-3 text-sm text-primary-foreground/65">
                 {[
@@ -93,7 +93,7 @@ const Footer = () => {
             <div>
               <h4 className="font-serif text-lg font-semibold mb-6 relative inline-block">
                 Our Courses
-                <span className="absolute -bottom-1 left-0 w-10 h-[2px] rounded-full"  />
+                <span className="absolute -bottom-1 left-0 w-10 h-[2px] rounded-full bg-gradient-to-r from-secondary to-transparent" />
               </h4>
               <ul className="space-y-3 text-sm text-primary-foreground/65">
                 {["Carnatic Vocal", "Hindustani Vocal", "Bharatanatyam", "Mridangam", "Tabla", "Sitar"].map((c) => (
@@ -111,7 +111,7 @@ const Footer = () => {
             <div>
               <h4 className="font-serif text-lg font-semibold mb-6 relative inline-block">
                 Contact Us
-                <span className="absolute -bottom-1 left-0 w-10 h-[2px] rounded-full"  />
+                <span className="absolute -bottom-1 left-0 w-10 h-[2px] rounded-full bg-gradient-to-r from-secondary to-transparent" />
               </h4>
               <ul className="space-y-4 text-sm text-primary-foreground/65">
                 <li className="flex items-start gap-3">
