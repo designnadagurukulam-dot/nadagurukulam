@@ -26,8 +26,6 @@ const AdminUserVerification = () => {
 
   const unverifiedUsers = users?.filter((u) => !u.is_verified && u.role !== "super_admin") || [];
   const verifiedUsers = users?.filter((u) => u.is_verified && u.role !== "super_admin") || [];
-  const protectedUsers = users?.filter((u) => u.role === "super_admin") || [];
-
   const verifyMutation = useMutation({
     mutationFn: async ({ userId, verify }: { userId: string; verify: boolean }) => { const { error } = await supabase.from("profiles").update({ is_verified: verify }).eq("user_id", userId); if (error) throw error; },
     onSuccess: (_, { verify }) => { queryClient.invalidateQueries({ queryKey: ["admin-all-users"] }); toast.success(verify ? "User verified successfully" : "User verification revoked"); },
@@ -65,8 +63,8 @@ const AdminUserVerification = () => {
       </TableCell>
       <TableCell className="text-sm text-muted-foreground font-mono">{u.roll_number || u.employee_id || "—"}</TableCell>
       <TableCell><Badge className={roleColors[u.role] || roleColors.student}>{u.role === "super_admin" ? "Super Admin" : u.role === "admin" ? "Admin" : u.role === "instructor" ? "Educator" : "Student"}</Badge></TableCell>
-      <TableCell>{u.is_verified ? <Badge className="bg-green-50 text-green-700 border border-green-200">Verified</Badge> : <Badge className="bg-red-50 text-red-600 border border-red-200">Pending</Badge>}</TableCell>
-      <TableCell className="text-xs text-[#8C7B6B]">{new Date(u.created_at).toLocaleDateString()}</TableCell>
+      <TableCell>{u.is_verified ? <Badge variant="secondary">Verified</Badge> : <Badge variant="destructive">Pending</Badge>}</TableCell>
+      <TableCell className="text-xs text-muted-foreground">{new Date(u.created_at).toLocaleDateString()}</TableCell>
       <TableCell>
         <div className="flex gap-2">
           {showVerifyActions && !u.is_verified && (
@@ -132,19 +130,19 @@ const AdminUserVerification = () => {
         </div>
       )}
 
-      <div className="bg-white rounded-2xl border border-[#EDE3CC] shadow-[0_2px_24px_rgba(125,30,36,0.06)] overflow-hidden">
+      <div className="bg-card rounded-2xl shadow-[0_2px_24px_hsl(var(--primary)/0.06)] overflow-hidden">
         <div className="p-5 pb-3">
-          <h3 className="font-serif text-lg text-[#7D1E24]">All Users ({users?.length || 0})</h3>
+          <h3 className="font-serif text-lg text-primary">Managed Users ({verifiedUsers.length})</h3>
         </div>
         <Table>
           <TableHeader>
-            <TableRow className="bg-[#5C1219] hover:bg-[#5C1219]">
-              <TableHead className="text-[#E2B95A] text-[11px] uppercase tracking-widest font-semibold">Name</TableHead>
-              <TableHead className="text-[#E2B95A] text-[11px] uppercase tracking-widest font-semibold">ID</TableHead>
-              <TableHead className="text-[#E2B95A] text-[11px] uppercase tracking-widest font-semibold">Role</TableHead>
-              <TableHead className="text-[#E2B95A] text-[11px] uppercase tracking-widest font-semibold">Status</TableHead>
-              <TableHead className="text-[#E2B95A] text-[11px] uppercase tracking-widest font-semibold">Registered</TableHead>
-              <TableHead className="text-[#E2B95A] text-[11px] uppercase tracking-widest font-semibold">Actions</TableHead>
+            <TableRow className="bg-primary hover:bg-primary">
+              <TableHead className="text-primary-foreground text-[11px] uppercase tracking-widest font-semibold">Name</TableHead>
+              <TableHead className="text-primary-foreground text-[11px] uppercase tracking-widest font-semibold">ID</TableHead>
+              <TableHead className="text-primary-foreground text-[11px] uppercase tracking-widest font-semibold">Role</TableHead>
+              <TableHead className="text-primary-foreground text-[11px] uppercase tracking-widest font-semibold">Status</TableHead>
+              <TableHead className="text-primary-foreground text-[11px] uppercase tracking-widest font-semibold">Registered</TableHead>
+              <TableHead className="text-primary-foreground text-[11px] uppercase tracking-widest font-semibold">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>{verifiedUsers.map((u, i) => renderUserRow(u, isSuperAdmin, i))}</TableBody>
