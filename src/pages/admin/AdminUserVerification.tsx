@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { CheckCircle, XCircle, UserCheck, Users, Shield, Lock } from "lucide-react";
+import { CheckCircle, XCircle, UserCheck, Users, Shield } from "lucide-react";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -90,41 +90,41 @@ const AdminUserVerification = () => {
     </TableRow>
   );
 
-  if (isLoading) return <div className="flex items-center justify-center py-20"><div className="h-8 w-8 border-4 border-[#7D1E24] border-t-transparent rounded-full animate-spin" /></div>;
+  if (isLoading) return <div className="flex items-center justify-center py-20"><div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin" /></div>;
 
   return (
     <div className="space-y-6 pt-2">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-serif text-2xl font-semibold text-[#7D1E24]">User Verification</h1>
-          <div className="w-12 h-0.5 bg-[#C49A3C] mt-1" />
-          <p className="text-sm text-[#8C7B6B] mt-2">Approve or manage user accounts</p>
+          <h1 className="font-serif text-2xl font-semibold text-primary">User Verification</h1>
+          <div className="w-12 h-0.5 bg-secondary mt-1" />
+          <p className="text-sm text-muted-foreground mt-2">Approve or manage user accounts</p>
         </div>
         <div className="flex gap-3">
-          <div className="bg-white rounded-2xl border border-[#EDE3CC] shadow-[0_2px_24px_rgba(125,30,36,0.06)] px-4 py-2 flex items-center gap-2">
-            <UserCheck className="h-4 w-4 text-green-600" /><span className="text-sm font-medium text-[#3D2E22]">{verifiedUsers.length} Verified</span>
+          <div className="bg-card rounded-2xl shadow-[0_2px_24px_hsl(var(--primary)/0.06)] px-4 py-2 flex items-center gap-2">
+            <UserCheck className="h-4 w-4 text-secondary" /><span className="text-sm font-medium text-foreground">{verifiedUsers.length} Verified</span>
           </div>
-          <div className="bg-white rounded-2xl border border-[#EDE3CC] shadow-[0_2px_24px_rgba(125,30,36,0.06)] px-4 py-2 flex items-center gap-2">
-            <Users className="h-4 w-4 text-amber-600" /><span className="text-sm font-medium text-[#3D2E22]">{unverifiedUsers.length} Pending</span>
+          <div className="bg-card rounded-2xl shadow-[0_2px_24px_hsl(var(--primary)/0.06)] px-4 py-2 flex items-center gap-2">
+            <Users className="h-4 w-4 text-primary" /><span className="text-sm font-medium text-foreground">{unverifiedUsers.length} Pending</span>
           </div>
         </div>
       </div>
 
       {unverifiedUsers.length > 0 && (
-        <div className="bg-white rounded-2xl border border-[#EDE3CC] shadow-[0_2px_24px_rgba(125,30,36,0.06)] overflow-hidden">
+        <div className="bg-card rounded-2xl shadow-[0_2px_24px_hsl(var(--primary)/0.06)] overflow-hidden">
           <div className="p-5 pb-3 flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-amber-50 flex items-center justify-center"><Shield className="h-4 w-4 text-amber-600" /></div>
-            <h3 className="font-serif text-lg text-[#7D1E24]">Pending Approvals ({unverifiedUsers.length})</h3>
+            <div className="w-8 h-8 rounded-full bg-secondary/20 flex items-center justify-center"><Shield className="h-4 w-4 text-secondary-foreground" /></div>
+            <h3 className="font-serif text-lg text-primary">Pending Approvals ({unverifiedUsers.length})</h3>
           </div>
           <Table>
             <TableHeader>
-              <TableRow className="bg-[#5C1219] hover:bg-[#5C1219]">
-                <TableHead className="text-[#E2B95A] text-[11px] uppercase tracking-widest font-semibold">Name</TableHead>
-                <TableHead className="text-[#E2B95A] text-[11px] uppercase tracking-widest font-semibold">ID</TableHead>
-                <TableHead className="text-[#E2B95A] text-[11px] uppercase tracking-widest font-semibold">Role</TableHead>
-                <TableHead className="text-[#E2B95A] text-[11px] uppercase tracking-widest font-semibold">Status</TableHead>
-                <TableHead className="text-[#E2B95A] text-[11px] uppercase tracking-widest font-semibold">Registered</TableHead>
-                <TableHead className="text-[#E2B95A] text-[11px] uppercase tracking-widest font-semibold">Actions</TableHead>
+              <TableRow className="bg-primary hover:bg-primary">
+                <TableHead className="text-primary-foreground text-[11px] uppercase tracking-widest font-semibold">Name</TableHead>
+                <TableHead className="text-primary-foreground text-[11px] uppercase tracking-widest font-semibold">ID</TableHead>
+                <TableHead className="text-primary-foreground text-[11px] uppercase tracking-widest font-semibold">Role</TableHead>
+                <TableHead className="text-primary-foreground text-[11px] uppercase tracking-widest font-semibold">Status</TableHead>
+                <TableHead className="text-primary-foreground text-[11px] uppercase tracking-widest font-semibold">Registered</TableHead>
+                <TableHead className="text-primary-foreground text-[11px] uppercase tracking-widest font-semibold">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>{unverifiedUsers.map((u, i) => renderUserRow(u, true, i))}</TableBody>
