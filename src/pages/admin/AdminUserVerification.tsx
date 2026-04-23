@@ -4,12 +4,12 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { CheckCircle, XCircle, UserCheck, Users, Shield } from "lucide-react";
+import { CheckCircle, XCircle, UserCheck, Users, Shield, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const AdminUserVerification = () => {
-  const { role } = useAuth();
+  const { role, user } = useAuth();
   const queryClient = useQueryClient();
   const isSuperAdmin = role === "super_admin";
 
@@ -24,8 +24,9 @@ const AdminUserVerification = () => {
     },
   });
 
-  const unverifiedUsers = users?.filter((u) => !u.is_verified) || [];
-  const verifiedUsers = users?.filter((u) => u.is_verified) || [];
+  const unverifiedUsers = users?.filter((u) => !u.is_verified && u.role !== "super_admin") || [];
+  const verifiedUsers = users?.filter((u) => u.is_verified && u.role !== "super_admin") || [];
+  const protectedUsers = users?.filter((u) => u.role === "super_admin") || [];
 
   const verifyMutation = useMutation({
     mutationFn: async ({ userId, verify }: { userId: string; verify: boolean }) => { const { error } = await supabase.from("profiles").update({ is_verified: verify }).eq("user_id", userId); if (error) throw error; },
@@ -34,45 +35,53 @@ const AdminUserVerification = () => {
   });
 
   const changeRoleMutation = useMutation({
-    mutationFn: async ({ userId, newRole }: { userId: string; newRole: string }) => { const { error } = await supabase.from("user_roles").update({ role: newRole as any }).eq("user_id", userId); if (error) throw error; },
+    mutationFn: async ({ userId, newRole }: { userId: string; newRole: string }) => {
+      const targetUser = users?.find((u) => u.user_id === userId);
+      if (!isSuperAdmin) throw new Error("Only Super Admin can change roles");
+      if (userId === user?.id) throw new Error("You cannot change your own role");
+      if (targetUser?.role === "super_admin") throw new Error("Super Admin roles are protected");
+      if (newRole === "super_admin") throw new Error("Use backend recovery for Super Admin changes");
+      const { error } = await supabase.from("user_roles").update({ role: newRole as any }).eq("user_id", userId);
+      if (error) throw error;
+    },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["admin-all-users"] }); toast.success("Role updated successfully"); },
     onError: () => toast.error("Failed to update role"),
   });
 
   const roleColors: Record<string, string> = {
-    super_admin: "bg-[#7D1E24]/10 text-[#7D1E24] border border-[#7D1E24]/20",
-    admin: "bg-[#7D1E24]/10 text-[#7D1E24] border border-[#7D1E24]/20",
-    instructor: "bg-[#C49A3C]/10 text-[#8B6914] border border-[#C49A3C]/20",
-    student: "bg-[#FAF6EE] text-[#8C7B6B] border border-[#EDE3CC]",
+    super_admin: "bg-primary/10 text-primary border border-primary/20",
+    admin: "bg-primary/10 text-primary border border-primary/20",
+    instructor: "bg-secondary/20 text-secondary-foreground border border-secondary/30",
+    student: "bg-muted text-muted-foreground border border-border",
   };
 
   const renderUserRow = (u: any, showVerifyActions: boolean, i: number) => (
-    <TableRow key={u.user_id} className={`${i % 2 === 1 ? "bg-[#FAF6EE]" : "bg-white"} hover:bg-[#FAF6EE] transition-colors border-b border-[#EDE3CC]`}>
-      <TableCell className="font-medium text-[#3D2E22]">
+    <TableRow key={u.user_id} className={`${i % 2 === 1 ? "bg-muted/40" : "bg-card"} hover:bg-muted/60 transition-colors border-b border-border`}>
+      <TableCell className="font-medium text-foreground">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-full bg-[#F5E9CE] flex items-center justify-center text-[#7D1E24] font-serif font-bold text-xs">{(u.display_name || "?")[0].toUpperCase()}</div>
+          <div className="w-7 h-7 rounded-full bg-secondary/20 flex items-center justify-center text-primary font-serif font-bold text-xs">{(u.display_name || "?")[0].toUpperCase()}</div>
           {u.display_name || "—"}
         </div>
       </TableCell>
-      <TableCell className="text-sm text-[#8C7B6B] font-mono">{u.roll_number || u.employee_id || "—"}</TableCell>
+      <TableCell className="text-sm text-muted-foreground font-mono">{u.roll_number || u.employee_id || "—"}</TableCell>
       <TableCell><Badge className={roleColors[u.role] || roleColors.student}>{u.role === "super_admin" ? "Super Admin" : u.role === "admin" ? "Admin" : u.role === "instructor" ? "Educator" : "Student"}</Badge></TableCell>
       <TableCell>{u.is_verified ? <Badge className="bg-green-50 text-green-700 border border-green-200">Verified</Badge> : <Badge className="bg-red-50 text-red-600 border border-red-200">Pending</Badge>}</TableCell>
       <TableCell className="text-xs text-[#8C7B6B]">{new Date(u.created_at).toLocaleDateString()}</TableCell>
       <TableCell>
         <div className="flex gap-2">
           {showVerifyActions && !u.is_verified && (
-            <Button size="sm" onClick={() => verifyMutation.mutate({ userId: u.user_id, verify: true })} disabled={verifyMutation.isPending} className="gap-1 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs">
+            <Button size="sm" onClick={() => verifyMutation.mutate({ userId: u.user_id, verify: true })} disabled={verifyMutation.isPending} className="gap-1 rounded-xl text-xs">
               <CheckCircle className="h-3.5 w-3.5" /> Approve
             </Button>
           )}
           {showVerifyActions && u.is_verified && u.role !== "super_admin" && (
-            <Button size="sm" variant="outline" onClick={() => verifyMutation.mutate({ userId: u.user_id, verify: false })} disabled={verifyMutation.isPending} className="gap-1 border-[#EDE3CC] rounded-xl text-red-500 text-xs">
+            <Button size="sm" variant="outline" onClick={() => verifyMutation.mutate({ userId: u.user_id, verify: false })} disabled={verifyMutation.isPending} className="gap-1 rounded-xl text-destructive text-xs">
               <XCircle className="h-3.5 w-3.5" /> Revoke
             </Button>
           )}
-          {isSuperAdmin && u.role !== "super_admin" && (
+          {isSuperAdmin && u.role !== "super_admin" && u.user_id !== user?.id && (
             <Select value={u.role} onValueChange={(val) => changeRoleMutation.mutate({ userId: u.user_id, newRole: val })}>
-              <SelectTrigger className="w-[130px] h-8 text-xs border-[#EDE3CC] rounded-xl"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-[130px] h-8 text-xs rounded-xl"><SelectValue /></SelectTrigger>
               <SelectContent><SelectItem value="student">Student</SelectItem><SelectItem value="instructor">Educator</SelectItem><SelectItem value="admin">Admin</SelectItem></SelectContent>
             </Select>
           )}
