@@ -66,7 +66,6 @@ const AdminStudents = () => {
   const [assignTargetIds, setAssignTargetIds] = useState<string[]>([]);
   const [selectedBatchId, setSelectedBatchId] = useState("");
   const [loading, setLoading] = useState(true);
-  const [updatingRole, setUpdatingRole] = useState<string | null>(null);
   const [assigningBatch, setAssigningBatch] = useState(false);
 
   const [linksDialogOpen, setLinksDialogOpen] = useState(false);
@@ -118,24 +117,6 @@ const AdminStudents = () => {
     return Array.from(new Set(profiles.map((p) => p.course_name).filter(Boolean))).sort();
   }, [profiles]);
 
-  const handleRoleChange = async (userId: string, newRole: AppRole) => {
-    const previousRole = roles[userId] || "student";
-    setUpdatingRole(userId);
-    try {
-      const { error: deleteError } = await supabase.from("user_roles").delete().eq("user_id", userId);
-      if (deleteError) throw deleteError;
-      const { error: insertError } = await supabase.from("user_roles").insert({ user_id: userId, role: newRole });
-      if (insertError) throw insertError;
-      setRoles((prev) => ({ ...prev, [userId]: newRole }));
-      logActivity("role.changed", "user_role", userId, { newRole, previousRole });
-      toast.success(`Role updated to ${newRole}`);
-    } catch (err: any) {
-      toast.error("Failed to update role: " + (err.message || "Unknown error"));
-    } finally {
-      setUpdatingRole(null);
-    }
-  };
-
   const openLinksDialog = (profile: any) => {
     setSelectedTutor(profile);
     setZoomLink(profile.zoom_link || "");
@@ -166,6 +147,7 @@ const AdminStudents = () => {
     const q = search.trim().toLowerCase();
     return profiles.filter((p) => {
       const currentRole = roles[p.user_id] || "student";
+      if (currentRole === "super_admin") return false;
       const batchIds = getStudentBatchIds(p.user_id);
       const searchable = [p.display_name, p.roll_number, p.enrollment_id, p.phone, p.course_name].filter(Boolean).join(" ").toLowerCase();
       const matchesSearch = !q || searchable.includes(q);
@@ -277,9 +259,10 @@ const AdminStudents = () => {
   };
 
   const visibleStudentIds = filtered.filter((p) => (roles[p.user_id] || "student") === "student").map((p) => p.user_id);
-  const studentCount = Object.values(roles).filter((r) => r === "student").length;
-  const instructorCount = Object.values(roles).filter((r) => r === "instructor").length;
-  const pendingCount = profiles.filter((p) => !p.is_verified).length;
+  const visibleProfiles = profiles.filter((p) => (roles[p.user_id] || "student") !== "super_admin");
+  const studentCount = visibleProfiles.filter((p) => (roles[p.user_id] || "student") === "student").length;
+  const instructorCount = visibleProfiles.filter((p) => (roles[p.user_id] || "student") === "instructor").length;
+  const pendingCount = visibleProfiles.filter((p) => !p.is_verified).length;
 
   return (
     <div className="space-y-6 pt-2">
@@ -300,7 +283,7 @@ const AdminStudents = () => {
             </Button>
           )}
         </div>
-        <p className="mt-2 text-sm text-muted-foreground">{profiles.length} total users • {filtered.length} shown</p>
+        <p className="mt-2 text-sm text-muted-foreground">{visibleProfiles.length} managed users • {filtered.length} shown</p>
       </motion.div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -433,14 +416,9 @@ const AdminStudents = () => {
                           <Video className="h-4 w-4" /> Links
                         </Button>
                       )}
-                      <Select value={currentRole} onValueChange={(val) => handleRoleChange(p.user_id, val as AppRole)} disabled={updatingRole === p.user_id}>
-                        <SelectTrigger className="h-10 w-[132px] rounded-xl text-xs"><SelectValue placeholder="Change role" /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="student">Student</SelectItem>
-                          <SelectItem value="instructor">Instructor</SelectItem>
-                          <SelectItem value="admin">Admin</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <Badge variant="outline" className="min-h-10 rounded-xl px-3 text-xs text-muted-foreground">
+                        Roles are managed in Verification
+                      </Badge>
                     </div>
                   </div>
                 </div>
