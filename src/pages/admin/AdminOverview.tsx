@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   BookOpen, Users, Clock, GraduationCap,
-  MessageSquare, ShieldCheck, Layers, CheckSquare,
+  ShieldCheck, Layers, CheckSquare,
   Sparkles, Crown, Zap, TrendingUp, ClipboardList, Mail, Star, Video
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
