@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { format } from "date-fns";
 
 const categoryOptions = ["Teaching Quality", "Punctuality", "Communication", "Curriculum", "General"];
 
@@ -24,6 +25,29 @@ const StudentFeedback = () => {
   const [blocks, setBlocks] = useState<CategoryBlock[]>([{ category: "General", rating: 0, comment: "" }]);
   const [hoverRatings, setHoverRatings] = useState<Record<number, number>>({});
   const [submitting, setSubmitting] = useState(false);
+
+  const { data: myFeedback = [] } = useQuery({
+    queryKey: ["my-feedback-with-replies", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data: fb } = await supabase
+        .from("feedback")
+        .select("id, message, rating, category, submitted_at, instructor_id")
+        .eq("student_id", user!.id)
+        .order("submitted_at", { ascending: false });
+      const ids = (fb || []).map((f: any) => f.id);
+      if (!ids.length) return [];
+      const { data: replies } = await (supabase as any)
+        .from("feedback_responses")
+        .select("id, feedback_id, message, created_at")
+        .in("feedback_id", ids)
+        .order("created_at", { ascending: true });
+      return (fb || []).map((f: any) => ({
+        ...f,
+        replies: (replies || []).filter((r: any) => r.feedback_id === f.id),
+      }));
+    },
+  });
 
   const { data: tutors = [] } = useQuery({
     queryKey: ["feedback-tutors", user?.id],
@@ -210,6 +234,52 @@ const StudentFeedback = () => {
           </CardContent>
         </Card>
       </motion.div>
+
+      {/* Admin replies */}
+      {myFeedback.length > 0 && (
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+          <Card className="bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)]">
+            <CardContent className="p-4 sm:p-6 space-y-4">
+              <div className="flex items-center gap-2">
+                <MessageSquareHeart className="w-4 h-4 text-brand-gold" />
+                <h2 className="font-serif text-lg text-brand-primary">Your Feedback History & Admin Replies</h2>
+              </div>
+              <div className="space-y-3">
+                {myFeedback.map((f: any) => (
+                  <div key={f.id} className="border border-brand-parchment rounded-xl p-3 bg-brand-cream/40">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] uppercase tracking-widest text-brand-warm-grey">{f.category}</span>
+                        {f.rating && (
+                          <span className="inline-flex items-center gap-0.5">
+                            {Array.from({ length: f.rating }).map((_, i) => (
+                              <Star key={i} className="h-3 w-3 fill-brand-gold text-brand-gold" />
+                            ))}
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-[10px] text-brand-warm-grey">{format(new Date(f.submitted_at), "PP")}</span>
+                    </div>
+                    <p className="text-xs text-brand-charcoal/80 mt-2 whitespace-pre-wrap line-clamp-3">{f.message}</p>
+                    {f.replies.length > 0 ? (
+                      <div className="mt-3 space-y-2 border-l-2 border-brand-gold pl-3">
+                        {f.replies.map((r: any) => (
+                          <div key={r.id} className="bg-white rounded-lg p-2 border border-brand-parchment">
+                            <p className="text-[10px] uppercase tracking-widest text-brand-gold font-semibold mb-1">Admin Reply · {format(new Date(r.created_at), "PP")}</p>
+                            <p className="text-xs text-brand-charcoal whitespace-pre-wrap">{r.message}</p>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-[10px] text-brand-warm-grey mt-2 italic">Awaiting admin response…</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
     </div>
   );
 };
