@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
-  ClipboardList, Clock, CheckCircle, AlertTriangle, ChevronDown, ChevronUp,
-  FileText, Star
+  ClipboardList, Clock, AlertTriangle, ChevronDown, ChevronUp,
+  FileText, Star, PlayCircle, Calendar, User, BookOpen
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -62,11 +62,17 @@ const AdminAssignments = () => {
   const ungradedCount = submissions.filter(s => !s.grade).length;
   const gradedCount = submissions.filter(s => s.grade).length;
   const overdueAssignments = assignments.filter(a => a.due_date && new Date(a.due_date) < now);
+  const inProgressAssignments = assignments.filter(a => {
+    if (!a.due_date) return false;
+    const due = new Date(a.due_date);
+    return new Date(a.created_at) <= now && due >= now;
+  });
 
   const getSubsForAssignment = (id: string) => submissions.filter(s => s.assignment_id === id);
 
   const filterAssignments = (tab: string) => {
     switch (tab) {
+      case "in_progress": return inProgressAssignments;
       case "pending": return assignments.filter(a => getSubsForAssignment(a.id).some(s => !s.grade));
       case "graded": return assignments.filter(a => getSubsForAssignment(a.id).length > 0 && getSubsForAssignment(a.id).every(s => s.grade));
       case "overdue": return overdueAssignments;
@@ -128,7 +134,37 @@ const AdminAssignments = () => {
 
                 {isExpanded && (
                   <div className="border-t border-brand-parchment px-5 pb-5">
-                    {a.description && <p className="text-sm text-brand-charcoal/80 py-3">{a.description}</p>}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 py-4">
+                      <div className="flex items-start gap-2 text-xs">
+                        <BookOpen className="h-3.5 w-3.5 text-brand-gold mt-0.5 shrink-0" />
+                        <div>
+                          <p className="font-semibold uppercase tracking-widest text-brand-warm-grey text-[10px]">Course / Topic</p>
+                          <p className="text-brand-charcoal mt-0.5">{courses[a.course_id] || "Other / Standalone"}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-2 text-xs">
+                        <User className="h-3.5 w-3.5 text-brand-gold mt-0.5 shrink-0" />
+                        <div>
+                          <p className="font-semibold uppercase tracking-widest text-brand-warm-grey text-[10px]">Tutor</p>
+                          <p className="text-brand-charcoal mt-0.5">{profiles[a.instructor_id] || "—"}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-2 text-xs">
+                        <Calendar className="h-3.5 w-3.5 text-brand-gold mt-0.5 shrink-0" />
+                        <div>
+                          <p className="font-semibold uppercase tracking-widest text-brand-warm-grey text-[10px]">Created</p>
+                          <p className="text-brand-charcoal mt-0.5">{new Date(a.created_at).toLocaleDateString()}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-2 text-xs">
+                        <Clock className="h-3.5 w-3.5 text-brand-gold mt-0.5 shrink-0" />
+                        <div>
+                          <p className="font-semibold uppercase tracking-widest text-brand-warm-grey text-[10px]">Due Date</p>
+                          <p className="text-brand-charcoal mt-0.5">{a.due_date ? new Date(a.due_date).toLocaleDateString() : "—"}</p>
+                        </div>
+                      </div>
+                    </div>
+                    {a.description && <p className="text-sm text-brand-charcoal/80 pb-3">{a.description}</p>}
                     {a.pdf_url && (
                       <a href={a.pdf_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-brand-primary hover:text-brand-gold mb-3">
                         <FileText className="h-3 w-3" /> View PDF Instructions
@@ -190,6 +226,7 @@ const AdminAssignments = () => {
 
   const statCards = [
     { label: "Total Assignments", value: assignments.length, icon: ClipboardList, gradient: "from-brand-primary to-brand-primary-dark" },
+    { label: "In Progress", value: inProgressAssignments.length, icon: PlayCircle, gradient: "from-blue-500 to-blue-700" },
     { label: "Total Submissions", value: totalSubs, icon: FileText, gradient: "from-brand-gold to-amber-600" },
     { label: "Ungraded", value: ungradedCount, icon: Clock, gradient: "from-amber-500 to-orange-600" },
     { label: "Overdue", value: overdueAssignments.length, icon: AlertTriangle, gradient: "from-red-600 to-red-800" },
@@ -209,7 +246,7 @@ const AdminAssignments = () => {
         </div>
       </motion.div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         {statCards.map((s, i) => (
           <motion.div key={s.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
             <div className="group bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-5 hover:-translate-y-0.5 hover:shadow-[0_4px_30px_rgba(196,154,60,0.15)] transition-all duration-300">
@@ -224,9 +261,12 @@ const AdminAssignments = () => {
       </div>
 
       <Tabs defaultValue="all">
-        <TabsList className="bg-brand-cream border border-brand-parchment rounded-xl p-1">
+        <TabsList className="bg-brand-cream border border-brand-parchment rounded-xl p-1 flex-wrap h-auto">
           <TabsTrigger value="all" className="rounded-lg data-[state=active]:bg-brand-primary data-[state=active]:text-white text-brand-warm-grey">
             All ({assignments.length})
+          </TabsTrigger>
+          <TabsTrigger value="in_progress" className="rounded-lg data-[state=active]:bg-brand-primary data-[state=active]:text-white text-brand-warm-grey">
+            In Progress ({inProgressAssignments.length})
           </TabsTrigger>
           <TabsTrigger value="pending" className="rounded-lg data-[state=active]:bg-brand-primary data-[state=active]:text-white text-brand-warm-grey">
             Pending ({ungradedCount})
@@ -238,7 +278,7 @@ const AdminAssignments = () => {
             Overdue ({overdueAssignments.length})
           </TabsTrigger>
         </TabsList>
-        {["all", "pending", "graded", "overdue"].map(tab => (
+        {["all", "in_progress", "pending", "graded", "overdue"].map(tab => (
           <TabsContent key={tab} value={tab} className="mt-4">
             {renderAssignmentList(filterAssignments(tab))}
           </TabsContent>
