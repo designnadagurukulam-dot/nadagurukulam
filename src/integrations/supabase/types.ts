@@ -603,8 +603,10 @@ export type Database = {
       }
       courses: {
         Row: {
+          archived_at: string | null
           category: string | null
           category_id: string | null
+          course_type: string | null
           created_at: string
           description: string | null
           discount_price: number | null
@@ -616,6 +618,7 @@ export type Database = {
           level: string | null
           preview_video_url: string | null
           price: number
+          program_id: string | null
           slug: string | null
           status: string
           tags: string[] | null
@@ -624,8 +627,10 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          archived_at?: string | null
           category?: string | null
           category_id?: string | null
+          course_type?: string | null
           created_at?: string
           description?: string | null
           discount_price?: number | null
@@ -637,6 +642,7 @@ export type Database = {
           level?: string | null
           preview_video_url?: string | null
           price?: number
+          program_id?: string | null
           slug?: string | null
           status?: string
           tags?: string[] | null
@@ -645,8 +651,10 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          archived_at?: string | null
           category?: string | null
           category_id?: string | null
+          course_type?: string | null
           created_at?: string
           description?: string | null
           discount_price?: number | null
@@ -658,6 +666,7 @@ export type Database = {
           level?: string | null
           preview_video_url?: string | null
           price?: number
+          program_id?: string | null
           slug?: string | null
           status?: string
           tags?: string[] | null
@@ -669,6 +678,13 @@ export type Database = {
           {
             foreignKeyName: "courses_category_id_fkey"
             columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "courses_program_id_fkey"
+            columns: ["program_id"]
             isOneToOne: false
             referencedRelation: "categories"
             referencedColumns: ["id"]
@@ -926,9 +942,32 @@ export type Database = {
           },
         ]
       }
+      event_types: {
+        Row: {
+          color: string | null
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       events: {
         Row: {
+          approval_status: string
           created_at: string
+          created_by: string | null
           description: string | null
           end_date: string | null
           event_date: string
@@ -936,12 +975,16 @@ export type Database = {
           id: string
           image_url: string | null
           is_active: boolean
+          is_internal: boolean
           location: string | null
+          map_url: string | null
           title: string
           updated_at: string
         }
         Insert: {
+          approval_status?: string
           created_at?: string
+          created_by?: string | null
           description?: string | null
           end_date?: string | null
           event_date: string
@@ -949,12 +992,16 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_active?: boolean
+          is_internal?: boolean
           location?: string | null
+          map_url?: string | null
           title: string
           updated_at?: string
         }
         Update: {
+          approval_status?: string
           created_at?: string
+          created_by?: string | null
           description?: string | null
           end_date?: string | null
           event_date?: string
@@ -962,7 +1009,9 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_active?: boolean
+          is_internal?: boolean
           location?: string | null
+          map_url?: string | null
           title?: string
           updated_at?: string
         }
@@ -978,6 +1027,7 @@ export type Database = {
           is_anonymous: boolean | null
           message: string
           rating: number | null
+          read_by_admin: boolean
           student_id: string
           submitted_at: string | null
         }
@@ -990,6 +1040,7 @@ export type Database = {
           is_anonymous?: boolean | null
           message: string
           rating?: number | null
+          read_by_admin?: boolean
           student_id: string
           submitted_at?: string | null
         }
@@ -1002,6 +1053,7 @@ export type Database = {
           is_anonymous?: boolean | null
           message?: string
           rating?: number | null
+          read_by_admin?: boolean
           student_id?: string
           submitted_at?: string | null
         }
@@ -1015,14 +1067,61 @@ export type Database = {
           },
         ]
       }
+      feedback_responses: {
+        Row: {
+          created_at: string
+          feedback_id: string
+          id: string
+          message: string
+          responder_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          feedback_id: string
+          id?: string
+          message: string
+          responder_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          feedback_id?: string
+          id?: string
+          message?: string
+          responder_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      job_departments: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       job_postings: {
         Row: {
           created_at: string
           department: string | null
           description: string | null
+          experience_required: string | null
           id: string
           is_active: boolean
           location: string | null
+          qualification: string | null
           requirements: string | null
           title: string
           type: string | null
@@ -1032,9 +1131,11 @@ export type Database = {
           created_at?: string
           department?: string | null
           description?: string | null
+          experience_required?: string | null
           id?: string
           is_active?: boolean
           location?: string | null
+          qualification?: string | null
           requirements?: string | null
           title: string
           type?: string | null
@@ -1044,9 +1145,11 @@ export type Database = {
           created_at?: string
           department?: string | null
           description?: string | null
+          experience_required?: string | null
           id?: string
           is_active?: boolean
           location?: string | null
+          qualification?: string | null
           requirements?: string | null
           title?: string
           type?: string | null
