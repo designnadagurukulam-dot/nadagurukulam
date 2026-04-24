@@ -53,6 +53,11 @@ export const ACTIVITY_LABELS: Record<string, string> = {
   "allocation.created": "Subject Allocated",
   "allocation.deleted": "Allocation Removed",
   "feedback.replied": "Feedback Replied",
+  "curriculum.sections_added": "Curriculum Sections Added",
+  "live_class.created": "Live Class Scheduled",
+  "teacher.batch_assigned": "Tutor Assigned to Batch",
+  "teacher.subjects_assigned": "Subjects Assigned to Tutor",
+  "user.role_changed": "Role Changed",
 };
 
 export const labelForAction = (action: string) => ACTIVITY_LABELS[action] || action;

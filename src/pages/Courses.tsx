@@ -25,6 +25,7 @@ const Courses = () => {
         .from("courses")
         .select("*")
         .eq("status", "approved")
+        .is("archived_at", null)
         .order("created_at", { ascending: true });
       if (error) throw error;
       return data;
