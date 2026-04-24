@@ -220,11 +220,12 @@ const AdminBatches = () => {
         </Button>
       </motion.div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {[
+          { label: "Students", value: allEnrollments.length, icon: Users },
           { label: "Total Batches", value: batches.length, icon: Layers },
           { label: "Active Batches", value: batches.filter((batch) => batch.is_active).length, icon: Hash },
-          { label: "Enrolled Students", value: allEnrollments.length, icon: Users },
+          { label: "Past Batches", value: batches.filter((batch) => batch.end_date && new Date(batch.end_date) < new Date()).length, icon: Calendar },
         ].map((stat, index) => (
           <motion.div key={stat.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }} className="rounded-2xl bg-card p-5 shadow-[0_2px_16px_hsl(var(--primary)/0.06)]">
             <div className="flex items-center gap-4">
