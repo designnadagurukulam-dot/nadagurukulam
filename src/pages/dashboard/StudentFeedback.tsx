@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { format } from "date-fns";
 
 const categoryOptions = ["Teaching Quality", "Punctuality", "Communication", "Curriculum", "General"];
 
@@ -24,6 +25,29 @@ const StudentFeedback = () => {
   const [blocks, setBlocks] = useState<CategoryBlock[]>([{ category: "General", rating: 0, comment: "" }]);
   const [hoverRatings, setHoverRatings] = useState<Record<number, number>>({});
   const [submitting, setSubmitting] = useState(false);
+
+  const { data: myFeedback = [] } = useQuery({
+    queryKey: ["my-feedback-with-replies", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data: fb } = await supabase
+        .from("feedback")
+        .select("id, message, rating, category, submitted_at, instructor_id")
+        .eq("student_id", user!.id)
+        .order("submitted_at", { ascending: false });
+      const ids = (fb || []).map((f: any) => f.id);
+      if (!ids.length) return [];
+      const { data: replies } = await (supabase as any)
+        .from("feedback_responses")
+        .select("id, feedback_id, message, created_at")
+        .in("feedback_id", ids)
+        .order("created_at", { ascending: true });
+      return (fb || []).map((f: any) => ({
+        ...f,
+        replies: (replies || []).filter((r: any) => r.feedback_id === f.id),
+      }));
+    },
+  });
 
   const { data: tutors = [] } = useQuery({
     queryKey: ["feedback-tutors", user?.id],
