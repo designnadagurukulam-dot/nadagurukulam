@@ -40,6 +40,8 @@ const AdminBatches = () => {
   const [batchLiveClasses, setBatchLiveClasses] = useState<any[]>([]);
   const [batchAssignments, setBatchAssignments] = useState<any[]>([]);
   const [batchSchedules, setBatchSchedules] = useState<any[]>([]);
+  const [batchSubmissions, setBatchSubmissions] = useState<any[]>([]);
+  const [batchGrades, setBatchGrades] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
