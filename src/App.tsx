@@ -51,6 +51,7 @@ import DashboardProjects from "./pages/dashboard/DashboardProjects";
 import StudentLiveClasses from "./pages/dashboard/StudentLiveClasses";
 import StudentChat from "./pages/dashboard/StudentChat";
 import StudentFeedback from "./pages/dashboard/StudentFeedback";
+import DashboardEvents from "./pages/dashboard/DashboardEvents";
 import Curriculum from "./pages/Curriculum";
 import NotFound from "./pages/NotFound";
 import ProgramDetail from "./pages/ProgramDetail";
@@ -124,6 +125,7 @@ const App = () => (
             <Route path="/dashboard/student/live-classes" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><StudentLiveClasses /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/student/chat" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><StudentChat /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/student/feedback" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><StudentFeedback /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/student/events" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardEvents roleType="student" /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/student/profile" element={<ProtectedRoute><DashboardLayout><DashboardProfile /></DashboardLayout></ProtectedRoute>} />
 
             {/* Tutor Dashboard */}
@@ -140,6 +142,7 @@ const App = () => (
             <Route path="/dashboard/tutor/lesson-plans" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><TutorLessonPlans /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/tutor/live-classes" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><TutorLiveClasses /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/tutor/messages" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><TutorMessages /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/tutor/events" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><DashboardEvents roleType="instructor" /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/tutor/profile" element={<ProtectedRoute><DashboardLayout><DashboardProfile /></DashboardLayout></ProtectedRoute>} />
 
             {/* Admin Dashboard */}

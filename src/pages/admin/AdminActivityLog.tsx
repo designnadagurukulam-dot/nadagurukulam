@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Activity, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { format } from "date-fns";
+import { labelForAction } from "@/lib/activityLabels";
 
 const PAGE_SIZE = 25;
 
@@ -123,7 +124,10 @@ const AdminActivityLog = () => {
           <SelectTrigger className="w-48 border-brand-parchment rounded-xl"><SelectValue placeholder="All actions" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Actions</SelectItem>
-            {(actionTypes as string[]).sort().map((a) => <SelectItem key={a} value={a}>{a}</SelectItem>)}
+            {(actionTypes as string[])
+              .map((a) => ({ raw: a, label: labelForAction(a) }))
+              .sort((x, y) => x.label.localeCompare(y.label))
+              .map(({ raw, label }) => <SelectItem key={raw} value={raw}>{label}</SelectItem>)}
           </SelectContent>
         </Select>
       </div>
@@ -159,7 +163,7 @@ const AdminActivityLog = () => {
                     <TableCell className="text-xs text-brand-warm-grey whitespace-nowrap">{format(new Date(log.created_at), "MMM dd, HH:mm:ss")}</TableCell>
                     <TableCell className="font-medium text-sm text-brand-charcoal">{log.display_name}</TableCell>
                     <TableCell>
-                      <Badge className={`text-xs ${actionColors[log.action] || "bg-gray-50 text-gray-500 border border-gray-200"}`}>{log.action}</Badge>
+                      <Badge className={`text-xs ${actionColors[log.action] || "bg-gray-50 text-gray-500 border border-gray-200"}`}>{labelForAction(log.action)}</Badge>
                     </TableCell>
                     <TableCell className="text-sm text-brand-warm-grey">{log.entity_type || "—"}</TableCell>
                     <TableCell className="text-xs text-brand-warm-grey max-w-[200px] truncate">{log.metadata ? JSON.stringify(log.metadata).slice(0, 80) : "—"}</TableCell>
