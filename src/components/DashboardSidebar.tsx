@@ -17,6 +17,7 @@ const studentNav = [
   { label: "Curriculum", to: "/dashboard/student/curriculum", icon: GraduationCap },
   { label: "Live Classes", to: "/dashboard/student/live-classes", icon: Video },
   { label: "Assignments", to: "/dashboard/student/assignments", icon: ClipboardList },
+  { label: "Events", to: "/dashboard/student/events", icon: CalendarDays },
   { label: "Reach Out", to: "/dashboard/student/chat", icon: MessageSquare },
   { label: "Feedback", to: "/dashboard/student/feedback", icon: Star },
   { label: "Certificates", to: "/dashboard/student/certificates", icon: Award },
@@ -30,6 +31,7 @@ const instructorNav = [
   { label: "Lesson Plans", to: "/dashboard/tutor/lesson-plans", icon: BookCheck },
   { label: "Live Classes", to: "/dashboard/tutor/live-classes", icon: Video },
   { label: "Assignments", to: "/dashboard/tutor/assignments", icon: ClipboardList },
+  { label: "Events", to: "/dashboard/tutor/events", icon: CalendarDays },
   { label: "Reach Out", to: "/dashboard/tutor/messages", icon: MessageSquare },
   { label: "Analytics", to: "/dashboard/tutor/analytics", icon: BarChart3 },
   { label: "Profile", to: "/dashboard/tutor/profile", icon: User },
@@ -50,8 +52,8 @@ const adminNav = [
   { label: "Events", to: "/dashboard/admin/events", icon: CalendarDays },
   { label: "Messages", to: "/dashboard/admin/messages", icon: MessageSquare },
   { label: "Course Approvals", to: "/dashboard/admin/approvals", icon: CheckSquare },
-  { label: "All Courses", to: "/dashboard/admin/courses", icon: BookOpen },
-  { label: "Categories", to: "/dashboard/admin/categories", icon: Tag },
+  { label: "Tutor's Courses", to: "/dashboard/admin/courses", icon: BookOpen },
+  { label: "Programs", to: "/dashboard/admin/categories", icon: Tag },
   { label: "Jobs", to: "/dashboard/admin/jobs", icon: Briefcase },
   { label: "Inquiries", to: "/dashboard/admin/inquiries", icon: MessageSquare },
   { label: "Activity Log", to: "/dashboard/admin/activity", icon: Activity },
@@ -80,7 +82,7 @@ const DashboardSidebar = () => {
           supabase.from("content_reviews").select("id", { count: "exact", head: true }).eq("status", "pending"),
           supabase.from("assignment_submissions").select("id", { count: "exact", head: true }).is("grade", null),
           supabase.from("messages").select("id", { count: "exact", head: true }).eq("is_read", false),
-          supabase.from("feedback").select("id", { count: "exact", head: true }),
+          supabase.from("feedback").select("id", { count: "exact", head: true }).eq("read_by_admin" as any, false),
         ]);
         next["Verification"] = profiles.count || 0;
         next["Course Approvals"] = reviews.count || 0;
