@@ -794,6 +794,7 @@ export type Database = {
           teaching_methodology: string | null
           text_content: string | null
           title: string
+          topic_id: string | null
           updated_at: string
           youtube_url: string | null
         }
@@ -812,6 +813,7 @@ export type Database = {
           teaching_methodology?: string | null
           text_content?: string | null
           title: string
+          topic_id?: string | null
           updated_at?: string
           youtube_url?: string | null
         }
@@ -830,12 +832,58 @@ export type Database = {
           teaching_methodology?: string | null
           text_content?: string | null
           title?: string
+          topic_id?: string | null
           updated_at?: string
           youtube_url?: string | null
         }
         Relationships: [
           {
             foreignKeyName: "curriculum_sections_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "curriculum_modules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "curriculum_sections_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "curriculum_topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      curriculum_topics: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          module_id: string
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          module_id: string
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          module_id?: string
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curriculum_topics_module_id_fkey"
             columns: ["module_id"]
             isOneToOne: false
             referencedRelation: "curriculum_modules"
@@ -1312,6 +1360,7 @@ export type Database = {
       profiles: {
         Row: {
           address: string | null
+          admin_label: string | null
           avatar_url: string | null
           bio: string | null
           city: string | null
@@ -1346,6 +1395,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          admin_label?: string | null
           avatar_url?: string | null
           bio?: string | null
           city?: string | null
@@ -1380,6 +1430,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          admin_label?: string | null
           avatar_url?: string | null
           bio?: string | null
           city?: string | null
@@ -1511,6 +1562,57 @@ export type Database = {
             columns: ["course_id"]
             isOneToOne: false
             referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_grades: {
+        Row: {
+          batch_id: string
+          cie_marks: number | null
+          created_at: string
+          curriculum_module_id: string
+          id: string
+          remarks: string | null
+          see_marks: number | null
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          batch_id: string
+          cie_marks?: number | null
+          created_at?: string
+          curriculum_module_id: string
+          id?: string
+          remarks?: string | null
+          see_marks?: number | null
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          batch_id?: string
+          cie_marks?: number | null
+          created_at?: string
+          curriculum_module_id?: string
+          id?: string
+          remarks?: string | null
+          see_marks?: number | null
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_grades_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_grades_curriculum_module_id_fkey"
+            columns: ["curriculum_module_id"]
+            isOneToOne: false
+            referencedRelation: "curriculum_modules"
             referencedColumns: ["id"]
           },
         ]

@@ -39,7 +39,7 @@ const adminNav = [
   { label: "Overview", to: "/dashboard/admin", icon: LayoutDashboard },
   { label: "Verification", to: "/dashboard/admin/verification", icon: ShieldCheck },
   { label: "Users", to: "/dashboard/admin/students", icon: Users },
-  { label: "Teachers", to: "/dashboard/admin/teachers", icon: GraduationCap },
+  { label: "Subject Allocation", to: "/dashboard/admin/teachers", icon: GraduationCap },
   { label: "Batches", to: "/dashboard/admin/batches", icon: FolderOpen },
   { label: "Curriculum", to: "/dashboard/admin/curriculum", icon: BookOpen },
   { label: "Lesson Plans", to: "/dashboard/admin/lesson-plans", icon: BookCheck },
@@ -54,7 +54,6 @@ const adminNav = [
   { label: "Categories", to: "/dashboard/admin/categories", icon: Tag },
   { label: "Jobs", to: "/dashboard/admin/jobs", icon: Briefcase },
   { label: "Inquiries", to: "/dashboard/admin/inquiries", icon: MessageSquare },
-  { label: "Subject Allocation", to: "/dashboard/admin/subject-allocation", icon: BookCheck },
   { label: "Activity Log", to: "/dashboard/admin/activity", icon: Activity },
   { label: "Analytics", to: "/dashboard/admin/analytics", icon: BarChart3 },
 ];

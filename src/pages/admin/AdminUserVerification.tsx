@@ -20,15 +20,34 @@ const AdminUserVerification = () => {
       if (pErr) throw pErr;
       const { data: roles, error: rErr } = await supabase.from("user_roles").select("*");
       if (rErr) throw rErr;
-      return (profiles || []).map((p) => ({ ...p, role: roles?.find((r) => r.user_id === p.user_id)?.role || "student", role_id: roles?.find((r) => r.user_id === p.user_id)?.id }));
+      return (profiles || []).map((p) => ({
+        ...p,
+        role: roles?.find((r) => r.user_id === p.user_id)?.role || "student",
+        role_id: roles?.find((r) => r.user_id === p.user_id)?.id,
+      }));
     },
   });
 
-  const unverifiedUsers = users?.filter((u) => !u.is_verified && u.role !== "super_admin") || [];
-  const verifiedUsers = users?.filter((u) => u.is_verified && u.role !== "super_admin") || [];
+  const superAdminCount = (users || []).filter((u) => u.role === "super_admin").length;
+
+  const visibleUsers = (users || []).filter((u) => {
+    // Hide solo super admin from list to prevent accidental tampering
+    if (u.role === "super_admin" && superAdminCount <= 1) return false;
+    return true;
+  });
+
+  const unverifiedUsers = visibleUsers.filter((u) => !u.is_verified);
+  const verifiedUsers = visibleUsers.filter((u) => u.is_verified);
+
   const verifyMutation = useMutation({
-    mutationFn: async ({ userId, verify }: { userId: string; verify: boolean }) => { const { error } = await supabase.from("profiles").update({ is_verified: verify }).eq("user_id", userId); if (error) throw error; },
-    onSuccess: (_, { verify }) => { queryClient.invalidateQueries({ queryKey: ["admin-all-users"] }); toast.success(verify ? "User verified successfully" : "User verification revoked"); },
+    mutationFn: async ({ userId, verify }: { userId: string; verify: boolean }) => {
+      const { error } = await supabase.from("profiles").update({ is_verified: verify }).eq("user_id", userId);
+      if (error) throw error;
+    },
+    onSuccess: (_, { verify }) => {
+      queryClient.invalidateQueries({ queryKey: ["admin-all-users"] });
+      toast.success(verify ? "User verified successfully" : "User verification revoked");
+    },
     onError: () => toast.error("Failed to update verification status"),
   });
 
@@ -42,8 +61,11 @@ const AdminUserVerification = () => {
       const { error } = await supabase.from("user_roles").update({ role: newRole as any }).eq("user_id", userId);
       if (error) throw error;
     },
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["admin-all-users"] }); toast.success("Role updated successfully"); },
-    onError: () => toast.error("Failed to update role"),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-all-users"] });
+      toast.success("Role updated successfully");
+    },
+    onError: (err: Error) => toast.error(err.message || "Failed to update role"),
   });
 
   const roleColors: Record<string, string> = {
@@ -51,6 +73,27 @@ const AdminUserVerification = () => {
     admin: "bg-primary/10 text-primary border border-primary/20",
     instructor: "bg-secondary/20 text-secondary-foreground border border-secondary/30",
     student: "bg-muted text-muted-foreground border border-border",
+  };
+
+  const renderRoleCell = (u: any) => {
+    const canEdit = isSuperAdmin && u.role !== "super_admin" && u.user_id !== user?.id;
+    if (!canEdit) {
+      return (
+        <Badge className={roleColors[u.role] || roleColors.student}>
+          {u.role === "super_admin" ? "Super Admin" : u.role === "admin" ? "Admin" : u.role === "instructor" ? "Educator" : "Student"}
+        </Badge>
+      );
+    }
+    return (
+      <Select value={u.role} onValueChange={(val) => changeRoleMutation.mutate({ userId: u.user_id, newRole: val })}>
+        <SelectTrigger className="w-[140px] h-8 text-xs rounded-xl"><SelectValue /></SelectTrigger>
+        <SelectContent>
+          <SelectItem value="student">Student</SelectItem>
+          <SelectItem value="instructor">Educator</SelectItem>
+          <SelectItem value="admin">Admin</SelectItem>
+        </SelectContent>
+      </Select>
+    );
   };
 
   const renderUserRow = (u: any, showVerifyActions: boolean, i: number) => (
@@ -61,8 +104,8 @@ const AdminUserVerification = () => {
           {u.display_name || "—"}
         </div>
       </TableCell>
-      <TableCell className="text-sm text-muted-foreground font-mono">{u.roll_number || u.employee_id || "—"}</TableCell>
-      <TableCell><Badge className={roleColors[u.role] || roleColors.student}>{u.role === "super_admin" ? "Super Admin" : u.role === "admin" ? "Admin" : u.role === "instructor" ? "Educator" : "Student"}</Badge></TableCell>
+      <TableCell className="text-sm text-muted-foreground font-mono">{u.roll_number || u.employee_id || u.enrollment_id || "—"}</TableCell>
+      <TableCell>{renderRoleCell(u)}</TableCell>
       <TableCell>{u.is_verified ? <Badge variant="secondary">Verified</Badge> : <Badge variant="destructive">Pending</Badge>}</TableCell>
       <TableCell className="text-xs text-muted-foreground">{new Date(u.created_at).toLocaleDateString()}</TableCell>
       <TableCell>
@@ -77,12 +120,6 @@ const AdminUserVerification = () => {
               <XCircle className="h-3.5 w-3.5" /> Revoke
             </Button>
           )}
-          {isSuperAdmin && u.role !== "super_admin" && u.user_id !== user?.id && (
-            <Select value={u.role} onValueChange={(val) => changeRoleMutation.mutate({ userId: u.user_id, newRole: val })}>
-              <SelectTrigger className="w-[130px] h-8 text-xs rounded-xl"><SelectValue /></SelectTrigger>
-              <SelectContent><SelectItem value="student">Student</SelectItem><SelectItem value="instructor">Educator</SelectItem><SelectItem value="admin">Admin</SelectItem></SelectContent>
-            </Select>
-          )}
         </div>
       </TableCell>
     </TableRow>
@@ -92,13 +129,13 @@ const AdminUserVerification = () => {
 
   return (
     <div className="space-y-6 pt-2">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="font-serif text-2xl font-semibold text-primary">User Verification</h1>
           <div className="w-12 h-0.5 bg-secondary mt-1" />
-          <p className="text-sm text-muted-foreground mt-2">Approve or manage user accounts</p>
+          <p className="text-sm text-muted-foreground mt-2">Approve or manage user accounts. Roles can be changed inline in the Role column.</p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           <div className="bg-card rounded-2xl shadow-[0_2px_24px_hsl(var(--primary)/0.06)] px-4 py-2 flex items-center gap-2">
             <UserCheck className="h-4 w-4 text-secondary" /><span className="text-sm font-medium text-foreground">{verifiedUsers.length} Verified</span>
           </div>
@@ -114,6 +151,29 @@ const AdminUserVerification = () => {
             <div className="w-8 h-8 rounded-full bg-secondary/20 flex items-center justify-center"><Shield className="h-4 w-4 text-secondary-foreground" /></div>
             <h3 className="font-serif text-lg text-primary">Pending Approvals ({unverifiedUsers.length})</h3>
           </div>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-primary hover:bg-primary">
+                  <TableHead className="text-primary-foreground text-[11px] uppercase tracking-widest font-semibold">Name</TableHead>
+                  <TableHead className="text-primary-foreground text-[11px] uppercase tracking-widest font-semibold">ID</TableHead>
+                  <TableHead className="text-primary-foreground text-[11px] uppercase tracking-widest font-semibold">Role</TableHead>
+                  <TableHead className="text-primary-foreground text-[11px] uppercase tracking-widest font-semibold">Status</TableHead>
+                  <TableHead className="text-primary-foreground text-[11px] uppercase tracking-widest font-semibold">Registered</TableHead>
+                  <TableHead className="text-primary-foreground text-[11px] uppercase tracking-widest font-semibold">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>{unverifiedUsers.map((u, i) => renderUserRow(u, true, i))}</TableBody>
+            </Table>
+          </div>
+        </div>
+      )}
+
+      <div className="bg-card rounded-2xl shadow-[0_2px_24px_hsl(var(--primary)/0.06)] overflow-hidden">
+        <div className="p-5 pb-3">
+          <h3 className="font-serif text-lg text-primary">Managed Users ({verifiedUsers.length})</h3>
+        </div>
+        <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow className="bg-primary hover:bg-primary">
@@ -125,28 +185,9 @@ const AdminUserVerification = () => {
                 <TableHead className="text-primary-foreground text-[11px] uppercase tracking-widest font-semibold">Actions</TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody>{unverifiedUsers.map((u, i) => renderUserRow(u, true, i))}</TableBody>
+            <TableBody>{verifiedUsers.map((u, i) => renderUserRow(u, isSuperAdmin, i))}</TableBody>
           </Table>
         </div>
-      )}
-
-      <div className="bg-card rounded-2xl shadow-[0_2px_24px_hsl(var(--primary)/0.06)] overflow-hidden">
-        <div className="p-5 pb-3">
-          <h3 className="font-serif text-lg text-primary">Managed Users ({verifiedUsers.length})</h3>
-        </div>
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-primary hover:bg-primary">
-              <TableHead className="text-primary-foreground text-[11px] uppercase tracking-widest font-semibold">Name</TableHead>
-              <TableHead className="text-primary-foreground text-[11px] uppercase tracking-widest font-semibold">ID</TableHead>
-              <TableHead className="text-primary-foreground text-[11px] uppercase tracking-widest font-semibold">Role</TableHead>
-              <TableHead className="text-primary-foreground text-[11px] uppercase tracking-widest font-semibold">Status</TableHead>
-              <TableHead className="text-primary-foreground text-[11px] uppercase tracking-widest font-semibold">Registered</TableHead>
-              <TableHead className="text-primary-foreground text-[11px] uppercase tracking-widest font-semibold">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>{verifiedUsers.map((u, i) => renderUserRow(u, isSuperAdmin, i))}</TableBody>
-        </Table>
       </div>
     </div>
   );
