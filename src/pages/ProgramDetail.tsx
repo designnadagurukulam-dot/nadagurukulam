@@ -67,6 +67,7 @@ const ProgramDetail = () => {
         .select("*")
         .eq("slug", slug!)
         .eq("status", "approved")
+        .is("archived_at", null)
         .single();
       if (error) throw error;
       return data;

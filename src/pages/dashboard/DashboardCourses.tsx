@@ -22,7 +22,7 @@ const DashboardCourses = () => {
       const { data: enrollments } = await supabase.from("enrollments").select("course_id, progress").eq("user_id", user.id);
       if (!enrollments || enrollments.length === 0) { setCourses([]); setLoading(false); return; }
       const courseIds = enrollments.map((e) => e.course_id);
-      const { data: courseData } = await supabase.from("courses").select("id, title, instructor_name, duration, level, image_url").in("id", courseIds);
+      const { data: courseData } = await supabase.from("courses").select("id, title, instructor_name, duration, level, image_url").in("id", courseIds).is("archived_at", null);
       const progressMap = Object.fromEntries(enrollments.map((e) => [e.course_id, e.progress]));
       setCourses((courseData || []).map((c) => ({ ...c, progress: progressMap[c.id] || 0 })));
       setLoading(false);

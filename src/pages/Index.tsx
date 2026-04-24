@@ -161,6 +161,7 @@ const Index = () => {
         .from("courses")
         .select("id, title, slug, image_url, thumbnail_url")
         .eq("status", "approved")
+        .is("archived_at", null)
         .order("created_at", { ascending: true });
       if (error) throw error;
       return data;
