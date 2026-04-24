@@ -174,6 +174,19 @@ const AdminBatches = () => {
     setBatchLiveClasses(lcRes.data || []);
     setBatchAssignments(asgRes.data || []);
     setBatchSchedules(schedRes.data || []);
+
+    // Fetch submissions for assignments in this batch (for status/grade context)
+    const assignmentIds = (asgRes.data || []).map((a: any) => a.id);
+    if (assignmentIds.length) {
+      const { data: subs } = await supabase.from("assignment_submissions").select("*").in("assignment_id", assignmentIds);
+      setBatchSubmissions(subs || []);
+    } else {
+      setBatchSubmissions([]);
+    }
+
+    // Fetch CIE/SEE grades for this batch
+    const { data: grades } = await (supabase as any).from("student_grades").select("*").eq("batch_id", batch.id);
+    setBatchGrades(grades || []);
   };
 
   const enrollStudent = async () => {
