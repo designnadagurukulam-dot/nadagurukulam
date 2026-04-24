@@ -40,6 +40,8 @@ const AdminBatches = () => {
   const [batchLiveClasses, setBatchLiveClasses] = useState<any[]>([]);
   const [batchAssignments, setBatchAssignments] = useState<any[]>([]);
   const [batchSchedules, setBatchSchedules] = useState<any[]>([]);
+  const [batchSubmissions, setBatchSubmissions] = useState<any[]>([]);
+  const [batchGrades, setBatchGrades] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
@@ -172,6 +174,19 @@ const AdminBatches = () => {
     setBatchLiveClasses(lcRes.data || []);
     setBatchAssignments(asgRes.data || []);
     setBatchSchedules(schedRes.data || []);
+
+    // Fetch submissions for assignments in this batch (for status/grade context)
+    const assignmentIds = (asgRes.data || []).map((a: any) => a.id);
+    if (assignmentIds.length) {
+      const { data: subs } = await supabase.from("assignment_submissions").select("*").in("assignment_id", assignmentIds);
+      setBatchSubmissions(subs || []);
+    } else {
+      setBatchSubmissions([]);
+    }
+
+    // Fetch CIE/SEE grades for this batch
+    const { data: grades } = await (supabase as any).from("student_grades").select("*").eq("batch_id", batch.id);
+    setBatchGrades(grades || []);
   };
 
   const enrollStudent = async () => {
@@ -220,11 +235,12 @@ const AdminBatches = () => {
         </Button>
       </motion.div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {[
+          { label: "Students", value: allEnrollments.length, icon: Users },
           { label: "Total Batches", value: batches.length, icon: Layers },
           { label: "Active Batches", value: batches.filter((batch) => batch.is_active).length, icon: Hash },
-          { label: "Enrolled Students", value: allEnrollments.length, icon: Users },
+          { label: "Past Batches", value: batches.filter((batch) => batch.end_date && new Date(batch.end_date) < new Date()).length, icon: Calendar },
         ].map((stat, index) => (
           <motion.div key={stat.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }} className="rounded-2xl bg-card p-5 shadow-[0_2px_16px_hsl(var(--primary)/0.06)]">
             <div className="flex items-center gap-4">
@@ -331,12 +347,14 @@ const AdminBatches = () => {
           </DialogHeader>
 
           <Tabs defaultValue="students">
-            <TabsList className="grid h-auto w-full grid-cols-2 gap-1 rounded-xl sm:grid-cols-5">
+            <TabsList className="grid h-auto w-full grid-cols-3 gap-1 rounded-xl sm:grid-cols-7">
               <TabsTrigger value="students" className="text-xs">Students ({enrollments.length})</TabsTrigger>
               <TabsTrigger value="subjects" className="text-xs">Subjects ({showEnroll ? getBatchModules(showEnroll).length : 0})</TabsTrigger>
               <TabsTrigger value="timetable" className="text-xs">Timetable ({batchSchedules.length})</TabsTrigger>
               <TabsTrigger value="live" className="text-xs">Live ({batchLiveClasses.length})</TabsTrigger>
-              <TabsTrigger value="assignments" className="text-xs">Assignments ({batchAssignments.length})</TabsTrigger>
+              <TabsTrigger value="past" className="text-xs">Past Asg.</TabsTrigger>
+              <TabsTrigger value="inprogress" className="text-xs">In Progress</TabsTrigger>
+              <TabsTrigger value="grades" className="text-xs">Grades</TabsTrigger>
             </TabsList>
 
             <TabsContent value="students" className="mt-4 space-y-3">
@@ -359,11 +377,62 @@ const AdminBatches = () => {
             </TabsContent>
 
             <TabsContent value="live" className="mt-4 space-y-2">
+              <p className="rounded-xl bg-muted/40 p-3 text-xs text-muted-foreground">Upcoming and recent online classes scheduled for this batch — quick join links and history.</p>
               {batchLiveClasses.length === 0 ? <EmptyState icon={Video} label="No live classes for this batch" /> : batchLiveClasses.map((liveClass) => <Row key={liveClass.id} title={liveClass.title} meta={new Date(liveClass.scheduled_at).toLocaleString()} action={<Badge variant="secondary" className="gap-1">{liveClass.class_type === "offline" ? <WifiOff className="h-3 w-3" /> : <Wifi className="h-3 w-3" />}{liveClass.class_type === "offline" ? "Offline" : "Online"}</Badge>} />)}
             </TabsContent>
 
-            <TabsContent value="assignments" className="mt-4 space-y-2">
-              {batchAssignments.length === 0 ? <EmptyState icon={ClipboardList} label="No assignments for this batch" /> : batchAssignments.map((assignment) => <Row key={assignment.id} title={assignment.title} meta={assignment.due_date ? `Due ${new Date(assignment.due_date).toLocaleDateString()}` : "No due date"} />)}
+            <TabsContent value="past" className="mt-4 space-y-2">
+              {(() => {
+                const past = batchAssignments.filter((a) => a.due_date && new Date(a.due_date) < new Date());
+                return past.length === 0 ? <EmptyState icon={ClipboardList} label="No past assignments" /> : past.map((assignment) => <Row key={assignment.id} title={assignment.title} meta={`Due ${new Date(assignment.due_date).toLocaleDateString()} · ${batchSubmissions.filter((s) => s.assignment_id === assignment.id).length} submissions`} />);
+              })()}
+            </TabsContent>
+
+            <TabsContent value="inprogress" className="mt-4 space-y-2">
+              {(() => {
+                const inProgress = batchAssignments.filter((a) => !a.due_date || new Date(a.due_date) >= new Date());
+                return inProgress.length === 0 ? <EmptyState icon={ClipboardList} label="No assignments in progress" /> : inProgress.map((assignment) => <Row key={assignment.id} title={assignment.title} meta={assignment.due_date ? `Due ${new Date(assignment.due_date).toLocaleDateString()}` : "No due date"} />);
+              })()}
+            </TabsContent>
+
+            <TabsContent value="grades" className="mt-4 space-y-2">
+              {enrollments.length === 0 ? <EmptyState icon={GraduationCap} label="No students enrolled — add students first" /> : (
+                <div className="overflow-x-auto rounded-xl border border-border">
+                  <table className="w-full text-sm">
+                    <thead className="bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
+                      <tr>
+                        <th className="p-2 text-left">Student</th>
+                        <th className="p-2 text-left">Subject</th>
+                        <th className="p-2 text-right">CIE</th>
+                        <th className="p-2 text-right">SEE</th>
+                        <th className="p-2 text-right">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {enrollments.flatMap((enr) => {
+                        const subjects = showEnroll ? getBatchModules(showEnroll) : [];
+                        if (subjects.length === 0) return [<tr key={`${enr.id}-empty`}><td colSpan={5} className="p-3 text-center text-xs text-muted-foreground">No subjects linked to this batch yet</td></tr>];
+                        return subjects.map((mod) => {
+                          const grade = batchGrades.find((g) => g.student_id === enr.student_id && g.curriculum_module_id === mod.id);
+                          const cie = grade?.cie_marks ?? "—";
+                          const see = grade?.see_marks ?? "—";
+                          const total = grade?.cie_marks != null && grade?.see_marks != null ? grade.cie_marks + grade.see_marks : "—";
+                          return (
+                            <tr key={`${enr.id}-${mod.id}`} className="border-t border-border">
+                              <td className="p-2">{getStudentName(enr.student_id)}</td>
+                              <td className="p-2 text-xs text-muted-foreground">{mod.course_code} · {mod.subject_name}</td>
+                              <td className="p-2 text-right">{cie}</td>
+                              <td className="p-2 text-right">{see}</td>
+                              <td className="p-2 text-right font-semibold">{total}</td>
+                            </tr>
+                          );
+                        });
+                      })}
+                    </tbody>
+                  </table>
+                  <p className="border-t border-border bg-muted/20 p-2 text-[11px] text-muted-foreground">CIE / SEE marks are entered in the Grades management area. This view aggregates across all subjects for this batch.</p>
+                </div>
+              )}
             </TabsContent>
           </Tabs>
         </DialogContent>
