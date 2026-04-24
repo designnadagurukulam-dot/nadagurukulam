@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
-  BookOpen, Users, Clock, DollarSign, GraduationCap, Video,
-  MessageSquare, ShieldCheck, ArrowRight, Layers, CheckSquare, Calendar,
-  Sparkles, Crown, Zap, TrendingUp, ClipboardList, Mail
+  BookOpen, Users, Clock, GraduationCap,
+  MessageSquare, ShieldCheck, Layers, CheckSquare,
+  Sparkles, Crown, Zap, TrendingUp, ClipboardList, Mail, Star, Video
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -16,60 +16,68 @@ const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const AdminOverview = () => {
   const { role } = useAuth();
   const isSuperAdmin = role === "super_admin";
+  const navigate = useNavigate();
 
   const [stats, setStats] = useState({
-    courses: 0, students: 0, instructors: 0, pending: 0,
-    revenue: 0, batches: 0, liveClasses: 0, feedback: 0,
-    ungradedSubmissions: 0, unreadMessages: 0,
+    courses: 0, students: 0, instructors: 0,
+    batches: 0, liveClasses: 0,
+    pendingVerifications: 0,
+    pendingReviews: 0,
+    ungradedSubmissions: 0,
+    unreadMessages: 0,
+    pendingInquiries: 0,
+    unreadFeedback: 0,
   });
-  const [recentActivity, setRecentActivity] = useState<any[]>([]);
-  const [recentCourses, setRecentCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activityData, setActivityData] = useState<{ day: string; actions: number }[]>([]);
 
   useEffect(() => {
     const fetchAll = async () => {
-      // Get start of current week (Monday)
       const now = new Date();
       const dayOfWeek = (now.getDay() + 6) % 7;
       const weekStart = new Date(now);
       weekStart.setDate(now.getDate() - dayOfWeek);
       weekStart.setHours(0, 0, 0, 0);
 
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
       const [
-        coursesRes, studentRes, instructorRes, pendingRes,
-        ordersRes, batchRes, liveRes, feedbackRes,
-        activityRes, recentCoursesRes,
-        ungradedRes, unreadRes, weekActivityRes,
+        coursesRes, studentRes, instructorRes,
+        batchRes, liveRes,
+        pendingVerifRes, pendingReviewsRes,
+        ungradedRes, unreadRes,
+        pendingInquiriesRes, recentFeedbackRes,
+        weekActivityRes,
       ] = await Promise.all([
         supabase.from("courses").select("id", { count: "exact", head: true }),
         supabase.from("user_roles").select("id", { count: "exact", head: true }).eq("role", "student"),
         supabase.from("user_roles").select("id", { count: "exact", head: true }).eq("role", "instructor"),
-        supabase.from("content_reviews").select("id", { count: "exact", head: true }).eq("status", "pending"),
-        supabase.from("orders").select("amount").eq("status", "completed"),
         supabase.from("batches").select("id", { count: "exact", head: true }).eq("is_active", true),
         supabase.from("live_classes").select("id", { count: "exact", head: true }).eq("status", "scheduled"),
-        supabase.from("feedback").select("id", { count: "exact", head: true }),
-        supabase.from("activity_logs").select("*").order("created_at", { ascending: false }).limit(5),
-        supabase.from("courses").select("id, title, status, created_at").order("created_at", { ascending: false }).limit(5),
+        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("is_verified", false),
+        supabase.from("content_reviews").select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("assignment_submissions").select("id", { count: "exact", head: true }).is("grade", null),
         supabase.from("messages").select("id", { count: "exact", head: true }).eq("is_read", false),
+        supabase.from("program_inquiries").select("id", { count: "exact", head: true }).eq("status", "pending"),
+        supabase.from("feedback").select("id", { count: "exact", head: true }).gte("submitted_at", sevenDaysAgo.toISOString()),
         supabase.from("activity_logs").select("created_at").gte("created_at", weekStart.toISOString()),
       ]);
 
-      const revenue = (ordersRes.data || []).reduce((s, o) => s + Number(o.amount), 0);
       setStats({
-        courses: coursesRes.count || 0, students: studentRes.count || 0,
-        instructors: instructorRes.count || 0, pending: pendingRes.count || 0,
-        revenue, batches: batchRes.count || 0, liveClasses: liveRes.count || 0,
-        feedback: feedbackRes.count || 0,
+        courses: coursesRes.count || 0,
+        students: studentRes.count || 0,
+        instructors: instructorRes.count || 0,
+        batches: batchRes.count || 0,
+        liveClasses: liveRes.count || 0,
+        pendingVerifications: pendingVerifRes.count || 0,
+        pendingReviews: pendingReviewsRes.count || 0,
         ungradedSubmissions: ungradedRes.count || 0,
         unreadMessages: unreadRes.count || 0,
+        pendingInquiries: pendingInquiriesRes.count || 0,
+        unreadFeedback: recentFeedbackRes.count || 0,
       });
-      setRecentActivity(activityRes.data || []);
-      setRecentCourses(recentCoursesRes.data || []);
 
-      // Build weekly activity chart from real data
       const dayCounts: Record<string, number> = {};
       weekDays.forEach(d => { dayCounts[d] = 0; });
       (weekActivityRes.data || []).forEach(log => {
@@ -86,24 +94,26 @@ const AdminOverview = () => {
 
   const todayIdx = (new Date().getDay() + 6) % 7;
 
+  // Every stat block links to its respective management page
   const statCards = [
-    { label: "Total Courses", value: stats.courses, icon: BookOpen, gradient: "from-brand-primary to-brand-primary-dark" },
-    { label: "Students", value: stats.students, icon: GraduationCap, gradient: "from-brand-gold to-amber-600" },
-    { label: "Tutors", value: stats.instructors, icon: Users, gradient: "from-brand-primary-dark to-rose-900" },
-    { label: "Active Batches", value: stats.batches, icon: Layers, gradient: "from-brand-gold to-yellow-700" },
-    { label: "Pending Reviews", value: stats.pending, icon: Clock, gradient: "from-amber-500 to-orange-600" },
-    { label: "Ungraded Submissions", value: stats.ungradedSubmissions, icon: ClipboardList, gradient: "from-red-600 to-red-800" },
-    { label: "Feedback", value: stats.feedback, icon: MessageSquare, gradient: "from-brand-gold-dark to-brand-gold" },
-    { label: "Revenue (₹)", value: `₹${stats.revenue.toLocaleString()}`, icon: DollarSign, gradient: "from-emerald-700 to-green-600" },
+    { label: "Total Courses", value: stats.courses, icon: BookOpen, gradient: "from-brand-primary to-brand-primary-dark", to: "/dashboard/admin/courses" },
+    { label: "Students", value: stats.students, icon: GraduationCap, gradient: "from-brand-gold to-amber-600", to: "/dashboard/admin/students" },
+    { label: "Tutors", value: stats.instructors, icon: Users, gradient: "from-brand-primary-dark to-rose-900", to: "/dashboard/admin/teachers" },
+    { label: "Active Batches", value: stats.batches, icon: Layers, gradient: "from-brand-gold to-yellow-700", to: "/dashboard/admin/batches" },
+    { label: "Live Classes", value: stats.liveClasses, icon: Video, gradient: "from-blue-500 to-blue-700", to: "/dashboard/admin/live-classes" },
+    { label: "Pending Reviews", value: stats.pendingReviews, icon: Clock, gradient: "from-amber-500 to-orange-600", to: "/dashboard/admin/approvals" },
+    { label: "Ungraded", value: stats.ungradedSubmissions, icon: ClipboardList, gradient: "from-red-600 to-red-800", to: "/dashboard/admin/assignments" },
+    { label: "Recent Feedback", value: stats.unreadFeedback, icon: Star, gradient: "from-brand-gold-dark to-brand-gold", to: "/dashboard/admin/feedback" },
   ];
 
+  // Quick actions show ONLY unread / pending counts (not totals)
   const quickActions = [
-    { label: "Review Submissions", icon: CheckSquare, to: "/dashboard/admin/approvals", count: stats.pending },
+    { label: "Verification", icon: ShieldCheck, to: "/dashboard/admin/verification", count: stats.pendingVerifications },
+    { label: "Review Submissions", icon: CheckSquare, to: "/dashboard/admin/approvals", count: stats.pendingReviews },
     { label: "Assignments", icon: ClipboardList, to: "/dashboard/admin/assignments", count: stats.ungradedSubmissions },
-    { label: "Manage Batches", icon: Layers, to: "/dashboard/admin/batches" },
-    { label: "Manage Users", icon: Users, to: "/dashboard/admin/students" },
-    { label: "Verification", icon: ShieldCheck, to: "/dashboard/admin/verification" },
-    { label: "View Feedback", icon: MessageSquare, to: "/dashboard/admin/feedback", count: stats.feedback },
+    { label: "Inquiries", icon: Mail, to: "/dashboard/admin/inquiries", count: stats.pendingInquiries },
+    { label: "Manage Batches", icon: Layers, to: "/dashboard/admin/batches", count: 0 },
+    { label: "Manage Users", icon: Users, to: "/dashboard/admin/students", count: 0 },
     ...(isSuperAdmin ? [{ label: "Message Monitor", icon: Mail, to: "/dashboard/admin/messages", count: stats.unreadMessages }] : []),
   ];
 
@@ -135,7 +145,7 @@ const AdminOverview = () => {
           <div className="flex items-center gap-4 mt-4 flex-wrap">
             <div className="flex items-center gap-1.5 text-brand-gold text-xs">
               <Sparkles className="h-3.5 w-3.5" />
-              <span>{stats.pending} pending review{stats.pending !== 1 ? "s" : ""}</span>
+              <span>{stats.pendingVerifications} pending verification{stats.pendingVerifications !== 1 ? "s" : ""}</span>
             </div>
             <div className="flex items-center gap-1.5 text-white/60 text-xs">
               <ClipboardList className="h-3.5 w-3.5" />
@@ -149,18 +159,23 @@ const AdminOverview = () => {
         </div>
       </motion.div>
 
-      {/* Stats Grid */}
+      {/* Stats Grid — every card is now clickable */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
         {statCards.map((s, i) => (
           <motion.div key={s.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
-            <div className="group relative bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-5 hover:-translate-y-0.5 hover:shadow-[0_4px_30px_rgba(196,154,60,0.15)] transition-all duration-300 overflow-hidden">
+            <button
+              type="button"
+              onClick={() => navigate(s.to)}
+              className="w-full text-left group relative bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-5 hover:-translate-y-0.5 hover:shadow-[0_4px_30px_rgba(196,154,60,0.15)] transition-all duration-300 overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold"
+              aria-label={`Open ${s.label}`}
+            >
               <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-brand-gold/5 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${s.gradient} flex items-center justify-center shadow-lg`}>
                 <s.icon className="w-4 h-4 text-white" />
               </div>
               <p className="font-serif text-3xl font-bold text-brand-primary mt-3">{s.value}</p>
               <p className="text-[11px] text-brand-warm-grey uppercase tracking-wider mt-1">{s.label}</p>
-            </div>
+            </button>
           </motion.div>
         ))}
       </div>
@@ -193,7 +208,7 @@ const AdminOverview = () => {
           </ResponsiveContainer>
         </motion.div>
 
-        {/* Quick Actions */}
+        {/* Quick Actions — counts shown only for unread/pending items */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
           className="lg:col-span-3 bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-5 hover:shadow-[0_4px_30px_rgba(196,154,60,0.15)] transition-all duration-300">
           <div className="flex items-center gap-2 mb-4">
@@ -210,7 +225,7 @@ const AdminOverview = () => {
                   <action.icon className="w-3.5 h-3.5 text-brand-gold" />
                 </div>
                 <span className="text-xs font-semibold text-brand-charcoal-mid group-hover:text-brand-primary transition-colors">{action.label}</span>
-                {action.count !== undefined && action.count > 0 && (
+                {action.count > 0 && (
                   <span className="ml-auto text-[10px] bg-gradient-to-r from-brand-primary to-brand-primary-dark text-white px-1.5 py-0.5 rounded-full font-bold">{action.count}</span>
                 )}
               </Link>
@@ -218,92 +233,6 @@ const AdminOverview = () => {
           </div>
         </motion.div>
       </div>
-
-      {/* Recent Courses Table */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}>
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-primary to-brand-primary-dark flex items-center justify-center">
-              <BookOpen className="h-3.5 w-3.5 text-white" />
-            </div>
-            <div>
-              <h3 className="font-serif text-lg font-semibold text-brand-primary">Recent Courses</h3>
-              <div className="w-10 h-0.5 bg-gradient-to-r from-brand-gold to-transparent mt-1" />
-            </div>
-          </div>
-          <Link to="/dashboard/admin/courses" className="text-xs text-brand-gold hover:text-brand-primary font-semibold flex items-center gap-1">See All <ArrowRight className="h-3 w-3" /></Link>
-        </div>
-        {recentCourses.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-brand-parchment p-10 text-center">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 mx-auto flex items-center justify-center mb-3">
-              <BookOpen className="w-5 h-5 text-brand-gold" />
-            </div>
-            <p className="font-serif text-brand-charcoal-mid">No courses yet</p>
-          </div>
-        ) : (
-          <div className="rounded-2xl border border-brand-parchment overflow-hidden bg-white shadow-[0_2px_24px_rgba(125,30,36,0.04)]">
-            <table className="w-full">
-              <thead>
-                <tr className="bg-gradient-to-r from-brand-primary-dark to-brand-primary text-brand-gold-light text-[11px] uppercase tracking-widest">
-                  <th className="px-5 py-3.5 text-left font-semibold">Course</th>
-                  <th className="px-5 py-3.5 text-left font-semibold hidden sm:table-cell">Created</th>
-                  <th className="px-5 py-3.5 text-left font-semibold">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentCourses.map((c, i) => (
-                  <tr key={c.id} className={`${i % 2 === 0 ? 'bg-white' : 'bg-brand-cream'} border-b border-brand-cream-dark hover:bg-brand-gold-pale/30 transition-colors`}>
-                    <td className="px-5 py-3.5 text-sm font-medium text-brand-charcoal-mid truncate max-w-[200px]">{c.title}</td>
-                    <td className="px-5 py-3.5 text-sm text-brand-warm-grey hidden sm:table-cell">{new Date(c.created_at).toLocaleDateString()}</td>
-                    <td className="px-5 py-3.5">
-                      <span className={`text-[10px] uppercase tracking-widest px-2.5 py-0.5 rounded-full font-bold ${
-                        c.status === "approved" ? "bg-green-50 text-green-700" : c.status === "pending" ? "bg-amber-50 text-amber-700" : "bg-brand-cream-dark text-brand-warm-grey"
-                      }`}>
-                        {c.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </motion.div>
-
-      {/* Recent Activity */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55 }}>
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-gold to-amber-600 flex items-center justify-center">
-              <Clock className="h-3.5 w-3.5 text-white" />
-            </div>
-            <div>
-              <h3 className="font-serif text-lg font-semibold text-brand-primary">Recent Activity</h3>
-              <div className="w-10 h-0.5 bg-gradient-to-r from-brand-gold to-transparent mt-1" />
-            </div>
-          </div>
-          <Link to="/dashboard/admin/activity" className="text-xs text-brand-gold hover:text-brand-primary font-semibold flex items-center gap-1">
-            View All <ArrowRight className="h-3 w-3" />
-          </Link>
-        </div>
-        {recentActivity.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-brand-parchment p-10 text-center">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 mx-auto flex items-center justify-center mb-3">
-              <Clock className="w-5 h-5 text-brand-gold" />
-            </div>
-            <p className="font-serif text-brand-charcoal-mid">No recent activity</p>
-          </div>
-        ) : (
-          <div className="bg-white rounded-2xl border border-brand-parchment overflow-hidden">
-            {recentActivity.map((a, i) => (
-              <div key={a.id} className={`flex items-center justify-between px-5 py-3.5 text-sm ${i % 2 === 0 ? '' : 'bg-brand-cream'} border-b border-brand-cream-dark last:border-0 hover:bg-brand-gold-pale/20 transition-colors`}>
-                <span className="text-brand-charcoal-mid">{a.action}</span>
-                <span className="text-xs text-brand-warm-grey">{new Date(a.created_at).toLocaleDateString()}</span>
-              </div>
-            ))}
-          </div>
-        )}
-      </motion.div>
     </div>
   );
 };
