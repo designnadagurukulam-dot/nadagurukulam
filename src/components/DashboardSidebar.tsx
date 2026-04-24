@@ -77,18 +77,17 @@ const DashboardSidebar = () => {
     queryFn: async () => {
       const next: Record<string, number> = {};
       if (role === "admin" || role === "super_admin") {
-        const [profiles, reviews, submissions, messages, feedback] = await Promise.all([
-          supabase.from("profiles").select("id", { count: "exact", head: true }).eq("is_verified", false),
-          supabase.from("content_reviews").select("id", { count: "exact", head: true }).eq("status", "pending"),
-          supabase.from("assignment_submissions").select("id", { count: "exact", head: true }).is("grade", null),
-          supabase.from("messages").select("id", { count: "exact", head: true }).eq("is_read", false),
-          supabase.from("feedback").select("id", { count: "exact", head: true }).eq("read_by_admin" as any, false),
-        ]);
+        const profilesP = supabase.from("profiles").select("id", { count: "exact", head: true }).eq("is_verified", false);
+        const reviewsP = supabase.from("content_reviews").select("id", { count: "exact", head: true }).eq("status", "pending");
+        const submissionsP = supabase.from("assignment_submissions").select("id", { count: "exact", head: true }).is("grade", null);
+        const messagesP = supabase.from("messages").select("id", { count: "exact", head: true }).eq("is_read", false);
+        const feedbackP = (supabase.from("feedback") as any).select("id", { count: "exact", head: true }).eq("read_by_admin", false);
+        const [profiles, reviews, submissions, messages, feedback] = await Promise.all([profilesP, reviewsP, submissionsP, messagesP, feedbackP]);
         next["Verification"] = profiles.count || 0;
         next["Course Approvals"] = reviews.count || 0;
         next["Assignments"] = submissions.count || 0;
         next[role === "super_admin" ? "Message Monitor" : "Messages"] = messages.count || 0;
-        next["Feedback"] = feedback.count || 0;
+        next["Feedback"] = (feedback as any).count || 0;
       } else if (user?.id) {
         const [messages, submissions] = await Promise.all([
           supabase.from("messages").select("id", { count: "exact", head: true }).eq("receiver_id", user.id).eq("is_read", false),
