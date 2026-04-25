@@ -147,14 +147,17 @@ const App = () => (
 
             {/* Admin Dashboard */}
             <Route path="/dashboard/admin" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminOverview /></DashboardLayout></RoleProtectedRoute>} />
-            {/* Admin sidebar links that point to filtered views of existing pages */}
-            <Route path="/dashboard/admin/tutors" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminStudents /></DashboardLayout></RoleProtectedRoute>} />
-            <Route path="/dashboard/admin/teachers" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminTeachers /></DashboardLayout></RoleProtectedRoute>} />
+            {/* Unified Users page (replaces Students, Teachers, Verification) */}
+            <Route path="/dashboard/admin/users" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminStudents /></DashboardLayout></RoleProtectedRoute>} />
+            {/* Legacy redirects → unified Users page */}
+            <Route path="/dashboard/admin/students" element={<Navigate to="/dashboard/admin/users" replace />} />
+            <Route path="/dashboard/admin/tutors" element={<Navigate to="/dashboard/admin/users" replace />} />
+            <Route path="/dashboard/admin/teachers" element={<Navigate to="/dashboard/admin/users" replace />} />
+            <Route path="/dashboard/admin/verification" element={<Navigate to="/dashboard/admin/users" replace />} />
             <Route path="/dashboard/admin/assignments" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminAssignments /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/admin/inquiries" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminInquiries /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/admin/approvals" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminApprovals /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/admin/courses" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminCourses /></DashboardLayout></RoleProtectedRoute>} />
-            <Route path="/dashboard/admin/students" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminStudents /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/admin/categories" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminCategories /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/admin/schedule" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminSchedule /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/admin/analytics" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminAnalytics /></DashboardLayout></RoleProtectedRoute>} />
