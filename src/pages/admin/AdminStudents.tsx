@@ -296,6 +296,16 @@ const AdminStudents = () => {
         </div>
       </div>
 
+      {/* Quick verify button when pending users exist */}
+      {visibleProfiles.filter((p) => !p.is_verified).length > 0 && statusFilter !== "pending" && (
+        <button
+          onClick={() => setStatusFilter("pending")}
+          className="w-full rounded-2xl bg-secondary/15 border border-secondary/30 px-4 py-3 text-left text-sm text-foreground hover:bg-secondary/20 transition"
+        >
+          <span className="font-semibold text-primary">{visibleProfiles.filter((p) => !p.is_verified).length} users</span> awaiting verification — click to review
+        </button>
+      )}
+
       {loading ? (
         <div className="flex justify-center py-12">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
