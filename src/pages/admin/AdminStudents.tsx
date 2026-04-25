@@ -143,6 +143,8 @@ const AdminStudents = () => {
     toast.success(verify ? "User verified" : "Verification revoked");
     fetchData();
   };
+
+  const openAdminLabel = (p: any) => {
     setAdminLabelTarget(p);
     setAdminLabelValue(p.admin_label || "");
     setAdminLabelOpen(true);
