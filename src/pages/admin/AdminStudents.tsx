@@ -12,6 +12,8 @@ import {
   Save,
   Clock3,
   Pencil,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -54,8 +56,9 @@ const AdminStudents = () => {
   const [batchEnrollments, setBatchEnrollments] = useState<BatchEnrollment[]>([]);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all"); // default ALL users
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("pending"); // default Pending so verification work shows first
   const [loading, setLoading] = useState(true);
+  const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
 
   // Admin label edit dialog
   const [adminLabelOpen, setAdminLabelOpen] = useState(false);
