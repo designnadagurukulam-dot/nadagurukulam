@@ -136,7 +136,13 @@ const AdminStudents = () => {
     fetchData();
   };
 
-  const openAdminLabel = (p: any) => {
+  const toggleVerify = async (userId: string, verify: boolean) => {
+    const { error } = await supabase.from("profiles").update({ is_verified: verify }).eq("user_id", userId);
+    if (error) return toast.error(error.message);
+    logActivity(verify ? "user.verified" : "user.verification_revoked", "user", userId);
+    toast.success(verify ? "User verified" : "Verification revoked");
+    fetchData();
+  };
     setAdminLabelTarget(p);
     setAdminLabelValue(p.admin_label || "");
     setAdminLabelOpen(true);
