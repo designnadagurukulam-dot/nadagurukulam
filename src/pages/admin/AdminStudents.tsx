@@ -12,6 +12,8 @@ import {
   Save,
   Clock3,
   Pencil,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -54,8 +56,9 @@ const AdminStudents = () => {
   const [batchEnrollments, setBatchEnrollments] = useState<BatchEnrollment[]>([]);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all"); // default ALL users
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("pending"); // default Pending so verification work shows first
   const [loading, setLoading] = useState(true);
+  const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
 
   // Admin label edit dialog
   const [adminLabelOpen, setAdminLabelOpen] = useState(false);
@@ -130,6 +133,14 @@ const AdminStudents = () => {
     if (error) return toast.error(error.message);
     logActivity("user.role_changed", "user_role", userId, { newRole });
     toast.success("Role updated");
+    fetchData();
+  };
+
+  const toggleVerify = async (userId: string, verify: boolean) => {
+    const { error } = await supabase.from("profiles").update({ is_verified: verify }).eq("user_id", userId);
+    if (error) return toast.error(error.message);
+    logActivity(verify ? "user.verified" : "user.verification_revoked", "user", userId);
+    toast.success(verify ? "User verified" : "Verification revoked");
     fetchData();
   };
 
@@ -293,6 +304,16 @@ const AdminStudents = () => {
         </div>
       </div>
 
+      {/* Quick verify button when pending users exist */}
+      {visibleProfiles.filter((p) => !p.is_verified).length > 0 && statusFilter !== "pending" && (
+        <button
+          onClick={() => setStatusFilter("pending")}
+          className="w-full rounded-2xl bg-secondary/15 border border-secondary/30 px-4 py-3 text-left text-sm text-foreground hover:bg-secondary/20 transition"
+        >
+          <span className="font-semibold text-primary">{visibleProfiles.filter((p) => !p.is_verified).length} users</span> awaiting verification — click to review
+        </button>
+      )}
+
       {loading ? (
         <div className="flex justify-center py-12">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
@@ -304,19 +325,24 @@ const AdminStudents = () => {
             const RoleIcon = roleIcons[currentRole] || UserCog;
             const canChangeRole = isSuperAdmin && currentRole !== "super_admin" && p.user_id !== user?.id;
             const isAdminLike = currentRole === "admin" || currentRole === "super_admin";
+            const isExpanded = expandedUserId === p.user_id;
             return (
               <motion.div key={p.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.02 }}>
-                <div className="rounded-2xl bg-card p-4 shadow-[0_2px_16px_hsl(var(--primary)/0.06)] transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_24px_hsl(var(--primary)/0.08)]">
+                <div className="rounded-2xl bg-card p-4 shadow-[0_2px_16px_hsl(var(--primary)/0.06)] transition-all hover:shadow-[0_8px_24px_hsl(var(--primary)/0.08)]">
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                    <div className="flex min-w-0 items-start gap-3">
+                    <button
+                      onClick={() => setExpandedUserId(isExpanded ? null : p.user_id)}
+                      className="flex min-w-0 items-start gap-3 text-left flex-1"
+                    >
                       <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-secondary/20 text-primary font-bold">
                         {p.avatar_url ? <img src={p.avatar_url} alt={p.display_name || "User"} className="h-full w-full object-cover" /> : (p.display_name || "?")[0].toUpperCase()}
                       </div>
-                      <div className="min-w-0">
+                      <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-2">
                           <p className="truncate font-medium text-foreground">{p.display_name || "Unnamed"}</p>
                           <Badge className={roleColors[currentRole]}><RoleIcon className="mr-1 h-3 w-3" />{roleLabels[currentRole]}</Badge>
                           <Badge variant={p.is_verified ? "secondary" : "outline"}>{p.is_verified ? "Verified" : "Pending"}</Badge>
+                          {isExpanded ? <ChevronUp className="ml-auto h-4 w-4 text-muted-foreground" /> : <ChevronDown className="ml-auto h-4 w-4 text-muted-foreground" />}
                         </div>
                         <div className="mt-1 grid gap-1 text-xs text-muted-foreground sm:grid-cols-2 lg:grid-cols-4">
                           <span className="truncate">ID: {p.roll_number || p.employee_id || p.enrollment_id || "—"}</span>
@@ -328,8 +354,17 @@ const AdminStudents = () => {
                           {p.phone && <span className="truncate">{p.phone}</span>}
                         </div>
                       </div>
-                    </div>
+                    </button>
                     <div className="flex flex-wrap items-center gap-2 lg:justify-end">
+                      {!p.is_verified ? (
+                        <Button size="sm" onClick={() => toggleVerify(p.user_id, true)} className="min-h-10 rounded-xl gap-1 bg-primary text-primary-foreground">
+                          <ShieldCheck className="h-4 w-4" /> Approve
+                        </Button>
+                      ) : currentRole !== "super_admin" && (
+                        <Button size="sm" variant="outline" onClick={() => toggleVerify(p.user_id, false)} className="min-h-10 rounded-xl gap-1 text-destructive">
+                          Revoke
+                        </Button>
+                      )}
                       {canChangeRole ? (
                         <Select value={currentRole} onValueChange={(val) => changeRole(p.user_id, val as AppRole)}>
                           <SelectTrigger className="min-h-10 w-[140px] rounded-xl text-xs"><SelectValue /></SelectTrigger>
@@ -341,7 +376,7 @@ const AdminStudents = () => {
                         </Select>
                       ) : (
                         <Badge variant="outline" className="min-h-10 rounded-xl px-3 text-xs text-muted-foreground">
-                          {currentRole === "super_admin" ? "Protected role" : "Role change in Verification"}
+                          {currentRole === "super_admin" ? "Protected role" : "Role locked"}
                         </Badge>
                       )}
                       {isAdminLike && isSuperAdmin && currentRole !== "super_admin" && (
@@ -351,6 +386,85 @@ const AdminStudents = () => {
                       )}
                     </div>
                   </div>
+
+                  {isExpanded && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      className="mt-4 pt-4 border-t border-brand-warm-grey/20 grid gap-4 lg:grid-cols-2"
+                    >
+                      {/* Account section */}
+                      <div className="space-y-2">
+                        <h4 className="text-sm font-semibold text-primary uppercase tracking-wide mb-2">Account</h4>
+                        <div className="space-y-0">
+                          <DetailRow label="Email" value={p.email || "—"} />
+                          <DetailRow label="Role" value={roleLabels[currentRole]} />
+                          <DetailRow label="Status" value={p.is_verified ? "Verified" : "Pending verification"} />
+                          <DetailRow label="Joined" value={new Date(p.created_at).toLocaleDateString()} />
+                          <DetailRow label="Last Updated" value={p.updated_at ? new Date(p.updated_at).toLocaleDateString() : "—"} />
+                        </div>
+                      </div>
+
+                      {/* Profile section */}
+                      <div className="space-y-2">
+                        <h4 className="text-sm font-semibold text-primary uppercase tracking-wide mb-2">Profile</h4>
+                        <div className="space-y-0">
+                          <DetailRow label="Display Name" value={p.display_name || "—"} />
+                          <DetailRow label="Phone" value={p.phone || "—"} />
+                          <DetailRow label="Date of Birth" value={p.date_of_birth ? new Date(p.date_of_birth).toLocaleDateString() : "—"} />
+                          <DetailRow label="Gender" value={p.gender || "—"} />
+                          <DetailRow label="Address" value={[p.address, p.city, p.state, p.pincode].filter(Boolean).join(", ") || "—"} />
+                        </div>
+                      </div>
+
+                      {/* Academic / Role-specific section */}
+                      <div className="space-y-2">
+                        <h4 className="text-sm font-semibold text-primary uppercase tracking-wide mb-2">
+                          {currentRole === "student" ? "Academic" : currentRole === "instructor" ? "Faculty" : "Administrative"}
+                        </h4>
+                        <div className="space-y-0">
+                          {currentRole === "student" && (
+                            <>
+                              <DetailRow label="Roll Number" value={p.roll_number || "—"} />
+                              <DetailRow label="Enrollment ID" value={p.enrollment_id || "—"} />
+                              <DetailRow label="Batch" value={getStudentBatchNames(p.user_id)} />
+                              <DetailRow label="Year of Commencement" value={p.year_of_commencement ? String(p.year_of_commencement) : "—"} />
+                              <DetailRow label="Course" value={p.course_name || "—"} />
+                            </>
+                          )}
+                          {currentRole === "instructor" && (
+                            <>
+                              <DetailRow label="Employee ID" value={p.employee_id || "—"} />
+                              <DetailRow label="Designation" value={p.designation || "—"} />
+                              <DetailRow label="Department" value={p.department || "—"} />
+                              <DetailRow label="Specialization" value={p.specialization || "—"} />
+                              <DetailRow label="Qualifications" value={p.qualifications || "—"} />
+                              <DetailRow label="Experience (years)" value={p.years_of_experience ? String(p.years_of_experience) : "—"} />
+                            </>
+                          )}
+                          {(currentRole === "admin" || currentRole === "super_admin") && (
+                            <>
+                              <DetailRow label="Employee ID" value={p.employee_id || "—"} />
+                              <DetailRow label="Admin Label" value={p.admin_label || "—"} />
+                              <DetailRow label="Department" value={p.department || "—"} />
+                            </>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Emergency / Bio section */}
+                      <div className="space-y-2">
+                        <h4 className="text-sm font-semibold text-primary uppercase tracking-wide mb-2">Additional</h4>
+                        <div className="space-y-0">
+                          <DetailRow label="Emergency Contact" value={p.emergency_contact_name || "—"} />
+                          <DetailRow label="Emergency Phone" value={p.emergency_contact_phone || "—"} />
+                          <DetailRow label="Bio" value={p.bio || "—"} />
+                          {(currentRole === "instructor") && <DetailRow label="Meet Link" value={p.meet_link || "—"} />}
+                          {(currentRole === "instructor") && <DetailRow label="Zoom Link" value={p.zoom_link || "—"} />}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
                 </div>
               </motion.div>
             );
@@ -387,5 +501,12 @@ const AdminStudents = () => {
     </div>
   );
 };
+
+const DetailRow = ({ label, value }: { label: string; value: string }) => (
+  <div className="flex flex-col gap-0.5 py-2 border-b border-brand-warm-grey/10 sm:flex-row sm:items-baseline sm:gap-3">
+    <span className="text-[11px] uppercase tracking-wider text-muted-foreground sm:w-40 sm:shrink-0">{label}</span>
+    <span className={`text-sm break-words ${value === "—" ? "text-muted-foreground italic" : "text-foreground"}`}>{value}</span>
+  </div>
+);
 
 export default AdminStudents;

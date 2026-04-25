@@ -39,9 +39,8 @@ const instructorNav = [
 
 const adminNav = [
   { label: "Overview", to: "/dashboard/admin", icon: LayoutDashboard },
-  { label: "Verification", to: "/dashboard/admin/verification", icon: ShieldCheck },
-  { label: "Users", to: "/dashboard/admin/students", icon: Users },
-  { label: "Subject Allocation", to: "/dashboard/admin/teachers", icon: GraduationCap },
+  { label: "Users", to: "/dashboard/admin/users", icon: Users },
+  { label: "Subject Allocation", to: "/dashboard/admin/subject-allocation", icon: GraduationCap },
   { label: "Batches", to: "/dashboard/admin/batches", icon: FolderOpen },
   { label: "Curriculum", to: "/dashboard/admin/curriculum", icon: BookOpen },
   { label: "Lesson Plans", to: "/dashboard/admin/lesson-plans", icon: BookCheck },
@@ -83,7 +82,7 @@ const DashboardSidebar = () => {
         const messagesP = supabase.from("messages").select("id", { count: "exact", head: true }).eq("is_read", false);
         const feedbackP = (supabase.from("feedback") as any).select("id", { count: "exact", head: true }).eq("read_by_admin", false);
         const [profiles, reviews, submissions, messages, feedback] = await Promise.all([profilesP, reviewsP, submissionsP, messagesP, feedbackP]);
-        next["Verification"] = profiles.count || 0;
+        next["Users"] = profiles.count || 0;
         next["Course Approvals"] = reviews.count || 0;
         next["Assignments"] = submissions.count || 0;
         next[role === "super_admin" ? "Message Monitor" : "Messages"] = messages.count || 0;

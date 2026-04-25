@@ -62,7 +62,6 @@ import TutorLiveClasses from "./pages/instructor/TutorLiveClasses";
 import TutorMessages from "./pages/instructor/TutorMessages";
 import TutorCurriculum from "./pages/instructor/TutorCurriculum";
 import AdminSubjectAllocation from "./pages/admin/AdminSubjectAllocation";
-import AdminUserVerification from "./pages/admin/AdminUserVerification";
 import AdminBatches from "./pages/admin/AdminBatches";
 import AdminFeedback from "./pages/admin/AdminFeedback";
 import AdminLiveClasses from "./pages/admin/AdminLiveClasses";
@@ -71,7 +70,6 @@ import PendingApproval from "./pages/PendingApproval";
 import LoginSelect from "./pages/LoginSelect";
 import TutorLessonPlans from "./pages/instructor/TutorLessonPlans";
 import AdminLessonPlans from "./pages/admin/AdminLessonPlans";
-import AdminTeachers from "./pages/admin/AdminTeachers";
 
 const queryClient = new QueryClient();
 
@@ -147,14 +145,17 @@ const App = () => (
 
             {/* Admin Dashboard */}
             <Route path="/dashboard/admin" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminOverview /></DashboardLayout></RoleProtectedRoute>} />
-            {/* Admin sidebar links that point to filtered views of existing pages */}
-            <Route path="/dashboard/admin/tutors" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminStudents /></DashboardLayout></RoleProtectedRoute>} />
-            <Route path="/dashboard/admin/teachers" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminTeachers /></DashboardLayout></RoleProtectedRoute>} />
+            {/* Unified Users page (replaces Students, Teachers, Verification) */}
+            <Route path="/dashboard/admin/users" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminStudents /></DashboardLayout></RoleProtectedRoute>} />
+            {/* Legacy redirects → unified Users page */}
+            <Route path="/dashboard/admin/students" element={<Navigate to="/dashboard/admin/users" replace />} />
+            <Route path="/dashboard/admin/tutors" element={<Navigate to="/dashboard/admin/users" replace />} />
+            <Route path="/dashboard/admin/teachers" element={<Navigate to="/dashboard/admin/users" replace />} />
+            <Route path="/dashboard/admin/verification" element={<Navigate to="/dashboard/admin/users" replace />} />
             <Route path="/dashboard/admin/assignments" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminAssignments /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/admin/inquiries" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminInquiries /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/admin/approvals" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminApprovals /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/admin/courses" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminCourses /></DashboardLayout></RoleProtectedRoute>} />
-            <Route path="/dashboard/admin/students" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminStudents /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/admin/categories" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminCategories /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/admin/schedule" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminSchedule /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/admin/analytics" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminAnalytics /></DashboardLayout></RoleProtectedRoute>} />
@@ -164,7 +165,7 @@ const App = () => (
             <Route path="/dashboard/admin/lesson-plans" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminLessonPlans /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/admin/activity" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminActivityLog /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/admin/subject-allocation" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminSubjectAllocation /></DashboardLayout></RoleProtectedRoute>} />
-            <Route path="/dashboard/admin/verification" element={<RoleProtectedRoute allowedRoles={["super_admin"]}><DashboardLayout><AdminUserVerification /></DashboardLayout></RoleProtectedRoute>} />
+            
             <Route path="/dashboard/admin/batches" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminBatches /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/admin/feedback" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminFeedback /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/admin/live-classes" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminLiveClasses /></DashboardLayout></RoleProtectedRoute>} />
