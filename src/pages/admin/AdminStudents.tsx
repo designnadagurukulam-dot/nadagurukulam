@@ -502,4 +502,11 @@ const AdminStudents = () => {
   );
 };
 
+const DetailRow = ({ label, value }: { label: string; value: string }) => (
+  <div className="flex flex-col gap-0.5 py-2 border-b border-brand-warm-grey/10 sm:flex-row sm:items-baseline sm:gap-3">
+    <span className="text-[11px] uppercase tracking-wider text-muted-foreground sm:w-40 sm:shrink-0">{label}</span>
+    <span className={`text-sm break-words ${value === "—" ? "text-muted-foreground italic" : "text-foreground"}`}>{value}</span>
+  </div>
+);
+
 export default AdminStudents;
