@@ -62,7 +62,6 @@ import TutorLiveClasses from "./pages/instructor/TutorLiveClasses";
 import TutorMessages from "./pages/instructor/TutorMessages";
 import TutorCurriculum from "./pages/instructor/TutorCurriculum";
 import AdminSubjectAllocation from "./pages/admin/AdminSubjectAllocation";
-import AdminUserVerification from "./pages/admin/AdminUserVerification";
 import AdminBatches from "./pages/admin/AdminBatches";
 import AdminFeedback from "./pages/admin/AdminFeedback";
 import AdminLiveClasses from "./pages/admin/AdminLiveClasses";
@@ -71,7 +70,6 @@ import PendingApproval from "./pages/PendingApproval";
 import LoginSelect from "./pages/LoginSelect";
 import TutorLessonPlans from "./pages/instructor/TutorLessonPlans";
 import AdminLessonPlans from "./pages/admin/AdminLessonPlans";
-import AdminTeachers from "./pages/admin/AdminTeachers";
 
 const queryClient = new QueryClient();
 
