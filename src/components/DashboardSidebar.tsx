@@ -82,7 +82,7 @@ const DashboardSidebar = () => {
         const messagesP = supabase.from("messages").select("id", { count: "exact", head: true }).eq("is_read", false);
         const feedbackP = (supabase.from("feedback") as any).select("id", { count: "exact", head: true }).eq("read_by_admin", false);
         const [profiles, reviews, submissions, messages, feedback] = await Promise.all([profilesP, reviewsP, submissionsP, messagesP, feedbackP]);
-        next["Verification"] = profiles.count || 0;
+        next["Users"] = profiles.count || 0;
         next["Course Approvals"] = reviews.count || 0;
         next["Assignments"] = submissions.count || 0;
         next[role === "super_admin" ? "Message Monitor" : "Messages"] = messages.count || 0;
