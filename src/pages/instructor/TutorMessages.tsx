@@ -18,22 +18,36 @@ const TutorMessages = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const { data: students = [] } = useQuery({
-    queryKey: ["tutor-chat-students", user?.id],
+  // All students + all other faculty (instructors + admins), excluding self
+  const { data: contacts = [] } = useQuery({
+    queryKey: ["tutor-chat-contacts", user?.id],
     queryFn: async () => {
-      const { data: batches } = await supabase.from("batches").select("id").eq("instructor_id", user!.id);
-      const batchIds = (batches || []).map((b) => b.id); if (!batchIds.length) return [];
-      const { data: enrollments } = await supabase.from("batch_enrollments").select("student_id").in("batch_id", batchIds);
-      const studentIds = [...new Set((enrollments || []).map((e) => e.student_id))]; if (!studentIds.length) return [];
-      const { data: profiles } = await supabase.from("profiles").select("user_id, display_name, avatar_url").in("user_id", studentIds);
-      return profiles || [];
+      const { data: roles } = await supabase
+        .from("user_roles")
+        .select("user_id, role")
+        .in("role", ["student", "instructor", "admin"]);
+      const filtered = (roles || []).filter((r) => r.user_id !== user!.id);
+      if (!filtered.length) return [];
+      const ids = filtered.map((r) => r.user_id);
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("user_id, display_name, avatar_url, is_verified")
+        .in("user_id", ids)
+        .eq("is_verified", true);
+      return (profiles || []).map((p) => ({
+        ...p,
+        role: filtered.find((r) => r.user_id === p.user_id)?.role || "student",
+      }));
     },
     enabled: !!user,
   });
 
-  const filteredStudents = students.filter((s: any) =>
-    !searchQuery || s.display_name?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const students = contacts.filter((c: any) => c.role === "student");
+  const faculty = contacts.filter((c: any) => c.role !== "student");
+  const matches = (s: any) => !searchQuery || s.display_name?.toLowerCase().includes(searchQuery.toLowerCase());
+  const filteredStudents = students.filter(matches);
+  const filteredFaculty = faculty.filter(matches);
+  const allContacts = contacts;
 
   const { data: messages = [] } = useQuery({
     queryKey: ["chat-messages", user?.id, selectedStudent],
