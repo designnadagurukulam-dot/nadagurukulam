@@ -28,7 +28,6 @@ const studentNav = [
 const instructorNav = [
   { label: "Overview", to: "/dashboard/tutor", icon: LayoutDashboard },
   { label: "My Courses", to: "/dashboard/tutor/courses", icon: BookOpen },
-  { label: "Update Curriculum", to: "/dashboard/tutor/create", icon: PlusCircle },
   { label: "Lesson Plans", to: "/dashboard/tutor/lesson-plans", icon: BookCheck },
   { label: "Live Classes", to: "/dashboard/tutor/live-classes", icon: Video },
   { label: "Assignments", to: "/dashboard/tutor/assignments", icon: ClipboardList },

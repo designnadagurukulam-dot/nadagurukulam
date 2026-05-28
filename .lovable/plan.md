@@ -1,68 +1,66 @@
-# Instructor Overview — Phase 11
+# Instructor Courses & Curriculum — restructure
 
-Rework `src/pages/instructor/InstructorOverview.tsx` so every tile is interactive and the supporting blocks match the requested format. No DB schema changes.
+## 1. Fix: allocated curriculum not showing for instructor
 
-## 1. Stat tiles — clickable + relabeled
+**Problem**: `TutorCurriculum.tsx` currently decides "my modules" by matching `curriculum_modules.batch_id` against batches where the instructor is the batch's `instructor_id`. Subject allocations made by Super Admin live in the `subject_allocations` table (`instructor_id` ↔ `curriculum_module_id`) and are never read here, so allocated subjects don't appear.
 
-Wrap each tile in a button that opens the right destination. Show empty-state friendly counts.
+**Fix**:
+- Query `subject_allocations` for the logged-in instructor, get the allocated `curriculum_module_id` set.
+- "My Curriculum" = union of: modules from that allocation set + modules whose `instructor_id` already equals the user + modules tied to a batch they instruct.
+- Same change applied wherever the instructor's curriculum is listed (Courses tab "My Curriculum" card, Lesson Plans already uses `subject_allocations` correctly — keep as reference).
 
-- **Total Students** → opens a dialog with a table of all students across this instructor's batches.
-  - Columns: Name, **Registered No.** (from `profiles.enrollment_id`), Semester (current — from `batches.semester` of the latest active batch they're in), Program (from `categories.name` via `batches.program_id`).
-  - Project-wide: relabel "Student ID" / "Enrollment ID" → **"Registered No."** in this dialog (other pages untouched in this phase).
-- **Upcoming Classes** → rename count to "**today's classes**" (online + offline assigned today to this instructor). Click opens a dialog listing today's classes split into two sections: **Offline first**, then **Online**, each sorted by time.
-  - Columns: Title, Mode, Batches, Time, Duration.
-  - Source: `live_classes` filtered by `instructor_id` + today's date; `class_type` distinguishes online/offline; batch names resolved via `batches` (handle `audience_type='all'` by listing all instructor batches).
-- **Pending Grading** → **rename to "Assignments Ongoing"**. Click navigates to `/dashboard/tutor/assignments`.
-- **Active Batches** → **rename to "Assigned Batches"**. Click opens a page-style dialog with all batches assigned, sorted by `semester` ASC (1→4).
-  - Columns: Batch Name (clickable → opens nested dialog with batch's students list), Students Count, Program Name, Semester.
+## 2. Sidebar + entry-point consolidation
 
-Tile gradient/visual styling preserved; only labels, counts, click handlers, and dialogs added.
+- Remove the "Update Curriculum" item from `DashboardSidebar` for instructors.
+- `My Courses & Curriculum` page becomes the single hub:
+  - When there are **no courses**, keep the current empty-state card with the central "Create Course" CTA.
+  - When there **are courses**, move "Create Course" to the **top-right** of the page header.
+  - "Create Course" navigates to the existing `/dashboard/tutor/create` route, which keeps its back button to return here.
+- The "My Curriculum" tab on this page becomes the place to manage allocated curriculum (today it lives at `/dashboard/tutor/curriculum`). The TutorCurriculum view is embedded as that tab's content; the standalone route can stay reachable but is no longer linked from the sidebar.
 
-## 2. My Allocated Subjects
+## 3. Simplify the Create Course flow
 
-Each subject card becomes a `Link` to `/dashboard/tutor/curriculum` (My Curriculum under My Courses), passing `?module={curriculum_module_id}` so the curriculum view can scroll/select the right subject. Card visuals unchanged.
+In `CreateCourse.tsx` step "Details":
 
-## 3. Teaching Activity (weekly bar chart)
+- **Remove** the "New course vs Add to existing curriculum" block.
+- **Remove** the "Course Placement" (semester/subject pickers) block.
+- Course is always created as instructor extra-learning material (`instructor_id = user.id`, not linked to a curriculum module).
 
-Replace random data with real query: for the current week (Mon–Sat), sum `class_logs.duration` (fallback `schedules.duration_minutes` / 60) for this instructor per day. Stack a **second bar per day** representing **online hours** (sum of `live_classes.duration_minutes` where `class_type='online'` and `scheduled_at` falls on that day). Render as grouped bars (Teaching vs Online) with a small legend; today still highlighted maroon, others gold/cream.
+New **Course Details** fields:
+- Course title
+- Course outcomes (repeatable list — stored as `course_outcomes` rows attached to the new course / or a `text[]` on the course; use a simple textarea list for v1)
+- Description
+- Total hours (number)
 
-## 4. Today's Schedule (table format)
+**Next → Modules** step, for each module:
+- Module title
+- Teaching outcomes (textarea list)
+- Description
+- Hours — validated so `sum(module hours) ≤ course total hours`; show inline error and disable Next when exceeded.
 
-Replace the vertical card list with a horizontal table:
+Within each module, **Add Topic** collects:
+- Topic name
+- Description
+- Material type: Video / Audio / Document / Text (drives which upload/url input shows — reuse existing lesson_type handling, extend with `audio`).
 
-```text
-| Date / Day      | <slot 1 time>          | <slot 2 time>          | ...
-| 25th Apr / Sat  | Theory — Sem 1         | Practical 1 — Sem 3    | ...
-```
+**Add Module** button after every module. **Next → Review → Submit for Review** (unchanged submission pipeline; status stays `pending`).
 
-- First column: date + weekday.
-- Header columns: each class's time range (e.g. `9:00am to 9:45am`) sorted ascending.
-- Cells: short class label (`{title or type} — Sem {n}`), with mode badge (Online/Offline).
-- Source: same `todayClasses` query, plus `schedules` for any offline blocks for today.
-- Mobile fallback: stacked cards (existing pattern).
+## 4. Add to existing curriculum from inside Courses
 
-## 5. Recent Submissions
-
-Add an "Unopened" indicator: a red dot + small "New" badge on rows where `assignment_submissions.status='submitted'` AND has not been viewed by the instructor.
-
-- Track viewed state via existing `assignment_submissions` field — use `updated_at`/grade absence as the unopened proxy (`status='submitted'` and no `feedback`/`grade`).
-- Header summary line: "X new submissions awaiting review" when count > 0.
-
-## 6. Schedule a Live Class
-
-No changes (per request).
+Inside the "My Curriculum" tab (the embedded TutorCurriculum):
+- Per allocated subject (curriculum_module), add an **ADD MODULE** button — instructor creates an additional sub-module under that subject.
+- Each module keeps its existing **Add Topic** action.
+- **Visual distinction**: anything created by the instructor (vs. created by admin) shows a gold left-border ribbon + small "Added by you" badge, while admin-original items keep the maroon ribbon. Detection:
+  - `curriculum_sections.created_by = auth.uid()` → instructor-added topic.
+  - `curriculum_modules.created_by = auth.uid()` → instructor-added module (requires adding a `created_by uuid` column to `curriculum_modules`, default null, backfilled null = admin).
+- **Edit/Delete** controls are only enabled on rows the instructor created. Admin-created rows are read-only for the instructor (UI hides edit/delete buttons; RLS already permits writes but we enforce in UI for now and tighten RLS later if needed).
 
 ## Technical notes
 
-- New shadcn `<Dialog>` instances colocated inside `InstructorOverview.tsx`; for the Students and Batches tables, extract into small components (`StudentsListDialog`, `BatchesListDialog`, `BatchStudentsDialog`) under `src/components/instructor/` to keep the page lean.
-- Queries:
-  - Students: `batch_enrollments` for instructor's batches → join `profiles (display_name, enrollment_id)` + `batches (semester, program_id)` → resolve program via `categories`.
-  - Today's classes: existing `live_classes` query extended with `class_type`, `audience_type`, and batch resolution (two-step query pattern per project memory).
-  - Teaching activity: `class_logs` (date range) + `live_classes` (online slice).
-- Routing: `/dashboard/tutor/curriculum` already exists; ensure it reads `?module=` for deep-link selection (small addition in `TutorCurriculum.tsx`).
-- All new strings respect Maroon/Gold tokens and 44px touch targets.
-
-## Files
-
-- Edit: `src/pages/instructor/InstructorOverview.tsx`, `src/pages/instructor/TutorCurriculum.tsx` (deep-link param)
-- Create: `src/components/instructor/StudentsListDialog.tsx`, `src/components/instructor/TodayClassesDialog.tsx`, `src/components/instructor/BatchesListDialog.tsx`, `src/components/instructor/BatchStudentsDialog.tsx`
+- **DB migration**: add `created_by uuid` to `public.curriculum_modules` (nullable). No RLS change required for this step.
+- **Files touched**:
+  - `src/components/DashboardSidebar.tsx` — remove "Update Curriculum" entry.
+  - `src/pages/instructor/InstructorCourses.tsx` — top-right Create button when list non-empty; embed TutorCurriculum into the "My Curriculum" tab; fix allocated-curriculum query.
+  - `src/pages/instructor/TutorCurriculum.tsx` — include `subject_allocations` in "my modules" logic; render per-module "Add Module" button; color-code instructor-vs-admin items; gate edit/delete by `created_by`.
+  - `src/pages/instructor/CreateCourse.tsx` — drop placement/type sections; add course outcomes + total hours fields; per-module teaching outcomes + hours with sum-validation; extend topic types to include audio.
+- **Out of scope** (call out, do not build): tightening RLS so instructors literally cannot mutate admin curriculum rows server-side; richer drag/drop reorder of new modules.

@@ -543,8 +543,10 @@ export type Database = {
           course_id: string
           created_at: string
           description: string | null
+          hours: number | null
           id: string
           sort_order: number
+          teaching_outcomes: string | null
           title: string
           updated_at: string
         }
@@ -552,8 +554,10 @@ export type Database = {
           course_id: string
           created_at?: string
           description?: string | null
+          hours?: number | null
           id?: string
           sort_order?: number
+          teaching_outcomes?: string | null
           title: string
           updated_at?: string
         }
@@ -561,8 +565,10 @@ export type Database = {
           course_id?: string
           created_at?: string
           description?: string | null
+          hours?: number | null
           id?: string
           sort_order?: number
+          teaching_outcomes?: string | null
           title?: string
           updated_at?: string
         }
@@ -625,6 +631,7 @@ export type Database = {
           archived_at: string | null
           category: string | null
           category_id: string | null
+          course_outcomes: string[] | null
           course_type: string | null
           created_at: string
           description: string | null
@@ -643,12 +650,14 @@ export type Database = {
           tags: string[] | null
           thumbnail_url: string | null
           title: string
+          total_hours: number | null
           updated_at: string
         }
         Insert: {
           archived_at?: string | null
           category?: string | null
           category_id?: string | null
+          course_outcomes?: string[] | null
           course_type?: string | null
           created_at?: string
           description?: string | null
@@ -667,12 +676,14 @@ export type Database = {
           tags?: string[] | null
           thumbnail_url?: string | null
           title: string
+          total_hours?: number | null
           updated_at?: string
         }
         Update: {
           archived_at?: string | null
           category?: string | null
           category_id?: string | null
+          course_outcomes?: string[] | null
           course_type?: string | null
           created_at?: string
           description?: string | null
@@ -691,6 +702,7 @@ export type Database = {
           tags?: string[] | null
           thumbnail_url?: string | null
           title?: string
+          total_hours?: number | null
           updated_at?: string
         }
         Relationships: [
@@ -719,6 +731,7 @@ export type Database = {
           course_code: string
           course_objectives: string[] | null
           created_at: string
+          created_by: string | null
           credits: number | null
           description: string | null
           exam_hours: string | null
@@ -746,6 +759,7 @@ export type Database = {
           course_code: string
           course_objectives?: string[] | null
           created_at?: string
+          created_by?: string | null
           credits?: number | null
           description?: string | null
           exam_hours?: string | null
@@ -773,6 +787,7 @@ export type Database = {
           course_code?: string
           course_objectives?: string[] | null
           created_at?: string
+          created_by?: string | null
           credits?: number | null
           description?: string | null
           exam_hours?: string | null
