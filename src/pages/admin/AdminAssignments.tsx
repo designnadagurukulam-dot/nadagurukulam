@@ -8,8 +8,14 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 
 const AdminAssignments = () => {
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    localStorage.setItem("lastViewed:assignments", new Date().toISOString());
+    queryClient.invalidateQueries({ queryKey: ["sidebar-counts"] });
+  }, [queryClient]);
   const [assignments, setAssignments] = useState<any[]>([]);
   const [submissions, setSubmissions] = useState<any[]>([]);
   const [profiles, setProfiles] = useState<Record<string, string>>({});
