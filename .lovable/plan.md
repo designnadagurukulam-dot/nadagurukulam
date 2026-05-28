@@ -1,57 +1,63 @@
+# Phase 6 — Admin polish + Landing/About/Courses refinements
 
-# Phase 5 — Landing page polish, About animations, sidebar badge cleanup
+## 1. Admin → Subject Allocation ("Teachers" tile)
+File: `src/pages/admin/AdminTeachers.tsx`
 
-Small, scoped UI/animation pass. No DB changes, no new features.
+Currently the page already loads instructor profiles but the "Teachers" tile just toggles the existing card list (which shows only allocation info — no IDs, emails, programme metadata).
 
----
+Change: Replace the toggled card list with the **same user row UI used in `AdminStudents.tsx`**, pre-filtered to `role = 'instructor'`. Keep allocation tooling (Assign Subjects, Assign Batch) as extra actions in the expanded row.
 
-## 1. Sidebar badge "unviewed only" (Users, Assignments, Feedback)
+- Extract the user-row card from `AdminStudents.tsx` into a shared `<UserRow />` component (`src/components/admin/UserRow.tsx`) — props: profile, role, onVerify, onResetPassword, extraActions, contextLabel.
+- Use it in both `AdminStudents.tsx` and `AdminTeachers.tsx`.
+- **Hide role-change controls** (Promote/Demote select) on `AdminTeachers.tsx` per request.
 
-**Problem:** Badges always show counts even after admin has reviewed the section.
+## 2. Edit user details + Reset password (Users page)
+File: `src/pages/admin/AdminStudents.tsx` (+ shared `UserRow`)
 
-**Fix:** Track "last viewed" timestamp per section in `localStorage`. Only show badge when there are items created/updated after that timestamp.
+- Add **"Edit details"** dialog on each row: editable fields = `phone`, `course_name`, `department`, `designation`, `specialization`, `admin_label`, `roll_number`/`employee_id`/`enrollment_id` (whichever applies for that role). **Personal identity fields locked**: `display_name`, `email` (auth-managed).
+- Add **"Reset password"** action: calls `supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + '/reset-password' })`. Need a small edge function `admin-get-user-email` (service-role) to fetch the auth email from `user_id`, since profiles table doesn't store it.
+- Confirms via toast.
 
-- In `DashboardSidebar.tsx` `useQuery`, for `Users` / `Assignments` / `Feedback`, also pass `?gt(created_at, lastViewedAt)` filter using the stored timestamp (default = epoch so first load still shows).
-- On the matching pages (`AdminStudents`, `AdminAssignments`, `AdminFeedback`), write `localStorage[lastViewed:<key>] = new Date().toISOString()` on mount + refetch sidebar counts.
-- Other badges (Course Approvals, Messages, Reach Out) keep existing behavior.
+## 3. About page — animations replay every visit
+File: `src/pages/About.tsx`
 
-## 2. Label rename
+All `motion` blocks use `viewport={{ once: true }}`. Change to `viewport={{ once: false, amount: 0.25 }}` and add `initial="hidden"` so they re-run on each scroll into view.
 
-`src/pages/admin/AdminTeachers.tsx:239` — change "Also assigned to:" → "Assigned to:".
+## 4. About page — content & visuals
+File: `src/pages/About.tsx`
 
-## 3. Landing page (`src/pages/Index.tsx`)
+- **Item 5 (Founder section):** keep founder section on About but swap Sadguru's image to a different portrait and swap his message text for an alternate quote. Landing page keeps the original founder section unchanged. *(Assumption — flag if you wanted Sadguru removed from About instead.)* Will use `SadguruSriMadhusudanSai2.jpg` if available; else ask for asset.
+- **Item 6 (Hero background):** replace `campusAerial` with a more authentic performance photo — propose `imgConcert` (`NGR6_M1630.webp`) or `imgChorus`. Default → `imgConcert`.
+- **Item 7 (Our Foundation white fade):** remove `section-glass` class on the "Our Foundation" section (line 157) — it's the source of the white veil.
+- **Item 8 (Upcoming Campus dedup):** delete the `Our Upcoming Campus` bento section from `About.tsx`. Keep it only on the landing page (`Index.tsx`).
 
-1. **Circular logo** — wrap hero logo `<img>` in `rounded-full overflow-hidden` container, crop to circle.
-2. **Mandala behind logo, not behind "Nada Gurukulam"** — move `<GoldenMandala />` so it's centered on the logo badge (offset upward), and constrain its size/position so it doesn't overlap the heading text. Likely: render mandala absolutely positioned to logo wrapper instead of section center.
-3. **Equal glow on both buttons** — the "Explore Courses" button uses `animate-glow-pulse`; "Contact Us" doesn't. Decision: **remove glow from both** for consistency (keep shadow only). If you prefer glow on both, say so.
-4. **Smooth marquee** — current `marquee-content` likely uses `translateX(-50%)` with duplicated items. The jerk is from a gap between the end and restart. Fix by ensuring exact duplication (already done) and using `animation: marquee Xs linear infinite` with `transform: translateX(0) → translateX(-50%)` and `will-change: transform`. Audit `.marquee-content` / `.marquee-content-reverse` in `index.css` and adjust keyframes for seamless loop.
-5. **Slow fade-in for "Nada Gurukulam" heading** — replace the per-letter blur-in animation with a single slow opacity fade (`initial opacity:0 → 1`, duration ~2.5s, ease-out). Keep the gradient/outline styling.
-6. **Logo zoom area** — the logo badge has hover zoom but isn't a link. Remove the zoom animation, and add "Nada Gurukulam" wordmark text next to the logo inside the badge so it reads as a brand lockup rather than a button.
+## 5. Landing page — logo intro
+File: `src/pages/Index.tsx` (hero brand lockup, lines 219-253)
 
-## 4. About page (`src/pages/About.tsx`)
+Logo PNG has transparent background and the circular border appears before the image paints, causing a "weird" empty ring on entrance. Fix:
+- Replace the entrance transition: animate logo + wordmark together with `opacity 0→1, scale 0.96→1` over 0.6s **after the white background plate is in place** (no border/ring fade-in separately).
+- Pre-load the logo by adding `loading="eager"` and `decoding="sync"`.
+- Keep white bg via `bg-background` on the circular wrapper; remove the `ring-2` to avoid the double-halo look.
 
-1. **Sadguru photo fade-in** — current image has no animation. Wrap the founder `<img>` container in `motion.div` with `initial={{opacity:0}} whileInView={{opacity:1}} transition={{duration:1.5}} viewport={{once:true}}`.
-2. **Founder's message visibility** — current blockquote uses `text-foreground/70` (low contrast on cream). Bump to a darker maroon/charcoal: `text-foreground` or `text-brand-primary` for the body, keep gold accent on the heading. Same for second blockquote (currently `/55`).
-3. **Rotating chakra (red circle)** — wrap the existing red ornament/timeline-dot circle in `motion.div` with `animate={{rotate:360}} transition={{repeat:Infinity, duration:30, ease:"linear"}}`. (Need to confirm which red circle — likely the decorative one near the Foundation timeline or vision section. I'll target the most prominent red circular element on the page.)
+## 6. Courses page — hero & animations
+File: `src/pages/Courses.tsx`
 
----
-
-## Technical notes
-
-- `localStorage` key format: `lastViewed:users`, `lastViewed:assignments`, `lastViewed:feedback`.
-- Sidebar query already invalidated on route change is not automatic — add `queryClient.invalidateQueries(["sidebar-counts"])` from the admin pages after stamping localStorage.
-- All color changes use semantic tokens from `index.css` (no raw hex).
-- No changes to `tailwind.config.ts`, no new packages.
+- **Item 9 (jerky):** the per-card `delay: i * 0.1` causes cascade stutter and `AnimatePresence mode="wait"` re-mounts everything on tab change. Switch to a single shared `transition={{ duration: 0.4, ease: "easeOut" }}` with `staggerChildren: 0.06` via a parent variant; drop `AnimatePresence mode="wait"` and animate opacity only on filter change.
+- **Item 10 (hero collage):** replace single hero image with a 6-tile collage of maestros across genres (Vocal, Instrumental, Dance — Carnatic + Hindustani). New component `<MaestroCollage />` using existing gallery assets:
+  - `NGZ6R_1512_R.webp` (vocal), `NGDSC_8160.webp` (male chorus), `NGDSC_7428.webp` (dance), `NGZ6R_6439_R.webp` (percussion), `NGMUSIC-2.webp` (sitar), `NGR6M_0933.webp` (chorus).
+  - Tailwind grid with subtle parallax + dark gradient so the Sanskrit text remains readable.
+  - *If you have actual maestro portraits to upload, we'll swap them in.*
 
 ## Files touched
+- `src/pages/admin/AdminTeachers.tsx`
+- `src/pages/admin/AdminStudents.tsx`
+- `src/components/admin/UserRow.tsx` (new)
+- `src/components/admin/EditUserDialog.tsx` (new)
+- `supabase/functions/admin-get-user-email/index.ts` (new edge function)
+- `src/pages/About.tsx`
+- `src/pages/Index.tsx`
+- `src/pages/Courses.tsx`
+- `src/components/MaestroCollage.tsx` (new)
 
-- `src/components/DashboardSidebar.tsx`
-- `src/pages/admin/AdminStudents.tsx`, `AdminAssignments.tsx`, `AdminFeedback.tsx` (mount-time stamp)
-- `src/pages/admin/AdminTeachers.tsx` (label)
-- `src/pages/Index.tsx` (hero logo, mandala, buttons, heading fade, brand lockup)
-- `src/pages/About.tsx` (founder fade, message contrast, rotating chakra)
-- `src/index.css` (marquee keyframe smoothing if needed)
-
-## Open question
-
-For the **chakra rotation** on About — there isn't an obvious single "red circle" in the source. Do you mean (a) the maroon timeline dots in the Foundation section, (b) a decorative element I should add, or (c) something else visible on screen I should screenshot first? Default if unanswered: I'll add a rotating decorative chakra SVG behind the founder photo.
+## Open question (Item 5)
+"Sadguru's message we can change in the about page with a different image" — I'm reading this as: keep Sadguru on both pages, but on About use a **different photo + a different message**. Confirm — or if you actually meant "remove Sadguru's section from About entirely and only keep institutional content there", say so and I'll adjust.
