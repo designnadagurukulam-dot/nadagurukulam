@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { MessageSquare, Star, Filter, MessageCircle, Eye, ChevronDown, ChevronUp, Download, Send, BarChart2 } from "lucide-react";
+import { MessageSquare, Star, Filter, MessageCircle, Eye, ChevronDown, ChevronUp, Download, Send, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,23 +9,28 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { logActivity } from "@/lib/activityLogger";
-
-const RATING_COLORS = ["hsl(0 72% 40%)", "hsl(24 95% 53%)", "hsl(40 75% 52%)", "hsl(84 65% 45%)", "hsl(142 71% 45%)"];
 
 const RATING_OPTIONS = [
   { value: "0", label: "All Ratings" },
   { value: "1", label: "1 star rating" },
   { value: "2", label: "2 star rating" },
   { value: "3", label: "3 star rating" },
-  { value: "4", label: "Above 4 star rating" },
-  { value: "5", label: "5 star rating" },
+  { value: "4", label: "4 star and above" },
 ];
+
+const renderStars = (rating: number, size = "h-3.5 w-3.5") => (
+  <div className="flex items-center gap-0.5">
+    {Array.from({ length: 5 }).map((_, i) => (
+      <Star key={i} className={`${size} ${i < Math.round(rating) ? "text-brand-gold fill-brand-gold" : "text-brand-parchment"}`} />
+    ))}
+  </div>
+);
 
 const AdminFeedback = () => {
   const { user } = useAuth();
@@ -39,13 +44,14 @@ const AdminFeedback = () => {
   const [instructorProfiles, setInstructorProfiles] = useState<Record<string, string>>({});
   const [responses, setResponses] = useState<Record<string, any[]>>({});
   const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(true);
   const [instructorFilter, setInstructorFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [ratingFilter, setRatingFilter] = useState("0");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
-  const [chartCollapsed, setChartCollapsed] = useState(false);
+  const [statsOpen, setStatsOpen] = useState(false);
 
   const fetchData = async () => {
     const { data } = await supabase.from("feedback").select("*").order("submitted_at", { ascending: false });
@@ -67,7 +73,6 @@ const AdminFeedback = () => {
       setInstructorProfiles(instrMap);
     }
 
-    // Fetch all responses
     const ids = items.map(i => i.id);
     if (ids.length) {
       const { data: resps } = await supabase.from("feedback_responses" as any).select("*").in("feedback_id", ids).order("created_at", { ascending: true });
@@ -79,23 +84,30 @@ const AdminFeedback = () => {
       setResponses(map);
     }
 
-    // Mark unread feedback as read for the admin badge
     const unreadIds = items.filter((i: any) => !i.read_by_admin).map(i => i.id);
     if (unreadIds.length) {
       await supabase.from("feedback").update({ read_by_admin: true } as any).in("id", unreadIds);
     }
-
     setLoading(false);
   };
 
   useEffect(() => { fetchData(); }, []);
 
   const parseCategoriesJson = (f: any): any[] | null => {
-    try {
-      const cats = f.categories;
-      if (Array.isArray(cats) && cats.length > 0) return cats;
-      return null;
-    } catch { return null; }
+    const cats = f.categories;
+    if (Array.isArray(cats) && cats.length > 0) return cats;
+    return null;
+  };
+
+  // Submission-level average: average of all category ratings on that one submission
+  const submissionAvg = (f: any): number => {
+    const cats = parseCategoriesJson(f);
+    if (cats) {
+      const rs = cats.map((c: any) => Number(c.rating || 0)).filter((n: number) => n > 0);
+      if (!rs.length) return 0;
+      return rs.reduce((a: number, b: number) => a + b, 0) / rs.length;
+    }
+    return Number(f.rating || 0);
   };
 
   const allCategories = useMemo(() => {
@@ -118,14 +130,56 @@ const AdminFeedback = () => {
     return ratingCount > 0 ? (totalRating / ratingCount).toFixed(1) : "—";
   }, [feedback]);
 
-  const ratingDistribution = useMemo(() => {
-    const dist = [0, 0, 0, 0, 0];
+  // Per-category averages for the stats popup
+  const categoryStats = useMemo(() => {
+    const acc: Record<string, { sum: number; n: number }> = {};
     feedback.forEach(f => {
       const cats = parseCategoriesJson(f);
-      if (cats) cats.forEach((c: any) => { if (c.rating >= 1 && c.rating <= 5) dist[c.rating - 1]++; });
-      else if (f.rating >= 1 && f.rating <= 5) dist[f.rating - 1]++;
+      if (cats) cats.forEach((c: any) => {
+        const key = c.category || "General";
+        const r = Number(c.rating || 0);
+        if (r > 0) {
+          acc[key] = acc[key] || { sum: 0, n: 0 };
+          acc[key].sum += r; acc[key].n += 1;
+        }
+      });
+      else if (f.rating) {
+        const key = f.category || "General";
+        acc[key] = acc[key] || { sum: 0, n: 0 };
+        acc[key].sum += Number(f.rating); acc[key].n += 1;
+      }
     });
-    return dist.map((count, i) => ({ stars: `${i + 1}★`, count }));
+    return Object.entries(acc).map(([cat, v]) => ({ cat, avg: v.sum / v.n, n: v.n })).sort((a, b) => b.avg - a.avg);
+  }, [feedback]);
+
+  // Per-instructor averages (top 5)
+  const instructorStats = useMemo(() => {
+    const acc: Record<string, { sum: number; n: number }> = {};
+    feedback.forEach(f => {
+      if (!f.instructor_id) return;
+      const avg = submissionAvg(f);
+      if (avg > 0) {
+        acc[f.instructor_id] = acc[f.instructor_id] || { sum: 0, n: 0 };
+        acc[f.instructor_id].sum += avg; acc[f.instructor_id].n += 1;
+      }
+    });
+    return Object.entries(acc).map(([id, v]) => ({ name: instructorProfiles[id] || "Instructor", avg: v.sum / v.n, n: v.n }))
+      .sort((a, b) => b.avg - a.avg).slice(0, 5);
+  }, [feedback, instructorProfiles]);
+
+  const overallStats = useMemo(() => {
+    const subs = feedback.length;
+    const raters = new Set(feedback.map(f => f.student_id)).size;
+    const allRatings: number[] = [];
+    feedback.forEach(f => {
+      const cats = parseCategoriesJson(f);
+      if (cats) cats.forEach((c: any) => { if (c.rating) allRatings.push(Number(c.rating)); });
+      else if (f.rating) allRatings.push(Number(f.rating));
+    });
+    const sorted = [...allRatings].sort((a, b) => a - b);
+    const median = sorted.length ? (sorted.length % 2 ? sorted[(sorted.length - 1) / 2] : (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2) : 0;
+    const pctHigh = sorted.length ? (sorted.filter(r => r >= 4).length / sorted.length) * 100 : 0;
+    return { subs, raters, median: median.toFixed(1), pctHigh: pctHigh.toFixed(0) };
   }, [feedback]);
 
   const clearFilters = () => {
@@ -144,12 +198,11 @@ const AdminFeedback = () => {
       const minRating = Number(ratingFilter);
       if (minRating > 0) {
         const cats = parseCategoriesJson(f);
-        // For "Above 4 star rating" we want rating > 4 (i.e., 5). For others, exact rating match.
         if (minRating === 4) {
-          // "Above 4 star rating" -> rating must be strictly > 4
+          // "4 star and above" -> any rating >= 4
           if (cats) {
-            if (!cats.some((c: any) => Number(c.rating || 0) > 4)) return false;
-          } else if (Number(f.rating || 0) <= 4) return false;
+            if (!cats.some((c: any) => Number(c.rating || 0) >= 4)) return false;
+          } else if (Number(f.rating || 0) < 4) return false;
         } else {
           if (cats) {
             if (!cats.some((c: any) => Number(c.rating || 0) === minRating)) return false;
@@ -211,8 +264,8 @@ const AdminFeedback = () => {
     return (
       <div className="space-y-6 pt-2">
         <Skeleton className="h-10 w-48 rounded-xl" />
-        <div className="grid grid-cols-3 gap-4">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-24 rounded-2xl" />)}</div>
-        {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-28 rounded-2xl" />)}
+        <div className="grid grid-cols-2 gap-4">{Array.from({ length: 2 }).map((_, i) => <Skeleton key={i} className="h-24 rounded-2xl" />)}</div>
+        {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-20 rounded-2xl" />)}
       </div>
     );
   }
@@ -236,51 +289,32 @@ const AdminFeedback = () => {
         </div>
       </motion.div>
 
-      {/* Summary tiles: Total, Avg, Compact Distribution */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {[
-          { label: "Total Feedback", value: feedback.length, icon: MessageSquare, gradient: "from-brand-primary to-brand-primary-dark" },
-          { label: "Average Rating", value: avgRating, icon: Star, gradient: "from-brand-gold to-amber-600", isStar: true },
-        ].map((s, i) => (
-          <motion.div key={s.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
-            <div className="group bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-5 flex items-center gap-4 hover:-translate-y-0.5 hover:shadow-[0_4px_30px_rgba(196,154,60,0.15)] transition-all duration-300">
-              <div className={`w-11 h-11 rounded-full bg-gradient-to-br ${s.gradient} flex items-center justify-center shadow-lg`}>
-                <s.icon className="h-5 w-5 text-white" />
-              </div>
-              <div>
-                <div className="flex items-center gap-1">
-                  {s.isStar && <Star className="h-4 w-4 text-brand-gold fill-brand-gold" />}
-                  <p className="font-serif text-3xl font-bold text-brand-primary">{s.value}</p>
-                </div>
-                <p className="text-[11px] uppercase tracking-widest text-brand-warm-grey font-semibold">{s.label}</p>
-              </div>
-            </div>
-          </motion.div>
-        ))}
-        {/* Compact rating distribution tile */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-          className="bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-4">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-[11px] uppercase tracking-widest text-brand-warm-grey font-semibold flex items-center gap-1.5">
-              <BarChart2 className="h-3.5 w-3.5 text-brand-gold" /> Rating Distribution
-            </p>
-            <button onClick={() => setChartCollapsed(!chartCollapsed)} className="text-brand-warm-grey hover:text-brand-primary">
-              {chartCollapsed ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronUp className="h-3.5 w-3.5" />}
-            </button>
+      {/* Summary tiles */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="group bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-5 flex items-center gap-4">
+          <div className="w-11 h-11 rounded-full bg-gradient-to-br from-brand-primary to-brand-primary-dark flex items-center justify-center shadow-lg">
+            <MessageSquare className="h-5 w-5 text-white" />
           </div>
-          {!chartCollapsed && (
-            <ResponsiveContainer width="100%" height={70}>
-              <BarChart data={ratingDistribution} layout="vertical" barCategoryGap="20%">
-                <XAxis type="number" hide />
-                <YAxis dataKey="stars" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#8C7B6B' }} width={26} />
-                <Tooltip formatter={(v: number) => [`${v}`, 'Ratings']} contentStyle={{ borderRadius: 12, border: '0', boxShadow: '0 2px 16px hsl(1 57% 30% / 0.08)', fontSize: 11 }} />
-                <Bar dataKey="count" radius={[0, 6, 6, 0]}>
-                  {ratingDistribution.map((_, i) => <Cell key={i} fill={RATING_COLORS[i]} />)}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          )}
-        </motion.div>
+          <div>
+            <p className="font-serif text-3xl font-bold text-brand-primary">{feedback.length}</p>
+            <p className="text-[11px] uppercase tracking-widest text-brand-warm-grey font-semibold">Total Feedback</p>
+          </div>
+        </div>
+        <button
+          onClick={() => setStatsOpen(true)}
+          className="group bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-5 flex items-center gap-4 text-left hover:-translate-y-0.5 hover:shadow-[0_4px_30px_rgba(196,154,60,0.18)] transition-all duration-300 cursor-pointer"
+        >
+          <div className="w-11 h-11 rounded-full bg-gradient-to-br from-brand-gold to-amber-600 flex items-center justify-center shadow-lg">
+            <Star className="h-5 w-5 text-white" />
+          </div>
+          <div className="flex-1">
+            <div className="flex items-center gap-1">
+              <Star className="h-4 w-4 text-brand-gold fill-brand-gold" />
+              <p className="font-serif text-3xl font-bold text-brand-primary">{avgRating}</p>
+            </div>
+            <p className="text-[11px] uppercase tracking-widest text-brand-warm-grey font-semibold">Average Rating · Click for details</p>
+          </div>
+        </button>
       </div>
 
       {/* Filters */}
@@ -328,7 +362,7 @@ const AdminFeedback = () => {
         <Button variant="ghost" size="sm" onClick={clearFilters} className="text-brand-warm-grey underline self-end">Clear filters</Button>
       </div>
 
-      {/* Feedback list */}
+      {/* Feedback list — collapsible */}
       {filtered.length === 0 ? (
         <div className="bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] py-16 text-center">
           <div className="w-14 h-14 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 flex items-center justify-center mx-auto mb-4">
@@ -343,49 +377,65 @@ const AdminFeedback = () => {
             const cats = parseCategoriesJson(f);
             const replies = responses[f.id] || [];
             const submitterName = profiles[f.student_id] || "Student";
+            const isOpen = !!expanded[f.id];
+            const avg = submissionAvg(f);
+            const aboutLabel = f.instructor_id && instructorProfiles[f.instructor_id]
+              ? `Feedback on: ${instructorProfiles[f.instructor_id]}`
+              : "Feedback on: General";
             return (
-              <motion.div key={f.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}>
-                <div className="bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-5">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2 flex-wrap">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 flex items-center justify-center text-brand-primary font-serif font-bold text-xs">
-                          {submitterName[0]?.toUpperCase() || "S"}
-                        </div>
-                        <span className="font-medium text-sm text-brand-charcoal">{submitterName}</span>
-                        {f.instructor_id && instructorProfiles[f.instructor_id] && (
-                          <Badge className="bg-brand-cream-dark text-brand-charcoal-mid border-0 text-[10px]">
-                            → {instructorProfiles[f.instructor_id]}
-                          </Badge>
-                        )}
-                        {f.category && !cats && (
-                          <Badge className="bg-brand-gold-pale text-brand-gold-dark border border-brand-parchment text-[10px]">{f.category}</Badge>
-                        )}
-                        <span className="ml-auto text-xs text-brand-warm-grey">{f.submitted_at ? new Date(f.submitted_at).toLocaleDateString() : ""}</span>
+              <motion.div key={f.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.02 }}>
+                <div className="bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] overflow-hidden">
+                  {/* Collapsed header */}
+                  <button
+                    onClick={() => setExpanded({ ...expanded, [f.id]: !isOpen })}
+                    className="w-full flex items-center gap-3 p-4 hover:bg-brand-cream/40 transition-colors text-left"
+                  >
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 flex items-center justify-center text-brand-primary font-serif font-bold text-xs shrink-0">
+                      {submitterName[0]?.toUpperCase() || "S"}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-semibold text-sm text-brand-charcoal">{submitterName}</span>
+                        <Badge className="bg-brand-cream-dark text-brand-charcoal-mid border-0 text-[10px]">{aboutLabel}</Badge>
+                        {replies.length > 0 && <Badge className="bg-brand-gold-pale text-brand-gold-dark border-0 text-[10px]">{replies.length} reply</Badge>}
                       </div>
+                      <p className="text-[11px] text-brand-warm-grey mt-1">
+                        Submitted {f.submitted_at ? new Date(f.submitted_at).toLocaleDateString() : ""}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {renderStars(avg)}
+                      <span className="text-sm font-bold text-brand-primary tabular-nums">{avg.toFixed(1)}</span>
+                      {isOpen ? <ChevronUp className="h-4 w-4 text-brand-warm-grey" /> : <ChevronDown className="h-4 w-4 text-brand-warm-grey" />}
+                    </div>
+                  </button>
 
-                      {/* Categories or single comment — always visible */}
+                  {/* Expanded body */}
+                  {isOpen && (
+                    <div className="px-5 pb-5 pt-1 border-t border-brand-parchment/60">
                       {cats ? (
-                        <div className="space-y-2.5 mt-2">
+                        <div className="space-y-2.5 mt-3">
                           {cats.map((cat: any, ci: number) => (
                             <div key={ci} className="bg-brand-cream/60 rounded-xl p-3 border border-brand-parchment/50">
-                              <div className="flex items-center justify-between mb-1">
+                              <div className="flex items-center justify-between mb-1 flex-wrap gap-2">
                                 <Badge className="bg-brand-gold-pale text-brand-gold-dark border border-brand-parchment text-[10px]">{cat.category}</Badge>
-                                <div className="flex items-center gap-0.5">
-                                  {Array.from({ length: 5 }).map((_, si) => (
-                                    <Star key={si} className={`h-3 w-3 ${si < cat.rating ? "text-brand-gold fill-brand-gold" : "text-brand-parchment"}`} />
-                                  ))}
-                                </div>
+                                {renderStars(Number(cat.rating || 0))}
                               </div>
-                              <p className="text-sm text-brand-charcoal/80 leading-relaxed">{cat.comment}</p>
+                              {cat.comment ? (
+                                <p className="text-sm text-brand-charcoal/80 leading-relaxed">{cat.comment}</p>
+                              ) : (
+                                <p className="text-xs text-brand-warm-grey italic">No comment</p>
+                              )}
                             </div>
                           ))}
                         </div>
                       ) : (
-                        <p className="text-sm text-brand-charcoal/80 leading-relaxed">{f.message}</p>
+                        <div className="mt-3 bg-brand-cream/60 rounded-xl p-3 border border-brand-parchment/50">
+                          {f.category && <Badge className="bg-brand-gold-pale text-brand-gold-dark border border-brand-parchment text-[10px] mb-2">{f.category}</Badge>}
+                          <p className="text-sm text-brand-charcoal/80 leading-relaxed">{f.message}</p>
+                        </div>
                       )}
 
-                      {/* Existing replies */}
                       {replies.length > 0 && (
                         <div className="mt-3 space-y-2">
                           {replies.map((r: any) => (
@@ -399,7 +449,6 @@ const AdminFeedback = () => {
                         </div>
                       )}
 
-                      {/* Reply form */}
                       <div className="mt-3 flex gap-2 items-start">
                         <Textarea
                           placeholder="Reply to this feedback…"
@@ -413,26 +462,72 @@ const AdminFeedback = () => {
                         </Button>
                       </div>
                     </div>
-                    {f.rating && !cats && (
-                      <div className="flex items-center gap-0.5 shrink-0">
-                        {Array.from({ length: 5 }).map((_, idx) => (
-                          <Star key={idx} className={`h-4 w-4 ${idx < f.rating ? "text-brand-gold fill-brand-gold" : "text-brand-parchment"}`} />
-                        ))}
-                      </div>
-                    )}
-                    {f.rating && cats && (
-                      <div className="flex items-center gap-1 shrink-0">
-                        <Star className="h-4 w-4 text-brand-gold fill-brand-gold" />
-                        <span className="text-sm font-bold text-brand-primary">{f.rating}</span>
-                      </div>
-                    )}
-                  </div>
+                  )}
                 </div>
               </motion.div>
             );
           })}
         </div>
       )}
+
+      {/* Average Rating details dialog */}
+      <Dialog open={statsOpen} onOpenChange={setStatsOpen}>
+        <DialogContent className="max-w-2xl rounded-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="font-serif text-xl text-brand-primary flex items-center gap-2">
+              <Star className="h-5 w-5 text-brand-gold fill-brand-gold" /> Rating Breakdown
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-2">
+            {[
+              { label: "Submissions", value: overallStats.subs },
+              { label: "Unique Raters", value: overallStats.raters },
+              { label: "Median Rating", value: overallStats.median },
+              { label: "≥ 4★ Share", value: `${overallStats.pctHigh}%` },
+            ].map((s) => (
+              <div key={s.label} className="bg-brand-cream/60 rounded-xl p-3 border border-brand-parchment/60">
+                <p className="font-serif text-xl font-bold text-brand-primary">{s.value}</p>
+                <p className="text-[10px] uppercase tracking-widest text-brand-warm-grey font-semibold mt-0.5">{s.label}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-5">
+            <h3 className="font-serif text-base font-semibold text-brand-primary mb-2">Average Per Category</h3>
+            {categoryStats.length === 0 ? (
+              <p className="text-sm text-brand-warm-grey">No category ratings yet.</p>
+            ) : (
+              <div className="space-y-2">
+                {categoryStats.map((c) => (
+                  <div key={c.cat} className="flex items-center gap-3 bg-white rounded-xl border border-brand-parchment/60 p-2.5">
+                    <span className="text-sm font-medium text-brand-charcoal flex-1 truncate">{c.cat}</span>
+                    {renderStars(c.avg)}
+                    <span className="text-sm font-bold text-brand-primary tabular-nums w-12 text-right">{c.avg.toFixed(1)}</span>
+                    <span className="text-[11px] text-brand-warm-grey w-16 text-right">{c.n} rating{c.n === 1 ? "" : "s"}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {instructorStats.length > 0 && (
+            <div className="mt-5">
+              <h3 className="font-serif text-base font-semibold text-brand-primary mb-2">Top Instructors</h3>
+              <div className="space-y-2">
+                {instructorStats.map((it) => (
+                  <div key={it.name} className="flex items-center gap-3 bg-white rounded-xl border border-brand-parchment/60 p-2.5">
+                    <span className="text-sm font-medium text-brand-charcoal flex-1 truncate">{it.name}</span>
+                    {renderStars(it.avg)}
+                    <span className="text-sm font-bold text-brand-primary tabular-nums w-12 text-right">{it.avg.toFixed(1)}</span>
+                    <span className="text-[11px] text-brand-warm-grey w-16 text-right">{it.n} feedback</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
