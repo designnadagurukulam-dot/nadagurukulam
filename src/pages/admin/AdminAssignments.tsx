@@ -151,7 +151,7 @@ const AdminAssignments = () => {
                       <div className="flex items-start gap-2 text-xs">
                         <User className="h-3.5 w-3.5 text-brand-gold mt-0.5 shrink-0" />
                         <div>
-                          <p className="font-semibold uppercase tracking-widest text-brand-warm-grey text-[10px]">Tutor</p>
+                          <p className="font-semibold uppercase tracking-widest text-brand-warm-grey text-[10px]">Faculty</p>
                           <p className="text-brand-charcoal mt-0.5">{profiles[a.instructor_id] || "—"}</p>
                         </div>
                       </div>

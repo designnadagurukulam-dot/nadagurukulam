@@ -1,16 +1,17 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { MessageSquare, Shield, Search, Users, Mail, Clock, Send, ArrowLeft } from "lucide-react";
+import { MessageSquare, Shield, Search, Users, Mail, Clock, ArrowLeft } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format, isToday } from "date-fns";
+import { ChatComposer } from "@/components/chat/ChatComposer";
+import { MessageBubble } from "@/components/chat/MessageBubble";
 
 const AdminMessages = () => {
   const { user, role } = useAuth();
@@ -19,8 +20,6 @@ const AdminMessages = () => {
   
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedContact, setSelectedContact] = useState<string | null>(null);
-  const [message, setMessage] = useState("");
-  const [sending, setSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // For super_admin: load all conversations (read-only monitor)
@@ -119,13 +118,7 @@ const AdminMessages = () => {
 
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [thread]);
 
-  const handleSend = async () => {
-    if (!message.trim() || !selectedContact || !user || isSuperAdmin) return;
-    setSending(true);
-    await supabase.from("messages").insert({ sender_id: user.id, receiver_id: selectedContact, content: message.trim() });
-    setMessage(""); setSending(false);
-    queryClient.invalidateQueries({ queryKey: ["admin-thread"] });
-  };
+  const handleSent = () => queryClient.invalidateQueries({ queryKey: ["admin-thread"] });
 
   const getInitials = (name: string) => name?.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase() || "?";
 
@@ -341,14 +334,15 @@ const AdminMessages = () => {
                     </div>
                   ) : thread.map((msg: any) => {
                     const isLeft = isSuperAdmin ? msg.sender_id === threadPartners?.a : msg.sender_id !== user?.id;
+                    const isMine = !isSuperAdmin && msg.sender_id === user?.id;
                     return (
-                      <div key={msg.id} className={`flex ${isLeft ? "justify-start" : "justify-end"}`}>
-                        <div className={`max-w-[85%] sm:max-w-[75%] px-3.5 py-2.5 rounded-2xl text-sm ${isLeft ? "bg-brand-cream-dark text-brand-charcoal-mid rounded-bl-md" : "bg-gradient-to-br from-brand-primary/80 to-brand-primary-dark text-primary-foreground rounded-br-md"}`}>
-                          {isSuperAdmin && <p className={`text-[10px] font-semibold mb-0.5 ${isLeft ? "text-brand-primary" : "text-brand-gold-light"}`}>{nameMap[msg.sender_id] || "User"}</p>}
-                          <p>{msg.content}</p>
-                          <p className={`text-[10px] mt-1 ${isLeft ? "text-brand-warm-grey" : "text-primary-foreground/50"}`}>{format(new Date(msg.created_at), "h:mm a")}</p>
-                        </div>
-                      </div>
+                      <MessageBubble
+                        key={msg.id}
+                        message={msg}
+                        isMine={isMine}
+                        alignLeft={isLeft}
+                        senderLabel={isSuperAdmin ? (nameMap[msg.sender_id] || "User") : undefined}
+                      />
                     );
                   })}
                   <div ref={messagesEndRef} />
@@ -361,10 +355,9 @@ const AdminMessages = () => {
                   </p>
                 </div>
               ) : (
-                <div className="p-2.5 sm:p-3 border-t border-brand-parchment flex gap-2 bg-card">
-                  <Input value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Type a message..." className="rounded-xl border-brand-parchment focus:border-brand-gold focus:ring-brand-gold/20 h-11" onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()} />
-                  <Button onClick={handleSend} disabled={!message.trim() || sending} size="icon" className="bg-gradient-to-r from-brand-primary to-brand-primary-dark shrink-0 rounded-xl w-11 h-11 shadow-lg"><Send className="h-4 w-4" /></Button>
-                </div>
+                user && selectedContact && (
+                  <ChatComposer userId={user.id} receiverId={selectedContact} onSent={handleSent} />
+                )
               )}
             </Card>
           ) : (

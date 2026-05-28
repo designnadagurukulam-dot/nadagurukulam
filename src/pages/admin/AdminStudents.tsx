@@ -253,7 +253,7 @@ const AdminStudents = ({ lockedRole }: { lockedRole?: AppRole } = {}) => {
       const r = roles[p.user_id] || "student";
       return {
         Name: p.display_name || "Unnamed",
-        "User Type": r === "super_admin" ? "Super Admin" : r === "admin" ? "Admin" : r === "instructor" ? "Instructor" : "Student",
+        "User Type": r === "super_admin" ? "Super Admin" : r === "admin" ? "Admin" : r === "instructor" ? "Faculty" : "Student",
         Status: p.is_verified ? "Verified" : "Pending",
         "Date Joined": new Date(p.created_at).toLocaleDateString(),
         "ID / Roll No.": p.roll_number || p.employee_id || p.enrollment_id || "—",
@@ -302,7 +302,7 @@ const AdminStudents = ({ lockedRole }: { lockedRole?: AppRole } = {}) => {
   const roleLabels: Record<string, string> = {
     super_admin: "Super Admin",
     admin: "Admin",
-    instructor: "Instructor",
+    instructor: "Faculty",
     student: "Student",
   };
 
@@ -334,7 +334,7 @@ const AdminStudents = ({ lockedRole }: { lockedRole?: AppRole } = {}) => {
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {[
           { label: "Students", value: studentCount, icon: GraduationCap, onClick: () => { setRoleFilter("student"); setStatusFilter("all"); } },
-          { label: "Instructors", value: instructorCount, icon: BookOpen, onClick: () => { setRoleFilter("instructor"); setStatusFilter("all"); } },
+          { label: "Faculty", value: instructorCount, icon: BookOpen, onClick: () => { setRoleFilter("instructor"); setStatusFilter("all"); } },
           { label: "Admins", value: adminCount, icon: ShieldCheck, onClick: () => { setRoleFilter("admin"); setStatusFilter("all"); } },
           { label: "Pending Verification", value: pendingCount, icon: Clock3, onClick: () => { setRoleFilter("all"); setStatusFilter("pending"); } },
         ].map((s, i) => (
@@ -361,7 +361,7 @@ const AdminStudents = ({ lockedRole }: { lockedRole?: AppRole } = {}) => {
             <SelectContent>
               <SelectItem value="all">All Users</SelectItem>
               <SelectItem value="student">Students</SelectItem>
-              <SelectItem value="instructor">Instructors</SelectItem>
+              <SelectItem value="instructor">Faculty</SelectItem>
               <SelectItem value="admin">Admins</SelectItem>
             </SelectContent>
           </Select>
@@ -450,7 +450,7 @@ const AdminStudents = ({ lockedRole }: { lockedRole?: AppRole } = {}) => {
                           <SelectTrigger className="min-h-10 w-[140px] rounded-xl text-xs"><SelectValue /></SelectTrigger>
                           <SelectContent>
                             <SelectItem value="student">Student</SelectItem>
-                            <SelectItem value="instructor">Instructor</SelectItem>
+                            <SelectItem value="instructor">Faculty</SelectItem>
                             <SelectItem value="admin">Admin</SelectItem>
                           </SelectContent>
                         </Select>

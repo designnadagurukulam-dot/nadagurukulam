@@ -48,7 +48,7 @@ const StudentLiveClasses = () => {
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="font-serif font-bold text-brand-charcoal-mid text-sm sm:text-base">{cls.title}</h3>
-              <p className="text-xs sm:text-sm text-brand-warm-grey mt-0.5">{cls.profiles?.display_name || "Tutor"}</p>
+              <p className="text-xs sm:text-sm text-brand-warm-grey mt-0.5">{cls.profiles?.display_name || "Faculty"}</p>
               {cls.description && <p className="text-[10px] sm:text-xs text-brand-warm-grey mt-2 line-clamp-2">{cls.description}</p>}
             </div>
             {live && (

@@ -324,7 +324,7 @@ const AdminBatches = () => {
                 <th className="p-3 text-left">Duration</th>
                 <th className="p-3 text-left">Students</th>
                 <th className="p-3 text-left">Courses</th>
-                <th className="p-3 text-left">Tutor</th>
+                <th className="p-3 text-left">Faculty</th>
               </tr>
             </thead>
             <tbody>
@@ -531,7 +531,7 @@ const AdminBatches = () => {
                   <SelectContent>{Array.from({ length: programById.get(form.program_id)?.total_semesters || 8 }, (_, i) => i + 1).map((n) => <SelectItem key={n} value={String(n)}>Sem {n}</SelectItem>)}</SelectContent>
                 </Select>
               </Field>
-              <Field label="Tutor">
+              <Field label="Faculty">
                 <Select value={form.instructor_id} onValueChange={(instructor_id) => setForm({ ...form, instructor_id })}>
                   <SelectTrigger><SelectValue placeholder="Assign tutor" /></SelectTrigger>
                   <SelectContent>{instructors.map((i) => <SelectItem key={i.user_id} value={i.user_id}>{i.display_name || i.user_id.slice(0, 8)}</SelectItem>)}</SelectContent>

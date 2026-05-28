@@ -208,7 +208,7 @@ const Register = ({ roleType = "student" }: RegisterProps) => {
           </div>
 
           <h1 className="font-serif text-3xl text-foreground mb-2">
-            {isEducator ? "Tutor Registration" : "Student Registration"}
+            {isEducator ? "Faculty Registration" : "Student Registration"}
           </h1>
           <p className="text-muted-foreground mb-8">
             {isEducator ? "Create your tutor account" : "Sign up to start your learning journey"}
@@ -369,7 +369,7 @@ const Register = ({ roleType = "student" }: RegisterProps) => {
                   </div>
                   <div>
                     <label className="text-sm font-medium text-foreground mb-1.5 block">Designation</label>
-                    <Input placeholder="e.g. Senior Instructor – Carnatic Vocal" value={designation} onChange={(e) => setDesignation(e.target.value)} className={inputClass} />
+                    <Input placeholder="e.g. Senior Faculty – Carnatic Vocal" value={designation} onChange={(e) => setDesignation(e.target.value)} className={inputClass} />
                   </div>
                   <div>
                     <label className="text-sm font-medium text-foreground mb-1.5 block">Department</label>
@@ -459,7 +459,7 @@ const Register = ({ roleType = "student" }: RegisterProps) => {
             )}
 
             <Button type="submit" className="w-full h-12 rounded-xl text-base shadow-lg hover:shadow-xl transition-all" disabled={loading}>
-              {loading ? "Creating account..." : isEducator ? "Register as Tutor" : "Register as Student"}
+              {loading ? "Creating account..." : isEducator ? "Register as Faculty" : "Register as Student"}
             </Button>
           </form>
 
@@ -474,7 +474,7 @@ const Register = ({ roleType = "student" }: RegisterProps) => {
               </Link>
             ) : (
               <Link to="/register/tutor" className="text-muted-foreground hover:text-primary transition-colors">
-                Register as Tutor instead →
+                Register as Faculty instead →
               </Link>
             )}
           </p>

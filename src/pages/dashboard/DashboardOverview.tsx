@@ -309,7 +309,7 @@ const DashboardOverview = () => {
                       <div className="flex-1 min-w-0">
                         <p className="text-xs sm:text-sm font-semibold text-brand-charcoal truncate">{cls.title}</p>
                         <p className="text-[10px] sm:text-xs text-brand-warm-grey truncate">
-                          {cls.profiles?.display_name || "Tutor"} · {cls.meeting_platform === "google_meet" ? "Meet" : "Zoom"}
+                          {cls.profiles?.display_name || "Faculty"} · {cls.meeting_platform === "google_meet" ? "Meet" : "Zoom"}
                         </p>
                         {live && <span className="text-[10px] text-green-600 font-bold uppercase flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" /> LIVE NOW</span>}
                       </div>

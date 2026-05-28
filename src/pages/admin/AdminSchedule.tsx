@@ -213,7 +213,7 @@ const AdminSchedule = () => {
       const instructorConflict = hard.find(c => c.type === "instructor");
       const msgs: string[] = [];
       if (batchConflict) msgs.push(`Batch already has "${batchConflict.entry.event_title}" at ${format(new Date(batchConflict.entry.start_time), "PPp")}`);
-      if (instructorConflict) msgs.push(`Instructor already has "${instructorConflict.entry.event_title}" at ${format(new Date(instructorConflict.entry.start_time), "PPp")}`);
+      if (instructorConflict) msgs.push(`Faculty already has "${instructorConflict.entry.event_title}" at ${format(new Date(instructorConflict.entry.start_time), "PPp")}`);
       toast({ title: "Scheduling conflict", description: msgs.join(" · "), variant: "destructive" });
       return;
     }
@@ -303,17 +303,17 @@ const AdminSchedule = () => {
           <SelectContent>
             <SelectItem value="all">All</SelectItem>
             <SelectItem value="batch">By Batch</SelectItem>
-            <SelectItem value="instructor">By Tutor</SelectItem>
+            <SelectItem value="instructor">By Faculty</SelectItem>
           </SelectContent>
         </Select>
         {filterMode !== "all" && (
           <Select value={filterValue} onValueChange={setFilterValue}>
             <SelectTrigger className="w-56"><SelectValue placeholder="Select filter" /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All {filterMode === "batch" ? "Batches" : "Tutors"}</SelectItem>
+              <SelectItem value="all">All {filterMode === "batch" ? "Batches" : "Faculty"}</SelectItem>
               {filterMode === "batch"
                 ? batches.map((b) => <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>)
-                : instructors.map((i) => <SelectItem key={i.user_id} value={i.user_id}>{i.display_name || "Tutor"}</SelectItem>)}
+                : instructors.map((i) => <SelectItem key={i.user_id} value={i.user_id}>{i.display_name || "Faculty"}</SelectItem>)}
             </SelectContent>
           </Select>
         )}
@@ -465,7 +465,7 @@ const AdminSchedule = () => {
             {(form.moduleId || form.batchId) && (
               <div className="rounded-xl bg-brand-cream/60 border border-brand-parchment p-3 text-xs text-brand-charcoal/80 grid grid-cols-2 gap-2">
                 <div><span className="font-semibold">Semester:</span> {modules.find(m => m.id === form.moduleId)?.semester ?? batches.find(b => b.id === form.batchId)?.semester ?? "—"}</div>
-                <div><span className="font-semibold">Tutor:</span> {tutorName(form.instructorId) || "—"}</div>
+                <div><span className="font-semibold">Faculty:</span> {tutorName(form.instructorId) || "—"}</div>
                 <div><span className="font-semibold">Course Code:</span> {modules.find(m => m.id === form.moduleId)?.course_code || "—"}</div>
                 <div><span className="font-semibold">Batch:</span> {batches.find(b => b.id === form.batchId)?.name || "—"}</div>
               </div>

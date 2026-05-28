@@ -168,7 +168,7 @@ const TutorLessonPlans = () => {
     ["Contact Hrs / Week", contactHours],
     ["Course Name", m?.subject_name || m?.module_name || "—"],
     ["No. of Credits", m?.credits ?? "—"],
-    ["Instructor Name", profile?.display_name || "—"],
+    ["Faculty Name", profile?.display_name || "—"],
     ["Designation", (profile as any)?.designation || "—"],
     ["CIE Marks", m?.assessment_cie_marks ?? "—"],
     ["SEE Marks", m?.assessment_see_marks ?? "—"],

@@ -125,7 +125,7 @@ export const facultyMembers: FacultyMember[] = [
     experienceDetails: [
       "Assistant Professor & HOD, Department of Performing Arts – Sri Sathya Sai University for Human Excellence, Kalaburagi, Muddenahalli Campus (Present)",
       "Assistant Professor, Department of Tabla – Karnataka State Dr Gangubai Hangal Music and Performing Arts University, Mysore (2014 onwards). Taught PG, UG, and Diploma courses. Appointed as NSS Coordinator for 5 years; University awarded 'Swachh Campus' by MHRD, Government of India (2019). Served as Academic Coordinator (2019).",
-      "Tabla Instructor (Certificate Courses) – KSGH Music and Performing Arts University, Mysore",
+      "Tabla Faculty (Certificate Courses) – KSGH Music and Performing Arts University, Mysore",
       "Accompanist (PG Department of Music & Fine Arts) – Karnataka University, Dharwad (2008–2012)",
       "Visiting Guest Lecturer – Centre for Performing Arts, Women's University, Vijayapur",
       "Author: Bharatiya Tabala Mantrikaru and contributor of multiple research papers in international and national journals.",

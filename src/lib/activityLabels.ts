@@ -55,8 +55,8 @@ export const ACTIVITY_LABELS: Record<string, string> = {
   "feedback.replied": "Feedback Replied",
   "curriculum.sections_added": "Curriculum Sections Added",
   "live_class.created": "Live Class Scheduled",
-  "teacher.batch_assigned": "Tutor Assigned to Batch",
-  "teacher.subjects_assigned": "Subjects Assigned to Tutor",
+  "teacher.batch_assigned": "Faculty Assigned to Batch",
+  "teacher.subjects_assigned": "Subjects Assigned to Faculty",
   "user.role_changed": "Role Changed",
 };
 

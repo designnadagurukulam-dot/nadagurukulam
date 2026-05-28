@@ -67,7 +67,7 @@ const AdminFeedback = () => {
       const instrMap: Record<string, string> = {};
       (profs || []).forEach(p => {
         if (studentIds.includes(p.user_id)) studentMap[p.user_id] = p.display_name || "Student";
-        if (instructorIds.includes(p.user_id)) instrMap[p.user_id] = p.display_name || "Instructor";
+        if (instructorIds.includes(p.user_id)) instrMap[p.user_id] = p.display_name || "Faculty";
       });
       setProfiles(studentMap);
       setInstructorProfiles(instrMap);
@@ -163,7 +163,7 @@ const AdminFeedback = () => {
         acc[f.instructor_id].sum += avg; acc[f.instructor_id].n += 1;
       }
     });
-    return Object.entries(acc).map(([id, v]) => ({ name: instructorProfiles[id] || "Instructor", avg: v.sum / v.n, n: v.n }))
+    return Object.entries(acc).map(([id, v]) => ({ name: instructorProfiles[id] || "Faculty", avg: v.sum / v.n, n: v.n }))
       .sort((a, b) => b.avg - a.avg).slice(0, 5);
   }, [feedback, instructorProfiles]);
 
@@ -323,11 +323,11 @@ const AdminFeedback = () => {
           <Filter className="h-4 w-4 text-brand-gold" />
         </div>
         <div>
-          <label className="text-[10px] text-brand-warm-grey uppercase tracking-wide font-bold block mb-1">About Tutor</label>
+          <label className="text-[10px] text-brand-warm-grey uppercase tracking-wide font-bold block mb-1">About Faculty</label>
           <Select value={instructorFilter} onValueChange={setInstructorFilter}>
-            <SelectTrigger className="w-44"><SelectValue placeholder="Tutor" /></SelectTrigger>
+            <SelectTrigger className="w-44"><SelectValue placeholder="Faculty" /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Tutors</SelectItem>
+              <SelectItem value="all">All Faculty</SelectItem>
               {instructorOptions.map(([id, name]) => <SelectItem key={id} value={id}>{name}</SelectItem>)}
             </SelectContent>
           </Select>
@@ -513,7 +513,7 @@ const AdminFeedback = () => {
 
           {instructorStats.length > 0 && (
             <div className="mt-5">
-              <h3 className="font-serif text-base font-semibold text-brand-primary mb-2">Top Instructors</h3>
+              <h3 className="font-serif text-base font-semibold text-brand-primary mb-2">Top Faculty</h3>
               <div className="space-y-2">
                 {instructorStats.map((it) => (
                   <div key={it.name} className="flex items-center gap-3 bg-white rounded-xl border border-brand-parchment/60 p-2.5">

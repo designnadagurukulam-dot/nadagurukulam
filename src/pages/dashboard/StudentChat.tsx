@@ -1,22 +1,20 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { MessageSquare, Send, ArrowLeft, Search } from "lucide-react";
+import { MessageSquare, ArrowLeft, Search } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { ChatComposer } from "@/components/chat/ChatComposer";
+import { MessageBubble } from "@/components/chat/MessageBubble";
 
 const StudentChat = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [selectedTutor, setSelectedTutor] = useState<string | null>(null);
-  const [message, setMessage] = useState("");
-  const [sending, setSending] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -91,14 +89,7 @@ const StudentChat = () => {
 
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
 
-  const handleSend = async () => {
-    if (!message.trim() || !selectedTutor || !user) return;
-    setSending(true);
-    await supabase.from("messages").insert({ sender_id: user.id, receiver_id: selectedTutor, content: message.trim() });
-    setMessage("");
-    setSending(false);
-    queryClient.invalidateQueries({ queryKey: ["chat-messages"] });
-  };
+  const handleSent = () => queryClient.invalidateQueries({ queryKey: ["chat-messages"] });
 
   const getInitials = (name: string) => name?.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase() || "?";
   const selectedStaffProfile = staffList.find((t: any) => t.user_id === selectedTutor);
@@ -119,7 +110,7 @@ const StudentChat = () => {
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium text-brand-charcoal-mid truncate">{staff.display_name}</p>
-        <p className="text-xs text-brand-warm-grey truncate">{staff.designation || staff.department || (staff.role === 'admin' ? 'Admin' : 'Tutor')}</p>
+        <p className="text-xs text-brand-warm-grey truncate">{staff.designation || staff.department || (staff.role === 'admin' ? 'Admin' : 'Faculty')}</p>
       </div>
       {(unreadCounts as any)[staff.user_id] > 0 && (
         <Badge className="bg-gradient-to-r from-brand-primary to-brand-primary-dark text-primary-foreground text-[10px] h-5 min-w-[20px] flex items-center justify-center border-0">
@@ -207,7 +198,7 @@ const StudentChat = () => {
                 </div>
                 <div>
                   <p className="font-semibold text-sm text-primary-foreground truncate">{selectedStaffProfile?.display_name}</p>
-                  <p className="text-[10px] text-primary-foreground/50">{selectedStaffProfile?.designation || selectedStaffProfile?.department || (selectedStaffProfile?.role === 'admin' ? 'Admin' : 'Tutor')} · Online</p>
+                  <p className="text-[10px] text-primary-foreground/50">{selectedStaffProfile?.designation || selectedStaffProfile?.department || (selectedStaffProfile?.role === 'admin' ? 'Admin' : 'Faculty')} · Online</p>
                 </div>
               </div>
               <ScrollArea className="flex-1 p-3 sm:p-4">
@@ -220,38 +211,16 @@ const StudentChat = () => {
                       <p className="text-brand-warm-grey text-sm">No messages yet. Say hello! 👋</p>
                     </div>
                   ) : (
-                    messages.map((msg: any) => {
-                      const isMine = msg.sender_id === user?.id;
-                      return (
-                        <div key={msg.id} className={`flex ${isMine ? "justify-end" : "justify-start"}`}>
-                          <div className={`max-w-[85%] sm:max-w-[75%] px-3.5 sm:px-4 py-2.5 rounded-2xl text-sm ${
-                            isMine
-                              ? "bg-gradient-to-br from-brand-primary to-brand-primary-dark text-primary-foreground rounded-br-md"
-                              : "bg-brand-cream-dark text-brand-charcoal-mid rounded-bl-md"
-                          }`}>
-                            <p>{msg.content}</p>
-                            <p className={`text-[10px] mt-1 ${isMine ? "text-primary-foreground/50" : "text-brand-warm-grey"}`}>
-                              {format(new Date(msg.created_at), "h:mm a")}
-                            </p>
-                          </div>
-                        </div>
-                      );
-                    })
+                    messages.map((msg: any) => (
+                      <MessageBubble key={msg.id} message={msg} isMine={msg.sender_id === user?.id} />
+                    ))
                   )}
                   <div ref={messagesEndRef} />
                 </div>
               </ScrollArea>
-              <div className="p-2.5 sm:p-3 border-t border-brand-parchment flex gap-2 bg-card">
-                <Input
-                  value={message} onChange={(e) => setMessage(e.target.value)}
-                  placeholder="Type a message..."
-                  className="rounded-xl border-brand-parchment focus:border-brand-gold focus:ring-brand-gold/20 h-11"
-                  onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
-                />
-                <Button onClick={handleSend} disabled={!message.trim() || sending} size="icon" className="bg-gradient-to-r from-brand-primary to-brand-primary-dark hover:from-brand-primary-dark hover:to-brand-primary shrink-0 rounded-xl w-11 h-11 shadow-lg">
-                  <Send className="h-4 w-4" />
-                </Button>
-              </div>
+              {user && (
+                <ChatComposer userId={user.id} receiverId={selectedTutor} onSent={handleSent} />
+              )}
             </Card>
           )}
 

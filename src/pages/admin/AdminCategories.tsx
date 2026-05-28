@@ -47,7 +47,7 @@ const AdminCategories = () => {
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="font-serif text-2xl font-semibold text-brand-primary">Programs</h1>
         <div className="w-12 h-0.5 bg-brand-gold mt-1" />
-        <p className="text-sm text-brand-warm-grey mt-2">Master list of programs (Carnatic Vocal, Tabla, Bharatanatyam…). Used across Subject Allocation, Tutor's Courses and filters.</p>
+        <p className="text-sm text-brand-warm-grey mt-2">Master list of programs (Carnatic Vocal, Tabla, Bharatanatyam…). Used across Subject Allocation, Faculty's Courses and filters.</p>
       </motion.div>
 
       <div className="bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-5">

@@ -102,7 +102,7 @@ const DashboardSchedule = () => {
 
       if (cancelled) return;
       const iMap: Record<string, string> = {};
-      (profs || []).forEach((p: any) => { iMap[p.user_id] = p.display_name || "Instructor"; });
+      (profs || []).forEach((p: any) => { iMap[p.user_id] = p.display_name || "Faculty"; });
       setInstructors(iMap);
 
       const bMap: Record<string, { name: string; semester: number | null }> = {};
