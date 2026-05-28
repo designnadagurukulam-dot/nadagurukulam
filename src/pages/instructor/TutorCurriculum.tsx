@@ -213,7 +213,7 @@ const TutorCurriculum = () => {
                       <span className="font-serif font-medium text-sm text-foreground">{mod.module_name}</span>
                       <Badge className="bg-primary/10 text-brand-primary border-0 text-[10px] font-semibold">{mod.course_code}</Badge>
                       {modSections.length > 0 && <Badge className="bg-accent/15 text-muted-foreground border-0 text-[10px]">{modSections.length} topics</Badge>}
-                      {instructorMade && <Badge className="bg-brand-gold/20 text-brand-gold-dark border-0 text-[10px] uppercase tracking-wider">Added by you</Badge>}
+                      {instructorMade && <Badge className="bg-brand-gold/20 text-brand-gold border-0 text-[10px] uppercase tracking-wider">Added by you</Badge>}
                     </div>
                   </AccordionTrigger>
                   <AccordionContent className="px-5 pb-5 space-y-3">
@@ -229,7 +229,7 @@ const TutorCurriculum = () => {
                               {typeIcon(section.content_type)}
                               <span className="font-medium text-sm text-foreground">{section.title}</span>
                               <Badge className="bg-white text-muted-foreground border-border text-[10px] capitalize">{section.content_type}</Badge>
-                              {sectionMine && <Badge className="bg-brand-gold/20 text-brand-gold-dark border-0 text-[10px] uppercase tracking-wider">Added by you</Badge>}
+                              {sectionMine && <Badge className="bg-brand-gold/20 text-brand-gold border-0 text-[10px] uppercase tracking-wider">Added by you</Badge>}
                             </div>
                             {sectionMine && (
                               <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-700 hover:bg-red-50 h-7" onClick={() => deleteSection(section.id)}>
