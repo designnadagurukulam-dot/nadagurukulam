@@ -40,8 +40,7 @@ const instructorNav = [
 const adminNav = [
   { label: "Overview", to: "/dashboard/admin", icon: LayoutDashboard },
   { label: "Users", to: "/dashboard/admin/users", icon: Users },
-  { label: "Teachers", to: "/dashboard/admin/teachers", icon: GraduationCap },
-  { label: "Subject Allocation", to: "/dashboard/admin/subject-allocation", icon: BookCheck },
+  { label: "Instructors", to: "/dashboard/admin/teachers", icon: GraduationCap },
   { label: "Batches", to: "/dashboard/admin/batches", icon: FolderOpen },
   { label: "Curriculum", to: "/dashboard/admin/curriculum", icon: BookOpen },
   { label: "Lesson Plans", to: "/dashboard/admin/lesson-plans", icon: BookCheck },
@@ -52,7 +51,7 @@ const adminNav = [
   { label: "Events", to: "/dashboard/admin/events", icon: CalendarDays },
   { label: "Messages", to: "/dashboard/admin/messages", icon: MessageSquare },
   { label: "Course Approvals", to: "/dashboard/admin/approvals", icon: CheckSquare },
-  { label: "Tutor's Courses", to: "/dashboard/admin/courses", icon: BookOpen },
+  { label: "Instructor's Courses", to: "/dashboard/admin/courses", icon: BookOpen },
   { label: "Programs", to: "/dashboard/admin/categories", icon: Tag },
   { label: "Jobs", to: "/dashboard/admin/jobs", icon: Briefcase },
   { label: "Inquiries", to: "/dashboard/admin/inquiries", icon: MessageSquare },
@@ -129,7 +128,7 @@ const DashboardSidebar = () => {
       ? location.pathname === path
       : location.pathname.startsWith(path);
 
-  const roleLabel = role === "super_admin" ? "Super Admin" : role === "admin" ? "Admin" : role === "instructor" ? "Tutor" : "Student";
+  const roleLabel = role === "super_admin" ? "Super Admin" : role === "admin" ? "Admin" : role === "instructor" ? "Instructor" : "Student";
 
   const initials = profile?.display_name
     ? profile.display_name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase()
