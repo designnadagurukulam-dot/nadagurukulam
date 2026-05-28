@@ -1,86 +1,63 @@
-# Phase 15: Chat attachments + Faculty rename
+## Student Dashboard Overview — Restructure
 
-Scope: items 1 and 3 from your message. Item 2 (Analytics) needs no work yet — revisit once data exists.
+Scope: `src/pages/dashboard/DashboardOverview.tsx` plus a couple of small new dialog components and a tab addition on the Courses page. UI-only; no schema changes.
 
-## 1. Chat — attachments & voice notes
+### 1. Top tiles (all clickable)
 
-Add file/image attachments and recorded voice notes to the three chat surfaces:
-`StudentChat.tsx`, `TutorMessages.tsx`, `AdminMessages.tsx`.
+**My Batch** — opens a dialog showing batch roster.
+- Heading: batch name.
+- Table columns: Name, Registered No. (renamed from Student ID everywhere it appears as a label), Semester (current), Program.
+- Source: `batch_enrollments` → `profiles` + `student_registry` (semester, program) joined by `user_id`.
 
-### Database (migration)
-Extend `messages` table:
-- `attachment_url text`
-- `attachment_type text` — `image` | `file` | `voice`
-- `attachment_name text`
-- `attachment_size int`
-- `voice_duration int` (seconds, nullable)
+**My Classes** (renamed from "Classes This Week")
+- Tile shows two numbers for **today**: Offline `N` · Online `N`.
+- Click opens a dialog listing today's classes grouped Offline first, then Online; within each group sorted by start time.
+- Columns per row: Title, Mode, Time, Duration.
 
-`content` becomes nullable (a message can be attachment-only). Existing rows unaffected.
+**My Assignments** (renamed from "Pending Assignments")
+- Value: pending count (unchanged).
+- Click → `/dashboard/student/assignments`.
 
-### Storage
-New private bucket `chat-attachments` with RLS:
-- Path convention: `{sender_id}/{message_id_or_uuid}.{ext}`
-- INSERT: any authenticated user into their own `{auth.uid()}/...` folder
-- SELECT: only sender or receiver of a message that references the file (checked via signed URL on read — simpler: any authenticated user can SELECT, since URLs aren't enumerable and message RLS already gates discovery)
+**Study Progress**
+- Tile shows overall %.
+- Click behavior:
+  - If multiple enrolled courses → open a dialog listing each course with its progress bar; clicking a row navigates to `/dashboard/student/courses`.
+  - If exactly one enrolled course → navigate directly to `/dashboard/student/courses`.
 
-### Shared ChatComposer component
-Build `src/components/chat/ChatComposer.tsx` used by all three pages:
-- Text input (existing behavior preserved)
-- 📎 Attach button → file picker (images, pdf, docx, audio; 10 MB cap)
-- 🎤 Voice button → press to record (MediaRecorder, `audio/webm`), shows live timer, tap again to stop; preview with play/cancel/send
-- On send: upload to `chat-attachments` → insert message row with `attachment_*` fields populated (and optional `content` caption)
+### 2. Study Activity block
 
-### Shared MessageBubble component
-`src/components/chat/MessageBubble.tsx`:
-- Text → as today
-- `image` → inline thumbnail, click to open lightbox
-- `file` → filename chip + size + download icon
-- `voice` → audio player with duration + waveform-less play/pause control
-- Caption (if `content` set) renders below attachment
+- Keep the same per-day bar visualisation.
+- Replace the current random mock with real per-day study minutes derived from `lesson_progress.updated_at` rows for the week (count distinct lessons touched per day × estimated minutes, falling back to a count if no duration available). Per-day stat capture stays daily and continues to show today highlighted.
 
-Replace inline bubble JSX in the three chat pages with `<MessageBubble />` and `<ChatComposer />`.
+### 3. Online Classes block (renamed from "Upcoming Classes")
 
-### Notes
-- No new edge functions; client uploads directly to bucket using the user's session.
-- Realtime subscription already in place will pick up new messages and re-render attachments.
+- Show **today's online classes** only (either matching the student's batch_id OR `audience_type='all'`).
+- Per row: Title, Faculty Name (already renamed elsewhere — confirm here), Time, Duration, **Join** button (enabled within window using existing `isClassLive` helper; otherwise disabled with tooltip "Available 10 min before start").
 
-## 2. Analytics tab
-No code changes this phase. The page already renders zero-state cards; behavior will be evaluated once classes/assignments/messages have real data.
+### 4. Events for Today block (replaces "Your Assignments" block)
 
-## 3. Rename Instructor / Tutor → Faculty (UI labels only)
+- Replace the pending-assignments side block with an "Events for Today" block.
+- Source: `events` where `event_date::date = today` AND `approval_status='approved'` AND `is_active=true`.
+- Per row: title, time, location (if present), event_type chip. Empty state: "No events today".
 
-Scope: **visible text strings only.** Routes (`/dashboard/tutor/*`), DB role (`instructor`), file names, component names, variable names, and `user_roles.role` enum all stay unchanged. Zero functional risk.
+### 5. Explore Courses entry point
 
-Find-and-replace in JSX/copy across:
-- `DashboardSidebar.tsx` — menu labels ("Tutor Dashboard" → "Faculty Dashboard", "My Students" stays, etc.)
-- Page headings/subheadings in `src/pages/instructor/*`, `src/pages/admin/*`, `src/pages/dashboard/*`
-- Public site mentions: `About.tsx`, `Faculty.tsx` (already named Faculty), home sections
-- Greeting line in dashboard (memory: "Role + Name" → role string becomes "Faculty")
-- Toast messages, dialog titles, empty states, tooltips
-- Sidebar role badge
+- "Explore new courses" CTA (currently somewhere in this overview / sidebar) now routes to `/dashboard/student/courses?tab=explore`.
+- On `DashboardCourses.tsx` add a second tab **Explore Courses** that lists all `courses` with `status='approved'` that the student is NOT yet enrolled in, with an Enroll action (insert into `enrollments`). The existing "My Courses" view becomes the first tab.
 
-Exclusions (do NOT change):
-- DB columns/values, RLS policy names, function names
-- Route paths
-- TypeScript identifiers, file names, query keys
-- `instructor_id` / `tutor_*` field references in code
-- The word "instructor" inside SQL migration files
-
-Verification: `rg -i 'instructor|tutor' src -g '*.tsx'` after edit — remaining matches should be identifiers only.
-
-## Files touched
-
-**New**
-- `supabase/migrations/<ts>_chat_attachments.sql` — messages columns + bucket + RLS
-- `src/components/chat/ChatComposer.tsx`
-- `src/components/chat/MessageBubble.tsx`
-- `src/components/chat/VoiceRecorder.tsx` (internal helper)
+### Files
 
 **Edited**
-- `src/pages/dashboard/StudentChat.tsx`
-- `src/pages/instructor/TutorMessages.tsx`
-- `src/pages/admin/AdminMessages.tsx`
-- `src/integrations/supabase/types.ts` (regenerated)
-- ~15 files for the Faculty label sweep (sidebar, instructor pages, public Faculty/About refs)
+- `src/pages/dashboard/DashboardOverview.tsx` — tile labels/values/click handlers, replace random activity data with real query, rename Upcoming → Online Classes (today + join), swap assignments block → Events for Today.
+- `src/pages/dashboard/DashboardCourses.tsx` — add Tabs with "My Courses" + "Explore Courses".
+- Minor label sweep: any "Student ID" UI label → "Registered No." (search `rg -i 'student id' src -g '*.tsx'`).
 
-Approve and I'll run the migration first, then build the chat components, then do the rename sweep.
+**New**
+- `src/components/dashboard/BatchRosterDialog.tsx`
+- `src/components/dashboard/TodayClassesDialog.tsx`
+- `src/components/dashboard/CourseProgressDialog.tsx`
+
+### Out of scope this phase
+- No DB migrations.
+- Enrollment approval workflow on Explore Courses (direct self-enroll uses existing RLS `Students can self-enroll`).
+- Per-second study-time tracking (we approximate from `lesson_progress` updates).
