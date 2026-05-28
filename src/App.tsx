@@ -28,6 +28,7 @@ import DashboardAssignments from "./pages/dashboard/DashboardAssignments";
 import DashboardAssignmentDetail from "./pages/dashboard/DashboardAssignmentDetail";
 import DashboardSchedule from "./pages/dashboard/DashboardSchedule";
 import DashboardCertificates from "./pages/dashboard/DashboardCertificates";
+import DashboardAnalytics from "./pages/dashboard/DashboardAnalytics";
 import DashboardProfile from "./pages/dashboard/DashboardProfile";
 import InstructorCourses from "./pages/instructor/InstructorCourses";
 import CreateCourse from "./pages/instructor/CreateCourse";
