@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { addDays, addWeeks, endOfWeek, format, isSameDay, setHours, setMinutes, startOfWeek, subWeeks } from "date-fns";
-import { Calendar, ChevronLeft, ChevronRight, Plus, Trash2, AlertTriangle, LayoutGrid, ListOrdered, Clock } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, Plus, Trash2, AlertTriangle, LayoutGrid, ListOrdered, Clock, BookOpen } from "lucide-react";
+import WeeklyTeachingLogGrid from "@/components/schedule/WeeklyTeachingLogGrid";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -55,7 +57,8 @@ const AdminSchedule = () => {
   const [filterMode, setFilterMode] = useState("all");
   const [filterValue, setFilterValue] = useState("all");
   const [semesterFilter, setSemesterFilter] = useState<string>("all");
-  const [viewMode, setViewMode] = useState<"grid" | "timeline">("grid");
+  const [viewMode, setViewMode] = useState<"grid" | "timeline" | "log">("grid");
+  const { user } = useAuth();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<ScheduleEntry | null>(null);
   const [form, setForm] = useState({ title: "", type: "Class", batchId: "", moduleId: "", instructorId: "", start: "", end: "", recurrence: "one_time", location: "" });
@@ -327,11 +330,14 @@ const AdminSchedule = () => {
         <div className="ml-auto flex items-center gap-1 rounded-xl border border-brand-parchment p-1 bg-white">
           <Button variant={viewMode === "grid" ? "default" : "ghost"} size="sm" onClick={() => setViewMode("grid")} className={`gap-1 rounded-lg ${viewMode === "grid" ? "bg-brand-primary text-primary-foreground" : ""}`}><LayoutGrid className="h-4 w-4" /> Grid</Button>
           <Button variant={viewMode === "timeline" ? "default" : "ghost"} size="sm" onClick={() => setViewMode("timeline")} className={`gap-1 rounded-lg ${viewMode === "timeline" ? "bg-brand-primary text-primary-foreground" : ""}`}><ListOrdered className="h-4 w-4" /> Timeline</Button>
+          <Button variant={viewMode === "log" ? "default" : "ghost"} size="sm" onClick={() => setViewMode("log")} className={`gap-1 rounded-lg ${viewMode === "log" ? "bg-brand-primary text-primary-foreground" : ""}`}><BookOpen className="h-4 w-4" /> Teaching Log</Button>
         </div>
       </div>
 
       {loading ? (
         <div className="flex justify-center py-20"><div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" /></div>
+      ) : viewMode === "log" ? (
+        user ? <WeeklyTeachingLogGrid role="admin" userId={user.id} weekStart={weekStart} /> : null
       ) : viewMode === "grid" ? (
         <div className="overflow-x-auto rounded-2xl bg-card p-2 shadow-[0_2px_16px_hsl(var(--primary)/0.06)]">
           <table className="min-w-[920px] w-full border-separate border-spacing-0">
