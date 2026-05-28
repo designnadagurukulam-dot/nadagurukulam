@@ -40,7 +40,8 @@ const instructorNav = [
 const adminNav = [
   { label: "Overview", to: "/dashboard/admin", icon: LayoutDashboard },
   { label: "Users", to: "/dashboard/admin/users", icon: Users },
-  { label: "Subject Allocation", to: "/dashboard/admin/subject-allocation", icon: GraduationCap },
+  { label: "Teachers", to: "/dashboard/admin/teachers", icon: GraduationCap },
+  { label: "Subject Allocation", to: "/dashboard/admin/subject-allocation", icon: BookCheck },
   { label: "Batches", to: "/dashboard/admin/batches", icon: FolderOpen },
   { label: "Curriculum", to: "/dashboard/admin/curriculum", icon: BookOpen },
   { label: "Lesson Plans", to: "/dashboard/admin/lesson-plans", icon: BookCheck },
