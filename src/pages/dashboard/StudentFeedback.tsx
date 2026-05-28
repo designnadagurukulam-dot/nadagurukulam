@@ -242,7 +242,7 @@ const StudentFeedback = () => {
             <CardContent className="p-4 sm:p-6 space-y-4">
               <div className="flex items-center gap-2">
                 <MessageSquareHeart className="w-4 h-4 text-brand-gold" />
-                <h2 className="font-serif text-lg text-brand-primary">Your Feedback History & Admin Replies</h2>
+                <h2 className="font-serif text-lg text-brand-primary">Your Feedback History</h2>
               </div>
               <div className="space-y-3">
                 {myFeedback.map((f: any) => (
