@@ -330,6 +330,7 @@ const AdminSchedule = () => {
         <div className="ml-auto flex items-center gap-1 rounded-xl border border-brand-parchment p-1 bg-white">
           <Button variant={viewMode === "grid" ? "default" : "ghost"} size="sm" onClick={() => setViewMode("grid")} className={`gap-1 rounded-lg ${viewMode === "grid" ? "bg-brand-primary text-primary-foreground" : ""}`}><LayoutGrid className="h-4 w-4" /> Grid</Button>
           <Button variant={viewMode === "timeline" ? "default" : "ghost"} size="sm" onClick={() => setViewMode("timeline")} className={`gap-1 rounded-lg ${viewMode === "timeline" ? "bg-brand-primary text-primary-foreground" : ""}`}><ListOrdered className="h-4 w-4" /> Timeline</Button>
+          <Button variant={viewMode === "log" ? "default" : "ghost"} size="sm" onClick={() => setViewMode("log")} className={`gap-1 rounded-lg ${viewMode === "log" ? "bg-brand-primary text-primary-foreground" : ""}`}><BookOpen className="h-4 w-4" /> Teaching Log</Button>
         </div>
       </div>
 
