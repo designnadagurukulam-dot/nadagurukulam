@@ -143,32 +143,6 @@ const TutorLiveClasses = () => {
     );
   };
 
-  const renderOfflineCard = (schedule: any, isPast: boolean) => (
-    <Card key={schedule.id} className={`bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] overflow-hidden transition-all hover:shadow-lg duration-300 ${isPast ? "opacity-70" : ""}`}>
-      <div className="h-1 bg-gradient-to-r from-brand-cream-dark to-brand-parchment" />
-      <CardContent className="p-5">
-        <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-full bg-brand-cream flex items-center justify-center shrink-0">
-            <Building2 className="h-5 w-5 text-brand-primary" />
-          </div>
-          <div className="flex-1">
-            <h3 className="font-serif font-bold text-brand-charcoal-mid">{schedule.event_title}</h3>
-            <p className="text-xs text-brand-warm-grey mt-1">{schedule.event_type}</p>
-          </div>
-        </div>
-        <div className="mt-3 space-y-1 ml-13">
-          <p className="text-sm text-brand-charcoal-mid">{format(new Date(schedule.start_time), "EEEE, dd MMMM yyyy")}</p>
-          <p className="text-xs text-brand-warm-grey">{format(new Date(schedule.start_time), "h:mm a")} — {format(new Date(schedule.end_time), "h:mm a")}</p>
-        </div>
-        <div className="flex items-center gap-2 mt-4 ml-13">
-          <span className="bg-brand-cream text-brand-primary text-[9px] px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
-            <Building2 className="h-2.5 w-2.5" /> CLASSROOM · Scheduled by Admin
-          </span>
-          {isPast && <Badge className="bg-green-50 text-green-700 border-0 text-[10px]">Completed</Badge>}
-        </div>
-      </CardContent>
-    </Card>
-  );
 
   const canSave = form.title && form.date && form.time && hasMasterLink && (form.audience === "all_batches" || form.batch_id);
 
