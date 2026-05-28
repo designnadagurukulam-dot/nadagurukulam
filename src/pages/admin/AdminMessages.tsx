@@ -1,16 +1,17 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { MessageSquare, Shield, Search, Users, Mail, Clock, Send, ArrowLeft } from "lucide-react";
+import { MessageSquare, Shield, Search, Users, Mail, Clock, ArrowLeft } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format, isToday } from "date-fns";
+import { ChatComposer } from "@/components/chat/ChatComposer";
+import { MessageBubble } from "@/components/chat/MessageBubble";
 
 const AdminMessages = () => {
   const { user, role } = useAuth();
