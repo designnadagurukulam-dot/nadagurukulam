@@ -20,6 +20,7 @@ const studentNav = [
   { label: "Reach Out", to: "/dashboard/student/chat", icon: MessageSquare },
   { label: "Feedback", to: "/dashboard/student/feedback", icon: Star },
   { label: "Certificates", to: "/dashboard/student/certificates", icon: Award },
+  { label: "Analytics", to: "/dashboard/student/analytics", icon: BarChart3 },
   { label: "Profile", to: "/dashboard/student/profile", icon: User },
 ];
 
