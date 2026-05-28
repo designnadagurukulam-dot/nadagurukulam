@@ -129,13 +129,11 @@ export const MessageBubble = ({ message, isMine, alignLeft, senderLabel }: Messa
 
 const ImageAttachment = ({ path, name }: { path: string; name?: string }) => {
   const [url, setUrl] = useState<string | null>(null);
-  useState(() => {
-    getSignedUrl(path).then(setUrl);
-    return undefined as any;
-  });
-  if (!url) {
-    getSignedUrl(path).then((u) => u && setUrl(u));
-  }
+  useEffect(() => {
+    let cancelled = false;
+    getSignedUrl(path).then((u) => { if (!cancelled) setUrl(u); });
+    return () => { cancelled = true; };
+  }, [path]);
   return url ? (
     <a href={url} target="_blank" rel="noreferrer" className="block">
       <img src={url} alt={name || "image"} className="rounded-lg max-h-64 max-w-full object-cover" />
