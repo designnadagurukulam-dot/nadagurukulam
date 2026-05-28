@@ -742,6 +742,7 @@ export type Database = {
           module_name: string
           pedagogy: string | null
           periods: number | null
+          prerequisites: string | null
           program_id: string | null
           references_list: string[] | null
           see_exam_hours: string | null
@@ -770,6 +771,7 @@ export type Database = {
           module_name: string
           pedagogy?: string | null
           periods?: number | null
+          prerequisites?: string | null
           program_id?: string | null
           references_list?: string[] | null
           see_exam_hours?: string | null
@@ -798,6 +800,7 @@ export type Database = {
           module_name?: string
           pedagogy?: string | null
           periods?: number | null
+          prerequisites?: string | null
           program_id?: string | null
           references_list?: string[] | null
           see_exam_hours?: string | null
@@ -1289,6 +1292,7 @@ export type Database = {
         Row: {
           academic_semester: string | null
           contact_hours_per_week: number | null
+          content_delivery_methods: string | null
           created_at: string
           curriculum_module_id: string
           id: string
@@ -1301,6 +1305,7 @@ export type Database = {
         Insert: {
           academic_semester?: string | null
           contact_hours_per_week?: number | null
+          content_delivery_methods?: string | null
           created_at?: string
           curriculum_module_id: string
           id?: string
@@ -1313,6 +1318,7 @@ export type Database = {
         Update: {
           academic_semester?: string | null
           contact_hours_per_week?: number | null
+          content_delivery_methods?: string | null
           created_at?: string
           curriculum_module_id?: string
           id?: string
