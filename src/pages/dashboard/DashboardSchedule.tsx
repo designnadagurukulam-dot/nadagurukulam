@@ -135,7 +135,7 @@ const DashboardSchedule = () => {
             <Calendar className="w-5 h-5 text-brand-gold" />
           </div>
           <div>
-            <h1 className="font-serif text-xl sm:text-2xl font-semibold text-brand-primary">My Schedule</h1>
+            <h1 className="font-serif text-xl sm:text-2xl font-semibold text-brand-primary">Schedule</h1>
             <div className="w-12 h-0.5 bg-gradient-to-r from-brand-gold to-transparent mt-1" />
             <p className="text-brand-warm-grey mt-1 text-xs sm:text-sm">
               {role === "instructor" ? "Classes you are scheduled to teach this week" : "Classes scheduled for your batch this week"}
