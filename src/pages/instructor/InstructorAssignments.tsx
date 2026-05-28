@@ -26,6 +26,7 @@ const InstructorAssignments = () => {
   const queryClient = useQueryClient();
   const [createOpen, setCreateOpen] = useState(false);
   const [selectedAssignment, setSelectedAssignment] = useState<string | null>(null);
+  const [detailAssignment, setDetailAssignment] = useState<any>(null);
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -40,6 +41,7 @@ const InstructorAssignments = () => {
   });
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [feedbackDialog, setFeedbackDialog] = useState<{ id: string; grade: string; feedback: string } | null>(null);
+
 
   const { data: courses = [] } = useQuery({
     queryKey: ["instructor-courses", user?.id],
