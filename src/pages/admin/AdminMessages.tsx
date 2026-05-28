@@ -20,8 +20,6 @@ const AdminMessages = () => {
   
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedContact, setSelectedContact] = useState<string | null>(null);
-  const [message, setMessage] = useState("");
-  const [sending, setSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // For super_admin: load all conversations (read-only monitor)
