@@ -118,13 +118,7 @@ const AdminMessages = () => {
 
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [thread]);
 
-  const handleSend = async () => {
-    if (!message.trim() || !selectedContact || !user || isSuperAdmin) return;
-    setSending(true);
-    await supabase.from("messages").insert({ sender_id: user.id, receiver_id: selectedContact, content: message.trim() });
-    setMessage(""); setSending(false);
-    queryClient.invalidateQueries({ queryKey: ["admin-thread"] });
-  };
+  const handleSent = () => queryClient.invalidateQueries({ queryKey: ["admin-thread"] });
 
   const getInitials = (name: string) => name?.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase() || "?";
 
