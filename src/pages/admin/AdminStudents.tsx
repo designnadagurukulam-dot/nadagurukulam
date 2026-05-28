@@ -15,7 +15,10 @@ import {
   Pencil,
   ChevronDown,
   ChevronUp,
+  KeyRound,
+  Edit3,
 } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -47,7 +50,7 @@ type BatchEnrollment = {
   enrolled_at: string | null;
 };
 
-const AdminStudents = () => {
+const AdminStudents = ({ lockedRole }: { lockedRole?: AppRole } = {}) => {
   const { role: currentUserRole, user } = useAuth();
   const queryClient = useQueryClient();
   useEffect(() => {
@@ -61,8 +64,8 @@ const AdminStudents = () => {
   const [batches, setBatches] = useState<Batch[]>([]);
   const [batchEnrollments, setBatchEnrollments] = useState<BatchEnrollment[]>([]);
   const [search, setSearch] = useState("");
-  const [roleFilter, setRoleFilter] = useState<string>("all"); // default ALL users
-  const [statusFilter, setStatusFilter] = useState("pending"); // default Pending so verification work shows first
+  const [roleFilter, setRoleFilter] = useState<string>(lockedRole || "all");
+  const [statusFilter, setStatusFilter] = useState(lockedRole ? "all" : "pending");
   const [loading, setLoading] = useState(true);
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
 
@@ -71,6 +74,12 @@ const AdminStudents = () => {
   const [adminLabelTarget, setAdminLabelTarget] = useState<any>(null);
   const [adminLabelValue, setAdminLabelValue] = useState("");
   const [savingAdminLabel, setSavingAdminLabel] = useState(false);
+
+  // Edit profile dialog
+  const [editTarget, setEditTarget] = useState<any>(null);
+  const [editForm, setEditForm] = useState<Record<string, any>>({});
+  const [savingEdit, setSavingEdit] = useState(false);
+  const [resettingFor, setResettingFor] = useState<string | null>(null);
 
   const fetchData = async () => {
     setLoading(true);
@@ -167,6 +176,70 @@ const AdminStudents = () => {
     fetchData();
   };
 
+  const openEditDialog = (p: any) => {
+    setEditTarget(p);
+    const role = roles[p.user_id] || "student";
+    setEditForm({
+      phone: p.phone || "",
+      date_of_birth: p.date_of_birth || "",
+      gender: p.gender || "",
+      address: p.address || "",
+      city: p.city || "",
+      state: p.state || "",
+      pincode: p.pincode || "",
+      emergency_contact_name: p.emergency_contact_name || "",
+      emergency_contact_phone: p.emergency_contact_phone || "",
+      bio: p.bio || "",
+      // Academic / role-specific
+      roll_number: p.roll_number || "",
+      enrollment_id: p.enrollment_id || "",
+      course_name: p.course_name || "",
+      year_of_commencement: p.year_of_commencement || "",
+      employee_id: p.employee_id || "",
+      designation: p.designation || "",
+      department: p.department || "",
+      specialization: p.specialization || "",
+      qualifications: p.qualifications || "",
+      years_of_experience: p.years_of_experience || "",
+      meet_link: p.meet_link || "",
+      zoom_link: p.zoom_link || "",
+      admin_label: p.admin_label || "",
+      __role: role,
+    });
+  };
+
+  const saveEdit = async () => {
+    if (!editTarget) return;
+    setSavingEdit(true);
+    const { __role, ...payload } = editForm;
+    // Normalize numbers
+    if (payload.year_of_commencement === "") payload.year_of_commencement = null;
+    else if (payload.year_of_commencement) payload.year_of_commencement = Number(payload.year_of_commencement);
+    if (payload.years_of_experience === "") payload.years_of_experience = null;
+    else if (payload.years_of_experience) payload.years_of_experience = Number(payload.years_of_experience);
+    // Convert empty strings to null
+    Object.keys(payload).forEach((k) => { if (payload[k] === "") payload[k] = null; });
+    const { error } = await supabase.from("profiles").update(payload as any).eq("user_id", editTarget.user_id);
+    setSavingEdit(false);
+    if (error) return toast.error(error.message);
+    logActivity("user.profile_updated", "profile", editTarget.user_id);
+    toast.success("Profile updated");
+    setEditTarget(null);
+    fetchData();
+  };
+
+  const resetPassword = async (p: any) => {
+    if (!p.email) return toast.error("No email on file for this user");
+    setResettingFor(p.user_id);
+    const { error } = await supabase.auth.resetPasswordForEmail(p.email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setResettingFor(null);
+    if (error) return toast.error(error.message);
+    logActivity("user.password_reset_sent", "user", p.user_id);
+    toast.success(`Password reset email sent to ${p.email}`);
+  };
+
   const getContextLabel = (p: any, currentRole: string) => {
     if (currentRole === "student") return getStudentBatchNames(p.user_id);
     if (currentRole === "instructor") return p.course_name || p.department || "Programme not set";
@@ -249,12 +322,12 @@ const AdminStudents = () => {
               <Users className="h-5 w-5" />
             </div>
             <div>
-              <h1 className="font-serif text-2xl font-semibold text-primary">Users</h1>
+              <h1 className="font-serif text-2xl font-semibold text-primary">{lockedRole === "instructor" ? "Teachers" : "Users"}</h1>
               <div className="mt-1 h-0.5 w-12 bg-secondary" />
             </div>
           </div>
         </div>
-        <p className="mt-2 text-sm text-muted-foreground">{visibleProfiles.length} managed users • {filtered.length} shown. Roles can be changed inline; batch and subject assignment moved to their own pages.</p>
+        <p className="mt-2 text-sm text-muted-foreground">{visibleProfiles.length} managed users • {filtered.length} shown.{lockedRole ? "" : " Roles can be changed inline; batch and subject assignment moved to their own pages."}</p>
       </motion.div>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -283,15 +356,17 @@ const AdminStudents = () => {
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search name, ID, programme, label..." className="min-h-11 rounded-xl pl-10" />
         </div>
-        <Select value={roleFilter} onValueChange={setRoleFilter}>
-          <SelectTrigger className="min-h-11 rounded-xl"><SelectValue placeholder="Role" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Users</SelectItem>
-            <SelectItem value="student">Students</SelectItem>
-            <SelectItem value="instructor">Instructors</SelectItem>
-            <SelectItem value="admin">Admins</SelectItem>
-          </SelectContent>
-        </Select>
+        {!lockedRole && (
+          <Select value={roleFilter} onValueChange={setRoleFilter}>
+            <SelectTrigger className="min-h-11 rounded-xl"><SelectValue placeholder="Role" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Users</SelectItem>
+              <SelectItem value="student">Students</SelectItem>
+              <SelectItem value="instructor">Instructors</SelectItem>
+              <SelectItem value="admin">Admins</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="min-h-11 rounded-xl"><SelectValue placeholder="Status" /></SelectTrigger>
           <SelectContent>
@@ -371,7 +446,7 @@ const AdminStudents = () => {
                           Revoke
                         </Button>
                       )}
-                      {canChangeRole ? (
+                      {!lockedRole && canChangeRole ? (
                         <Select value={currentRole} onValueChange={(val) => changeRole(p.user_id, val as AppRole)}>
                           <SelectTrigger className="min-h-10 w-[140px] rounded-xl text-xs"><SelectValue /></SelectTrigger>
                           <SelectContent>
@@ -380,11 +455,17 @@ const AdminStudents = () => {
                             <SelectItem value="admin">Admin</SelectItem>
                           </SelectContent>
                         </Select>
-                      ) : (
+                      ) : !lockedRole ? (
                         <Badge variant="outline" className="min-h-10 rounded-xl px-3 text-xs text-muted-foreground">
                           {currentRole === "super_admin" ? "Protected role" : "Role locked"}
                         </Badge>
-                      )}
+                      ) : null}
+                      <Button variant="outline" size="sm" onClick={() => openEditDialog(p)} className="min-h-10 rounded-xl gap-1">
+                        <Edit3 className="h-4 w-4" /> Edit
+                      </Button>
+                      <Button variant="outline" size="sm" disabled={resettingFor === p.user_id || !p.email} onClick={() => resetPassword(p)} className="min-h-10 rounded-xl gap-1">
+                        <KeyRound className="h-4 w-4" /> {resettingFor === p.user_id ? "Sending…" : "Reset password"}
+                      </Button>
                       {isAdminLike && isSuperAdmin && currentRole !== "super_admin" && (
                         <Button variant="outline" size="sm" onClick={() => openAdminLabel(p)} className="min-h-10 rounded-xl gap-1">
                           <Pencil className="h-4 w-4" /> Label
@@ -504,9 +585,74 @@ const AdminStudents = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Edit profile dialog */}
+      <Dialog open={!!editTarget} onOpenChange={(o) => !o && setEditTarget(null)}>
+        <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="font-serif text-primary">Edit details — {editTarget?.display_name}</DialogTitle>
+          </DialogHeader>
+          <p className="text-xs text-muted-foreground -mt-2">Name and email are managed by the user's account and cannot be changed here.</p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <EditField label="Phone" value={editForm.phone} onChange={(v) => setEditForm({ ...editForm, phone: v })} />
+            <EditField label="Date of birth" type="date" value={editForm.date_of_birth} onChange={(v) => setEditForm({ ...editForm, date_of_birth: v })} />
+            <EditField label="Gender" value={editForm.gender} onChange={(v) => setEditForm({ ...editForm, gender: v })} />
+            <EditField label="City" value={editForm.city} onChange={(v) => setEditForm({ ...editForm, city: v })} />
+            <EditField label="State" value={editForm.state} onChange={(v) => setEditForm({ ...editForm, state: v })} />
+            <EditField label="Pincode" value={editForm.pincode} onChange={(v) => setEditForm({ ...editForm, pincode: v })} />
+            <div className="sm:col-span-2">
+              <EditField label="Address" value={editForm.address} onChange={(v) => setEditForm({ ...editForm, address: v })} />
+            </div>
+            <EditField label="Emergency contact name" value={editForm.emergency_contact_name} onChange={(v) => setEditForm({ ...editForm, emergency_contact_name: v })} />
+            <EditField label="Emergency contact phone" value={editForm.emergency_contact_phone} onChange={(v) => setEditForm({ ...editForm, emergency_contact_phone: v })} />
+            <div className="sm:col-span-2">
+              <Label className="text-[10px] uppercase tracking-wide text-muted-foreground">Bio</Label>
+              <Textarea value={editForm.bio} onChange={(e) => setEditForm({ ...editForm, bio: e.target.value })} className="mt-1 rounded-xl" rows={2} />
+            </div>
+
+            {editForm.__role === "student" && (
+              <>
+                <EditField label="Roll number" value={editForm.roll_number} onChange={(v) => setEditForm({ ...editForm, roll_number: v })} />
+                <EditField label="Enrollment ID" value={editForm.enrollment_id} onChange={(v) => setEditForm({ ...editForm, enrollment_id: v })} />
+                <EditField label="Course / Programme" value={editForm.course_name} onChange={(v) => setEditForm({ ...editForm, course_name: v })} />
+                <EditField label="Year of commencement" type="number" value={editForm.year_of_commencement} onChange={(v) => setEditForm({ ...editForm, year_of_commencement: v })} />
+              </>
+            )}
+            {editForm.__role === "instructor" && (
+              <>
+                <EditField label="Employee ID" value={editForm.employee_id} onChange={(v) => setEditForm({ ...editForm, employee_id: v })} />
+                <EditField label="Designation" value={editForm.designation} onChange={(v) => setEditForm({ ...editForm, designation: v })} />
+                <EditField label="Department" value={editForm.department} onChange={(v) => setEditForm({ ...editForm, department: v })} />
+                <EditField label="Specialization" value={editForm.specialization} onChange={(v) => setEditForm({ ...editForm, specialization: v })} />
+                <EditField label="Qualifications" value={editForm.qualifications} onChange={(v) => setEditForm({ ...editForm, qualifications: v })} />
+                <EditField label="Years of experience" type="number" value={editForm.years_of_experience} onChange={(v) => setEditForm({ ...editForm, years_of_experience: v })} />
+                <EditField label="Google Meet link" value={editForm.meet_link} onChange={(v) => setEditForm({ ...editForm, meet_link: v })} />
+                <EditField label="Zoom link" value={editForm.zoom_link} onChange={(v) => setEditForm({ ...editForm, zoom_link: v })} />
+              </>
+            )}
+            {(editForm.__role === "admin" || editForm.__role === "super_admin") && (
+              <>
+                <EditField label="Employee ID" value={editForm.employee_id} onChange={(v) => setEditForm({ ...editForm, employee_id: v })} />
+                <EditField label="Department" value={editForm.department} onChange={(v) => setEditForm({ ...editForm, department: v })} />
+                <EditField label="Admin label" value={editForm.admin_label} onChange={(v) => setEditForm({ ...editForm, admin_label: v })} />
+              </>
+            )}
+          </div>
+          <Button onClick={saveEdit} disabled={savingEdit} className="min-h-11 w-full rounded-xl bg-primary text-primary-foreground">
+            <Save className="mr-2 h-4 w-4" /> {savingEdit ? "Saving…" : "Save changes"}
+          </Button>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
+
+const EditField = ({ label, value, onChange, type = "text" }: { label: string; value: any; onChange: (v: string) => void; type?: string }) => (
+  <div>
+    <Label className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</Label>
+    <Input type={type} value={value ?? ""} onChange={(e) => onChange(e.target.value)} className="mt-1 rounded-xl" />
+  </div>
+);
 
 const DetailRow = ({ label, value }: { label: string; value: string }) => (
   <div className="flex flex-col gap-0.5 py-2 border-b border-brand-warm-grey/10 sm:flex-row sm:items-baseline sm:gap-3">

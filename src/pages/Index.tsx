@@ -217,9 +217,9 @@ const Index = () => {
         <motion.div style={{ opacity: heroOpacity }} className="relative z-10 text-center px-4 max-w-5xl mx-auto">
           {/* Brand lockup: circular logo + wordmark, with mandala behind logo */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8 }}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
             className="inline-flex items-center gap-4 mb-8"
           >
             <div className="relative flex items-center justify-center">
@@ -243,8 +243,14 @@ const Index = () => {
                   ))}
                 </svg>
               </motion.div>
-              <div className="relative h-20 w-20 md:h-24 md:w-24 rounded-full overflow-hidden border-2 border-secondary/60 ring-2 ring-secondary/30 shadow-xl bg-background/95">
-                <img src={logo} alt="Nada Gurukulam" className="absolute inset-0 w-full h-full object-cover" />
+              <div className="relative h-20 w-20 md:h-24 md:w-24 rounded-full overflow-hidden shadow-xl bg-white">
+                <img
+                  src={logo}
+                  alt="Nada Gurukulam"
+                  className="absolute inset-0 w-full h-full object-cover"
+                  loading="eager"
+                  decoding="sync"
+                />
               </div>
             </div>
             <span className="font-serif text-xl md:text-2xl font-semibold text-primary-foreground tracking-wide hidden sm:inline">

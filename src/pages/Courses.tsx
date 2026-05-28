@@ -2,17 +2,31 @@ import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import SectionDivider from "@/components/SectionDivider";
 import { courseImageMap, defaultCourseImage } from "@/lib/courseImages";
 
-import imgMusic13 from "@/assets/gallery/NGMUSIC-13.webp";
+import imgVocal from "@/assets/gallery/NGZ6R_1512_R.webp";
+import imgChorus from "@/assets/gallery/NGDSC_8160.webp";
+import imgDance from "@/assets/gallery/NGDSC_7428.webp";
+import imgPercussion from "@/assets/gallery/NGZ6R_6439_R.webp";
+import imgSitar from "@/assets/gallery/NGMUSIC-2.webp";
+import imgEnsemble from "@/assets/gallery/NGR6M_0933.webp";
 
 const tabs = [
   { value: "all", label: "All Courses" },
   { value: "Vocal", label: "Vocal" },
   { value: "Instrumental", label: "Instrumental" },
   { value: "Dance", label: "Dance" },
+];
+
+const maestros = [
+  { src: imgVocal, alt: "Carnatic vocal maestro" },
+  { src: imgChorus, alt: "Hindustani vocal" },
+  { src: imgDance, alt: "Bharatanatyam" },
+  { src: imgPercussion, alt: "Mridangam & percussion" },
+  { src: imgSitar, alt: "Sitar maestro" },
+  { src: imgEnsemble, alt: "Classical ensemble" },
 ];
 
 const Courses = () => {
@@ -46,26 +60,41 @@ const Courses = () => {
 
   return (
     <div>
-      {/* ══════ HERO ══════ */}
-      <section className="relative min-h-[55vh] flex items-center justify-center overflow-hidden">
-        <motion.img
-          src={imgMusic13}
-          alt="Instruments"
-          className="absolute inset-0 w-full h-full object-cover"
-          initial={{ scale: 1.15 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 2, ease: "easeOut" }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-[hsl(358_68%_6%/0.93)] via-[hsl(358_68%_14%/0.87)] to-[hsl(358_68%_10%/0.92)]" />
-        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 60%, hsl(33 62% 58% / 0.08) 0%, transparent 50%)" }} />
+      {/* ══════ HERO — Maestros collage ══════ */}
+      <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden">
+        {/* Collage grid background */}
+        <div className="absolute inset-0 grid grid-cols-3 grid-rows-2 gap-0.5">
+          {maestros.map((m, i) => (
+            <motion.div
+              key={m.alt}
+              initial={{ opacity: 0, scale: 1.05 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1.2, delay: i * 0.08, ease: "easeOut" }}
+              className="relative overflow-hidden"
+            >
+              <img src={m.src} alt={m.alt} className="w-full h-full object-cover" loading="eager" />
+            </motion.div>
+          ))}
+        </div>
+        {/* Dark gradient overlay so text reads cleanly */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[hsl(358_68%_8%/0.85)] via-[hsl(358_68%_10%/0.78)] to-[hsl(358_68%_8%/0.92)]" />
+        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 55%, hsl(33 62% 58% / 0.12) 0%, transparent 55%)" }} />
 
         <div className="relative z-10 container mx-auto px-4 text-center">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
-            <motion.p initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="font-devanagari text-3xl md:text-5xl lg:text-6xl text-shimmer-gold mb-4 leading-relaxed overflow-visible py-2">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.3 }}>
+            <motion.p
+              className="font-devanagari text-3xl md:text-5xl lg:text-6xl text-shimmer-gold mb-4 leading-relaxed overflow-visible py-2"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6, duration: 1 }}
+            >
               विद्या ददाति विनयम्
             </motion.p>
-            <p className="text-primary-foreground/50 italic text-lg md:text-2xl tracking-[0.2em]">
+            <p className="text-primary-foreground/70 italic text-lg md:text-2xl tracking-[0.2em]">
               "Knowledge bestows humility"
+            </p>
+            <p className="mt-6 text-primary-foreground/55 text-sm md:text-base tracking-widest uppercase">
+              Tracing the lineage of India's classical maestros
             </p>
           </motion.div>
         </div>
@@ -81,7 +110,7 @@ const Courses = () => {
               <button
                 key={t.value}
                 onClick={() => setTab(t.value)}
-                className={`relative px-8 py-3 rounded-full text-sm font-semibold transition-all duration-400 ${
+                className={`relative px-8 py-3 rounded-full text-sm font-semibold transition-all duration-300 ${
                   tab === t.value
                     ? "bg-primary text-primary-foreground shadow-xl shadow-primary/25"
                     : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground border border-border"
@@ -111,53 +140,49 @@ const Courses = () => {
               <p className="text-muted-foreground text-lg">No courses found.</p>
             </div>
           ) : (
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={tab}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-                className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 max-w-5xl mx-auto"
-              >
-                {filtered.map((c: any, i: number) => (
-                  <motion.div
-                    key={c.id}
-                    initial={{ opacity: 0, y: 40 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.1, duration: 0.5 }}
-                  >
-                    <Link to={`/programs/${c.slug || c.id}`} className="group block">
-                      <div className="relative h-[420px] rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-700 hover-magnetic card-premium golden-sweep">
-                        <img
-                          src={getImage(c)}
-                          alt={c.title}
-                          className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-[1.2s]"
-                          loading="lazy"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[hsl(0_0%_0%/0.92)] via-[hsl(0_0%_0%/0.2)] to-transparent" />
-                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 bg-gradient-to-t from-[hsl(33_62%_58%/0.12)] via-transparent to-transparent" />
+            <motion.div
+              key={tab}
+              initial="hidden"
+              animate="visible"
+              variants={{
+                hidden: { opacity: 0 },
+                visible: { opacity: 1, transition: { staggerChildren: 0.06, delayChildren: 0.05 } },
+              }}
+              className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 max-w-5xl mx-auto"
+            >
+              {filtered.map((c: any) => (
+                <motion.div
+                  key={c.id}
+                  variants={{
+                    hidden: { opacity: 0, y: 20 },
+                    visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
+                  }}
+                >
+                  <Link to={`/programs/${c.slug || c.id}`} className="group block">
+                    <div className="relative h-[420px] rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-shadow duration-500 card-premium golden-sweep">
+                      <img
+                        src={getImage(c)}
+                        alt={c.title}
+                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[hsl(0_0%_0%/0.92)] via-[hsl(0_0%_0%/0.2)] to-transparent" />
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-t from-[hsl(33_62%_58%/0.12)] via-transparent to-transparent" />
 
-                        <div className="absolute top-4 left-4 w-10 h-10 border-t-2 border-l-2 border-secondary/30 rounded-tl-xl opacity-0 group-hover:opacity-100 transition-all duration-500" />
-                        <div className="absolute top-4 right-4 w-10 h-10 border-t-2 border-r-2 border-secondary/30 rounded-tr-xl opacity-0 group-hover:opacity-100 transition-all duration-500" />
-                        <div className="absolute bottom-20 left-4 w-10 h-10 border-b-2 border-l-2 border-secondary/30 rounded-bl-xl opacity-0 group-hover:opacity-100 transition-all duration-500" />
-                        <div className="absolute bottom-20 right-4 w-10 h-10 border-b-2 border-r-2 border-secondary/30 rounded-br-xl opacity-0 group-hover:opacity-100 transition-all duration-500" />
-
-                        <div className="absolute bottom-0 inset-x-0 p-7">
-                          <div className="w-12 h-0.5 bg-secondary rounded-full mb-3 group-hover:w-20 transition-all duration-500" />
-                          <h3
-                            className="font-serif text-3xl font-extrabold text-primary-foreground leading-tight"
-                            style={{ textShadow: "0 3px 20px hsl(0 0% 0% / 0.7)" }}
-                          >
-                            {c.title}
-                          </h3>
-                        </div>
+                      <div className="absolute bottom-0 inset-x-0 p-7">
+                        <div className="w-12 h-0.5 bg-secondary rounded-full mb-3 group-hover:w-20 transition-all duration-500" />
+                        <h3
+                          className="font-serif text-3xl font-extrabold text-primary-foreground leading-tight"
+                          style={{ textShadow: "0 3px 20px hsl(0 0% 0% / 0.7)" }}
+                        >
+                          {c.title}
+                        </h3>
                       </div>
-                    </Link>
-                  </motion.div>
-                ))}
-              </motion.div>
-            </AnimatePresence>
+                    </div>
+                  </Link>
+                </motion.div>
+              ))}
+            </motion.div>
           )}
         </div>
       </section>
