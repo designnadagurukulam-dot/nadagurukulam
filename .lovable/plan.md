@@ -1,63 +1,84 @@
-## Student Dashboard Overview — Restructure
+# Phase 17 — Courses Restructure, Curriculum Unification & Overview Blocks
 
-Scope: `src/pages/dashboard/DashboardOverview.tsx` plus a couple of small new dialog components and a tab addition on the Courses page. UI-only; no schema changes.
+## 1. Student "My Courses" — three sub-tabs
+Convert `src/pages/dashboard/DashboardCourses.tsx` from its current two-tab layout into three tabs:
 
-### 1. Top tiles (all clickable)
+- **My Curriculum** — courses the student receives through admin-allocated batches. Source: `batch_enrollments` → `batches.course_id`.
+- **My Courses** — extra courses the student self-enrolled into. Source: `enrollments` for the user, excluding any course already present in the batch list above.
+- **Explore Courses** — approved faculty-created courses the student has not enrolled in yet (existing logic, kept as the third tab).
 
-**My Batch** — opens a dialog showing batch roster.
-- Heading: batch name.
-- Table columns: Name, Registered No. (renamed from Student ID everywhere it appears as a label), Semester (current), Program.
-- Source: `batch_enrollments` → `profiles` + `student_registry` (semester, program) joined by `user_id`.
+Each card in all three tabs shows: Program name (`courses.program` / category), Faculty name (instructor profile), Program Duration (`duration_hours` or `duration_weeks`), Semester (from batch when available), and a progress % bar (existing `lesson_progress` computation).
 
-**My Classes** (renamed from "Classes This Week")
-- Tile shows two numbers for **today**: Offline `N` · Online `N`.
-- Click opens a dialog listing today's classes grouped Offline first, then Online; within each group sorted by start time.
-- Columns per row: Title, Mode, Time, Duration.
+## 2. Remove "Curriculum" from Student sidebar
+- Delete the standalone `{ label: "Curriculum", to: "/dashboard/student/curriculum" }` entry in `src/components/DashboardSidebar.tsx`.
+- Keep the `/dashboard/student/curriculum` route working (cards in "My Curriculum" tab deep-link into it for the unified curriculum viewer described in §3).
 
-**My Assignments** (renamed from "Pending Assignments")
-- Value: pending count (unchanged).
-- Click → `/dashboard/student/assignments`.
+## 3. Unified Curriculum Viewer (Student, Admin, Super Admin)
+Refactor the curriculum reading experience into a shared component `src/components/curriculum/CurriculumViewer.tsx` used by:
+- `src/pages/dashboard/DashboardCurriculum.tsx` (student)
+- `src/pages/admin/AdminCurriculum.tsx` (admin / super admin)
 
-**Study Progress**
-- Tile shows overall %.
-- Click behavior:
-  - If multiple enrolled courses → open a dialog listing each course with its progress bar; clicking a row navigates to `/dashboard/student/courses`.
-  - If exactly one enrolled course → navigate directly to `/dashboard/student/courses`.
+Layout (fixed-height, internal scroll — no whole-block expansion):
 
-### 2. Study Activity block
+```text
+┌──────────────────────────────────────────────────────────────┐
+│  Course Name  (larger heading)                               │
+│  Course Code · Faculty Name · [Batches: A, B] (admin only)   │
+├──────────────┬───────────────────────────────────────────────┤
+│  Modules     │   Topic Title                                 │
+│  ▸ Module 1  │   ───────────────────────────────             │
+│    (5 topics)│   [scrollable topic content + media filters]  │
+│  ▸ Module 2  │                                               │
+│    (3 topics)│                                               │
+└──────────────┴───────────────────────────────────────────────┘
+```
+- Container height fixed (~`h-[70vh]` desktop, full viewport on mobile) matching the size seen when "Raga Lakshanas" module is currently expanded.
+- Left rail = scrollable module list with topic counts (existing pattern reused).
+- Right pane = scrollable topic detail; selecting a module/topic only changes the right pane, never resizes the outer container.
+- Header line includes Course Name (larger), Course Code, Faculty name. Batches list rendered only when `role in (admin, super_admin)`.
 
-- Keep the same per-day bar visualisation.
-- Replace the current random mock with real per-day study minutes derived from `lesson_progress.updated_at` rows for the week (count distinct lessons touched per day × estimated minutes, falling back to a count if no duration available). Per-day stat capture stays daily and continues to show today highlighted.
+## 4. Remove "Live Classes" sidebar entry — all roles
+Delete the Live Classes nav item from `studentNav`, `instructorNav`, and `adminNav` (so super_admin inherits the change too) in `src/components/DashboardSidebar.tsx`. Keep the underlying routes for deep links.
 
-### 3. Online Classes block (renamed from "Upcoming Classes")
+Add an equivalent block on each role's Overview:
+- **Faculty (`InstructorOverview.tsx`)** — insert a "Live Classes" block immediately **above** the Teaching Activity block. Two inner tabs: **Upcoming (n)** and **Past (n)** sourced from `live_classes` filtered by `instructor_id`. Each row: title, batch/audience, date-time, duration, Join button (existing 10-min-window logic).
+- **Student (`DashboardOverview.tsx`)** — promote the existing "Online Classes" today block into a fuller "Live Classes" block with **Upcoming / Past** tabs (audience filter: batch-specific or `audience_type='all'`).
+- **Admin / Super Admin (`AdminOverview.tsx`)** — add a "Live Classes" block with **Upcoming / Past** tabs (all classes, read-only summary linking through to the existing page).
 
-- Show **today's online classes** only (either matching the student's batch_id OR `audience_type='all'`).
-- Per row: Title, Faculty Name (already renamed elsewhere — confirm here), Time, Duration, **Join** button (enabled within window using existing `isClassLive` helper; otherwise disabled with tooltip "Available 10 min before start").
+## 5. Faculty Overview — replace "Recent Submissions" with "Events for Today"
+In `src/pages/instructor/InstructorOverview.tsx`, replace the Recent Submissions section (≈lines 386–474) with an "Events for Today" block listing rows from `events` where `event_date::date = current_date`, `approval_status='approved'`, `is_active=true`. Each row: title, time, location, event_type chip. Empty state mirrors existing styling.
 
-### 4. Events for Today block (replaces "Your Assignments" block)
+## 6. Assignments — show "Program" before "Course"
+Update assignment row rendering in:
+- `src/pages/instructor/InstructorAssignments.tsx` (line 275)
+- `src/pages/dashboard/DashboardAssignments.tsx` (matching row)
+- `src/pages/admin/AdminAssignments.tsx` (if it renders the same row)
 
-- Replace the pending-assignments side block with an "Events for Today" block.
-- Source: `events` where `event_date::date = today` AND `approval_status='approved'` AND `is_active=true`.
-- Per row: title, time, location (if present), event_type chip. Empty state: "No events today".
+Replace `Course: {title}` with two lines/inline chips:
+```
+Program: {courses.program ?? courses.categories?.name ?? "—"}
+Course:  {courses.title ?? "—"}
+```
+Fetch `program` / category in the existing select where missing.
 
-### 5. Explore Courses entry point
+## Technical Notes
+- No database migrations required. All splits rely on existing tables: `batch_enrollments`, `batches`, `enrollments`, `courses`, `profiles`, `live_classes`, `events`, `assignments`.
+- `CurriculumViewer` component centralises queries it already does in both files; admin variant simply passes `showBatches` prop and a batches lookup.
+- Faculty name resolution reuses the two-step query pattern already memoised in `query-pattern-live-classes`.
+- Sidebar count logic for "Live Classes" (none today) is unaffected; assignment/messages counts remain.
+- Routes preserved so existing bookmarks / deep links keep working; only nav entries are removed.
 
-- "Explore new courses" CTA (currently somewhere in this overview / sidebar) now routes to `/dashboard/student/courses?tab=explore`.
-- On `DashboardCourses.tsx` add a second tab **Explore Courses** that lists all `courses` with `status='approved'` that the student is NOT yet enrolled in, with an Enroll action (insert into `enrollments`). The existing "My Courses" view becomes the first tab.
-
-### Files
-
-**Edited**
-- `src/pages/dashboard/DashboardOverview.tsx` — tile labels/values/click handlers, replace random activity data with real query, rename Upcoming → Online Classes (today + join), swap assignments block → Events for Today.
-- `src/pages/dashboard/DashboardCourses.tsx` — add Tabs with "My Courses" + "Explore Courses".
-- Minor label sweep: any "Student ID" UI label → "Registered No." (search `rg -i 'student id' src -g '*.tsx'`).
+## Files Touched
+**Edit**
+- `src/components/DashboardSidebar.tsx` (remove Curriculum + Live Classes entries)
+- `src/pages/dashboard/DashboardCourses.tsx` (3 sub-tabs, new query split)
+- `src/pages/dashboard/DashboardCurriculum.tsx` (use shared viewer)
+- `src/pages/admin/AdminCurriculum.tsx` (use shared viewer)
+- `src/pages/instructor/InstructorOverview.tsx` (Live Classes block + Events for Today swap)
+- `src/pages/dashboard/DashboardOverview.tsx` (expand Online Classes → Live Classes Upcoming/Past tabs)
+- `src/pages/admin/AdminOverview.tsx` (add Live Classes Upcoming/Past block)
+- `src/pages/instructor/InstructorAssignments.tsx`, `src/pages/dashboard/DashboardAssignments.tsx`, `src/pages/admin/AdminAssignments.tsx` (Program label)
 
 **New**
-- `src/components/dashboard/BatchRosterDialog.tsx`
-- `src/components/dashboard/TodayClassesDialog.tsx`
-- `src/components/dashboard/CourseProgressDialog.tsx`
-
-### Out of scope this phase
-- No DB migrations.
-- Enrollment approval workflow on Explore Courses (direct self-enroll uses existing RLS `Students can self-enroll`).
-- Per-second study-time tracking (we approximate from `lesson_progress` updates).
+- `src/components/curriculum/CurriculumViewer.tsx` (shared fixed-height two-panel viewer)
+- `src/components/overview/LiveClassesBlock.tsx` (shared Upcoming/Past tabs block, role-aware)

@@ -39,7 +39,7 @@ const DashboardAssignments = () => {
       if (!enrollments?.length) return [];
       const courseIds = enrollments.map((e) => e.course_id);
       const { data: assignments, error } = await supabase
-        .from("assignments").select("*, courses(title)").in("course_id", courseIds).order("due_date", { ascending: true });
+        .from("assignments").select("*, courses(title, category)").in("course_id", courseIds).order("due_date", { ascending: true });
       if (error) throw error;
       const assignmentIds = (assignments || []).map((a) => a.id);
       const { data: submissions } = assignmentIds.length > 0
@@ -166,7 +166,8 @@ const DashboardAssignments = () => {
               </div>
               <h3 className="font-semibold text-brand-charcoal-mid text-sm truncate">{a.title}</h3>
             </div>
-            <p className="text-[10px] sm:text-xs text-brand-warm-grey mt-1 ml-9">{a.courses?.title}</p>
+            <p className="text-[10px] sm:text-xs text-brand-warm-grey mt-1 ml-9">Program: {a.courses?.category || "—"}</p>
+            <p className="text-[10px] sm:text-xs text-brand-warm-grey ml-9">Course: {a.courses?.title || "—"}</p>
             {a.description && <p className="text-[10px] sm:text-xs text-brand-warm-grey mt-1 ml-9 line-clamp-2">{a.description}</p>}
           </div>
           <div className="flex sm:flex-col items-center sm:items-end gap-2 shrink-0 ml-9 sm:ml-0">
@@ -254,7 +255,7 @@ const DashboardAssignments = () => {
                   </div>
                   <DialogHeader className="text-left flex-1">
                     <DialogTitle className="font-serif text-white text-lg leading-snug">{a.title}</DialogTitle>
-                    <p className="text-white/60 text-xs mt-1">{a.courses?.title}</p>
+                    <p className="text-white/60 text-xs mt-1">Program: {a.courses?.category || "—"} · Course: {a.courses?.title || "—"}</p>
                   </DialogHeader>
                 </div>
               </div>

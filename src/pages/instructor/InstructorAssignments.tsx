@@ -81,7 +81,7 @@ const InstructorAssignments = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("assignments")
-        .select("*, courses(title), batches(name)")
+        .select("*, courses(title, category), batches(name)")
         .eq("instructor_id", user!.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -272,6 +272,7 @@ const InstructorAssignments = () => {
                     <div key={a.id} onClick={() => setSelectedAssignment(selectedAssignment === a.id ? null : a.id)} className={`p-4 cursor-pointer ${selectedAssignment === a.id ? "bg-brand-gold-pale/40" : ""}`}>
                       <div className="font-semibold text-brand-charcoal-mid text-sm">{a.title}</div>
                       <div className="text-xs text-brand-warm-grey mt-1 space-y-0.5">
+                        <div>Program: {a.courses?.category || "—"}</div>
                         <div>Course: {a.courses?.title || "—"}</div>
                         <div>Module: {a.module_name || "—"} · Topic: {a.topic_name || "—"}</div>
                         <div>Batch: {a.batches?.name || "—"}</div>
