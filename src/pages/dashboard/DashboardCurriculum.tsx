@@ -322,10 +322,16 @@ const SubjectPanel = ({
   subject,
   sections,
   sectionLinks,
+  facultyName,
+  batchNames,
+  showBatches = false,
 }: {
   subject: { courseCode: string; subjectName: string; modules: any[]; totalHours: number };
   sections: any[];
   sectionLinks: MaterialLink[];
+  facultyName?: string | null;
+  batchNames?: string[];
+  showBatches?: boolean;
 }) => {
   const [selectedChapterId, setSelectedChapterId] = useState<string | null>(null);
 
@@ -342,34 +348,47 @@ const SubjectPanel = ({
     <Card className="relative bg-white rounded-2xl border border-brand-parchment shadow-[0_4px_30px_rgba(125,30,36,0.06)] overflow-hidden">
       {/* Decorative gradient header strip */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-brand-primary via-brand-gold to-brand-primary" />
-      
-      {/* Watermark decoration */}
-      <div className="absolute top-4 right-4 opacity-[0.04]">
-        <Music className="h-24 w-24 text-brand-primary" />
-      </div>
 
-      <CardHeader className="pb-3 relative z-10">
+      <CardHeader className="pb-3 relative z-10 border-b border-brand-parchment/60">
         <div className="flex items-start justify-between flex-wrap gap-3">
-          <div className="flex items-start gap-3">
-            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-brand-primary to-brand-primary/80 flex items-center justify-center shadow-md shrink-0">
-              <BookOpen className="h-5 w-5 text-white" />
+          <div className="flex items-start gap-3 min-w-0 flex-1">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-primary to-brand-primary/80 flex items-center justify-center shadow-md shrink-0">
+              <BookOpen className="h-6 w-6 text-white" />
             </div>
-            <div>
-              <CardTitle className="text-lg font-serif text-brand-charcoal-mid leading-tight">{subject.subjectName}</CardTitle>
-              <Badge className="mt-1.5 bg-gradient-to-r from-brand-gold-pale to-amber-100 text-brand-primary border-0 font-bold text-xs shadow-sm">
-                {subject.courseCode}
-              </Badge>
+            <div className="min-w-0 flex-1">
+              <CardTitle className="text-xl sm:text-2xl font-serif font-bold text-brand-primary leading-tight">
+                {subject.subjectName}
+              </CardTitle>
+              <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                <Badge className="bg-gradient-to-r from-brand-gold-pale to-amber-100 text-brand-primary border-0 font-bold text-xs shadow-sm">
+                  {subject.courseCode}
+                </Badge>
+                {facultyName && (
+                  <span className="text-xs text-brand-warm-grey flex items-center gap-1">
+                    <span className="text-brand-charcoal-mid/60">Faculty:</span>
+                    <span className="font-semibold text-brand-charcoal-mid">{facultyName}</span>
+                  </span>
+                )}
+                {showBatches && batchNames && batchNames.length > 0 && (
+                  <span className="text-xs text-brand-warm-grey flex items-center gap-1 flex-wrap">
+                    <span className="text-brand-charcoal-mid/60">Batches:</span>
+                    {batchNames.map((b) => (
+                      <Badge key={b} className="bg-brand-cream-dark text-brand-charcoal-mid border-0 text-[10px] font-medium">{b}</Badge>
+                    ))}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
-          <div className="flex items-center gap-1.5 text-sm text-brand-warm-grey bg-brand-cream-dark/60 px-3 py-1.5 rounded-full">
+          <div className="flex items-center gap-1.5 text-sm text-brand-warm-grey bg-brand-cream-dark/60 px-3 py-1.5 rounded-full shrink-0">
             <Clock className="h-4 w-4 text-brand-gold" /> <span className="font-semibold">{subject.totalHours}h</span>
           </div>
         </div>
       </CardHeader>
 
-      <CardContent className="pt-0 relative z-10">
+      <CardContent className="pt-0 relative z-10 p-0">
         {/* Mobile: horizontal chapter strip */}
-        <div className="md:hidden mb-3">
+        <div className="md:hidden p-3">
           <ScrollArea className="w-full">
             <div className="flex gap-2 pb-2">
               {subject.modules.map((ch, idx) => {
@@ -401,55 +420,52 @@ const SubjectPanel = ({
           </ScrollArea>
         </div>
 
-        {/* Desktop: sidebar + content */}
-        <div className="flex gap-0 min-h-[350px]">
-          {/* Chapter sidebar — sticky */}
-          <div className="hidden md:block w-[260px] shrink-0 border-r border-brand-parchment/80 bg-gradient-to-b from-brand-cream/30 to-transparent self-start sticky top-4">
-            <ScrollArea className="max-h-[calc(100vh-200px)]">
-              <div className="p-2 space-y-1">
-                {subject.modules.map((ch, idx) => {
-                  const isActive = ch.id === selectedChapterId;
-                  const topicCount = sections.filter((s) => s.module_id === ch.id).length;
-                  return (
-                    <button
-                      key={ch.id}
-                      onClick={() => setSelectedChapterId(ch.id)}
-                      className={`group w-full text-left px-3 py-3 rounded-xl transition-all duration-300 text-sm flex items-start gap-3 ${
-                        isActive
-                          ? "bg-gradient-to-r from-brand-primary/10 to-brand-gold/5 shadow-sm border border-brand-primary/15"
-                          : "hover:bg-brand-cream-dark/50 border border-transparent hover:border-brand-parchment"
-                      }`}
-                    >
-                      {/* Numbered badge */}
-                      <span className={`flex items-center justify-center w-7 h-7 rounded-full text-xs font-black shrink-0 transition-all duration-300 ${
-                        isActive
-                          ? "bg-gradient-to-br from-brand-gold to-amber-500 text-white shadow-md"
-                          : "bg-brand-gold/15 text-brand-primary group-hover:bg-brand-gold/25"
-                      }`}>
-                        {idx + 1}
+        {/* Desktop: sidebar + content — fixed height, internal scroll */}
+        <div className="flex h-[70vh] max-h-[640px] md:min-h-[480px]">
+          {/* Chapter sidebar — scrollable */}
+          <div className="hidden md:block w-[260px] shrink-0 border-r border-brand-parchment/80 bg-gradient-to-b from-brand-cream/30 to-transparent overflow-y-auto">
+            <div className="p-2 space-y-1">
+              {subject.modules.map((ch, idx) => {
+                const isActive = ch.id === selectedChapterId;
+                const topicCount = sections.filter((s) => s.module_id === ch.id).length;
+                return (
+                  <button
+                    key={ch.id}
+                    onClick={() => setSelectedChapterId(ch.id)}
+                    className={`group w-full text-left px-3 py-3 rounded-xl transition-all duration-300 text-sm flex items-start gap-3 ${
+                      isActive
+                        ? "bg-gradient-to-r from-brand-primary/10 to-brand-gold/5 shadow-sm border border-brand-primary/15"
+                        : "hover:bg-brand-cream-dark/50 border border-transparent hover:border-brand-parchment"
+                    }`}
+                  >
+                    <span className={`flex items-center justify-center w-7 h-7 rounded-full text-xs font-black shrink-0 transition-all duration-300 ${
+                      isActive
+                        ? "bg-gradient-to-br from-brand-gold to-amber-500 text-white shadow-md"
+                        : "bg-brand-gold/15 text-brand-primary group-hover:bg-brand-gold/25"
+                    }`}>
+                      {idx + 1}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <span className={`block leading-snug font-medium transition-colors ${isActive ? "text-brand-primary font-semibold" : "text-brand-charcoal-mid"}`}>
+                        {ch.module_name}
                       </span>
-                      <div className="min-w-0 flex-1">
-                        <span className={`block leading-snug font-medium transition-colors ${isActive ? "text-brand-primary font-semibold" : "text-brand-charcoal-mid"}`}>
-                          {ch.module_name}
+                      {topicCount > 0 && (
+                        <span className="flex items-center gap-1 text-[10px] text-brand-warm-grey mt-1">
+                          <Layers className="h-3 w-3" /> {topicCount} topic{topicCount > 1 ? "s" : ""}
                         </span>
-                        {topicCount > 0 && (
-                          <span className="flex items-center gap-1 text-[10px] text-brand-warm-grey mt-1">
-                            <Layers className="h-3 w-3" /> {topicCount} topic{topicCount > 1 ? "s" : ""}
-                          </span>
-                        )}
-                      </div>
-                      {isActive && (
-                        <ChevronRight className="h-4 w-4 text-brand-gold shrink-0 mt-0.5" />
                       )}
-                    </button>
-                  );
-                })}
-              </div>
-            </ScrollArea>
+                    </div>
+                    {isActive && (
+                      <ChevronRight className="h-4 w-4 text-brand-gold shrink-0 mt-0.5" />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
-          {/* Content panel */}
-          <div className="flex-1 min-w-0 md:pl-5">
+          {/* Content panel — scrollable */}
+          <div className="flex-1 min-w-0 overflow-y-auto p-4 sm:p-5">
             {selectedChapter ? (
               <div className="space-y-4 sm:space-y-6 animate-fade-in">
                 {/* Chapter header */}
@@ -518,6 +534,9 @@ const SubjectPanel = ({
     </Card>
   );
 };
+
+export { SubjectPanel };
+
 
 const DashboardCurriculum = () => {
   const { data: modules = [], isLoading } = useQuery({
