@@ -147,6 +147,7 @@ const AdminCurriculum = () => {
         see_exam_hours: courseDraft.see_exam_hours || null,
         course_objectives: splitList(courseDraft.course_objectives),
         pedagogy: courseDraft.pedagogy || null,
+        prerequisites: courseDraft.prerequisites || null,
       };
       let moduleId = courseDraft.id;
       if (moduleId) {
