@@ -11,6 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { format, startOfWeek, addDays, isSameDay } from "date-fns";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, Legend } from "recharts";
+import LiveClassesBlock from "@/components/overview/LiveClassesBlock";
 
 const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const todayIdx = (new Date().getDay() + 6) % 7;
@@ -34,6 +35,7 @@ const InstructorOverview = () => {
   const [students, setStudents] = useState<StudentRow[]>([]);
   const [todayClasses, setTodayClasses] = useState<ClassRow[]>([]);
   const [recentSubmissions, setRecentSubmissions] = useState<any[]>([]);
+  const [todayEvents, setTodayEvents] = useState<any[]>([]);
   const [allocatedSubjects, setAllocatedSubjects] = useState<any[]>([]);
   const [activityData, setActivityData] = useState(weekDays.map((day) => ({ day, teaching: 0, online: 0 })));
   const [programMap, setProgramMap] = useState<Record<string, string>>({});
@@ -162,6 +164,18 @@ const InstructorOverview = () => {
       setRecentSubmissions(recent);
       setAllocatedSubjects(allocations || []);
       setActivityData(activity);
+
+      // Today's events
+      const { data: events } = await supabase
+        .from("events")
+        .select("id, title, event_date, location, event_type")
+        .eq("approval_status", "approved")
+        .eq("is_active", true)
+        .gte("event_date", todayStart.toISOString())
+        .lte("event_date", todayEnd.toISOString())
+        .order("event_date");
+      setTodayEvents(events || []);
+
       setLoading(false);
     };
     fetchData();
