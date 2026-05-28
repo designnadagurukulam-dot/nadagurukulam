@@ -1,81 +1,86 @@
-# Phase 14 — Instructor Live Classes, Assignments, Schedule & Events
+# Phase 15: Chat attachments + Faculty rename
 
-## 1. Live Classes (`TutorLiveClasses.tsx`)
+Scope: items 1 and 3 from your message. Item 2 (Analytics) needs no work yet — revisit once data exists.
 
-- **Tabs become two**: `Online (Upcoming)` and `Past`.
-- **Remove** the entire `Offline` tab and its `upcomingOffline` rendering. Drop the `offlineSchedules` query — offline schedules now live on the Schedule page.
-- **Past tab**: filter to online-only — `classes.filter(c => isLiveClassPast(c) && (c.class_type === "online" || !c.class_type))`. No offline rows.
-- Create-class dialog: keep as-is (online only).
+## 1. Chat — attachments & voice notes
 
-## 2. Assignments (`InstructorAssignments.tsx`)
+Add file/image attachments and recorded voice notes to the three chat surfaces:
+`StudentChat.tsx`, `TutorMessages.tsx`, `AdminMessages.tsx`.
 
-### Create form — add fields
-- Title (existing)
-- **Course** — dropdown of instructor courses + an `N/A` option (stores `course_id = null`)
-- **Module** — dropdown of `curriculum_modules` for the chosen course's program/semester (or all instructor-allocated modules when course is N/A) + `N/A`
-- **Topic** — dropdown of `curriculum_topics` for the chosen module + `N/A`
-- **Batch** — dropdown of instructor batches (required)
-- Description / Instructions (existing)
-- Due Date & Time (existing)
-- Reference: Video URL, External Link, PDF upload, **plus** a "Text reference" textarea (existing video/link/PDF retained)
+### Database (migration)
+Extend `messages` table:
+- `attachment_url text`
+- `attachment_type text` — `image` | `file` | `voice`
+- `attachment_name text`
+- `attachment_size int`
+- `voice_duration int` (seconds, nullable)
 
-### DB migration
-Add nullable columns to `assignments`:
-- `curriculum_module_id uuid`
-- `curriculum_topic_id uuid`
-- `reference_text text`
-Make `course_id` nullable (currently `NOT NULL`) to support N/A. Keep existing RLS unchanged.
+`content` becomes nullable (a message can be attachment-only). Existing rows unaffected.
 
-### List view — replace card list with a table
-Columns: **Title | Course | Module | Topic | Batch | Due Date | Actions**. Cell values fall back to "—" when N/A. Row click still toggles the Submissions tab for that row. Keep mobile fallback as stacked cards.
+### Storage
+New private bucket `chat-attachments` with RLS:
+- Path convention: `{sender_id}/{message_id_or_uuid}.{ext}`
+- INSERT: any authenticated user into their own `{auth.uid()}/...` folder
+- SELECT: only sender or receiver of a message that references the file (checked via signed URL on read — simpler: any authenticated user can SELECT, since URLs aren't enumerable and message RLS already gates discovery)
 
-## 3. Schedule tab (`DashboardSchedule.tsx`, instructor view)
+### Shared ChatComposer component
+Build `src/components/chat/ChatComposer.tsx` used by all three pages:
+- Text input (existing behavior preserved)
+- 📎 Attach button → file picker (images, pdf, docx, audio; 10 MB cap)
+- 🎤 Voice button → press to record (MediaRecorder, `audio/webm`), shows live timer, tap again to stop; preview with play/cancel/send
+- On send: upload to `chat-attachments` → insert message row with `attachment_*` fields populated (and optional `content` caption)
 
-The Schedule sidebar entry already exists. Extend the instructor variant so it has two stacked sections:
+### Shared MessageBubble component
+`src/components/chat/MessageBubble.tsx`:
+- Text → as today
+- `image` → inline thumbnail, click to open lightbox
+- `file` → filename chip + size + download icon
+- `voice` → audio player with duration + waveform-less play/pause control
+- Caption (if `content` set) renders below attachment
 
-### A. Weekly Timetable (top, existing)
-- Keep the current week view of `schedules` filtered by `instructor_id = auth.uid()`.
-- Add **"Add Schedule"** button (instructor) that inserts a one-off `schedules` row (`schedule_type = 'extra'`, instructor_id = self). Required fields: title, date, start time, end time, batch (optional), location (optional). On save, refetches both timetable and Teaching Log topic dropdown for the affected day.
+Replace inline bubble JSX in the three chat pages with `<MessageBubble />` and `<ChatComposer />`.
 
-### B. Teaching Log (below timetable, replaces standalone Class Log)
-Header strip: **Name of the Faculty** (from profile) · **Designation** (from profile metadata).
+### Notes
+- No new edge functions; client uploads directly to bucket using the user's session.
+- Realtime subscription already in place will pick up new messages and re-render attachments.
 
-Table columns: **S.No | Date | Day | Time | Batch & Sem | Topic | T | Th | P | Remarks**
+## 2. Analytics tab
+No code changes this phase. The page already renders zero-state cards; behavior will be evaluated once classes/assignments/messages have real data.
 
-Behavior:
-- One row per period on the active week's schedule (auto-generated from `schedules` rows for the instructor).
-- **Topic**: dropdown populated from the topics this instructor added in the **Lesson Plan** for that course/module (i.e. `lesson_plan_entries.topic_title` / `curriculum_section_id`). Each lesson-plan topic may be selected only up to its planned period count (e.g. 5 periods → choosable 5 times across the log).
-- **T / Th / P columns**: auto-filled from a new `curriculum_sections.session_type` field (`Tutorial | Theory | Practical`); a single tick appears under the matching column. Read-only.
-- **Remarks**: editable textarea.
-- **Editing rules**: rows for the **current week** are editable. Past weeks are read-only. A week selector lets the user navigate any week of the academic year for viewing/downloading.
-- **Download PDF** button per displayed week — generates the Teaching Log as a landscape PDF (same brand styling as Lesson Plan PDF). Available for all past weeks too.
-- **Save row** writes to `class_logs` (existing table) with `schedule_id`, `curriculum_section_id`, `topic_covered`, `date`, `notes` (Remarks), `status = 'pending_confirmation'`. Existing realtime notification + `class_log_confirmations` flow continues to fire so students get notified and analytics update.
-- Remove the standalone `/dashboard/tutor/class-log` sidebar entry (it is currently not in the sidebar; the route stays for backward compatibility but the page is no longer linked — log entry happens here).
+## 3. Rename Instructor / Tutor → Faculty (UI labels only)
 
-### DB migration
-- `curriculum_sections.session_type text` — values `'Tutorial' | 'Theory' | 'Practical'` (nullable, defaults `'Theory'`). Surface this as a select in `AdminCurriculum.tsx` and `TutorCurriculum.tsx` section editor.
+Scope: **visible text strings only.** Routes (`/dashboard/tutor/*`), DB role (`instructor`), file names, component names, variable names, and `user_roles.role` enum all stay unchanged. Zero functional risk.
 
-## 4. Events tab (`DashboardEvents.tsx`)
+Find-and-replace in JSX/copy across:
+- `DashboardSidebar.tsx` — menu labels ("Tutor Dashboard" → "Faculty Dashboard", "My Students" stays, etc.)
+- Page headings/subheadings in `src/pages/instructor/*`, `src/pages/admin/*`, `src/pages/dashboard/*`
+- Public site mentions: `About.tsx`, `Faculty.tsx` (already named Faculty), home sections
+- Greeting line in dashboard (memory: "Role + Name" → role string becomes "Faculty")
+- Toast messages, dialog titles, empty states, tooltips
+- Sidebar role badge
 
-- Replace stacked card layout with a **month calendar view** (same component pattern as `AdminEvents.tsx` super-admin view) — date cells show colored dots per event.
-- Clicking a date shows that day's events below the calendar, or "No events" placeholder.
-- Below the day strip, render an **"This Week's Events"** list (current Mon–Sun). If empty → "No Events". **Hide all past events.**
-- Same view applies to student, instructor, and admin role variants (single component).
-- **Suggest Event** dialog (existing): add an optional **Google Maps URL** field (`events.map_url` already exists), plus existing location text.
+Exclusions (do NOT change):
+- DB columns/values, RLS policy names, function names
+- Route paths
+- TypeScript identifiers, file names, query keys
+- `instructor_id` / `tutor_*` field references in code
+- The word "instructor" inside SQL migration files
 
-## Files Touched
+Verification: `rg -i 'instructor|tutor' src -g '*.tsx'` after edit — remaining matches should be identifiers only.
 
-- `supabase/migrations/<new>.sql` — three columns (assignments: 3 cols + nullable course_id; curriculum_sections: session_type)
-- `src/pages/instructor/TutorLiveClasses.tsx` — remove Offline tab, past = online only
-- `src/pages/instructor/InstructorAssignments.tsx` — expanded create form + table list
-- `src/pages/dashboard/DashboardSchedule.tsx` — instructor branch gets Add-Schedule + Teaching Log table & week navigator
-- `src/lib/teachingLogPdf.ts` (new) — landscape PDF generator
-- `src/pages/dashboard/DashboardEvents.tsx` — calendar layout + map URL field
-- `src/pages/admin/AdminCurriculum.tsx`, `src/pages/instructor/TutorCurriculum.tsx` — session_type select
-- `src/integrations/supabase/types.ts` — regenerated
+## Files touched
 
-## Out of Scope
+**New**
+- `supabase/migrations/<ts>_chat_attachments.sql` — messages columns + bucket + RLS
+- `src/components/chat/ChatComposer.tsx`
+- `src/components/chat/MessageBubble.tsx`
+- `src/components/chat/VoiceRecorder.tsx` (internal helper)
 
-- Reworking Super Admin AdminLessonPlans / AdminLiveClasses (only the instructor side here).
-- Auto-generating recurring `schedules` rows from lesson plans (timetable still seeded by admin; instructor's "Add Schedule" creates one-offs only).
-- Forcing weekly submission gating (PDF download is provided; no hard lock on Saturday).
+**Edited**
+- `src/pages/dashboard/StudentChat.tsx`
+- `src/pages/instructor/TutorMessages.tsx`
+- `src/pages/admin/AdminMessages.tsx`
+- `src/integrations/supabase/types.ts` (regenerated)
+- ~15 files for the Faculty label sweep (sidebar, instructor pages, public Faculty/About refs)
+
+Approve and I'll run the migration first, then build the chat components, then do the rename sweep.

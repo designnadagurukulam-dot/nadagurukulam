@@ -1459,7 +1459,11 @@ export type Database = {
       }
       messages: {
         Row: {
-          content: string
+          attachment_name: string | null
+          attachment_size: number | null
+          attachment_type: string | null
+          attachment_url: string | null
+          content: string | null
           created_at: string | null
           id: string
           is_read: boolean | null
@@ -1467,9 +1471,14 @@ export type Database = {
           media_url: string | null
           receiver_id: string
           sender_id: string
+          voice_duration: number | null
         }
         Insert: {
-          content: string
+          attachment_name?: string | null
+          attachment_size?: number | null
+          attachment_type?: string | null
+          attachment_url?: string | null
+          content?: string | null
           created_at?: string | null
           id?: string
           is_read?: boolean | null
@@ -1477,9 +1486,14 @@ export type Database = {
           media_url?: string | null
           receiver_id: string
           sender_id: string
+          voice_duration?: number | null
         }
         Update: {
-          content?: string
+          attachment_name?: string | null
+          attachment_size?: number | null
+          attachment_type?: string | null
+          attachment_url?: string | null
+          content?: string | null
           created_at?: string | null
           id?: string
           is_read?: boolean | null
@@ -1487,6 +1501,7 @@ export type Database = {
           media_url?: string | null
           receiver_id?: string
           sender_id?: string
+          voice_duration?: number | null
         }
         Relationships: []
       }
