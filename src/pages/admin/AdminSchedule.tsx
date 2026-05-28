@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { addDays, addWeeks, endOfWeek, format, isSameDay, setHours, setMinutes, startOfWeek, subWeeks } from "date-fns";
-import { Calendar, ChevronLeft, ChevronRight, Plus, Trash2, AlertTriangle, LayoutGrid, ListOrdered, Clock } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, Plus, Trash2, AlertTriangle, LayoutGrid, ListOrdered, Clock, BookOpen } from "lucide-react";
+import WeeklyTeachingLogGrid from "@/components/schedule/WeeklyTeachingLogGrid";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
