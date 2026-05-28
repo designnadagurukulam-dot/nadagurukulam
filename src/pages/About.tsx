@@ -336,59 +336,8 @@ const About = () => {
           </motion.div>
         </div>
       </section>
-
       <SectionDivider />
 
-      {/* ══════ CAMPUS BENTO ══════ */}
-      <section className="py-24 bg-background">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: false, amount: 0.2 }}
-            className="text-center mb-16"
-          >
-            <div className="flex items-center justify-center gap-3 mb-3">
-              <Building2 className="h-6 w-6 text-secondary" />
-              <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-extrabold">Our Upcoming Campus</h2>
-            </div>
-            <p className="text-muted-foreground max-w-2xl mx-auto text-sm tracking-wide">
-              A world-class campus at Sathya Sai Grama, designed to inspire creativity and devotion.
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 max-w-5xl mx-auto auto-rows-[140px] md:auto-rows-[220px]">
-            {campusGrid.map((img, i) => (
-              <motion.div
-                key={img.alt}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: false, amount: 0.2 }}
-                transition={{ delay: i * 0.1, duration: 0.5 }}
-                className={`${img.className} rounded-2xl overflow-hidden shadow-xl group relative cursor-pointer`}
-              >
-                <img
-                  src={img.src}
-                  alt={img.alt}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                  loading="lazy"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[hsl(0_0%_0%/0.8)] via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-5">
-                  <span
-                    className="text-primary-foreground text-sm font-serif font-semibold"
-                    style={{ textShadow: "0 2px 8px hsl(0 0% 0% / 0.6)" }}
-                  >
-                    {img.alt}
-                  </span>
-                </div>
-                <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-secondary/30 transition-all duration-500" />
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <SectionDivider />
 
       {/* ══════ PHILOSOPHY ══════ */}
       <section className="relative py-28 overflow-hidden">
