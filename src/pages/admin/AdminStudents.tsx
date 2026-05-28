@@ -585,9 +585,74 @@ const AdminStudents = ({ lockedRole }: { lockedRole?: AppRole } = {}) => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Edit profile dialog */}
+      <Dialog open={!!editTarget} onOpenChange={(o) => !o && setEditTarget(null)}>
+        <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="font-serif text-primary">Edit details — {editTarget?.display_name}</DialogTitle>
+          </DialogHeader>
+          <p className="text-xs text-muted-foreground -mt-2">Name and email are managed by the user's account and cannot be changed here.</p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <EditField label="Phone" value={editForm.phone} onChange={(v) => setEditForm({ ...editForm, phone: v })} />
+            <EditField label="Date of birth" type="date" value={editForm.date_of_birth} onChange={(v) => setEditForm({ ...editForm, date_of_birth: v })} />
+            <EditField label="Gender" value={editForm.gender} onChange={(v) => setEditForm({ ...editForm, gender: v })} />
+            <EditField label="City" value={editForm.city} onChange={(v) => setEditForm({ ...editForm, city: v })} />
+            <EditField label="State" value={editForm.state} onChange={(v) => setEditForm({ ...editForm, state: v })} />
+            <EditField label="Pincode" value={editForm.pincode} onChange={(v) => setEditForm({ ...editForm, pincode: v })} />
+            <div className="sm:col-span-2">
+              <EditField label="Address" value={editForm.address} onChange={(v) => setEditForm({ ...editForm, address: v })} />
+            </div>
+            <EditField label="Emergency contact name" value={editForm.emergency_contact_name} onChange={(v) => setEditForm({ ...editForm, emergency_contact_name: v })} />
+            <EditField label="Emergency contact phone" value={editForm.emergency_contact_phone} onChange={(v) => setEditForm({ ...editForm, emergency_contact_phone: v })} />
+            <div className="sm:col-span-2">
+              <Label className="text-[10px] uppercase tracking-wide text-muted-foreground">Bio</Label>
+              <Textarea value={editForm.bio} onChange={(e) => setEditForm({ ...editForm, bio: e.target.value })} className="mt-1 rounded-xl" rows={2} />
+            </div>
+
+            {editForm.__role === "student" && (
+              <>
+                <EditField label="Roll number" value={editForm.roll_number} onChange={(v) => setEditForm({ ...editForm, roll_number: v })} />
+                <EditField label="Enrollment ID" value={editForm.enrollment_id} onChange={(v) => setEditForm({ ...editForm, enrollment_id: v })} />
+                <EditField label="Course / Programme" value={editForm.course_name} onChange={(v) => setEditForm({ ...editForm, course_name: v })} />
+                <EditField label="Year of commencement" type="number" value={editForm.year_of_commencement} onChange={(v) => setEditForm({ ...editForm, year_of_commencement: v })} />
+              </>
+            )}
+            {editForm.__role === "instructor" && (
+              <>
+                <EditField label="Employee ID" value={editForm.employee_id} onChange={(v) => setEditForm({ ...editForm, employee_id: v })} />
+                <EditField label="Designation" value={editForm.designation} onChange={(v) => setEditForm({ ...editForm, designation: v })} />
+                <EditField label="Department" value={editForm.department} onChange={(v) => setEditForm({ ...editForm, department: v })} />
+                <EditField label="Specialization" value={editForm.specialization} onChange={(v) => setEditForm({ ...editForm, specialization: v })} />
+                <EditField label="Qualifications" value={editForm.qualifications} onChange={(v) => setEditForm({ ...editForm, qualifications: v })} />
+                <EditField label="Years of experience" type="number" value={editForm.years_of_experience} onChange={(v) => setEditForm({ ...editForm, years_of_experience: v })} />
+                <EditField label="Google Meet link" value={editForm.meet_link} onChange={(v) => setEditForm({ ...editForm, meet_link: v })} />
+                <EditField label="Zoom link" value={editForm.zoom_link} onChange={(v) => setEditForm({ ...editForm, zoom_link: v })} />
+              </>
+            )}
+            {(editForm.__role === "admin" || editForm.__role === "super_admin") && (
+              <>
+                <EditField label="Employee ID" value={editForm.employee_id} onChange={(v) => setEditForm({ ...editForm, employee_id: v })} />
+                <EditField label="Department" value={editForm.department} onChange={(v) => setEditForm({ ...editForm, department: v })} />
+                <EditField label="Admin label" value={editForm.admin_label} onChange={(v) => setEditForm({ ...editForm, admin_label: v })} />
+              </>
+            )}
+          </div>
+          <Button onClick={saveEdit} disabled={savingEdit} className="min-h-11 w-full rounded-xl bg-primary text-primary-foreground">
+            <Save className="mr-2 h-4 w-4" /> {savingEdit ? "Saving…" : "Save changes"}
+          </Button>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
+
+const EditField = ({ label, value, onChange, type = "text" }: { label: string; value: any; onChange: (v: string) => void; type?: string }) => (
+  <div>
+    <Label className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</Label>
+    <Input type={type} value={value ?? ""} onChange={(e) => onChange(e.target.value)} className="mt-1 rounded-xl" />
+  </div>
+);
 
 const DetailRow = ({ label, value }: { label: string; value: string }) => (
   <div className="flex flex-col gap-0.5 py-2 border-b border-brand-warm-grey/10 sm:flex-row sm:items-baseline sm:gap-3">
