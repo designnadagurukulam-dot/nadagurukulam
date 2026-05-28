@@ -10,7 +10,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
-import LiveClassesBlock from "@/components/overview/LiveClassesBlock";
 
 const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
@@ -234,11 +233,6 @@ const AdminOverview = () => {
           </div>
         </motion.div>
       </div>
-
-      {/* Live Classes */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-        <LiveClassesBlock scope={{ kind: "admin" }} seeAllLink="/dashboard/admin/live-classes" />
-      </motion.div>
     </div>
   );
 };
