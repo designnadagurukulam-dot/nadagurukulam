@@ -152,14 +152,14 @@ const FacultyDetail = () => {
                       </div>
                       <h2 className="font-serif text-xl font-bold">Specialities</h2>
                     </div>
-                    <div className="flex flex-wrap gap-2">
+                    <ul className="space-y-3">
                       {faculty.specialities.map((spec) => (
-                        <span key={spec} className="inline-flex items-center gap-1.5 text-sm px-4 py-2 rounded-full bg-secondary/10 text-secondary border border-secondary/20 hover:bg-secondary/15 transition-colors">
-                          <Sparkles className="h-3.5 w-3.5" />
-                          {spec}
-                        </span>
+                        <li key={spec} className="flex items-start gap-3">
+                          <div className="w-2 h-2 rounded-full bg-secondary mt-2 shrink-0" />
+                          <span className="text-foreground leading-relaxed">{spec}</span>
+                        </li>
                       ))}
-                    </div>
+                    </ul>
                   </div>
                 </>
               )}
@@ -175,14 +175,14 @@ const FacultyDetail = () => {
                       </div>
                       <h2 className="font-serif text-xl font-bold">Awards & Recognition</h2>
                     </div>
-                    <div className="flex flex-wrap gap-2">
+                    <ul className="space-y-3">
                       {faculty.awards.map((award) => (
-                        <span key={award} className="inline-flex items-center gap-1.5 text-sm px-4 py-2 rounded-full bg-secondary/10 text-secondary border border-secondary/20 hover:bg-secondary/15 transition-colors">
-                          <Award className="h-3.5 w-3.5" />
-                          {award}
-                        </span>
+                        <li key={award} className="flex items-start gap-3">
+                          <div className="w-2 h-2 rounded-full bg-secondary mt-2 shrink-0" />
+                          <span className="text-foreground leading-relaxed">{award}</span>
+                        </li>
                       ))}
-                    </div>
+                    </ul>
                   </div>
                 </>
               )}

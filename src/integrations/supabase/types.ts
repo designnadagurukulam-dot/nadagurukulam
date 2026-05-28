@@ -190,8 +190,11 @@ export type Database = {
           id: string
           instructor_id: string | null
           is_active: boolean | null
+          is_manually_active: boolean
           max_students: number | null
           name: string
+          program_id: string | null
+          semester: number | null
           start_date: string | null
         }
         Insert: {
@@ -203,8 +206,11 @@ export type Database = {
           id?: string
           instructor_id?: string | null
           is_active?: boolean | null
+          is_manually_active?: boolean
           max_students?: number | null
           name: string
+          program_id?: string | null
+          semester?: number | null
           start_date?: string | null
         }
         Update: {
@@ -216,8 +222,11 @@ export type Database = {
           id?: string
           instructor_id?: string | null
           is_active?: boolean | null
+          is_manually_active?: boolean
           max_students?: number | null
           name?: string
+          program_id?: string | null
+          semester?: number | null
           start_date?: string | null
         }
         Relationships: [
@@ -226,6 +235,13 @@ export type Database = {
             columns: ["course_id"]
             isOneToOne: false
             referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batches_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
             referencedColumns: ["id"]
           },
         ]
@@ -238,6 +254,7 @@ export type Database = {
           name: string
           parent_id: string | null
           slug: string
+          total_semesters: number
         }
         Insert: {
           created_at?: string
@@ -246,6 +263,7 @@ export type Database = {
           name: string
           parent_id?: string | null
           slug: string
+          total_semesters?: number
         }
         Update: {
           created_at?: string
@@ -254,6 +272,7 @@ export type Database = {
           name?: string
           parent_id?: string | null
           slug?: string
+          total_semesters?: number
         }
         Relationships: [
           {
@@ -696,57 +715,81 @@ export type Database = {
           assessment_cie_marks: number | null
           assessment_see_marks: number | null
           batch_id: string | null
+          cie_exam_hours: string | null
           course_code: string
           course_objectives: string[] | null
           created_at: string
+          credits: number | null
           description: string | null
           exam_hours: string | null
+          exam_type: string | null
           hours: number | null
           id: string
+          instructor_id: string | null
           module_name: string
           pedagogy: string | null
+          periods: number | null
+          program_id: string | null
           references_list: string[] | null
+          see_exam_hours: string | null
           semester: number
           sort_order: number
           subject_name: string
+          teaching_hours: number | null
           updated_at: string
         }
         Insert: {
           assessment_cie_marks?: number | null
           assessment_see_marks?: number | null
           batch_id?: string | null
+          cie_exam_hours?: string | null
           course_code: string
           course_objectives?: string[] | null
           created_at?: string
+          credits?: number | null
           description?: string | null
           exam_hours?: string | null
+          exam_type?: string | null
           hours?: number | null
           id?: string
+          instructor_id?: string | null
           module_name: string
           pedagogy?: string | null
+          periods?: number | null
+          program_id?: string | null
           references_list?: string[] | null
+          see_exam_hours?: string | null
           semester: number
           sort_order?: number
           subject_name: string
+          teaching_hours?: number | null
           updated_at?: string
         }
         Update: {
           assessment_cie_marks?: number | null
           assessment_see_marks?: number | null
           batch_id?: string | null
+          cie_exam_hours?: string | null
           course_code?: string
           course_objectives?: string[] | null
           created_at?: string
+          credits?: number | null
           description?: string | null
           exam_hours?: string | null
+          exam_type?: string | null
           hours?: number | null
           id?: string
+          instructor_id?: string | null
           module_name?: string
           pedagogy?: string | null
+          periods?: number | null
+          program_id?: string | null
           references_list?: string[] | null
+          see_exam_hours?: string | null
           semester?: number
           sort_order?: number
           subject_name?: string
+          teaching_hours?: number | null
           updated_at?: string
         }
         Relationships: [
@@ -755,6 +798,13 @@ export type Database = {
             columns: ["batch_id"]
             isOneToOne: false
             referencedRelation: "batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "curriculum_modules_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
             referencedColumns: ["id"]
           },
         ]

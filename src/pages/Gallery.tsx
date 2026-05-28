@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ChevronLeft, ChevronRight, Play } from "lucide-react";
 import SectionDivider from "@/components/SectionDivider";
@@ -85,6 +85,15 @@ const Gallery = () => {
     setLightboxIdx((lightboxIdx + dir + filtered.length) % filtered.length);
   };
 
+  // Lock body scroll when lightbox open
+  useEffect(() => {
+    if (lightboxIdx !== null) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => { document.body.style.overflow = prev; };
+    }
+  }, [lightboxIdx]);
+
   return (
     <div>
       {/* ══════ HERO ══════ */}
@@ -144,42 +153,36 @@ const Gallery = () => {
             })}
           </div>
 
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={tab}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 space-y-4"
-            >
-              {filtered.map((img, i) => (
-                <motion.div
-                  key={`${img.alt}-${i}`}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: i * 0.03, duration: 0.3 }}
-                  className="break-inside-avoid cursor-pointer group relative rounded-2xl overflow-hidden"
-                  onClick={() => setLightboxIdx(i)}
-                >
-                  <img
-                    src={img.src}
-                    alt={img.alt}
-                    className="w-full rounded-2xl shadow-md group-hover:scale-105 transition-transform duration-700"
-                    loading="lazy"
-                  />
-                  {/* Golden frame border on hover */}
-                  <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-secondary/40 transition-all duration-500 pointer-events-none" />
-                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-[hsl(0_0%_0%/0.75)] via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-5">
-                    <div>
-                      <span className="badge-gold text-[9px] mb-2 inline-block">{img.cat}</span>
-                      <p className="text-sm font-serif font-semibold text-primary-foreground" style={{ textShadow: "0 1px 4px hsl(0 0% 0% / 0.5)" }}>{img.alt}</p>
-                    </div>
+          <motion.div
+            key={tab}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.25 }}
+            className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 space-y-4"
+          >
+            {filtered.map((img, i) => (
+              <div
+                key={`${tab}-${img.alt}-${i}`}
+                className="break-inside-avoid cursor-pointer group relative rounded-2xl overflow-hidden mb-4"
+                onClick={() => setLightboxIdx(i)}
+              >
+                <img
+                  src={img.src}
+                  alt={img.alt}
+                  className="w-full block rounded-2xl shadow-md group-hover:scale-[1.03] transition-transform duration-500"
+                  loading="lazy"
+                  decoding="async"
+                />
+                <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-secondary/40 transition-colors duration-300 pointer-events-none" />
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-[hsl(0_0%_0%/0.75)] via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-5 pointer-events-none">
+                  <div>
+                    <span className="badge-gold text-[9px] mb-2 inline-block">{img.cat}</span>
+                    <p className="text-sm font-serif font-semibold text-primary-foreground" style={{ textShadow: "0 1px 4px hsl(0 0% 0% / 0.5)" }}>{img.alt}</p>
                   </div>
-                </motion.div>
-              ))}
-            </motion.div>
-          </AnimatePresence>
+                </div>
+              </div>
+            ))}
+          </motion.div>
         </div>
       </section>
 
