@@ -190,7 +190,7 @@ const TutorMessages = () => {
                 </div>
                 <div>
                   <p className="font-semibold text-sm text-primary-foreground truncate">{selectedProfile?.display_name}</p>
-                  <p className="text-[10px] text-primary-foreground/50">Student · Online</p>
+                  <p className="text-[10px] text-primary-foreground/50">{selectedProfile?.role === "admin" ? "Admin" : selectedProfile?.role === "instructor" ? "Faculty" : "Student"} · Online</p>
                 </div>
               </div>
               <ScrollArea className="flex-1 p-3 sm:p-4">
