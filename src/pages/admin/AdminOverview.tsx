@@ -234,6 +234,11 @@ const AdminOverview = () => {
           </div>
         </motion.div>
       </div>
+
+      {/* Live Classes */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+        <LiveClassesBlock scope={{ kind: "admin" }} seeAllLink="/dashboard/admin/live-classes" />
+      </motion.div>
     </div>
   );
 };
