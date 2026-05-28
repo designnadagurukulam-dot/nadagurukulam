@@ -325,8 +325,58 @@ const InstructorAssignments = () => {
         </TabsContent>
       </Tabs>
 
+      {/* Assignment Detail Dialog */}
+      <Dialog open={!!detailAssignment} onOpenChange={(o) => !o && setDetailAssignment(null)}>
+        <DialogContent className="max-w-lg rounded-2xl border-brand-parchment max-h-[90vh] overflow-y-auto">
+          {detailAssignment && (() => {
+            const a = detailAssignment;
+            const isOverdue = a.due_date && new Date(a.due_date) < new Date();
+            return (
+              <>
+                <DialogHeader>
+                  <DialogTitle className="font-serif text-brand-primary text-lg">{a.title}</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-3 text-sm">
+                  <div className="grid grid-cols-2 gap-3 text-xs">
+                    <div><span className="text-brand-warm-grey">Program:</span> <span className="text-brand-charcoal-mid font-medium">{a.courses?.category || "—"}</span></div>
+                    <div><span className="text-brand-warm-grey">Course:</span> <span className="text-brand-charcoal-mid font-medium">{a.courses?.title || "N/A"}</span></div>
+                    <div><span className="text-brand-warm-grey">Module:</span> <span className="text-brand-charcoal-mid font-medium">{a.module_name || "N/A"}</span></div>
+                    <div><span className="text-brand-warm-grey">Topic:</span> <span className="text-brand-charcoal-mid font-medium">{a.topic_name || "N/A"}</span></div>
+                    <div><span className="text-brand-warm-grey">Batch:</span> <span className="text-brand-charcoal-mid font-medium">{a.batches?.name || "—"}</span></div>
+                    <div className={isOverdue ? "text-red-600 font-semibold" : ""}>
+                      <span className="text-brand-warm-grey">Due:</span> <span className="font-medium">{a.due_date ? format(new Date(a.due_date), "MMM dd, yyyy HH:mm") : "—"}</span>
+                    </div>
+                  </div>
+                  {a.description && (
+                    <div className="bg-brand-cream rounded-xl p-3">
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-brand-warm-grey mb-1">Description / Instructions</p>
+                      <p className="text-brand-charcoal-mid whitespace-pre-wrap">{a.description}</p>
+                    </div>
+                  )}
+                  {(a.pdf_url || a.video_url || a.external_link || a.reference_text) && (
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-brand-warm-grey mb-2">Reference Files</p>
+                      <div className="flex flex-wrap gap-2">
+                        {a.pdf_url && <Button variant="outline" size="sm" onClick={() => downloadFile(a.pdf_url)} className="gap-1.5 rounded-xl"><FileText className="h-3.5 w-3.5" /> Download PDF</Button>}
+                        {a.video_url && <a href={a.video_url} target="_blank" rel="noreferrer"><Button variant="outline" size="sm" className="gap-1.5 rounded-xl"><Video className="h-3.5 w-3.5" /> Video</Button></a>}
+                        {a.external_link && <a href={a.external_link} target="_blank" rel="noreferrer"><Button variant="outline" size="sm" className="gap-1.5 rounded-xl"><ExternalLink className="h-3.5 w-3.5" /> Link</Button></a>}
+                      </div>
+                      {a.reference_text && <p className="text-xs text-brand-charcoal-mid mt-2 whitespace-pre-wrap">{a.reference_text}</p>}
+                    </div>
+                  )}
+                  <Button onClick={() => { setSelectedAssignment(a.id); setDetailAssignment(null); }} className="w-full bg-brand-primary text-white rounded-xl">
+                    View Submissions
+                  </Button>
+                </div>
+              </>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
+
       {/* Create Assignment Dialog */}
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+
         <DialogContent className="max-w-lg rounded-2xl border-brand-parchment">
           <DialogHeader>
             <DialogTitle className="font-serif text-brand-primary flex items-center gap-2">
