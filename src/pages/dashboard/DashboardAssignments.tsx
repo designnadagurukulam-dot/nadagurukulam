@@ -42,19 +42,27 @@ const DashboardAssignments = () => {
         .from("assignments").select("*, courses(title, category)").in("course_id", courseIds).order("due_date", { ascending: true });
       if (error) throw error;
       const assignmentIds = (assignments || []).map((a) => a.id);
-      const { data: submissions } = assignmentIds.length > 0
-        ? await supabase.from("assignment_submissions").select("*").eq("student_id", user!.id).in("assignment_id", assignmentIds)
-        : { data: [] };
+      const instructorIds = [...new Set((assignments || []).map((a: any) => a.instructor_id).filter(Boolean))];
+      const [{ data: submissions }, { data: profs }] = await Promise.all([
+        assignmentIds.length > 0
+          ? supabase.from("assignment_submissions").select("*").eq("student_id", user!.id).in("assignment_id", assignmentIds)
+          : Promise.resolve({ data: [] }),
+        instructorIds.length > 0
+          ? supabase.from("profiles").select("user_id, display_name").in("user_id", instructorIds)
+          : Promise.resolve({ data: [] }),
+      ]);
+      const facultyMap = Object.fromEntries((profs || []).map((p: any) => [p.user_id, p.display_name || "Faculty"]));
       return (assignments || []).map((a: any) => {
         const sub = (submissions || []).find((s) => s.assignment_id === a.id);
         let status = "pending";
         if (sub) status = sub.status;
         else if (a.due_date && isPast(new Date(a.due_date))) status = "overdue";
-        return { ...a, submission: sub || null, status };
+        return { ...a, submission: sub || null, status, faculty_name: facultyMap[a.instructor_id] || "Faculty" };
       });
     },
     enabled: !!user,
   });
+
 
   const pending = assignmentsData.filter((a: any) => a.status === "pending" || a.status === "overdue");
   const submitted = assignmentsData.filter((a: any) => a.status === "submitted");
