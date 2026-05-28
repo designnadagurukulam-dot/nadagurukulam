@@ -1,13 +1,16 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle, XCircle, Clock, Sparkles, BookOpen, IndianRupee, Shield } from "lucide-react";
+import { CheckCircle, XCircle, Clock, Sparkles, BookOpen, IndianRupee, Shield, UserPen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { logActivity } from "@/lib/activityLogger";
+import ProfileChangeRequestsTab from "@/components/admin/ProfileChangeRequestsTab";
+
 
 const AdminApprovals = () => {
   const { user } = useAuth();
@@ -15,6 +18,8 @@ const AdminApprovals = () => {
   const [reviews, setReviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [feedback, setFeedback] = useState<Record<string, string>>({});
+  const [pendingProfileCount, setPendingProfileCount] = useState(0);
+
 
   const fetchReviews = async () => {
     const { data } = await supabase
@@ -26,7 +31,13 @@ const AdminApprovals = () => {
     setLoading(false);
   };
 
-  useEffect(() => { fetchReviews(); }, []);
+  useEffect(() => {
+    fetchReviews();
+    (supabase.from("profile_change_requests" as any) as any).select("id", { count: "exact", head: true }).eq("status", "pending").then((r: any) => {
+      setPendingProfileCount(r.count || 0);
+    });
+  }, []);
+
 
   const handleAction = async (review: any, action: "approved" | "rejected") => {
     try {
@@ -63,12 +74,25 @@ const AdminApprovals = () => {
             <Shield className="h-5 w-5 text-white" />
           </div>
           <div>
-            <h1 className="font-serif text-2xl font-semibold text-brand-primary">Course Approvals</h1>
+            <h1 className="font-serif text-2xl font-semibold text-brand-primary">Approvals</h1>
             <div className="w-12 h-0.5 bg-gradient-to-r from-brand-gold to-transparent mt-1" />
           </div>
         </div>
-        <p className="text-sm text-brand-warm-grey mt-2">{reviews.length} pending review{reviews.length !== 1 ? "s" : ""}</p>
+        <p className="text-sm text-brand-warm-grey mt-2">{reviews.length} course review{reviews.length !== 1 ? "s" : ""} · {pendingProfileCount} profile edit{pendingProfileCount !== 1 ? "s" : ""} pending</p>
       </motion.div>
+
+      <Tabs defaultValue="courses">
+        <TabsList className="bg-brand-cream-dark rounded-xl p-1">
+          <TabsTrigger value="courses" className="rounded-lg gap-1.5 data-[state=active]:bg-brand-primary data-[state=active]:text-white">
+            <BookOpen className="h-3.5 w-3.5" /> Courses {reviews.length > 0 && <Badge className="ml-1 bg-amber-100 text-amber-800 border-0 h-5 px-1.5 text-[10px]">{reviews.length}</Badge>}
+          </TabsTrigger>
+          <TabsTrigger value="profiles" className="rounded-lg gap-1.5 data-[state=active]:bg-brand-primary data-[state=active]:text-white">
+            <UserPen className="h-3.5 w-3.5" /> Profile Edits {pendingProfileCount > 0 && <Badge className="ml-1 bg-amber-100 text-amber-800 border-0 h-5 px-1.5 text-[10px]">{pendingProfileCount}</Badge>}
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="courses" className="mt-4">
+
 
       {reviews.length === 0 ? (
         <div className="bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] py-16 text-center">
@@ -133,7 +157,14 @@ const AdminApprovals = () => {
           ))}
         </div>
       )}
+        </TabsContent>
+
+        <TabsContent value="profiles" className="mt-4">
+          <ProfileChangeRequestsTab />
+        </TabsContent>
+      </Tabs>
     </div>
+
   );
 };
 

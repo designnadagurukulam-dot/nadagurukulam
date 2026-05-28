@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { User, Mail, Phone, Save, Hash, GraduationCap, Calendar, Lock, Shield, MapPin, Camera } from "lucide-react";
+import { User, Mail, Phone, Save, Hash, GraduationCap, Calendar, Lock, Shield, MapPin, Camera, Heart, Users as UsersIcon, Droplet } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -219,12 +219,48 @@ const DashboardProfile = () => {
                 <Field label="State" value={formData.state} onChange={(v: string) => update("state", v)} />
                 <Field label="Pincode" value={formData.pincode} onChange={(v: string) => update("pincode", v)} />
               </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
+                <Field label="Blood Group" icon={Droplet} value={formData.blood_group} onChange={(v: string) => update("blood_group", v)} placeholder="O+, A−, etc." />
+                <Field label="Emergency Contact Name" value={formData.emergency_contact_name} onChange={(v: string) => update("emergency_contact_name", v)} />
+                <Field label="Emergency Contact Phone" value={formData.emergency_contact_phone} onChange={(v: string) => update("emergency_contact_phone", v)} />
+              </div>
               <div>
                 <label className="text-[11px] uppercase tracking-widest font-semibold text-brand-warm-grey mb-1.5 block">Bio</label>
                 <Textarea value={formData.bio || ""} onChange={(e) => update("bio", e.target.value)} placeholder="Tell us about yourself..." rows={3} className="rounded-xl border-brand-parchment focus:border-brand-gold" />
               </div>
             </CardContent>
           </Card>
+
+          {isStudent && (
+            <Card className="bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] overflow-hidden">
+              <div className="h-1 bg-gradient-to-r from-brand-gold via-brand-primary to-brand-gold" />
+              <CardHeader className="p-4 sm:p-6 pb-2 sm:pb-3">
+                <CardTitle className="text-base sm:text-lg font-serif text-brand-primary flex items-center gap-2">
+                  <UsersIcon className="h-5 w-5 text-brand-gold" /> Family Details
+                </CardTitle>
+                <p className="text-xs text-brand-warm-grey">Edits to family info require admin approval.</p>
+              </CardHeader>
+              <CardContent className="p-4 sm:p-6 pt-0 space-y-4 sm:space-y-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                  <Field label="Father's Name" value={formData.father_name} onChange={(v: string) => update("father_name", v)} />
+                  <Field label="Father's Occupation" value={formData.father_occupation} onChange={(v: string) => update("father_occupation", v)} />
+                  <Field label="Father's Email" type="email" value={formData.father_email} onChange={(v: string) => update("father_email", v)} />
+                  <Field label="Father's Phone" value={formData.father_phone} onChange={(v: string) => update("father_phone", v)} />
+                  <Field label="Mother's Name" value={formData.mother_name} onChange={(v: string) => update("mother_name", v)} />
+                  <Field label="Mother's Occupation" value={formData.mother_occupation} onChange={(v: string) => update("mother_occupation", v)} />
+                  <Field label="Mother's Email" type="email" value={formData.mother_email} onChange={(v: string) => update("mother_email", v)} />
+                  <Field label="Mother's Phone" value={formData.mother_phone} onChange={(v: string) => update("mother_phone", v)} />
+                </div>
+                <div>
+                  <label className="text-[11px] uppercase tracking-widest font-semibold text-brand-warm-grey mb-1.5 flex items-center gap-2">
+                    <Heart className="h-3.5 w-3.5 text-brand-gold" /> Brief about family
+                  </label>
+                  <Textarea value={formData.family_notes || ""} onChange={(e) => update("family_notes", e.target.value)} rows={3} className="rounded-xl border-brand-parchment focus:border-brand-gold" />
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Sticky save on mobile */}
           <div className="sticky bottom-0 bg-brand-cream/95 backdrop-blur-sm py-3 -mx-3 px-3 sm:static sm:bg-transparent sm:backdrop-blur-none sm:py-0 sm:mx-0 sm:px-0">
             <Button onClick={handleSave} disabled={saving} className="gap-2 bg-gradient-to-r from-brand-primary to-brand-primary-dark hover:from-brand-primary-dark hover:to-brand-primary text-white rounded-xl w-full sm:w-auto min-h-[44px] shadow-lg">
