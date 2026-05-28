@@ -63,6 +63,7 @@ const DashboardOverview = () => {
       const batchIds = (batchEnrollments || []).map((b: any) => b.batch_id);
       const firstBatch = batchEnrollments?.[0]?.batches as any;
       setBatchId(firstBatch?.id || null);
+      setBatchIds(batchIds);
       setBatchName(firstBatch?.name || "Not assigned");
 
       // Today's classes (for tile + dialog) — batch-specific or audience='all'
