@@ -219,11 +219,11 @@ const TutorLessonPlans = () => {
           <tbody>
             {Array.from({ length: Math.ceil(header.length / 2) }, (_, i) => (
               <tr key={i} className="border-b">
-                {[header[i * 2], header[i * 2 + 1]].filter(Boolean).map(([k, v]) => (
-                  <>
+                {[header[i * 2], header[i * 2 + 1]].filter(Boolean).map(([k, v], j) => (
+                  <Fragment key={j}>
                     <td className="border-r bg-muted/50 p-2 font-semibold w-1/4">{k}</td>
                     <td className="border-r p-2 w-1/4">{String(v)}</td>
-                  </>
+                  </Fragment>
                 ))}
               </tr>
             ))}
