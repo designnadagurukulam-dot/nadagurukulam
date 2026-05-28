@@ -89,14 +89,7 @@ const StudentChat = () => {
 
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
 
-  const handleSend = async () => {
-    if (!message.trim() || !selectedTutor || !user) return;
-    setSending(true);
-    await supabase.from("messages").insert({ sender_id: user.id, receiver_id: selectedTutor, content: message.trim() });
-    setMessage("");
-    setSending(false);
-    queryClient.invalidateQueries({ queryKey: ["chat-messages"] });
-  };
+  const handleSent = () => queryClient.invalidateQueries({ queryKey: ["chat-messages"] });
 
   const getInitials = (name: string) => name?.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase() || "?";
   const selectedStaffProfile = staffList.find((t: any) => t.user_id === selectedTutor);
