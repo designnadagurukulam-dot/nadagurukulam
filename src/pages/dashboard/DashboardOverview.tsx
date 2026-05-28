@@ -27,6 +27,7 @@ const DashboardOverview = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [batchId, setBatchId] = useState<string | null>(null);
+  const [batchIds, setBatchIds] = useState<string[]>([]);
   const [batchName, setBatchName] = useState("Not assigned");
   const [todayClasses, setTodayClasses] = useState<any[]>([]);
   const [todayOnlineClasses, setTodayOnlineClasses] = useState<any[]>([]);
