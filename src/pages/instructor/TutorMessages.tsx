@@ -89,7 +89,7 @@ const TutorMessages = () => {
   const getInitials = (name: string) => name?.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase() || "?";
   const selectedProfile = allContacts.find((s: any) => s.user_id === selectedStudent);
 
-  const renderStudentItem = (s: any, isMobile = false) => (
+  const renderContactItem = (s: any, isMobile = false) => (
     <button key={s.user_id} onClick={() => setSelectedStudent(s.user_id)}
       className={`w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all ${isMobile ? 'min-h-[52px]' : 'min-h-[48px]'} ${selectedStudent === s.user_id ? "bg-gradient-to-r from-brand-gold-pale to-brand-cream border border-brand-gold/30 shadow-sm" : "hover:bg-brand-cream"}`}>
       <div className="relative">
@@ -100,7 +100,7 @@ const TutorMessages = () => {
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium text-brand-charcoal-mid truncate">{s.display_name}</p>
-        <p className="text-xs text-brand-warm-grey">Student</p>
+        <p className="text-xs text-brand-warm-grey capitalize">{s.role === "admin" ? "Admin" : s.role === "instructor" ? "Faculty" : "Student"}</p>
       </div>
       {(unreadCounts as any)[s.user_id] > 0 && (
         <Badge className="bg-gradient-to-r from-brand-gold to-brand-gold-light text-primary-foreground text-[10px] h-5 min-w-[20px] flex items-center justify-center border-0 shadow-sm">
@@ -108,6 +108,26 @@ const TutorMessages = () => {
         </Badge>
       )}
     </button>
+  );
+
+  const renderContactList = (isMobile = false) => (
+    <>
+      {filteredStudents.length > 0 && (
+        <div className="space-y-1">
+          <p className="px-3 pt-2 pb-1 text-[10px] uppercase tracking-wider font-semibold text-brand-warm-grey">Students</p>
+          {filteredStudents.map((s: any) => renderContactItem(s, isMobile))}
+        </div>
+      )}
+      {filteredFaculty.length > 0 && (
+        <div className="space-y-1 mt-1">
+          <p className="px-3 pt-2 pb-1 text-[10px] uppercase tracking-wider font-semibold text-brand-warm-grey">Faculty</p>
+          {filteredFaculty.map((s: any) => renderContactItem(s, isMobile))}
+        </div>
+      )}
+      {filteredStudents.length === 0 && filteredFaculty.length === 0 && (
+        <p className="text-sm text-brand-warm-grey text-center py-8">No contacts found.</p>
+      )}
+    </>
   );
 
   return (
