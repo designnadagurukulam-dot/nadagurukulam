@@ -176,6 +176,70 @@ const AdminStudents = ({ lockedRole }: { lockedRole?: AppRole } = {}) => {
     fetchData();
   };
 
+  const openEditDialog = (p: any) => {
+    setEditTarget(p);
+    const role = roles[p.user_id] || "student";
+    setEditForm({
+      phone: p.phone || "",
+      date_of_birth: p.date_of_birth || "",
+      gender: p.gender || "",
+      address: p.address || "",
+      city: p.city || "",
+      state: p.state || "",
+      pincode: p.pincode || "",
+      emergency_contact_name: p.emergency_contact_name || "",
+      emergency_contact_phone: p.emergency_contact_phone || "",
+      bio: p.bio || "",
+      // Academic / role-specific
+      roll_number: p.roll_number || "",
+      enrollment_id: p.enrollment_id || "",
+      course_name: p.course_name || "",
+      year_of_commencement: p.year_of_commencement || "",
+      employee_id: p.employee_id || "",
+      designation: p.designation || "",
+      department: p.department || "",
+      specialization: p.specialization || "",
+      qualifications: p.qualifications || "",
+      years_of_experience: p.years_of_experience || "",
+      meet_link: p.meet_link || "",
+      zoom_link: p.zoom_link || "",
+      admin_label: p.admin_label || "",
+      __role: role,
+    });
+  };
+
+  const saveEdit = async () => {
+    if (!editTarget) return;
+    setSavingEdit(true);
+    const { __role, ...payload } = editForm;
+    // Normalize numbers
+    if (payload.year_of_commencement === "") payload.year_of_commencement = null;
+    else if (payload.year_of_commencement) payload.year_of_commencement = Number(payload.year_of_commencement);
+    if (payload.years_of_experience === "") payload.years_of_experience = null;
+    else if (payload.years_of_experience) payload.years_of_experience = Number(payload.years_of_experience);
+    // Convert empty strings to null
+    Object.keys(payload).forEach((k) => { if (payload[k] === "") payload[k] = null; });
+    const { error } = await supabase.from("profiles").update(payload as any).eq("user_id", editTarget.user_id);
+    setSavingEdit(false);
+    if (error) return toast.error(error.message);
+    logActivity("user.profile_updated", "profile", editTarget.user_id);
+    toast.success("Profile updated");
+    setEditTarget(null);
+    fetchData();
+  };
+
+  const resetPassword = async (p: any) => {
+    if (!p.email) return toast.error("No email on file for this user");
+    setResettingFor(p.user_id);
+    const { error } = await supabase.auth.resetPasswordForEmail(p.email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setResettingFor(null);
+    if (error) return toast.error(error.message);
+    logActivity("user.password_reset_sent", "user", p.user_id);
+    toast.success(`Password reset email sent to ${p.email}`);
+  };
+
   const getContextLabel = (p: any, currentRole: string) => {
     if (currentRole === "student") return getStudentBatchNames(p.user_id);
     if (currentRole === "instructor") return p.course_name || p.department || "Programme not set";
