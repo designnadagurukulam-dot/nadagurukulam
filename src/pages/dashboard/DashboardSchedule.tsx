@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { addDays, addWeeks, endOfWeek, format, isSameDay, startOfWeek, subWeeks } from "date-fns";
+import LiveClassesBlock from "@/components/overview/LiveClassesBlock";
+
 
 type UserRole = "admin" | "student" | "instructor" | "super_admin";
 
@@ -45,7 +47,9 @@ const DashboardSchedule = () => {
   const [instructors, setInstructors] = useState<Record<string, string>>({});
   const [batches, setBatches] = useState<Record<string, { name: string; semester: number | null }>>({});
   const [modules, setModules] = useState<Record<string, { semester: number | null }>>({});
+  const [studentBatchIds, setStudentBatchIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+
 
   const weekEnd = useMemo(() => endOfWeek(weekStart, { weekStartsOn: 1 }), [weekStart]);
   const weekDays = useMemo(() => DAY_LABELS.map((_, i) => addDays(weekStart, i)), [weekStart]);
@@ -69,12 +73,14 @@ const DashboardSchedule = () => {
           .from("batch_enrollments")
           .select("batch_id")
           .eq("student_id", user.id);
-        const batchIds = (enrolls || []).map((e) => e.batch_id).filter(Boolean);
+        const batchIds = (enrolls || []).map((e) => e.batch_id).filter(Boolean) as string[];
+        if (!cancelled) setStudentBatchIds(batchIds);
         if (batchIds.length === 0) {
           if (!cancelled) { setSchedule([]); setLoading(false); }
           return;
         }
         query = query.in("batch_id", batchIds);
+
       } else {
         query = query.eq("user_id", user.id);
       }
@@ -129,7 +135,7 @@ const DashboardSchedule = () => {
             <Calendar className="w-5 h-5 text-brand-gold" />
           </div>
           <div>
-            <h1 className="font-serif text-xl sm:text-2xl font-semibold text-brand-primary">My Schedule</h1>
+            <h1 className="font-serif text-xl sm:text-2xl font-semibold text-brand-primary">Schedule</h1>
             <div className="w-12 h-0.5 bg-gradient-to-r from-brand-gold to-transparent mt-1" />
             <p className="text-brand-warm-grey mt-1 text-xs sm:text-sm">
               {role === "instructor" ? "Classes you are scheduled to teach this week" : "Classes scheduled for your batch this week"}
@@ -196,8 +202,17 @@ const DashboardSchedule = () => {
           })}
         </div>
       )}
+
+      {/* Live Classes block */}
+      {role === "student" && (
+        <LiveClassesBlock scope={{ kind: "student", batchIds: studentBatchIds }} seeAllLink="/dashboard/student/schedule" />
+      )}
+      {role === "instructor" && user && (
+        <LiveClassesBlock scope={{ kind: "instructor", instructorId: user.id }} seeAllLink="/dashboard/tutor/schedule" />
+      )}
     </div>
   );
 };
+
 
 export default DashboardSchedule;

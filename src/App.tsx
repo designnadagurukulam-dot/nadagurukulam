@@ -25,6 +25,7 @@ import Register from "./pages/Register";
 import DashboardOverview from "./pages/dashboard/DashboardOverview";
 import DashboardCourses from "./pages/dashboard/DashboardCourses";
 import DashboardAssignments from "./pages/dashboard/DashboardAssignments";
+import DashboardAssignmentDetail from "./pages/dashboard/DashboardAssignmentDetail";
 import DashboardSchedule from "./pages/dashboard/DashboardSchedule";
 import DashboardCertificates from "./pages/dashboard/DashboardCertificates";
 import DashboardProfile from "./pages/dashboard/DashboardProfile";
@@ -119,6 +120,8 @@ const App = () => (
             <Route path="/dashboard/student" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardOverview /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/student/courses" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardCourses /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/student/assignments" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardAssignments /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/student/assignments/:id" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardAssignmentDetail /></DashboardLayout></RoleProtectedRoute>} />
+
             <Route path="/dashboard/student/schedule" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardSchedule /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/student/certificates" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardCertificates /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/student/class-log" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardClassLog /></DashboardLayout></RoleProtectedRoute>} />

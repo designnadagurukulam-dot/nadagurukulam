@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ClipboardList, FileText, Upload, ExternalLink, Video, Award, CloudUpload, Clock, Eye, Calendar, Pencil, X, Trash2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,8 +18,10 @@ import { toast } from "sonner";
 import { format, isPast } from "date-fns";
 import { logActivity } from "@/lib/activityLogger";
 
+
 const DashboardAssignments = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [selectedAssignment, setSelectedAssignment] = useState<any>(null);
   const [showSubmitForm, setShowSubmitForm] = useState(false);
@@ -42,19 +45,27 @@ const DashboardAssignments = () => {
         .from("assignments").select("*, courses(title, category)").in("course_id", courseIds).order("due_date", { ascending: true });
       if (error) throw error;
       const assignmentIds = (assignments || []).map((a) => a.id);
-      const { data: submissions } = assignmentIds.length > 0
-        ? await supabase.from("assignment_submissions").select("*").eq("student_id", user!.id).in("assignment_id", assignmentIds)
-        : { data: [] };
+      const instructorIds = [...new Set((assignments || []).map((a: any) => a.instructor_id).filter(Boolean))];
+      const [{ data: submissions }, { data: profs }] = await Promise.all([
+        assignmentIds.length > 0
+          ? supabase.from("assignment_submissions").select("*").eq("student_id", user!.id).in("assignment_id", assignmentIds)
+          : Promise.resolve({ data: [] }),
+        instructorIds.length > 0
+          ? supabase.from("profiles").select("user_id, display_name").in("user_id", instructorIds)
+          : Promise.resolve({ data: [] }),
+      ]);
+      const facultyMap = Object.fromEntries((profs || []).map((p: any) => [p.user_id, p.display_name || "Faculty"]));
       return (assignments || []).map((a: any) => {
         const sub = (submissions || []).find((s) => s.assignment_id === a.id);
         let status = "pending";
         if (sub) status = sub.status;
         else if (a.due_date && isPast(new Date(a.due_date))) status = "overdue";
-        return { ...a, submission: sub || null, status };
+        return { ...a, submission: sub || null, status, faculty_name: facultyMap[a.instructor_id] || "Faculty" };
       });
     },
     enabled: !!user,
   });
+
 
   const pending = assignmentsData.filter((a: any) => a.status === "pending" || a.status === "overdue");
   const submitted = assignmentsData.filter((a: any) => a.status === "submitted");
@@ -154,7 +165,7 @@ const DashboardAssignments = () => {
   const renderAssignment = (a: any) => (
     <Card
       key={a.id}
-      onClick={() => openDetail(a)}
+      onClick={() => navigate(`/dashboard/student/assignments/${a.id}`)}
       className={`bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] hover:shadow-[0_4px_30px_rgba(196,154,60,0.15)] transition-all duration-300 border-l-4 ${getLeftBorder(a.due_date, a.status)} cursor-pointer hover:-translate-y-0.5`}
     >
       <CardContent className="p-3 sm:p-4">
@@ -168,7 +179,12 @@ const DashboardAssignments = () => {
             </div>
             <p className="text-[10px] sm:text-xs text-brand-warm-grey mt-1 ml-9">Program: {a.courses?.category || "—"}</p>
             <p className="text-[10px] sm:text-xs text-brand-warm-grey ml-9">Course: {a.courses?.title || "—"}</p>
-            {a.description && <p className="text-[10px] sm:text-xs text-brand-warm-grey mt-1 ml-9 line-clamp-2">{a.description}</p>}
+            <p className="text-[10px] sm:text-xs text-brand-warm-grey ml-9">Faculty: {a.faculty_name}</p>
+            {a.due_date && (
+              <p className="text-[10px] sm:text-xs text-brand-warm-grey ml-9 flex items-center gap-1 mt-0.5">
+                <Calendar className="h-3 w-3" /> Due: {format(new Date(a.due_date), "MMM dd, yyyy HH:mm")}
+              </p>
+            )}
           </div>
           <div className="flex sm:flex-col items-center sm:items-end gap-2 shrink-0 ml-9 sm:ml-0">
             {a.due_date && (
@@ -178,7 +194,7 @@ const DashboardAssignments = () => {
             )}
             {a.status === "submitted" && <Badge className="bg-amber-50 text-amber-700 border-0 text-[10px] sm:text-xs">Awaiting Grade</Badge>}
             {a.status === "graded" && <Badge className="bg-green-50 text-green-700 border-0 text-[10px] sm:text-xs">Graded</Badge>}
-            <Button variant="ghost" size="sm" className="h-7 gap-1 text-[10px] sm:text-xs text-brand-primary hover:bg-brand-gold-pale rounded-lg" onClick={(e) => { e.stopPropagation(); openDetail(a); }}>
+            <Button variant="ghost" size="sm" className="h-7 gap-1 text-[10px] sm:text-xs text-brand-primary hover:bg-brand-gold-pale rounded-lg" onClick={(e) => { e.stopPropagation(); navigate(`/dashboard/student/assignments/${a.id}`); }}>
               <Eye className="h-3 w-3" /> View
             </Button>
           </div>
@@ -186,6 +202,7 @@ const DashboardAssignments = () => {
       </CardContent>
     </Card>
   );
+
 
   const renderEmpty = (msg: string, icon: any) => {
     const Icon = icon;

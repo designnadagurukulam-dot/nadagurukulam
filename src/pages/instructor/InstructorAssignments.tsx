@@ -26,6 +26,7 @@ const InstructorAssignments = () => {
   const queryClient = useQueryClient();
   const [createOpen, setCreateOpen] = useState(false);
   const [selectedAssignment, setSelectedAssignment] = useState<string | null>(null);
+  const [detailAssignment, setDetailAssignment] = useState<any>(null);
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -40,6 +41,7 @@ const InstructorAssignments = () => {
   });
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [feedbackDialog, setFeedbackDialog] = useState<{ id: string; grade: string; feedback: string } | null>(null);
+
 
   const { data: courses = [] } = useQuery({
     queryKey: ["instructor-courses", user?.id],
@@ -225,38 +227,38 @@ const InstructorAssignments = () => {
                   <TableHeader>
                     <TableRow className="bg-brand-cream-dark">
                       <TableHead className="text-brand-primary font-semibold">Title</TableHead>
+                      <TableHead className="text-brand-primary font-semibold">Program</TableHead>
                       <TableHead className="text-brand-primary font-semibold">Course</TableHead>
-                      <TableHead className="text-brand-primary font-semibold">Module</TableHead>
-                      <TableHead className="text-brand-primary font-semibold">Topic</TableHead>
                       <TableHead className="text-brand-primary font-semibold">Batch</TableHead>
-                      <TableHead className="text-brand-primary font-semibold">Due Date</TableHead>
-                      <TableHead className="text-brand-primary font-semibold text-right">Ref</TableHead>
+                      <TableHead className="text-brand-primary font-semibold">Due Date &amp; Time</TableHead>
+                      <TableHead className="text-brand-primary font-semibold text-right">Submissions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {assignments.map((a: any) => {
                       const isOverdue = a.due_date && new Date(a.due_date) < new Date();
-                      const isSelected = selectedAssignment === a.id;
                       return (
                         <TableRow
                           key={a.id}
-                          onClick={() => setSelectedAssignment(isSelected ? null : a.id)}
-                          className={`cursor-pointer ${isSelected ? "bg-brand-gold-pale/40" : ""}`}
+                          onClick={() => setDetailAssignment(a)}
+                          className="cursor-pointer hover:bg-brand-gold-pale/30"
                         >
                           <TableCell className="font-medium text-brand-charcoal-mid">{a.title}</TableCell>
-                          <TableCell className="text-sm text-brand-warm-grey">{a.courses?.title || "—"}</TableCell>
-                          <TableCell className="text-sm text-brand-warm-grey">{a.module_name || "—"}</TableCell>
-                          <TableCell className="text-sm text-brand-warm-grey">{a.topic_name || "—"}</TableCell>
+                          <TableCell className="text-sm text-brand-warm-grey">{a.courses?.category || "—"}</TableCell>
+                          <TableCell className="text-sm text-brand-warm-grey">{a.courses?.title || "N/A"}</TableCell>
                           <TableCell className="text-sm text-brand-warm-grey">{a.batches?.name || "—"}</TableCell>
                           <TableCell className={`text-sm ${isOverdue ? "text-red-600 font-semibold" : "text-brand-warm-grey"}`}>
                             {a.due_date ? format(new Date(a.due_date), "MMM dd, yyyy HH:mm") : "—"}
                           </TableCell>
                           <TableCell className="text-right">
-                            <div className="inline-flex gap-1 items-center">
-                              {a.pdf_url && <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); downloadFile(a.pdf_url); }} className="hover:bg-brand-gold-pale h-7 w-7 p-0"><FileText className="h-3.5 w-3.5 text-brand-primary" /></Button>}
-                              {a.video_url && <Video className="h-3.5 w-3.5 text-brand-warm-grey" />}
-                              {a.external_link && <ExternalLink className="h-3.5 w-3.5 text-brand-warm-grey" />}
-                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => { e.stopPropagation(); setSelectedAssignment(a.id); }}
+                              className="hover:bg-brand-gold-pale text-xs text-brand-primary"
+                            >
+                              View
+                            </Button>
                           </TableCell>
                         </TableRow>
                       );
@@ -269,12 +271,11 @@ const InstructorAssignments = () => {
                 {assignments.map((a: any) => {
                   const isOverdue = a.due_date && new Date(a.due_date) < new Date();
                   return (
-                    <div key={a.id} onClick={() => setSelectedAssignment(selectedAssignment === a.id ? null : a.id)} className={`p-4 cursor-pointer ${selectedAssignment === a.id ? "bg-brand-gold-pale/40" : ""}`}>
+                    <div key={a.id} onClick={() => setDetailAssignment(a)} className="p-4 cursor-pointer hover:bg-brand-gold-pale/30">
                       <div className="font-semibold text-brand-charcoal-mid text-sm">{a.title}</div>
                       <div className="text-xs text-brand-warm-grey mt-1 space-y-0.5">
                         <div>Program: {a.courses?.category || "—"}</div>
-                        <div>Course: {a.courses?.title || "—"}</div>
-                        <div>Module: {a.module_name || "—"} · Topic: {a.topic_name || "—"}</div>
+                        <div>Course: {a.courses?.title || "N/A"}</div>
                         <div>Batch: {a.batches?.name || "—"}</div>
                         <div className={isOverdue ? "text-red-600 font-semibold" : ""}>Due: {a.due_date ? format(new Date(a.due_date), "MMM dd, yyyy HH:mm") : "—"}</div>
                       </div>
@@ -285,6 +286,7 @@ const InstructorAssignments = () => {
             </Card>
           )}
         </TabsContent>
+
 
         <TabsContent value="submissions" className="mt-4">
           {!selectedAssignment ? (
@@ -323,8 +325,58 @@ const InstructorAssignments = () => {
         </TabsContent>
       </Tabs>
 
+      {/* Assignment Detail Dialog */}
+      <Dialog open={!!detailAssignment} onOpenChange={(o) => !o && setDetailAssignment(null)}>
+        <DialogContent className="max-w-lg rounded-2xl border-brand-parchment max-h-[90vh] overflow-y-auto">
+          {detailAssignment && (() => {
+            const a = detailAssignment;
+            const isOverdue = a.due_date && new Date(a.due_date) < new Date();
+            return (
+              <>
+                <DialogHeader>
+                  <DialogTitle className="font-serif text-brand-primary text-lg">{a.title}</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-3 text-sm">
+                  <div className="grid grid-cols-2 gap-3 text-xs">
+                    <div><span className="text-brand-warm-grey">Program:</span> <span className="text-brand-charcoal-mid font-medium">{a.courses?.category || "—"}</span></div>
+                    <div><span className="text-brand-warm-grey">Course:</span> <span className="text-brand-charcoal-mid font-medium">{a.courses?.title || "N/A"}</span></div>
+                    <div><span className="text-brand-warm-grey">Module:</span> <span className="text-brand-charcoal-mid font-medium">{a.module_name || "N/A"}</span></div>
+                    <div><span className="text-brand-warm-grey">Topic:</span> <span className="text-brand-charcoal-mid font-medium">{a.topic_name || "N/A"}</span></div>
+                    <div><span className="text-brand-warm-grey">Batch:</span> <span className="text-brand-charcoal-mid font-medium">{a.batches?.name || "—"}</span></div>
+                    <div className={isOverdue ? "text-red-600 font-semibold" : ""}>
+                      <span className="text-brand-warm-grey">Due:</span> <span className="font-medium">{a.due_date ? format(new Date(a.due_date), "MMM dd, yyyy HH:mm") : "—"}</span>
+                    </div>
+                  </div>
+                  {a.description && (
+                    <div className="bg-brand-cream rounded-xl p-3">
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-brand-warm-grey mb-1">Description / Instructions</p>
+                      <p className="text-brand-charcoal-mid whitespace-pre-wrap">{a.description}</p>
+                    </div>
+                  )}
+                  {(a.pdf_url || a.video_url || a.external_link || a.reference_text) && (
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-brand-warm-grey mb-2">Reference Files</p>
+                      <div className="flex flex-wrap gap-2">
+                        {a.pdf_url && <Button variant="outline" size="sm" onClick={() => downloadFile(a.pdf_url)} className="gap-1.5 rounded-xl"><FileText className="h-3.5 w-3.5" /> Download PDF</Button>}
+                        {a.video_url && <a href={a.video_url} target="_blank" rel="noreferrer"><Button variant="outline" size="sm" className="gap-1.5 rounded-xl"><Video className="h-3.5 w-3.5" /> Video</Button></a>}
+                        {a.external_link && <a href={a.external_link} target="_blank" rel="noreferrer"><Button variant="outline" size="sm" className="gap-1.5 rounded-xl"><ExternalLink className="h-3.5 w-3.5" /> Link</Button></a>}
+                      </div>
+                      {a.reference_text && <p className="text-xs text-brand-charcoal-mid mt-2 whitespace-pre-wrap">{a.reference_text}</p>}
+                    </div>
+                  )}
+                  <Button onClick={() => { setSelectedAssignment(a.id); setDetailAssignment(null); }} className="w-full bg-brand-primary text-white rounded-xl">
+                    View Submissions
+                  </Button>
+                </div>
+              </>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
+
       {/* Create Assignment Dialog */}
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+
         <DialogContent className="max-w-lg rounded-2xl border-brand-parchment">
           <DialogHeader>
             <DialogTitle className="font-serif text-brand-primary flex items-center gap-2">

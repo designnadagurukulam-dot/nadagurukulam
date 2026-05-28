@@ -1,84 +1,72 @@
-# Phase 17 — Courses Restructure, Curriculum Unification & Overview Blocks
+# Phase 18 — Assignments, Schedule, Events refinements
 
-## 1. Student "My Courses" — three sub-tabs
-Convert `src/pages/dashboard/DashboardCourses.tsx` from its current two-tab layout into three tabs:
+## 1. Faculty Assignments (`InstructorAssignments.tsx`)
 
-- **My Curriculum** — courses the student receives through admin-allocated batches. Source: `batch_enrollments` → `batches.course_id`.
-- **My Courses** — extra courses the student self-enrolled into. Source: `enrollments` for the user, excluding any course already present in the batch list above.
-- **Explore Courses** — approved faculty-created courses the student has not enrolled in yet (existing logic, kept as the third tab).
+**Main listing columns** — change from `Title · Course · Module · Topic · Batch · Due` to:
+`Title · Program · Course · Batch · Due Date & Time`
 
-Each card in all three tabs shows: Program name (`courses.program` / category), Faculty name (instructor profile), Program Duration (`duration_hours` or `duration_weeks`), Semester (from batch when available), and a progress % bar (existing `lesson_progress` computation).
+- Program = `courses.category` (fallback `—`); Course = `courses.title` (or `N/A` when no course selected).
+- Mobile card mirrors same five fields.
+- Click a row → opens detail dialog showing the full set (Title, Program, Course, Module, Topic, Batch, Description, Due Date, Reference files: PDF / video link / external link / reference text). Reuses same fields the Create dialog already captures.
 
-## 2. Remove "Curriculum" from Student sidebar
-- Delete the standalone `{ label: "Curriculum", to: "/dashboard/student/curriculum" }` entry in `src/components/DashboardSidebar.tsx`.
-- Keep the `/dashboard/student/curriculum` route working (cards in "My Curriculum" tab deep-link into it for the unified curriculum viewer described in §3).
+**Create Assignment dialog** — already captures Title, Course, Module, Topic, Batch, Description, Due Date, plus PDF upload + video URL + external link + reference text. Keep as-is, just confirm the field labels and that Course/Module/Topic show an explicit `N/A` option (currently uses the `__na__` sentinel — make the label read "N/A").
 
-## 3. Unified Curriculum Viewer (Student, Admin, Super Admin)
-Refactor the curriculum reading experience into a shared component `src/components/curriculum/CurriculumViewer.tsx` used by:
-- `src/pages/dashboard/DashboardCurriculum.tsx` (student)
-- `src/pages/admin/AdminCurriculum.tsx` (admin / super admin)
+## 2. Student Schedule (merge Live Classes into Schedule)
 
-Layout (fixed-height, internal scroll — no whole-block expansion):
+Sidebar already shows Schedule and no longer shows Live Classes. Update `DashboardSchedule.tsx` to:
 
-```text
-┌──────────────────────────────────────────────────────────────┐
-│  Course Name  (larger heading)                               │
-│  Course Code · Faculty Name · [Batches: A, B] (admin only)   │
-├──────────────┬───────────────────────────────────────────────┤
-│  Modules     │   Topic Title                                 │
-│  ▸ Module 1  │   ───────────────────────────────             │
-│    (5 topics)│   [scrollable topic content + media filters]  │
-│  ▸ Module 2  │                                               │
-│    (3 topics)│                                               │
-└──────────────┴───────────────────────────────────────────────┘
-```
-- Container height fixed (~`h-[70vh]` desktop, full viewport on mobile) matching the size seen when "Raga Lakshanas" module is currently expanded.
-- Left rail = scrollable module list with topic counts (existing pattern reused).
-- Right pane = scrollable topic detail; selecting a module/topic only changes the right pane, never resizes the outer container.
-- Header line includes Course Name (larger), Course Code, Faculty name. Batches list rendered only when `role in (admin, super_admin)`.
+1. Keep existing weekly timetable calendar block at the top (works for students via `batch_enrollments` → `schedules`).
+2. Below it, render the existing `LiveClassesBlock` (`scope={{ kind: "student", batchIds }}`) — already supports Upcoming / Past tabs with counts and 10-minute Join window.
+3. Rename page heading from "My Schedule" to "Schedule".
 
-## 4. Remove "Live Classes" sidebar entry — all roles
-Delete the Live Classes nav item from `studentNav`, `instructorNav`, and `adminNav` (so super_admin inherits the change too) in `src/components/DashboardSidebar.tsx`. Keep the underlying routes for deep links.
+Leave `/dashboard/student/live-classes` route in place for deep links but it is no longer surfaced.
 
-Add an equivalent block on each role's Overview:
-- **Faculty (`InstructorOverview.tsx`)** — insert a "Live Classes" block immediately **above** the Teaching Activity block. Two inner tabs: **Upcoming (n)** and **Past (n)** sourced from `live_classes` filtered by `instructor_id`. Each row: title, batch/audience, date-time, duration, Join button (existing 10-min-window logic).
-- **Student (`DashboardOverview.tsx`)** — promote the existing "Online Classes" today block into a fuller "Live Classes" block with **Upcoming / Past** tabs (audience filter: batch-specific or `audience_type='all'`).
-- **Admin / Super Admin (`AdminOverview.tsx`)** — add a "Live Classes" block with **Upcoming / Past** tabs (all classes, read-only summary linking through to the existing page).
+## 3. Student Assignments (`DashboardAssignments.tsx`)
 
-## 5. Faculty Overview — replace "Recent Submissions" with "Events for Today"
-In `src/pages/instructor/InstructorOverview.tsx`, replace the Recent Submissions section (≈lines 386–474) with an "Events for Today" block listing rows from `events` where `event_date::date = current_date`, `approval_status='approved'`, `is_active=true`. Each row: title, time, location, event_type chip. Empty state mirrors existing styling.
+**Card body** — add Faculty Name and Due Date alongside existing fields:
+- Title
+- Program (`courses.category`)
+- Course (`courses.title`)
+- Faculty Name (resolve `assignments.instructor_id` → `profiles.display_name`)
+- Due Date & Time
 
-## 6. Assignments — show "Program" before "Course"
-Update assignment row rendering in:
-- `src/pages/instructor/InstructorAssignments.tsx` (line 275)
-- `src/pages/dashboard/DashboardAssignments.tsx` (matching row)
-- `src/pages/admin/AdminAssignments.tsx` (if it renders the same row)
+Update data query to fetch instructor profiles for the assignments list.
 
-Replace `Course: {title}` with two lines/inline chips:
-```
-Program: {courses.program ?? courses.categories?.name ?? "—"}
-Course:  {courses.title ?? "—"}
-```
-Fetch `program` / category in the existing select where missing.
+**Detail view — convert dialog into a dedicated page**:
+- New route `/dashboard/student/assignments/:id` → `DashboardAssignmentDetail.tsx`.
+- Fetches assignment + course + instructor + module (`curriculum_modules.module_name`) + topic (`curriculum_topics.title`) + batch (`batches.name`) + student's own submission.
+- Layout shows: Title, Program, Course, Module, Topic, Batch, Description/Instructions, Due Date & Time, Reference files section (PDF download, video link, external link, reference text), grade/feedback if graded, and a **Submit Assignment** button at the bottom.
+- Clicking Submit opens the existing submit pop-up (file upload + text content) — extract current submit form JSX into a `SubmitAssignmentDialog` component reused from both the list (optional) and the detail page.
 
-## Technical Notes
-- No database migrations required. All splits rely on existing tables: `batch_enrollments`, `batches`, `enrollments`, `courses`, `profiles`, `live_classes`, `events`, `assignments`.
-- `CurriculumViewer` component centralises queries it already does in both files; admin variant simply passes `showBatches` prop and a batches lookup.
-- Faculty name resolution reuses the two-step query pattern already memoised in `query-pattern-live-classes`.
-- Sidebar count logic for "Live Classes" (none today) is unaffected; assignment/messages counts remain.
-- Routes preserved so existing bookmarks / deep links keep working; only nav entries are removed.
+Card click navigates to the new route instead of opening the in-page dialog. Pending/Submitted/Graded tabs stay.
 
-## Files Touched
+## 4. Events (calendar view for all roles)
+
+Convert `DashboardEvents.tsx` (used by student + instructor) to match the Admin calendar pattern:
+
+- **Top** — Month calendar grid (prev/next, dot indicators for event days, click a date to select). Reuse the layout from `AdminEvents.tsx` calendar tab (lines ~180–204).
+- **Selected date panel** — list events on the selected day, or "No events" placeholder.
+- **This Week section** — show only events whose `event_date` falls in the current week (Mon–Sun). If none → "No Events".
+- **Remove the Past section entirely.**
+- **Suggest Event** dialog: add an optional `map_url` field (Google Maps URL) — column already exists on `events`. Keep existing title/description/start/end/type/location/overlap-check flow. Owner can still delete their pending submissions.
+
+Calendar styling kept consistent with Admin so the view feels the same for Admin/Tutor/Student.
+
+## Files
+
 **Edit**
-- `src/components/DashboardSidebar.tsx` (remove Curriculum + Live Classes entries)
-- `src/pages/dashboard/DashboardCourses.tsx` (3 sub-tabs, new query split)
-- `src/pages/dashboard/DashboardCurriculum.tsx` (use shared viewer)
-- `src/pages/admin/AdminCurriculum.tsx` (use shared viewer)
-- `src/pages/instructor/InstructorOverview.tsx` (Live Classes block + Events for Today swap)
-- `src/pages/dashboard/DashboardOverview.tsx` (expand Online Classes → Live Classes Upcoming/Past tabs)
-- `src/pages/admin/AdminOverview.tsx` (add Live Classes Upcoming/Past block)
-- `src/pages/instructor/InstructorAssignments.tsx`, `src/pages/dashboard/DashboardAssignments.tsx`, `src/pages/admin/AdminAssignments.tsx` (Program label)
+- `src/pages/instructor/InstructorAssignments.tsx` — main table columns + detail dialog content
+- `src/pages/dashboard/DashboardAssignments.tsx` — card fields + navigate to detail route; extract submit form
+- `src/pages/dashboard/DashboardSchedule.tsx` — heading rename + append `LiveClassesBlock`
+- `src/pages/dashboard/DashboardEvents.tsx` — full rewrite to calendar layout + week section + map_url field
+- `src/App.tsx` — add new student assignment detail route
 
 **New**
-- `src/components/curriculum/CurriculumViewer.tsx` (shared fixed-height two-panel viewer)
-- `src/components/overview/LiveClassesBlock.tsx` (shared Upcoming/Past tabs block, role-aware)
+- `src/pages/dashboard/DashboardAssignmentDetail.tsx` — dedicated page
+- `src/components/assignments/SubmitAssignmentDialog.tsx` — reusable submit pop-up
+
+## Notes / clarifications
+
+- Faculty "Program" comes from `courses.category` (text). When no course is linked, Program shows `—`.
+- Student Faculty Name uses the assignment's `instructor_id` → profiles lookup.
+- No DB migrations required — `events.map_url`, `assignments.reference_text/video_url/external_link/pdf_url`, `curriculum_topics/modules/batches` all already exist.
