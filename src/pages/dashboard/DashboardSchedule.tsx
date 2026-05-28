@@ -202,8 +202,17 @@ const DashboardSchedule = () => {
           })}
         </div>
       )}
+
+      {/* Live Classes block */}
+      {role === "student" && (
+        <LiveClassesBlock scope={{ kind: "student", batchIds: studentBatchIds }} seeAllLink="/dashboard/student/schedule" />
+      )}
+      {role === "instructor" && user && (
+        <LiveClassesBlock scope={{ kind: "instructor", instructorId: user.id }} seeAllLink="/dashboard/tutor/schedule" />
+      )}
     </div>
   );
 };
+
 
 export default DashboardSchedule;
