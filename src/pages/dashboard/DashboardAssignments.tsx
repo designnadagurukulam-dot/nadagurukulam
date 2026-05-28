@@ -21,6 +21,7 @@ import { logActivity } from "@/lib/activityLogger";
 
 const DashboardAssignments = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [selectedAssignment, setSelectedAssignment] = useState<any>(null);
   const [showSubmitForm, setShowSubmitForm] = useState(false);
