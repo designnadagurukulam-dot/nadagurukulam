@@ -1,72 +1,49 @@
-# Phase 18 — Assignments, Schedule, Events refinements
+# Phase 19 — Student dashboard polish + Analytics
 
-## 1. Faculty Assignments (`InstructorAssignments.tsx`)
+## 1. Reach Out (chat)
 
-**Main listing columns** — change from `Title · Course · Module · Topic · Batch · Due` to:
-`Title · Program · Course · Batch · Due Date & Time`
+Attachment + voice note already exist in `ChatComposer` (Paperclip, Mic). No changes there.
 
-- Program = `courses.category` (fallback `—`); Course = `courses.title` (or `N/A` when no course selected).
-- Mobile card mirrors same five fields.
-- Click a row → opens detail dialog showing the full set (Title, Program, Course, Module, Topic, Batch, Description, Due Date, Reference files: PDF / video link / external link / reference text). Reuses same fields the Create dialog already captures.
+Contact-list scope changes:
 
-**Create Assignment dialog** — already captures Title, Course, Module, Topic, Batch, Description, Due Date, plus PDF upload + video URL + external link + reference text. Keep as-is, just confirm the field labels and that Course/Module/Topic show an explicit `N/A` option (currently uses the `__na__` sentinel — make the label read "N/A").
+- `src/pages/dashboard/StudentChat.tsx` — fetch all verified faculty by name. Today it already lists `instructor` + `admin`. Keep that, but note: students must **not** see other students. Already the case. Add a section header "Faculty" so it's clear all faculty are listed. (Search already covers all of them.)
+- `src/pages/instructor/TutorMessages.tsx` — broaden contacts so faculty see **all students** (not just their batch students) **and all other faculty**. Group the contact list into two sections: "Students" and "Faculty", with search across both. Exclude self.
+- Students remain blocked from messaging other students (no UI exposes it; RLS already restricts).
 
-## 2. Student Schedule (merge Live Classes into Schedule)
+## 2. Feedback wording
 
-Sidebar already shows Schedule and no longer shows Live Classes. Update `DashboardSchedule.tsx` to:
+`src/pages/dashboard/StudentFeedback.tsx`:
+- Line 226: replace privacy note text with just `This feedback is completely anonymous.` (remove "Only the admin team can read it.")
+- Line 245: change history heading from `Your Feedback History & Admin Replies` to `Your Feedback History`.
 
-1. Keep existing weekly timetable calendar block at the top (works for students via `batch_enrollments` → `schedules`).
-2. Below it, render the existing `LiveClassesBlock` (`scope={{ kind: "student", batchIds }}`) — already supports Upcoming / Past tabs with counts and 10-minute Join window.
-3. Rename page heading from "My Schedule" to "Schedule".
+## 3. Certificates
 
-Leave `/dashboard/student/live-classes` route in place for deep links but it is no longer surfaced.
+No changes.
 
-## 3. Student Assignments (`DashboardAssignments.tsx`)
+## 4. Analytics tab for Students (new)
 
-**Card body** — add Faculty Name and Due Date alongside existing fields:
-- Title
-- Program (`courses.category`)
-- Course (`courses.title`)
-- Faculty Name (resolve `assignments.instructor_id` → `profiles.display_name`)
-- Due Date & Time
+Sidebar: add `{ label: "Analytics", to: "/dashboard/student/analytics", icon: BarChart3 }` to `studentNav` (above Profile).
 
-Update data query to fetch instructor profiles for the assignments list.
+Route: add `/dashboard/student/analytics` in `src/App.tsx` guarded for `student`.
 
-**Detail view — convert dialog into a dedicated page**:
-- New route `/dashboard/student/assignments/:id` → `DashboardAssignmentDetail.tsx`.
-- Fetches assignment + course + instructor + module (`curriculum_modules.module_name`) + topic (`curriculum_topics.title`) + batch (`batches.name`) + student's own submission.
-- Layout shows: Title, Program, Course, Module, Topic, Batch, Description/Instructions, Due Date & Time, Reference files section (PDF download, video link, external link, reference text), grade/feedback if graded, and a **Submit Assignment** button at the bottom.
-- Clicking Submit opens the existing submit pop-up (file upload + text content) — extract current submit form JSX into a `SubmitAssignmentDialog` component reused from both the list (optional) and the detail page.
+New page `src/pages/dashboard/DashboardAnalytics.tsx` with two charts (Recharts, already used by Admin/Instructor analytics):
 
-Card click navigates to the new route instead of opening the in-page dialog. Pending/Submitted/Graded tabs stay.
+- **Course completion** — for each enrolled course (from `batch_enrollments` → `batches` → `courses`):
+  - Top-level progress bar/donut: % topics completed across the course.
+  - Drill-down (accordion or tabs per course): module-wise stacked bar (Completed vs Pending topics per module) and topic-wise checklist colored by status.
+  - Completion source: `class_logs` confirmed by the student (existing `class_log_confirmations` table) joined to `topics` → `chapters` → `subjects` → `courses`.
+- **Assignments completion** — bar/donut showing Submitted / Pending / Graded / Overdue counts from `assignments` filtered by the student's batches, joined to `assignment_submissions` for the user.
 
-## 4. Events (calendar view for all roles)
+Empty-state copy: "Once your courses and assignments have activity, analytics will populate here."
 
-Convert `DashboardEvents.tsx` (used by student + instructor) to match the Admin calendar pattern:
+UI: brand cards, responsive grid (1 col mobile, 2 col desktop), matches existing `InstructorAnalytics.tsx` styling.
 
-- **Top** — Month calendar grid (prev/next, dot indicators for event days, click a date to select). Reuse the layout from `AdminEvents.tsx` calendar tab (lines ~180–204).
-- **Selected date panel** — list events on the selected day, or "No events" placeholder.
-- **This Week section** — show only events whose `event_date` falls in the current week (Mon–Sun). If none → "No Events".
-- **Remove the Past section entirely.**
-- **Suggest Event** dialog: add an optional `map_url` field (Google Maps URL) — column already exists on `events`. Keep existing title/description/start/end/type/location/overlap-check flow. Owner can still delete their pending submissions.
+## 5. Profile
 
-Calendar styling kept consistent with Admin so the view feels the same for Admin/Tutor/Student.
+No changes.
 
 ## Files
 
-**Edit**
-- `src/pages/instructor/InstructorAssignments.tsx` — main table columns + detail dialog content
-- `src/pages/dashboard/DashboardAssignments.tsx` — card fields + navigate to detail route; extract submit form
-- `src/pages/dashboard/DashboardSchedule.tsx` — heading rename + append `LiveClassesBlock`
-- `src/pages/dashboard/DashboardEvents.tsx` — full rewrite to calendar layout + week section + map_url field
-- `src/App.tsx` — add new student assignment detail route
-
-**New**
-- `src/pages/dashboard/DashboardAssignmentDetail.tsx` — dedicated page
-- `src/components/assignments/SubmitAssignmentDialog.tsx` — reusable submit pop-up
-
-## Notes / clarifications
-
-- Faculty "Program" comes from `courses.category` (text). When no course is linked, Program shows `—`.
-- Student Faculty Name uses the assignment's `instructor_id` → profiles lookup.
-- No DB migrations required — `events.map_url`, `assignments.reference_text/video_url/external_link/pdf_url`, `curriculum_topics/modules/batches` all already exist.
+Edit: `StudentChat.tsx`, `TutorMessages.tsx`, `StudentFeedback.tsx`, `DashboardSidebar.tsx`, `App.tsx`.
+Create: `src/pages/dashboard/DashboardAnalytics.tsx`.
+No DB migrations.

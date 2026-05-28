@@ -223,7 +223,7 @@ const StudentFeedback = () => {
               </div>
               <div>
                 <p className="text-xs font-semibold text-brand-charcoal-mid flex items-center gap-1"><Lock className="h-3 w-3" /> Your Privacy is Protected</p>
-                <p className="text-[10px] text-brand-warm-grey mt-0.5">🔒 This feedback is completely anonymous. Only the admin team can read it.</p>
+                <p className="text-[10px] text-brand-warm-grey mt-0.5">🔒 This feedback is completely anonymous.</p>
               </div>
             </div>
 
