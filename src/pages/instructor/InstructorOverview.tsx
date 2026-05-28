@@ -403,93 +403,46 @@ const InstructorOverview = () => {
         </motion.div>
       </div>
 
-      {/* Recent Submissions */}
+      {/* Events for Today */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}>
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 flex items-center justify-center">
-              <ClipboardList className="w-4 h-4 text-brand-gold" />
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-primary/15 to-brand-primary/5 flex items-center justify-center">
+              <Calendar className="w-4 h-4 text-brand-primary" />
             </div>
             <div>
-              <h3 className="font-serif text-lg font-semibold text-brand-primary">Recent Submissions</h3>
-              {newSubsCount > 0 && (
-                <p className="text-[11px] text-brand-primary font-semibold mt-0.5">
-                  ● {newSubsCount} new submission{newSubsCount === 1 ? "" : "s"} awaiting review
-                </p>
-              )}
+              <h3 className="font-serif text-lg font-semibold text-brand-primary">Events for Today</h3>
+              <div className="w-10 h-0.5 bg-gradient-to-r from-brand-gold to-transparent mt-1" />
             </div>
           </div>
-          <Link to="/dashboard/tutor/assignments" className="text-xs text-brand-gold hover:text-brand-primary font-semibold flex items-center gap-1">See All <ArrowRight className="w-3 h-3" /></Link>
+          <Link to="/dashboard/tutor/events" className="text-xs text-brand-gold hover:text-brand-primary font-semibold flex items-center gap-1">See All <ArrowRight className="w-3 h-3" /></Link>
         </div>
-        {recentSubmissions.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-brand-parchment p-10 text-center">
+        {todayEvents.length === 0 ? (
+          <div className="bg-white rounded-2xl border border-brand-parchment p-8 text-center">
             <div className="w-14 h-14 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 mx-auto flex items-center justify-center mb-3">
-              <ClipboardList className="w-6 h-6 text-brand-gold" />
+              <Calendar className="w-6 h-6 text-brand-gold" />
             </div>
-            <p className="font-serif text-brand-charcoal-mid">No submissions yet</p>
-            <p className="text-xs text-brand-warm-grey mt-1">Submissions will appear here</p>
+            <p className="font-serif text-brand-charcoal-mid text-sm">No events today</p>
           </div>
         ) : (
-          <>
-            <div className="hidden sm:block rounded-2xl border border-brand-parchment overflow-hidden bg-white shadow-[0_2px_24px_rgba(125,30,36,0.04)]">
-              <table className="w-full">
-                <thead>
-                  <tr className="bg-gradient-to-r from-brand-primary-dark to-brand-primary text-brand-gold-light text-[11px] uppercase tracking-widest">
-                    <th className="px-5 py-3.5 text-left font-semibold">Student</th>
-                    <th className="px-5 py-3.5 text-left font-semibold">Assignment</th>
-                    <th className="px-5 py-3.5 text-left font-semibold">Submitted</th>
-                    <th className="px-5 py-3.5 text-left font-semibold">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentSubmissions.map((sub: any, i) => {
-                    const isNew = sub.status === "submitted" && !sub.grade && !sub.feedback;
-                    return (
-                      <tr key={sub.id} className={`${i % 2 === 0 ? 'bg-white' : 'bg-brand-cream'} border-b border-brand-cream-dark hover:bg-brand-gold-pale/30 transition-colors`}>
-                        <td className="px-5 py-3.5 text-sm font-medium text-brand-charcoal-mid">
-                          <span className="flex items-center gap-2">
-                            {isNew && <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />}
-                            {sub.student_name}
-                          </span>
-                        </td>
-                        <td className="px-5 py-3.5 text-sm text-brand-charcoal-mid">{sub.assignments?.title}</td>
-                        <td className="px-5 py-3.5 text-sm text-brand-warm-grey">{format(new Date(sub.submitted_at), "MMM dd, h:mm a")}</td>
-                        <td className="px-5 py-3.5">
-                          <span className={`text-[10px] uppercase tracking-widest px-2.5 py-0.5 rounded-full font-bold ${
-                            sub.status === "graded" ? "bg-green-50 text-green-700" : isNew ? "bg-red-50 text-red-700" : "bg-amber-50 text-amber-700"
-                          }`}>
-                            {sub.status === "graded" ? `Graded: ${sub.grade}` : isNew ? "New" : "Pending"}
-                          </span>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-            <div className="sm:hidden space-y-2">
-              {recentSubmissions.map((sub: any) => {
-                const isNew = sub.status === "submitted" && !sub.grade && !sub.feedback;
-                return (
-                  <div key={sub.id} className="bg-white rounded-2xl border border-brand-parchment p-4 shadow-sm">
-                    <div className="flex items-center justify-between mb-2">
-                      <p className="text-sm font-semibold text-brand-charcoal-mid flex items-center gap-2">
-                        {isNew && <span className="w-2 h-2 rounded-full bg-red-500" />}
-                        {sub.student_name}
-                      </p>
-                      <span className={`text-[10px] uppercase tracking-widest px-2.5 py-0.5 rounded-full font-bold ${
-                        sub.status === "graded" ? "bg-green-50 text-green-700" : isNew ? "bg-red-50 text-red-700" : "bg-amber-50 text-amber-700"
-                      }`}>
-                        {sub.status === "graded" ? `${sub.grade}` : isNew ? "New" : "Pending"}
-                      </span>
-                    </div>
-                    <p className="text-xs text-brand-warm-grey">{sub.assignments?.title}</p>
-                    <p className="text-xs text-brand-warm-grey mt-1">{format(new Date(sub.submitted_at), "MMM dd, h:mm a")}</p>
-                  </div>
-                );
-              })}
-            </div>
-          </>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {todayEvents.map((ev: any) => (
+              <div key={ev.id} className="bg-white rounded-2xl border border-brand-parchment p-4 hover:border-brand-gold/40 transition-all">
+                <p className="text-sm font-bold text-brand-charcoal-mid">{ev.title}</p>
+                <p className="text-[11px] text-brand-warm-grey mt-1">{format(new Date(ev.event_date), "h:mm a")}</p>
+                {ev.location && (
+                  <p className="text-[11px] text-brand-warm-grey mt-1 flex items-center gap-1">
+                    <MapPin className="w-3 h-3" /> {ev.location}
+                  </p>
+                )}
+                {ev.event_type && (
+                  <span className="inline-block mt-2 text-[10px] uppercase tracking-wider bg-brand-cream px-2 py-0.5 rounded-full text-brand-primary font-bold">
+                    {ev.event_type}
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
         )}
       </motion.div>
 
