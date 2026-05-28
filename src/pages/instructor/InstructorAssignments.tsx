@@ -227,38 +227,38 @@ const InstructorAssignments = () => {
                   <TableHeader>
                     <TableRow className="bg-brand-cream-dark">
                       <TableHead className="text-brand-primary font-semibold">Title</TableHead>
+                      <TableHead className="text-brand-primary font-semibold">Program</TableHead>
                       <TableHead className="text-brand-primary font-semibold">Course</TableHead>
-                      <TableHead className="text-brand-primary font-semibold">Module</TableHead>
-                      <TableHead className="text-brand-primary font-semibold">Topic</TableHead>
                       <TableHead className="text-brand-primary font-semibold">Batch</TableHead>
-                      <TableHead className="text-brand-primary font-semibold">Due Date</TableHead>
-                      <TableHead className="text-brand-primary font-semibold text-right">Ref</TableHead>
+                      <TableHead className="text-brand-primary font-semibold">Due Date &amp; Time</TableHead>
+                      <TableHead className="text-brand-primary font-semibold text-right">Submissions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {assignments.map((a: any) => {
                       const isOverdue = a.due_date && new Date(a.due_date) < new Date();
-                      const isSelected = selectedAssignment === a.id;
                       return (
                         <TableRow
                           key={a.id}
-                          onClick={() => setSelectedAssignment(isSelected ? null : a.id)}
-                          className={`cursor-pointer ${isSelected ? "bg-brand-gold-pale/40" : ""}`}
+                          onClick={() => setDetailAssignment(a)}
+                          className="cursor-pointer hover:bg-brand-gold-pale/30"
                         >
                           <TableCell className="font-medium text-brand-charcoal-mid">{a.title}</TableCell>
-                          <TableCell className="text-sm text-brand-warm-grey">{a.courses?.title || "—"}</TableCell>
-                          <TableCell className="text-sm text-brand-warm-grey">{a.module_name || "—"}</TableCell>
-                          <TableCell className="text-sm text-brand-warm-grey">{a.topic_name || "—"}</TableCell>
+                          <TableCell className="text-sm text-brand-warm-grey">{a.courses?.category || "—"}</TableCell>
+                          <TableCell className="text-sm text-brand-warm-grey">{a.courses?.title || "N/A"}</TableCell>
                           <TableCell className="text-sm text-brand-warm-grey">{a.batches?.name || "—"}</TableCell>
                           <TableCell className={`text-sm ${isOverdue ? "text-red-600 font-semibold" : "text-brand-warm-grey"}`}>
                             {a.due_date ? format(new Date(a.due_date), "MMM dd, yyyy HH:mm") : "—"}
                           </TableCell>
                           <TableCell className="text-right">
-                            <div className="inline-flex gap-1 items-center">
-                              {a.pdf_url && <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); downloadFile(a.pdf_url); }} className="hover:bg-brand-gold-pale h-7 w-7 p-0"><FileText className="h-3.5 w-3.5 text-brand-primary" /></Button>}
-                              {a.video_url && <Video className="h-3.5 w-3.5 text-brand-warm-grey" />}
-                              {a.external_link && <ExternalLink className="h-3.5 w-3.5 text-brand-warm-grey" />}
-                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => { e.stopPropagation(); setSelectedAssignment(a.id); }}
+                              className="hover:bg-brand-gold-pale text-xs text-brand-primary"
+                            >
+                              View
+                            </Button>
                           </TableCell>
                         </TableRow>
                       );
@@ -271,12 +271,11 @@ const InstructorAssignments = () => {
                 {assignments.map((a: any) => {
                   const isOverdue = a.due_date && new Date(a.due_date) < new Date();
                   return (
-                    <div key={a.id} onClick={() => setSelectedAssignment(selectedAssignment === a.id ? null : a.id)} className={`p-4 cursor-pointer ${selectedAssignment === a.id ? "bg-brand-gold-pale/40" : ""}`}>
+                    <div key={a.id} onClick={() => setDetailAssignment(a)} className="p-4 cursor-pointer hover:bg-brand-gold-pale/30">
                       <div className="font-semibold text-brand-charcoal-mid text-sm">{a.title}</div>
                       <div className="text-xs text-brand-warm-grey mt-1 space-y-0.5">
                         <div>Program: {a.courses?.category || "—"}</div>
-                        <div>Course: {a.courses?.title || "—"}</div>
-                        <div>Module: {a.module_name || "—"} · Topic: {a.topic_name || "—"}</div>
+                        <div>Course: {a.courses?.title || "N/A"}</div>
                         <div>Batch: {a.batches?.name || "—"}</div>
                         <div className={isOverdue ? "text-red-600 font-semibold" : ""}>Due: {a.due_date ? format(new Date(a.due_date), "MMM dd, yyyy HH:mm") : "—"}</div>
                       </div>
@@ -287,6 +286,7 @@ const InstructorAssignments = () => {
             </Card>
           )}
         </TabsContent>
+
 
         <TabsContent value="submissions" className="mt-4">
           {!selectedAssignment ? (
