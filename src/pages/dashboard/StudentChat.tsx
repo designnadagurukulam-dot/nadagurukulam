@@ -15,8 +15,6 @@ const StudentChat = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [selectedTutor, setSelectedTutor] = useState<string | null>(null);
-  const [message, setMessage] = useState("");
-  const [sending, setSending] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
