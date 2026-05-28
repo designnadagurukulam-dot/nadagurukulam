@@ -41,13 +41,34 @@ const AdminJobs = () => {
       return data;
     },
   });
-  const { data: departments = [] } = useQuery({
+  const { data: customPrograms = [] } = useQuery({
     queryKey: ["job-departments"],
     queryFn: async () => {
       const { data } = await supabase.from("job_departments" as any).select("*").order("name");
       return (data as any[]) || [];
     },
   });
+  const { data: curriculumPrograms = [] } = useQuery({
+    queryKey: ["curriculum-programs-for-jobs"],
+    queryFn: async () => {
+      const { data } = await supabase.from("categories").select("id, name").is("parent_id", null).order("name");
+      return data || [];
+    },
+  });
+  // Merge curriculum programs + custom programs, de-duplicated by name (case-insensitive)
+  const programs = (() => {
+    const seen = new Set<string>();
+    const out: { id: string; name: string; source: "curriculum" | "custom" }[] = [];
+    curriculumPrograms.forEach((p: any) => {
+      const key = (p.name || "").toLowerCase();
+      if (key && !seen.has(key)) { seen.add(key); out.push({ id: `curr-${p.id}`, name: p.name, source: "curriculum" }); }
+    });
+    customPrograms.forEach((p: any) => {
+      const key = (p.name || "").toLowerCase();
+      if (key && !seen.has(key)) { seen.add(key); out.push({ id: p.id, name: p.name, source: "custom" }); }
+    });
+    return out.sort((a, b) => a.name.localeCompare(b.name));
+  })();
 
   const saveMutation = useMutation({
     mutationFn: async (data: any) => {
