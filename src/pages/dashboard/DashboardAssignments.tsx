@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ClipboardList, FileText, Upload, ExternalLink, Video, Award, CloudUpload, Clock, Eye, Calendar, Pencil, X, Trash2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,6 +17,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { format, isPast } from "date-fns";
 import { logActivity } from "@/lib/activityLogger";
+
 
 const DashboardAssignments = () => {
   const { user } = useAuth();
