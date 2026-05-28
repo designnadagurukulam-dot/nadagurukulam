@@ -322,12 +322,12 @@ const AdminStudents = ({ lockedRole }: { lockedRole?: AppRole } = {}) => {
               <Users className="h-5 w-5" />
             </div>
             <div>
-              <h1 className="font-serif text-2xl font-semibold text-primary">Users</h1>
+              <h1 className="font-serif text-2xl font-semibold text-primary">{lockedRole === "instructor" ? "Teachers" : "Users"}</h1>
               <div className="mt-1 h-0.5 w-12 bg-secondary" />
             </div>
           </div>
         </div>
-        <p className="mt-2 text-sm text-muted-foreground">{visibleProfiles.length} managed users • {filtered.length} shown. Roles can be changed inline; batch and subject assignment moved to their own pages.</p>
+        <p className="mt-2 text-sm text-muted-foreground">{visibleProfiles.length} managed users • {filtered.length} shown.{lockedRole ? "" : " Roles can be changed inline; batch and subject assignment moved to their own pages."}</p>
       </motion.div>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
