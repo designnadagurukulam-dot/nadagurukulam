@@ -132,6 +132,7 @@ const App = () => (
             <Route path="/dashboard/student/chat" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><StudentChat /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/student/feedback" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><StudentFeedback /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/student/events" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardEvents roleType="student" /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/student/analytics" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardAnalytics /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/student/profile" element={<ProtectedRoute><DashboardLayout><DashboardProfile /></DashboardLayout></ProtectedRoute>} />
 
             {/* Faculty Dashboard */}
