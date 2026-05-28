@@ -1,28 +1,50 @@
-## Phase 9 — Finish pending work from Phase 8
+## Phase 10 — Feedback, Timetable, Jobs
 
-### 1. Deploy `admin-reset-password` edge function
-Deploy the already-written function so admins can issue temporary passwords from the user profile page.
+### 1. Feedback tab (`AdminFeedback.tsx`)
 
-### 2. Profile Edits approval queue in Admin Approvals
-Add a new **Profile Edits** tab to `AdminApprovals.tsx` that lists all pending rows from `profile_change_requests` across all users (currently only visible per-user on `AdminUserProfile`). Each row shows: requester name + role, requested diff (field → old → new), submitted date, and Approve / Reject actions with optional note. Approving applies the JSONB diff to `profiles` and marks the request `approved`; rejecting marks it `rejected` with the note.
+**Collapsible feedback cards.** Each feedback becomes a toggle block:
+- **Collapsed state shows:** student name + avatar, "Feedback on: <instructor / general>", submitted date, and overall average star rating across that submission's categories, plus a reply count badge. Chevron indicates expand/collapse.
+- **Expanded state shows:** per-category breakdown — category name, stars, and that category's free-text comment inline (currently comments are hidden). The general/legacy `message` field is shown beneath. Existing Reply thread + reply composer stays.
 
-### 3. Student/Instructor self-service fields in DashboardProfile
-Extend `DashboardProfile.tsx` Personal tab with the new fields:
-- **Students:** blood group, father (name/occupation/email/phone), mother (name/occupation/email/phone), family notes.
-- **Instructors:** blood group + instructor_type (regular/guest, read-only — only admin can change).
-- **KYC fields** (aadhar/pan/passport) remain **admin-only** and are NOT shown in self-view for any role.
+**Rating filter cleanup.**
+- Delete the "5 star rating" option entirely.
+- Rename "Above 4 star rating" → **"4 star and above"** with filter logic `rating >= 4`.
+- Keep 1/2/3 star exact-match options and "All Ratings".
 
-Behavior:
-- **Student edits** → write to `profile_change_requests` as JSONB diff, show "Pending admin approval" banner with the list of fields awaiting review; disable resubmitting the same fields until reviewed.
-- **Instructor/Admin edits** → write directly to `profiles`.
+**Average Rating tile becomes clickable.** Clicking the 3.9 tile opens a popup showing:
+- **Average per category** (sorted high→low) with star bar + numeric value + sample count.
+- **Per-instructor average** (top 5) with sample count.
+- **Total submissions, total raters (unique students), median rating, % feedback ≥4 stars.**
 
-### 4. Update memory
-Update `mem://features/role-specific-profiles` and add a new `mem://features/profile-edit-approval` memory documenting the diff-based approval workflow, KYC visibility rules, and the Approvals queue location. Update `mem://index.md` accordingly.
+**Remove Rating Distribution tile** entirely (the third summary tile and `RATING_COLORS`/`ratingDistribution` memo + recharts import).
+
+### 2. Timetable tab
+
+**Schedule grid restructure (`AdminSchedule.tsx`).**
+- Pivot the table: **days on the left axis (rows)**, **time slots on the top axis (columns)**. Time columns are derived dynamically from the union of all scheduled start hours that week (so columns adapt to what's actually scheduled — e.g. 8 AM, 10 AM, 2 PM only) with a base set of fallback hours when empty.
+- Each tile shows **Title · Semester · Instructor · Batch** (currently only title + instructor/location).
+- Add a **Timeline view** toggle (Grid / Timeline). Timeline = one row per active hour for the day, with overlapping classes stacked side-by-side so a super admin can see logistics/space load at a glance. Each timeline block carries the same 4-line metadata.
+
+**Add Schedule dialog.**
+- Rename **"Subject"** label → **"Subject / Course"**.
+- Course/Subject dropdown filtered to **only modules whose `batch_id === form.batchId`** (currently still shows modules with null batch_id as a fallback). Disable the subject select until a batch is picked, with helper text.
+- **Hard overlap rule:** if a batch has any schedule overlapping the chosen time, block adding a new entry for the **same batch** OR **same instructor**. Today's logic offers an "Override" option for collisions; tighten it so batch + instructor collisions in the same time window are **rejected outright** with a clear message (instructors and batches must be free). Subject-level overlaps stay as a soft warning that allows override.
+- "Title (optional override)" stays.
+
+**Schedule tab for instructors & students.**
+- Add sidebar entry in `DashboardSidebar.tsx` pointing to `/dashboard/tutor/schedule` (instructors) and `/dashboard/student/schedule` (students). Routes already exist.
+- Rework `DashboardSchedule.tsx` into a **weekly view** (Mon–Sun, current week with prev/next):
+  - **Instructor view:** schedules where `instructor_id = auth.uid()` for the current week.
+  - **Student view:** schedules where `batch_id IN (SELECT batch_id FROM batch_enrollments WHERE student_id = auth.uid())` for the current week.
+  - Tiles show Title · Time · Instructor · Batch · Room — same compact card style.
+
+### 3. Jobs tab (`AdminJobs.tsx`)
+
+- Rename **"Department"** label and column → **"Program"** throughout (UI strings only; DB column `department` stays).
+- "Manage Departments" button → **"Manage Programs"**.
+- Program dropdown is sourced from the **curriculum programs** (`categories` table where `parent_id IS NULL` — the same programs used in the curriculum tree), **plus** any custom programs you've added via `job_departments`. Both lists are merged and de-duplicated by name. The "Manage Programs" dialog lets you add extra non-curriculum roles (e.g. "Operations", "Communications") which keep flowing into `job_departments`.
 
 ### Files
-- **Edit:** `src/pages/admin/AdminApprovals.tsx`, `src/pages/dashboard/DashboardProfile.tsx`
-- **New:** `src/components/admin/ProfileChangeRequestsTab.tsx`
-- **Deploy:** `supabase/functions/admin-reset-password`
-- **Memory:** `mem://features/profile-edit-approval`, update `mem://features/role-specific-profiles` and `mem://index.md`
+- **Edit:** `src/pages/admin/AdminFeedback.tsx`, `src/pages/admin/AdminSchedule.tsx`, `src/pages/admin/AdminJobs.tsx`, `src/pages/dashboard/DashboardSchedule.tsx`, `src/components/DashboardSidebar.tsx`.
 
-No DB migrations needed — all tables/columns exist from Phase 8.
+No DB migrations needed — all data is already in `feedback`, `schedules`, `batch_enrollments`, `categories`, `job_departments`.
