@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { addDays, addWeeks, endOfWeek, format, isSameDay, startOfWeek, subWeeks } from "date-fns";
+import LiveClassesBlock from "@/components/overview/LiveClassesBlock";
+
 
 type UserRole = "admin" | "student" | "instructor" | "super_admin";
 
