@@ -264,6 +264,7 @@ const AdminCurriculum = () => {
       see_exam_hours: m.see_exam_hours || "",
       course_objectives: joinList(m.course_objectives),
       pedagogy: m.pedagogy || "",
+      prerequisites: m.prerequisites || "",
     });
     setShowCourseForm(true);
   };
