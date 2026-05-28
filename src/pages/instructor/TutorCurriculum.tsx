@@ -47,6 +47,15 @@ const TutorCurriculum = () => {
     enabled: !!user,
   });
 
+  const { data: allocations = [] } = useQuery({
+    queryKey: ["tutor-allocations", user?.id],
+    queryFn: async () => {
+      const { data } = await supabase.from("subject_allocations").select("curriculum_module_id").eq("instructor_id", user!.id);
+      return data || [];
+    },
+    enabled: !!user,
+  });
+
   const { data: modules = [], isLoading } = useQuery({
     queryKey: ["curriculum-modules-all"],
     queryFn: async () => {
@@ -66,8 +75,16 @@ const TutorCurriculum = () => {
   });
 
   const myBatchIds = new Set(batches.map(b => b.id));
-  const myModules = modules.filter(m => m.batch_id && myBatchIds.has(m.batch_id));
-  const institutionModules = modules.filter(m => !m.batch_id || !myBatchIds.has(m.batch_id));
+  const allocatedModuleIds = new Set(allocations.map((a: any) => a.curriculum_module_id));
+  const isMyModule = (m: any) =>
+    allocatedModuleIds.has(m.id) ||
+    (m.batch_id && myBatchIds.has(m.batch_id)) ||
+    m.created_by === user?.id ||
+    m.instructor_id === user?.id;
+  const myModules = modules.filter(isMyModule);
+  const institutionModules = modules.filter(m => !isMyModule(m));
+
+  const isInstructorCreatedModule = (m: any) => m.created_by === user?.id;
 
   const getSectionsForModule = (moduleId: string) => sections.filter(s => s.module_id === moduleId);
 
