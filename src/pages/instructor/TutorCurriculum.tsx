@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { BookOpen, Plus, Trash2, FileText, PlayCircle, Headphones, Link as LinkIcon, Type, Library, Sparkles, FolderOpen } from "lucide-react";
 
@@ -20,10 +21,22 @@ import AudioPlayer from "@/components/AudioPlayer";
 const TutorCurriculum = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const [searchParams] = useSearchParams();
+  const focusModuleId = searchParams.get("module");
+  const [openModules, setOpenModules] = useState<string[]>([]);
   const [createModuleOpen, setCreateModuleOpen] = useState(false);
   const [addTopicOpen, setAddTopicOpen] = useState<string | null>(null);
   const [moduleForm, setModuleForm] = useState({ name: "", courseCode: "", semester: "9", batchId: "", description: "" });
   const [topicForm, setTopicForm] = useState({ title: "", type: "text", textContent: "", youtubeUrl: "", audioFile: null as File | null, pdfFile: null as File | null, linkUrl: "", rbtLevels: "", coMapping: "", hoursAllocated: "1", teachingMethodology: "" });
+
+  useEffect(() => {
+    if (focusModuleId) {
+      setOpenModules((prev) => prev.includes(focusModuleId) ? prev : [...prev, focusModuleId]);
+      setTimeout(() => {
+        document.getElementById(`mod-${focusModuleId}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 300);
+    }
+  }, [focusModuleId]);
 
   const { data: batches = [] } = useQuery({
     queryKey: ["tutor-batches", user?.id],
@@ -164,12 +177,12 @@ const TutorCurriculum = () => {
           <p className="text-sm text-muted-foreground">{isOwn ? "Click '+ New Module' to get started." : "No institution modules available."}</p>
         </motion.div>
       ) : (
-        <Accordion type="multiple" className="space-y-3">
+        <Accordion type="multiple" value={openModules} onValueChange={setOpenModules} className="space-y-3">
           {mods.map((mod, idx) => {
             const modSections = getSectionsForModule(mod.id);
             return (
-              <motion.div key={mod.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05 }}>
-                <AccordionItem value={mod.id} className="bg-white rounded-2xl border border-border shadow-[0_2px_24px_rgba(125,30,36,0.06)] overflow-hidden">
+              <motion.div id={`mod-${mod.id}`} key={mod.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05 }}>
+                <AccordionItem value={mod.id} className={`bg-white rounded-2xl border ${focusModuleId === mod.id ? "border-brand-gold ring-2 ring-brand-gold/30" : "border-border"} shadow-[0_2px_24px_rgba(125,30,36,0.06)] overflow-hidden`}>
                   <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-muted transition-colors">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-accent/15 flex items-center justify-center">

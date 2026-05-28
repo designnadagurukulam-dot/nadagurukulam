@@ -1,50 +1,68 @@
-## Phase 10 — Feedback, Timetable, Jobs
+# Instructor Overview — Phase 11
 
-### 1. Feedback tab (`AdminFeedback.tsx`)
+Rework `src/pages/instructor/InstructorOverview.tsx` so every tile is interactive and the supporting blocks match the requested format. No DB schema changes.
 
-**Collapsible feedback cards.** Each feedback becomes a toggle block:
-- **Collapsed state shows:** student name + avatar, "Feedback on: <instructor / general>", submitted date, and overall average star rating across that submission's categories, plus a reply count badge. Chevron indicates expand/collapse.
-- **Expanded state shows:** per-category breakdown — category name, stars, and that category's free-text comment inline (currently comments are hidden). The general/legacy `message` field is shown beneath. Existing Reply thread + reply composer stays.
+## 1. Stat tiles — clickable + relabeled
 
-**Rating filter cleanup.**
-- Delete the "5 star rating" option entirely.
-- Rename "Above 4 star rating" → **"4 star and above"** with filter logic `rating >= 4`.
-- Keep 1/2/3 star exact-match options and "All Ratings".
+Wrap each tile in a button that opens the right destination. Show empty-state friendly counts.
 
-**Average Rating tile becomes clickable.** Clicking the 3.9 tile opens a popup showing:
-- **Average per category** (sorted high→low) with star bar + numeric value + sample count.
-- **Per-instructor average** (top 5) with sample count.
-- **Total submissions, total raters (unique students), median rating, % feedback ≥4 stars.**
+- **Total Students** → opens a dialog with a table of all students across this instructor's batches.
+  - Columns: Name, **Registered No.** (from `profiles.enrollment_id`), Semester (current — from `batches.semester` of the latest active batch they're in), Program (from `categories.name` via `batches.program_id`).
+  - Project-wide: relabel "Student ID" / "Enrollment ID" → **"Registered No."** in this dialog (other pages untouched in this phase).
+- **Upcoming Classes** → rename count to "**today's classes**" (online + offline assigned today to this instructor). Click opens a dialog listing today's classes split into two sections: **Offline first**, then **Online**, each sorted by time.
+  - Columns: Title, Mode, Batches, Time, Duration.
+  - Source: `live_classes` filtered by `instructor_id` + today's date; `class_type` distinguishes online/offline; batch names resolved via `batches` (handle `audience_type='all'` by listing all instructor batches).
+- **Pending Grading** → **rename to "Assignments Ongoing"**. Click navigates to `/dashboard/tutor/assignments`.
+- **Active Batches** → **rename to "Assigned Batches"**. Click opens a page-style dialog with all batches assigned, sorted by `semester` ASC (1→4).
+  - Columns: Batch Name (clickable → opens nested dialog with batch's students list), Students Count, Program Name, Semester.
 
-**Remove Rating Distribution tile** entirely (the third summary tile and `RATING_COLORS`/`ratingDistribution` memo + recharts import).
+Tile gradient/visual styling preserved; only labels, counts, click handlers, and dialogs added.
 
-### 2. Timetable tab
+## 2. My Allocated Subjects
 
-**Schedule grid restructure (`AdminSchedule.tsx`).**
-- Pivot the table: **days on the left axis (rows)**, **time slots on the top axis (columns)**. Time columns are derived dynamically from the union of all scheduled start hours that week (so columns adapt to what's actually scheduled — e.g. 8 AM, 10 AM, 2 PM only) with a base set of fallback hours when empty.
-- Each tile shows **Title · Semester · Instructor · Batch** (currently only title + instructor/location).
-- Add a **Timeline view** toggle (Grid / Timeline). Timeline = one row per active hour for the day, with overlapping classes stacked side-by-side so a super admin can see logistics/space load at a glance. Each timeline block carries the same 4-line metadata.
+Each subject card becomes a `Link` to `/dashboard/tutor/curriculum` (My Curriculum under My Courses), passing `?module={curriculum_module_id}` so the curriculum view can scroll/select the right subject. Card visuals unchanged.
 
-**Add Schedule dialog.**
-- Rename **"Subject"** label → **"Subject / Course"**.
-- Course/Subject dropdown filtered to **only modules whose `batch_id === form.batchId`** (currently still shows modules with null batch_id as a fallback). Disable the subject select until a batch is picked, with helper text.
-- **Hard overlap rule:** if a batch has any schedule overlapping the chosen time, block adding a new entry for the **same batch** OR **same instructor**. Today's logic offers an "Override" option for collisions; tighten it so batch + instructor collisions in the same time window are **rejected outright** with a clear message (instructors and batches must be free). Subject-level overlaps stay as a soft warning that allows override.
-- "Title (optional override)" stays.
+## 3. Teaching Activity (weekly bar chart)
 
-**Schedule tab for instructors & students.**
-- Add sidebar entry in `DashboardSidebar.tsx` pointing to `/dashboard/tutor/schedule` (instructors) and `/dashboard/student/schedule` (students). Routes already exist.
-- Rework `DashboardSchedule.tsx` into a **weekly view** (Mon–Sun, current week with prev/next):
-  - **Instructor view:** schedules where `instructor_id = auth.uid()` for the current week.
-  - **Student view:** schedules where `batch_id IN (SELECT batch_id FROM batch_enrollments WHERE student_id = auth.uid())` for the current week.
-  - Tiles show Title · Time · Instructor · Batch · Room — same compact card style.
+Replace random data with real query: for the current week (Mon–Sat), sum `class_logs.duration` (fallback `schedules.duration_minutes` / 60) for this instructor per day. Stack a **second bar per day** representing **online hours** (sum of `live_classes.duration_minutes` where `class_type='online'` and `scheduled_at` falls on that day). Render as grouped bars (Teaching vs Online) with a small legend; today still highlighted maroon, others gold/cream.
 
-### 3. Jobs tab (`AdminJobs.tsx`)
+## 4. Today's Schedule (table format)
 
-- Rename **"Department"** label and column → **"Program"** throughout (UI strings only; DB column `department` stays).
-- "Manage Departments" button → **"Manage Programs"**.
-- Program dropdown is sourced from the **curriculum programs** (`categories` table where `parent_id IS NULL` — the same programs used in the curriculum tree), **plus** any custom programs you've added via `job_departments`. Both lists are merged and de-duplicated by name. The "Manage Programs" dialog lets you add extra non-curriculum roles (e.g. "Operations", "Communications") which keep flowing into `job_departments`.
+Replace the vertical card list with a horizontal table:
 
-### Files
-- **Edit:** `src/pages/admin/AdminFeedback.tsx`, `src/pages/admin/AdminSchedule.tsx`, `src/pages/admin/AdminJobs.tsx`, `src/pages/dashboard/DashboardSchedule.tsx`, `src/components/DashboardSidebar.tsx`.
+```text
+| Date / Day      | <slot 1 time>          | <slot 2 time>          | ...
+| 25th Apr / Sat  | Theory — Sem 1         | Practical 1 — Sem 3    | ...
+```
 
-No DB migrations needed — all data is already in `feedback`, `schedules`, `batch_enrollments`, `categories`, `job_departments`.
+- First column: date + weekday.
+- Header columns: each class's time range (e.g. `9:00am to 9:45am`) sorted ascending.
+- Cells: short class label (`{title or type} — Sem {n}`), with mode badge (Online/Offline).
+- Source: same `todayClasses` query, plus `schedules` for any offline blocks for today.
+- Mobile fallback: stacked cards (existing pattern).
+
+## 5. Recent Submissions
+
+Add an "Unopened" indicator: a red dot + small "New" badge on rows where `assignment_submissions.status='submitted'` AND has not been viewed by the instructor.
+
+- Track viewed state via existing `assignment_submissions` field — use `updated_at`/grade absence as the unopened proxy (`status='submitted'` and no `feedback`/`grade`).
+- Header summary line: "X new submissions awaiting review" when count > 0.
+
+## 6. Schedule a Live Class
+
+No changes (per request).
+
+## Technical notes
+
+- New shadcn `<Dialog>` instances colocated inside `InstructorOverview.tsx`; for the Students and Batches tables, extract into small components (`StudentsListDialog`, `BatchesListDialog`, `BatchStudentsDialog`) under `src/components/instructor/` to keep the page lean.
+- Queries:
+  - Students: `batch_enrollments` for instructor's batches → join `profiles (display_name, enrollment_id)` + `batches (semester, program_id)` → resolve program via `categories`.
+  - Today's classes: existing `live_classes` query extended with `class_type`, `audience_type`, and batch resolution (two-step query pattern per project memory).
+  - Teaching activity: `class_logs` (date range) + `live_classes` (online slice).
+- Routing: `/dashboard/tutor/curriculum` already exists; ensure it reads `?module=` for deep-link selection (small addition in `TutorCurriculum.tsx`).
+- All new strings respect Maroon/Gold tokens and 44px touch targets.
+
+## Files
+
+- Edit: `src/pages/instructor/InstructorOverview.tsx`, `src/pages/instructor/TutorCurriculum.tsx` (deep-link param)
+- Create: `src/components/instructor/StudentsListDialog.tsx`, `src/components/instructor/TodayClassesDialog.tsx`, `src/components/instructor/BatchesListDialog.tsx`, `src/components/instructor/BatchStudentsDialog.tsx`
