@@ -285,7 +285,7 @@ const AdminBatches = () => {
         <div className="overflow-x-auto rounded-2xl bg-card shadow-[0_2px_16px_hsl(var(--primary)/0.06)]">
           <table className="w-full text-sm">
             <thead className="bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
-              <tr><th className="p-3 text-left">Student Name</th><th className="p-3 text-left">Student ID</th><th className="p-3 text-left">Program</th><th className="p-3 text-left">Joined</th></tr>
+              <tr><th className="p-3 text-left">Student Name</th><th className="p-3 text-left">Registered No.</th><th className="p-3 text-left">Program</th><th className="p-3 text-left">Joined</th></tr>
             </thead>
             <tbody>
               {roster.length === 0 && <tr><td colSpan={4} className="p-6 text-center text-muted-foreground">No students enrolled.</td></tr>}
