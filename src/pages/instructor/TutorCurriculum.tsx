@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { BookOpen, Plus, Trash2, FileText, PlayCircle, Headphones, Link as LinkIcon, Type, Library, Sparkles, FolderOpen } from "lucide-react";
 
