@@ -1,63 +1,118 @@
-# Phase 6 — Admin polish + Landing/About/Courses refinements
 
-## 1. Admin → Subject Allocation ("Teachers" tile)
-File: `src/pages/admin/AdminTeachers.tsx`
+## Scope (all in one build)
 
-Currently the page already loads instructor profiles but the "Teachers" tile just toggles the existing card list (which shows only allocation info — no IDs, emails, programme metadata).
+Programs reuse the existing link: `courses.program_id → categories(id)`. I'll extend `batches` and `curriculum_modules` to also reference `categories(id)` as their program, so all three (Batches, Curriculum, Courses) share the same Program list. "1 credit = 15 hours = 20 periods" — both auto-derived, editable only by Super Admin (Admin sees read-only). Active vs Past batches are computed live from `start_date/end_date` (no cron).
 
-Change: Replace the toggled card list with the **same user row UI used in `AdminStudents.tsx`**, pre-filtered to `role = 'instructor'`. Keep allocation tooling (Assign Subjects, Assign Batch) as extra actions in the expanded row.
+---
 
-- Extract the user-row card from `AdminStudents.tsx` into a shared `<UserRow />` component (`src/components/admin/UserRow.tsx`) — props: profile, role, onVerify, onResetPassword, extraActions, contextLabel.
-- Use it in both `AdminStudents.tsx` and `AdminTeachers.tsx`.
-- **Hide role-change controls** (Promote/Demote select) on `AdminTeachers.tsx` per request.
+## 1. Quick fixes
 
-## 2. Edit user details + Reset password (Users page)
-File: `src/pages/admin/AdminStudents.tsx` (+ shared `UserRow`)
+**Gallery (`src/pages/Gallery.tsx`):** Audit for the reported glitches — replace layout-shift causing `motion` props, lock image aspect ratios, remove flicker from filter switching (use shared layout with `staggerChildren`, no `AnimatePresence mode="wait"`), preload images, fix lightbox z-index/scroll-lock.
 
-- Add **"Edit details"** dialog on each row: editable fields = `phone`, `course_name`, `department`, `designation`, `specialization`, `admin_label`, `roll_number`/`employee_id`/`enrollment_id` (whichever applies for that role). **Personal identity fields locked**: `display_name`, `email` (auth-managed).
-- Add **"Reset password"** action: calls `supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + '/reset-password' })`. Need a small edge function `admin-get-user-email` (service-role) to fetch the auth email from `user_id`, since profiles table doesn't store it.
-- Confirms via toast.
+**Faculty detail (`src/pages/FacultyDetail.tsx`):** Remove "bubble" Badge wrappers on *Specialities* and *Awards & Recognitions*; render as plain list items with full-opacity foreground text (drop `text-muted-foreground`/opacity classes).
 
-## 3. About page — animations replay every visit
-File: `src/pages/About.tsx`
+---
 
-All `motion` blocks use `viewport={{ once: true }}`. Change to `viewport={{ once: false, amount: 0.25 }}` and add `initial="hidden"` so they re-run on each scroll into view.
+## 2. Batches restructure (`src/pages/admin/AdminBatches.tsx` + new pages)
 
-## 4. About page — content & visuals
-File: `src/pages/About.tsx`
+### 2a. Schema (migration)
+- `ALTER TABLE batches ADD COLUMN program_id uuid REFERENCES categories(id), ADD COLUMN semester integer, ADD COLUMN is_manually_active boolean DEFAULT true`.
+- `ALTER TABLE curriculum_modules ADD COLUMN program_id uuid REFERENCES categories(id)`.
+- Backfill `batches.program_id` from `courses.program_id` via `batches.course_id` where possible.
 
-- **Item 5 (Founder section):** keep founder section on About but swap Sadguru's image to a different portrait and swap his message text for an alternate quote. Landing page keeps the original founder section unchanged. *(Assumption — flag if you wanted Sadguru removed from About instead.)* Will use `SadguruSriMadhusudanSai2.jpg` if available; else ask for asset.
-- **Item 6 (Hero background):** replace `campusAerial` with a more authentic performance photo — propose `imgConcert` (`NGR6_M1630.webp`) or `imgChorus`. Default → `imgConcert`.
-- **Item 7 (Our Foundation white fade):** remove `section-glass` class on the "Our Foundation" section (line 157) — it's the source of the white veil.
-- **Item 8 (Upcoming Campus dedup):** delete the `Our Upcoming Campus` bento section from `About.tsx`. Keep it only on the landing page (`Index.tsx`).
+### 2b. New navigation hierarchy
+Replace current `AdminBatches` landing with **Program tiles** (clickable cards, one per category used as a program). Stat tiles on top — remove "Students" tile, keep only **Total / Active / Past**, all clickable.
 
-## 5. Landing page — logo intro
-File: `src/pages/Index.tsx` (hero brand lockup, lines 219-253)
+- `/dashboard/admin/batches` → Program tiles + 3 stat tiles
+- `/dashboard/admin/batches/program/:programId` → Semester accordions listing batches in that semester
+- `/dashboard/admin/batches/active` → table view (see 2c)
+- `/dashboard/admin/batches/past` → table view (see 2d)
+- `/dashboard/admin/batches/:batchId` → existing single-batch detail (current "Manage Batch" content, see §3)
+- `/dashboard/admin/batches/:batchId/students` → table of enrolled students
 
-Logo PNG has transparent background and the circular border appears before the image paints, causing a "weird" empty ring on entrance. Fix:
-- Replace the entrance transition: animate logo + wordmark together with `opacity 0→1, scale 0.96→1` over 0.6s **after the white background plate is in place** (no border/ring fade-in separately).
-- Pre-load the logo by adding `loading="eager"` and `decoding="sync"`.
-- Keep white bg via `bg-background` on the circular wrapper; remove the `ring-2` to avoid the double-halo look.
+### 2c. Active batches table
+Columns: Name (clickable → batch detail), Semester, Program, Duration (live "X days remaining" based on end_date), Students count (clickable → students table: name, enrollment_id, program, joined date), Courses linked (derived from curriculum_modules where `program_id` matches AND `semester` matches), Tutors. Sorted by semester ASC. Active = `is_manually_active AND (end_date IS NULL OR end_date >= today)`.
 
-## 6. Courses page — hero & animations
-File: `src/pages/Courses.tsx`
+### 2d. Past batches table
+Past = `end_date < today OR is_manually_active = false`. Sorted by `end_date DESC`. Columns: Name, Program, Duration, Students (clickable). 
 
-- **Item 9 (jerky):** the per-card `delay: i * 0.1` causes cascade stutter and `AnimatePresence mode="wait"` re-mounts everything on tab change. Switch to a single shared `transition={{ duration: 0.4, ease: "easeOut" }}` with `staggerChildren: 0.06` via a parent variant; drop `AnimatePresence mode="wait"` and animate opacity only on filter change.
-- **Item 10 (hero collage):** replace single hero image with a 6-tile collage of maestros across genres (Vocal, Instrumental, Dance — Carnatic + Hindustani). New component `<MaestroCollage />` using existing gallery assets:
-  - `NGZ6R_1512_R.webp` (vocal), `NGDSC_8160.webp` (male chorus), `NGDSC_7428.webp` (dance), `NGZ6R_6439_R.webp` (percussion), `NGMUSIC-2.webp` (sitar), `NGR6M_0933.webp` (chorus).
-  - Tailwind grid with subtle parallax + dark gradient so the Sanskrit text remains readable.
-  - *If you have actual maestro portraits to upload, we'll swap them in.*
+### 2e. Active/Past toggle on each batch
+Add a switch on batch detail header that flips `is_manually_active` (lets admin force-archive or revive a batch independent of dates).
 
-## Files touched
-- `src/pages/admin/AdminTeachers.tsx`
-- `src/pages/admin/AdminStudents.tsx`
-- `src/components/admin/UserRow.tsx` (new)
-- `src/components/admin/EditUserDialog.tsx` (new)
-- `supabase/functions/admin-get-user-email/index.ts` (new edge function)
-- `src/pages/About.tsx`
-- `src/pages/Index.tsx`
-- `src/pages/Courses.tsx`
-- `src/components/MaestroCollage.tsx` (new)
+---
 
-## Open question (Item 5)
-"Sadguru's message we can change in the about page with a different image" — I'm reading this as: keep Sadguru on both pages, but on About use a **different photo + a different message**. Confirm — or if you actually meant "remove Sadguru's section from About entirely and only keep institutional content there", say so and I'll adjust.
+## 3. Manage Batch detail tweaks (`AdminBatches.tsx` detail view)
+
+- **Students:** Allow deselect — multi-select with chips that have ✕, plus an "Edit students" mode on the existing roster to remove students (DELETE from `batch_enrollments`).
+- **Subjects:** Add Add/Edit/Delete buttons directly inside Manage Batch (writes to `curriculum_modules` filtered by `batch_id`).
+- **Live tab:** Show only `class_type='online'` live classes; class names link to `/dashboard/admin/live-classes`. Offline classes removed from here — they appear only in Timetable.
+- **Timetable tab:** Read-only (remove edit/delete buttons; keep "view schedule" UI).
+- **Assignments tab:** Sort In-progress first (due_date >= today), then Past (due_date < today), each group sorted by due_date.
+- **Grades tab:** Show only assignments where at least one `assignment_submissions.grade IS NOT NULL`; otherwise show empty state "Grades will appear here once you grade submissions."
+
+---
+
+## 4. Curriculum overhaul (`src/pages/admin/AdminCurriculum.tsx`)
+
+### 4a. Programs CRUD on the curriculum landing
+Landing shows **Program tiles** (same categories list as Batches). Top toolbar: Add Program / Edit / Delete (writes to `categories`). Clicking a tile → `/dashboard/admin/curriculum/:programId`.
+
+### 4b. Program detail page (replaces current curriculum view)
+- Program name as centered top heading.
+- Semester sections; heading reads "Semester 1" only (no "Courses" suffix). Courses inside become collapsible toggles.
+- Edit button on each course banner (inline pencil) opens the full course edit dialog.
+- Course banner shows: course name, code, instructor(s), **assigned batch**.
+
+### 4c. Course form — full academic fields
+Replace existing course dialog with all of:
+- Program (dropdown from categories) — required
+- Course name, Course code
+- Semester (dropdown 1–N based on program's `total_semesters` — add `total_semesters` int to categories meta; default 8)
+- **Credits** (int)
+- **Teaching hours** auto = credits × 15; **Periods** auto = credits × 20; both shown; editable input is disabled unless `has_role(uid,'super_admin')` — Admin sees the values but the inputs are `readOnly`.
+- Assigned Instructor (dropdown of all staff + "To be assigned" sentinel = null)
+- Assigned Batch (dropdown of batches)
+- CIE marks, SEE marks
+- Examination type (free text — Theory/Practical/Viva/etc.)
+- Exam duration CIE, Exam duration SEE (separate)
+- Course Objectives (multi-line list)
+- Course Outcomes (array of {co_number, description, rbt_levels, hours} — already exists as `course_outcomes` table)
+- Pedagogy
+
+Storage: most fields already on `curriculum_modules`. Add columns: `credits int`, `teaching_hours int`, `periods int`, `exam_type text`, `cie_exam_hours text`, `see_exam_hours text`, `program_id uuid`, `instructor_id uuid`, `batch_id` (exists). Drop unused `exam_hours` consolidation. Clicking a course name shows the same banner with all these fields (not just course code as today).
+
+### 4d. Modules under a course
+Each course gets an **Add / Edit / Delete Module** affordance. Module form contains ONLY:
+- Module name
+- Hours
+- Teaching methodology
+- RBT levels (multi-select chips)
+- Course Outcomes mapped (multi-select dropdown showing "CO1, CO2..." derived from `course_outcomes.co_number` of the parent course — stored as text like "CO1,CO3"). Full CO descriptions are visible only on the Curriculum / course detail page, not in the module form.
+
+Remove the current bleed-through of CIE / objectives / pedagogy into the module dialog.
+
+### 4e. Topics under a module
+Full Add / Edit / Delete on every topic (today they aren't editable — fix). Fields:
+- Topic name
+- Description (optional)
+- Attachments: YouTube links, files (PDF/Word/Excel/any — upload to `curriculum-materials` bucket), notes/text body. Multiple per topic via `curriculum_section_links` (already exists) + `curriculum_sections.text_content`.
+
+---
+
+## Technical notes
+
+- New migration adds columns to `batches`, `curriculum_modules`, `categories` (add `total_semesters int default 8`); backfills `program_id`. Includes GRANTs already in place (no new tables).
+- Role enforcement for teaching-hours edit: use `has_role(auth.uid(),'super_admin')` via `useAuth` hook (`isSuperAdmin`) to set the input `disabled` prop.
+- All new admin routes registered in `src/App.tsx` under `RoleProtectedRoute` for admin/super_admin.
+- New shared components: `<ProgramTiles />`, `<BatchTable mode="active|past" />`, `<StudentsRosterTable />`, `<CourseFormDialog />`, `<ModuleFormDialog />`, `<TopicFormDialog />`.
+
+### Files touched
+- Migration (1)
+- `src/pages/Gallery.tsx`, `src/pages/FacultyDetail.tsx`
+- `src/pages/admin/AdminBatches.tsx` (rewrite landing + detail tweaks) + 4 new sub-pages
+- `src/pages/admin/AdminCurriculum.tsx` (rewrite) + new program-detail page
+- `src/App.tsx` (routes)
+- New components under `src/components/admin/`
+
+### Out of scope (flag if needed)
+- Auto-rotating *current semester* of a batch over time as the program progresses (you mentioned "automatically update courses as semesters change"). I'll wire the view to derive courses from `program_id + current_semester`, where `current_semester` defaults to the batch's stored semester. True calendar-driven semester progression (e.g. semester 1 → 2 after 6 months) would need a separate "semester duration" config — confirm if you want that now.
