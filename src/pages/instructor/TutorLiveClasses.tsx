@@ -48,21 +48,8 @@ const TutorLiveClasses = () => {
     enabled: !!user,
   });
 
-  // Fetch offline schedules (admin-created)
-  const { data: offlineSchedules = [] } = useQuery({
-    queryKey: ["tutor-offline-schedules", user?.id],
-    queryFn: async () => {
-      const { data } = await supabase.from("schedules").select("*").eq("instructor_id", user!.id).order("start_time", { ascending: true });
-      return data || [];
-    },
-    enabled: !!user,
-  });
-
-  const now = new Date();
   const onlineUpcoming = classes.filter((c: any) => (c.class_type === "online" || !c.class_type) && !isLiveClassPast(c));
-  const pastOnline = classes.filter((c: any) => isLiveClassPast(c));
-  const upcomingOffline = offlineSchedules.filter((s: any) => new Date(s.start_time) >= now);
-  const pastOffline = offlineSchedules.filter((s: any) => new Date(s.start_time) < now);
+  const pastOnline = classes.filter((c: any) => isLiveClassPast(c) && (c.class_type === "online" || !c.class_type));
 
   const masterLink = form.platform === "zoom" ? tutorProfile?.zoom_link : tutorProfile?.meet_link;
   const hasMasterLink = !!masterLink;
