@@ -25,6 +25,7 @@ import Register from "./pages/Register";
 import DashboardOverview from "./pages/dashboard/DashboardOverview";
 import DashboardCourses from "./pages/dashboard/DashboardCourses";
 import DashboardAssignments from "./pages/dashboard/DashboardAssignments";
+import DashboardAssignmentDetail from "./pages/dashboard/DashboardAssignmentDetail";
 import DashboardSchedule from "./pages/dashboard/DashboardSchedule";
 import DashboardCertificates from "./pages/dashboard/DashboardCertificates";
 import DashboardProfile from "./pages/dashboard/DashboardProfile";
