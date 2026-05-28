@@ -15,7 +15,10 @@ import {
   Pencil,
   ChevronDown,
   ChevronUp,
+  KeyRound,
+  Edit3,
 } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -47,7 +50,7 @@ type BatchEnrollment = {
   enrolled_at: string | null;
 };
 
-const AdminStudents = () => {
+const AdminStudents = ({ lockedRole }: { lockedRole?: AppRole } = {}) => {
   const { role: currentUserRole, user } = useAuth();
   const queryClient = useQueryClient();
   useEffect(() => {
@@ -61,8 +64,8 @@ const AdminStudents = () => {
   const [batches, setBatches] = useState<Batch[]>([]);
   const [batchEnrollments, setBatchEnrollments] = useState<BatchEnrollment[]>([]);
   const [search, setSearch] = useState("");
-  const [roleFilter, setRoleFilter] = useState<string>("all"); // default ALL users
-  const [statusFilter, setStatusFilter] = useState("pending"); // default Pending so verification work shows first
+  const [roleFilter, setRoleFilter] = useState<string>(lockedRole || "all");
+  const [statusFilter, setStatusFilter] = useState(lockedRole ? "all" : "pending");
   const [loading, setLoading] = useState(true);
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
 
@@ -71,6 +74,12 @@ const AdminStudents = () => {
   const [adminLabelTarget, setAdminLabelTarget] = useState<any>(null);
   const [adminLabelValue, setAdminLabelValue] = useState("");
   const [savingAdminLabel, setSavingAdminLabel] = useState(false);
+
+  // Edit profile dialog
+  const [editTarget, setEditTarget] = useState<any>(null);
+  const [editForm, setEditForm] = useState<Record<string, any>>({});
+  const [savingEdit, setSavingEdit] = useState(false);
+  const [resettingFor, setResettingFor] = useState<string | null>(null);
 
   const fetchData = async () => {
     setLoading(true);
