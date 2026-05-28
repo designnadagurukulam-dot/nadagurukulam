@@ -167,11 +167,8 @@ const TutorLiveClasses = () => {
           <TabsTrigger value="online" className="rounded-lg data-[state=active]:bg-brand-primary data-[state=active]:text-white text-brand-warm-grey gap-1.5">
             <Video className="h-3.5 w-3.5" /> Online ({onlineUpcoming.length})
           </TabsTrigger>
-          <TabsTrigger value="offline" className="rounded-lg data-[state=active]:bg-brand-primary data-[state=active]:text-white text-brand-warm-grey gap-1.5">
-            <Building2 className="h-3.5 w-3.5" /> Offline ({upcomingOffline.length})
-          </TabsTrigger>
           <TabsTrigger value="past" className="rounded-lg data-[state=active]:bg-brand-primary data-[state=active]:text-white text-brand-warm-grey gap-1.5">
-            <History className="h-3.5 w-3.5" /> Past ({pastOnline.length + pastOffline.length})
+            <History className="h-3.5 w-3.5" /> Past ({pastOnline.length})
           </TabsTrigger>
         </TabsList>
 
@@ -185,25 +182,17 @@ const TutorLiveClasses = () => {
           )}
         </TabsContent>
 
-        <TabsContent value="offline" className="mt-4">
-          {upcomingOffline.length === 0 ? (
-            <Card className="bg-white rounded-2xl border border-brand-parchment"><CardContent className="py-12 text-center"><div className="w-14 h-14 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 flex items-center justify-center mx-auto mb-3"><Building2 className="h-6 w-6 text-brand-gold" /></div><p className="font-serif text-brand-primary font-semibold">No classroom classes scheduled</p><p className="text-xs text-brand-warm-grey mt-1">Your classroom timetable will appear here once the admin schedules your classes.</p></CardContent></Card>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">{upcomingOffline.map((s) => renderOfflineCard(s, false))}</div>
-          )}
-        </TabsContent>
-
         <TabsContent value="past" className="mt-4">
-          {pastOnline.length === 0 && pastOffline.length === 0 ? (
-            <Card className="bg-white rounded-2xl border border-brand-parchment"><CardContent className="py-12 text-center"><p className="font-serif text-brand-primary font-semibold">No past classes.</p></CardContent></Card>
+          {pastOnline.length === 0 ? (
+            <Card className="bg-white rounded-2xl border border-brand-parchment"><CardContent className="py-12 text-center"><p className="font-serif text-brand-primary font-semibold">No past online classes.</p></CardContent></Card>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {pastOnline.map((cls) => renderOnlineCard(cls, true))}
-              {pastOffline.map((s) => renderOfflineCard(s, true))}
             </div>
           )}
         </TabsContent>
       </Tabs>
+
 
       {/* Schedule Online Class Modal */}
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
