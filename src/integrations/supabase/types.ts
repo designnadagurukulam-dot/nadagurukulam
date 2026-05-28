@@ -94,40 +94,49 @@ export type Database = {
       assignments: {
         Row: {
           batch_id: string | null
-          course_id: string
+          course_id: string | null
           created_at: string
+          curriculum_module_id: string | null
+          curriculum_topic_id: string | null
           description: string | null
           due_date: string | null
           external_link: string | null
           id: string
           instructor_id: string | null
           pdf_url: string | null
+          reference_text: string | null
           title: string
           video_url: string | null
         }
         Insert: {
           batch_id?: string | null
-          course_id: string
+          course_id?: string | null
           created_at?: string
+          curriculum_module_id?: string | null
+          curriculum_topic_id?: string | null
           description?: string | null
           due_date?: string | null
           external_link?: string | null
           id?: string
           instructor_id?: string | null
           pdf_url?: string | null
+          reference_text?: string | null
           title: string
           video_url?: string | null
         }
         Update: {
           batch_id?: string | null
-          course_id?: string
+          course_id?: string | null
           created_at?: string
+          curriculum_module_id?: string | null
+          curriculum_topic_id?: string | null
           description?: string | null
           due_date?: string | null
           external_link?: string | null
           id?: string
           instructor_id?: string | null
           pdf_url?: string | null
+          reference_text?: string | null
           title?: string
           video_url?: string | null
         }
@@ -874,6 +883,7 @@ export type Database = {
           module_id: string
           pdf_url: string | null
           rbt_levels: string | null
+          session_type: string | null
           sort_order: number
           teaching_methodology: string | null
           text_content: string | null
@@ -893,6 +903,7 @@ export type Database = {
           module_id: string
           pdf_url?: string | null
           rbt_levels?: string | null
+          session_type?: string | null
           sort_order?: number
           teaching_methodology?: string | null
           text_content?: string | null
@@ -912,6 +923,7 @@ export type Database = {
           module_id?: string
           pdf_url?: string | null
           rbt_levels?: string | null
+          session_type?: string | null
           sort_order?: number
           teaching_methodology?: string | null
           text_content?: string | null
