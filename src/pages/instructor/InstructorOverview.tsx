@@ -35,6 +35,7 @@ const InstructorOverview = () => {
   const [students, setStudents] = useState<StudentRow[]>([]);
   const [todayClasses, setTodayClasses] = useState<ClassRow[]>([]);
   const [recentSubmissions, setRecentSubmissions] = useState<any[]>([]);
+  const [todayEvents, setTodayEvents] = useState<any[]>([]);
   const [allocatedSubjects, setAllocatedSubjects] = useState<any[]>([]);
   const [activityData, setActivityData] = useState(weekDays.map((day) => ({ day, teaching: 0, online: 0 })));
   const [programMap, setProgramMap] = useState<Record<string, string>>({});
