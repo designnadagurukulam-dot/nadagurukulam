@@ -1,13 +1,16 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle, XCircle, Clock, Sparkles, BookOpen, IndianRupee, Shield } from "lucide-react";
+import { CheckCircle, XCircle, Clock, Sparkles, BookOpen, IndianRupee, Shield, UserPen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { logActivity } from "@/lib/activityLogger";
+import ProfileChangeRequestsTab from "@/components/admin/ProfileChangeRequestsTab";
+
 
 const AdminApprovals = () => {
   const { user } = useAuth();
@@ -15,6 +18,8 @@ const AdminApprovals = () => {
   const [reviews, setReviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [feedback, setFeedback] = useState<Record<string, string>>({});
+  const [pendingProfileCount, setPendingProfileCount] = useState(0);
+
 
   const fetchReviews = async () => {
     const { data } = await supabase
@@ -26,7 +31,13 @@ const AdminApprovals = () => {
     setLoading(false);
   };
 
-  useEffect(() => { fetchReviews(); }, []);
+  useEffect(() => {
+    fetchReviews();
+    (supabase.from("profile_change_requests" as any) as any).select("id", { count: "exact", head: true }).eq("status", "pending").then((r: any) => {
+      setPendingProfileCount(r.count || 0);
+    });
+  }, []);
+
 
   const handleAction = async (review: any, action: "approved" | "rejected") => {
     try {
