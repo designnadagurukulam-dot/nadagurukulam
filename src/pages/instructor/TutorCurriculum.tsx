@@ -177,12 +177,12 @@ const TutorCurriculum = () => {
           <p className="text-sm text-muted-foreground">{isOwn ? "Click '+ New Module' to get started." : "No institution modules available."}</p>
         </motion.div>
       ) : (
-        <Accordion type="multiple" className="space-y-3">
+        <Accordion type="multiple" value={openModules} onValueChange={setOpenModules} className="space-y-3">
           {mods.map((mod, idx) => {
             const modSections = getSectionsForModule(mod.id);
             return (
-              <motion.div key={mod.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05 }}>
-                <AccordionItem value={mod.id} className="bg-white rounded-2xl border border-border shadow-[0_2px_24px_rgba(125,30,36,0.06)] overflow-hidden">
+              <motion.div id={`mod-${mod.id}`} key={mod.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05 }}>
+                <AccordionItem value={mod.id} className={`bg-white rounded-2xl border ${focusModuleId === mod.id ? "border-brand-gold ring-2 ring-brand-gold/30" : "border-border"} shadow-[0_2px_24px_rgba(125,30,36,0.06)] overflow-hidden`}>
                   <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-muted transition-colors">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-accent/15 flex items-center justify-center">
