@@ -367,9 +367,13 @@ export type Database = {
           date: string
           id: string
           instructor_id: string
+          lecture_count: number
           notes: string | null
+          practical_count: number
+          remarks: string | null
           schedule_id: string | null
           status: string
+          theory_count: number
           topic_covered: string
           updated_at: string
         }
@@ -379,9 +383,13 @@ export type Database = {
           date?: string
           id?: string
           instructor_id: string
+          lecture_count?: number
           notes?: string | null
+          practical_count?: number
+          remarks?: string | null
           schedule_id?: string | null
           status?: string
+          theory_count?: number
           topic_covered: string
           updated_at?: string
         }
@@ -391,9 +399,13 @@ export type Database = {
           date?: string
           id?: string
           instructor_id?: string
+          lecture_count?: number
           notes?: string | null
+          practical_count?: number
+          remarks?: string | null
           schedule_id?: string | null
           status?: string
+          theory_count?: number
           topic_covered?: string
           updated_at?: string
         }
@@ -1558,6 +1570,39 @@ export type Database = {
           },
         ]
       }
+      periods: {
+        Row: {
+          created_at: string
+          end_time: string
+          id: string
+          label: string
+          period_number: number
+          sort_order: number
+          start_time: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          end_time: string
+          id?: string
+          label: string
+          period_number: number
+          sort_order?: number
+          start_time: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          end_time?: string
+          id?: string
+          label?: string
+          period_number?: number
+          sort_order?: number
+          start_time?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profile_change_requests: {
         Row: {
           created_at: string
@@ -1796,6 +1841,7 @@ export type Database = {
           instructor_id: string | null
           location: string | null
           paper_code: string | null
+          period_id: string | null
           recurrence_type: string | null
           schedule_type: string | null
           start_time: string
@@ -1813,6 +1859,7 @@ export type Database = {
           instructor_id?: string | null
           location?: string | null
           paper_code?: string | null
+          period_id?: string | null
           recurrence_type?: string | null
           schedule_type?: string | null
           start_time: string
@@ -1830,6 +1877,7 @@ export type Database = {
           instructor_id?: string | null
           location?: string | null
           paper_code?: string | null
+          period_id?: string | null
           recurrence_type?: string | null
           schedule_type?: string | null
           start_time?: string
@@ -1841,6 +1889,13 @@ export type Database = {
             columns: ["course_id"]
             isOneToOne: false
             referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "schedules_period_id_fkey"
+            columns: ["period_id"]
+            isOneToOne: false
+            referencedRelation: "periods"
             referencedColumns: ["id"]
           },
         ]
