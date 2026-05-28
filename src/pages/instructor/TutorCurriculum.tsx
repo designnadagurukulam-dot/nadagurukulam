@@ -97,7 +97,8 @@ const TutorCurriculum = () => {
         batch_id: moduleForm.batchId || null,
         description: moduleForm.description || null,
         subject_name: moduleForm.name,
-      });
+        created_by: user!.id,
+      } as any);
       if (error) throw error;
     },
     onSuccess: () => {
