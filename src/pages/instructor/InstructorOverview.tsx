@@ -11,6 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { format, startOfWeek, addDays, isSameDay } from "date-fns";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, Legend } from "recharts";
+import LiveClassesBlock from "@/components/overview/LiveClassesBlock";
 
 const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const todayIdx = (new Date().getDay() + 6) % 7;
