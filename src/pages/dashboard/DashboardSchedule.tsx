@@ -73,12 +73,14 @@ const DashboardSchedule = () => {
           .from("batch_enrollments")
           .select("batch_id")
           .eq("student_id", user.id);
-        const batchIds = (enrolls || []).map((e) => e.batch_id).filter(Boolean);
+        const batchIds = (enrolls || []).map((e) => e.batch_id).filter(Boolean) as string[];
+        if (!cancelled) setStudentBatchIds(batchIds);
         if (batchIds.length === 0) {
           if (!cancelled) { setSchedule([]); setLoading(false); }
           return;
         }
         query = query.in("batch_id", batchIds);
+
       } else {
         query = query.eq("user_id", user.id);
       }
