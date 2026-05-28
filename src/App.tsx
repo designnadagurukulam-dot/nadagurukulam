@@ -28,6 +28,7 @@ import DashboardAssignments from "./pages/dashboard/DashboardAssignments";
 import DashboardAssignmentDetail from "./pages/dashboard/DashboardAssignmentDetail";
 import DashboardSchedule from "./pages/dashboard/DashboardSchedule";
 import DashboardCertificates from "./pages/dashboard/DashboardCertificates";
+import DashboardAnalytics from "./pages/dashboard/DashboardAnalytics";
 import DashboardProfile from "./pages/dashboard/DashboardProfile";
 import InstructorCourses from "./pages/instructor/InstructorCourses";
 import CreateCourse from "./pages/instructor/CreateCourse";
@@ -131,6 +132,7 @@ const App = () => (
             <Route path="/dashboard/student/chat" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><StudentChat /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/student/feedback" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><StudentFeedback /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/student/events" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardEvents roleType="student" /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/student/analytics" element={<RoleProtectedRoute allowedRoles={["student"]}><DashboardLayout><DashboardAnalytics /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/student/profile" element={<ProtectedRoute><DashboardLayout><DashboardProfile /></DashboardLayout></ProtectedRoute>} />
 
             {/* Faculty Dashboard */}

@@ -18,22 +18,36 @@ const TutorMessages = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const { data: students = [] } = useQuery({
-    queryKey: ["tutor-chat-students", user?.id],
+  // All students + all other faculty (instructors + admins), excluding self
+  const { data: contacts = [] } = useQuery({
+    queryKey: ["tutor-chat-contacts", user?.id],
     queryFn: async () => {
-      const { data: batches } = await supabase.from("batches").select("id").eq("instructor_id", user!.id);
-      const batchIds = (batches || []).map((b) => b.id); if (!batchIds.length) return [];
-      const { data: enrollments } = await supabase.from("batch_enrollments").select("student_id").in("batch_id", batchIds);
-      const studentIds = [...new Set((enrollments || []).map((e) => e.student_id))]; if (!studentIds.length) return [];
-      const { data: profiles } = await supabase.from("profiles").select("user_id, display_name, avatar_url").in("user_id", studentIds);
-      return profiles || [];
+      const { data: roles } = await supabase
+        .from("user_roles")
+        .select("user_id, role")
+        .in("role", ["student", "instructor", "admin"]);
+      const filtered = (roles || []).filter((r) => r.user_id !== user!.id);
+      if (!filtered.length) return [];
+      const ids = filtered.map((r) => r.user_id);
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("user_id, display_name, avatar_url, is_verified")
+        .in("user_id", ids)
+        .eq("is_verified", true);
+      return (profiles || []).map((p) => ({
+        ...p,
+        role: filtered.find((r) => r.user_id === p.user_id)?.role || "student",
+      }));
     },
     enabled: !!user,
   });
 
-  const filteredStudents = students.filter((s: any) =>
-    !searchQuery || s.display_name?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const students = contacts.filter((c: any) => c.role === "student");
+  const faculty = contacts.filter((c: any) => c.role !== "student");
+  const matches = (s: any) => !searchQuery || s.display_name?.toLowerCase().includes(searchQuery.toLowerCase());
+  const filteredStudents = students.filter(matches);
+  const filteredFaculty = faculty.filter(matches);
+  const allContacts = contacts;
 
   const { data: messages = [] } = useQuery({
     queryKey: ["chat-messages", user?.id, selectedStudent],
@@ -73,9 +87,9 @@ const TutorMessages = () => {
   const handleSent = () => queryClient.invalidateQueries({ queryKey: ["chat-messages"] });
 
   const getInitials = (name: string) => name?.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase() || "?";
-  const selectedProfile = students.find((s: any) => s.user_id === selectedStudent);
+  const selectedProfile = allContacts.find((s: any) => s.user_id === selectedStudent);
 
-  const renderStudentItem = (s: any, isMobile = false) => (
+  const renderContactItem = (s: any, isMobile = false) => (
     <button key={s.user_id} onClick={() => setSelectedStudent(s.user_id)}
       className={`w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all ${isMobile ? 'min-h-[52px]' : 'min-h-[48px]'} ${selectedStudent === s.user_id ? "bg-gradient-to-r from-brand-gold-pale to-brand-cream border border-brand-gold/30 shadow-sm" : "hover:bg-brand-cream"}`}>
       <div className="relative">
@@ -86,7 +100,7 @@ const TutorMessages = () => {
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium text-brand-charcoal-mid truncate">{s.display_name}</p>
-        <p className="text-xs text-brand-warm-grey">Student</p>
+        <p className="text-xs text-brand-warm-grey capitalize">{s.role === "admin" ? "Admin" : s.role === "instructor" ? "Faculty" : "Student"}</p>
       </div>
       {(unreadCounts as any)[s.user_id] > 0 && (
         <Badge className="bg-gradient-to-r from-brand-gold to-brand-gold-light text-primary-foreground text-[10px] h-5 min-w-[20px] flex items-center justify-center border-0 shadow-sm">
@@ -94,6 +108,26 @@ const TutorMessages = () => {
         </Badge>
       )}
     </button>
+  );
+
+  const renderContactList = (isMobile = false) => (
+    <>
+      {filteredStudents.length > 0 && (
+        <div className="space-y-1">
+          <p className="px-3 pt-2 pb-1 text-[10px] uppercase tracking-wider font-semibold text-brand-warm-grey">Students</p>
+          {filteredStudents.map((s: any) => renderContactItem(s, isMobile))}
+        </div>
+      )}
+      {filteredFaculty.length > 0 && (
+        <div className="space-y-1 mt-1">
+          <p className="px-3 pt-2 pb-1 text-[10px] uppercase tracking-wider font-semibold text-brand-warm-grey">Faculty</p>
+          {filteredFaculty.map((s: any) => renderContactItem(s, isMobile))}
+        </div>
+      )}
+      {filteredStudents.length === 0 && filteredFaculty.length === 0 && (
+        <p className="text-sm text-brand-warm-grey text-center py-8">No contacts found.</p>
+      )}
+    </>
   );
 
   return (
@@ -106,40 +140,36 @@ const TutorMessages = () => {
           <div>
             <h1 className="font-serif text-xl sm:text-2xl font-semibold text-brand-primary">Reach Out</h1>
             <div className="w-12 h-0.5 bg-gradient-to-r from-brand-gold to-transparent mt-0.5" />
-            <p className="text-brand-warm-grey text-xs sm:text-sm mt-0.5">Chat with your students</p>
+            <p className="text-brand-warm-grey text-xs sm:text-sm mt-0.5">Chat with students, faculty & admins</p>
           </div>
         </div>
 
         <div className="flex-1 flex gap-3 sm:gap-4 min-h-0">
-          {/* Desktop student list */}
+          {/* Desktop contact list */}
           <Card className="w-72 shrink-0 hidden md:flex flex-col bg-card rounded-2xl shadow-[0_2px_24px_hsl(var(--primary)/0.06)]">
             <div className="p-3 pb-0">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-warm-grey" />
-                <Input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search students..." className="pl-9 h-10 rounded-xl border-brand-parchment focus:border-brand-gold text-sm" />
+                <Input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search contacts..." className="pl-9 h-10 rounded-xl border-brand-parchment focus:border-brand-gold text-sm" />
               </div>
             </div>
-            <CardContent className="p-3 flex-1 overflow-y-auto space-y-1">
-              {filteredStudents.length === 0 ? (
-                <p className="text-sm text-brand-warm-grey text-center py-8">No students in your batches yet.</p>
-              ) : filteredStudents.map((s: any) => renderStudentItem(s))}
+            <CardContent className="p-3 flex-1 overflow-y-auto">
+              {renderContactList(false)}
             </CardContent>
           </Card>
 
-          {/* Mobile student list */}
+          {/* Mobile contact list */}
           <div className="md:hidden w-full">
             {!selectedStudent && (
               <Card className="flex-1 bg-card rounded-2xl shadow-[0_2px_24px_hsl(var(--primary)/0.06)]">
                 <div className="p-2 pb-0">
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-warm-grey" />
-                    <Input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search students..." className="pl-9 h-10 rounded-xl border-brand-parchment focus:border-brand-gold text-sm" />
+                    <Input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search contacts..." className="pl-9 h-10 rounded-xl border-brand-parchment focus:border-brand-gold text-sm" />
                   </div>
                 </div>
-                <CardContent className="p-2 space-y-1">
-                  {filteredStudents.length === 0 ? (
-                    <p className="text-sm text-brand-warm-grey text-center py-8">No students found.</p>
-                  ) : filteredStudents.map((s: any) => renderStudentItem(s, true))}
+                <CardContent className="p-2">
+                  {renderContactList(true)}
                 </CardContent>
               </Card>
             )}
@@ -160,7 +190,7 @@ const TutorMessages = () => {
                 </div>
                 <div>
                   <p className="font-semibold text-sm text-primary-foreground truncate">{selectedProfile?.display_name}</p>
-                  <p className="text-[10px] text-primary-foreground/50">Student · Online</p>
+                  <p className="text-[10px] text-primary-foreground/50">{selectedProfile?.role === "admin" ? "Admin" : selectedProfile?.role === "instructor" ? "Faculty" : "Student"} · Online</p>
                 </div>
               </div>
               <ScrollArea className="flex-1 p-3 sm:p-4">

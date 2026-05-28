@@ -152,7 +152,10 @@ const StudentChat = () => {
               {filteredStaff.length === 0 ? (
                 <p className="text-sm text-brand-warm-grey text-center py-8">No staff found.</p>
               ) : (
-                filteredStaff.map((staff: any) => renderStaffItem(staff))
+                <>
+                  <p className="px-3 pt-1 pb-1 text-[10px] uppercase tracking-wider font-semibold text-brand-warm-grey">Faculty & Admins</p>
+                  {filteredStaff.map((staff: any) => renderStaffItem(staff))}
+                </>
               )}
             </CardContent>
           </Card>
