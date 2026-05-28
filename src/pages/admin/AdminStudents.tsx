@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import {
@@ -332,22 +333,20 @@ const AdminStudents = ({ lockedRole }: { lockedRole?: AppRole } = {}) => {
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {[
-          { label: "Students", value: studentCount, icon: GraduationCap },
-          { label: "Instructors", value: instructorCount, icon: BookOpen },
-          { label: "Admins", value: adminCount, icon: ShieldCheck },
-          { label: "Pending Verification", value: pendingCount, icon: Clock3 },
+          { label: "Students", value: studentCount, icon: GraduationCap, onClick: () => { setRoleFilter("student"); setStatusFilter("all"); } },
+          { label: "Instructors", value: instructorCount, icon: BookOpen, onClick: () => { setRoleFilter("instructor"); setStatusFilter("all"); } },
+          { label: "Admins", value: adminCount, icon: ShieldCheck, onClick: () => { setRoleFilter("admin"); setStatusFilter("all"); } },
+          { label: "Pending Verification", value: pendingCount, icon: Clock3, onClick: () => { setRoleFilter("all"); setStatusFilter("pending"); } },
         ].map((s, i) => (
-          <motion.div key={s.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
-            <div className="flex items-center gap-3 rounded-2xl bg-card p-4 sm:p-5 shadow-[0_2px_16px_hsl(var(--primary)/0.06)]">
-              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-secondary/20 text-secondary-foreground shrink-0">
-                <s.icon className="h-5 w-5" />
-              </div>
-              <div className="min-w-0">
-                <p className="font-serif text-2xl sm:text-3xl font-bold text-primary">{s.value}</p>
-                <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground truncate">{s.label}</p>
-              </div>
+          <motion.button key={s.label} type="button" onClick={s.onClick} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} className="flex items-center gap-3 rounded-2xl bg-card p-4 sm:p-5 shadow-[0_2px_16px_hsl(var(--primary)/0.06)] text-left transition hover:-translate-y-0.5 hover:shadow-[0_4px_24px_hsl(var(--primary)/0.12)] focus:outline-none focus:ring-2 focus:ring-primary/30">
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-secondary/20 text-secondary-foreground shrink-0">
+              <s.icon className="h-5 w-5" />
             </div>
-          </motion.div>
+            <div className="min-w-0">
+              <p className="font-serif text-2xl sm:text-3xl font-bold text-primary">{s.value}</p>
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground truncate">{s.label}</p>
+            </div>
+          </motion.button>
         ))}
       </div>
 
@@ -460,11 +459,14 @@ const AdminStudents = ({ lockedRole }: { lockedRole?: AppRole } = {}) => {
                           {currentRole === "super_admin" ? "Protected role" : "Role locked"}
                         </Badge>
                       ) : null}
+                      <Button variant="outline" size="sm" asChild className="min-h-10 rounded-xl gap-1">
+                        <Link to={`/dashboard/admin/users/${p.user_id}`}><UserCog className="h-4 w-4" /> View Profile</Link>
+                      </Button>
                       <Button variant="outline" size="sm" onClick={() => openEditDialog(p)} className="min-h-10 rounded-xl gap-1">
-                        <Edit3 className="h-4 w-4" /> Edit
+                        <Edit3 className="h-4 w-4" /> Quick Edit
                       </Button>
                       <Button variant="outline" size="sm" disabled={resettingFor === p.user_id || !p.email} onClick={() => resetPassword(p)} className="min-h-10 rounded-xl gap-1">
-                        <KeyRound className="h-4 w-4" /> {resettingFor === p.user_id ? "Sending…" : "Reset password"}
+                        <KeyRound className="h-4 w-4" /> {resettingFor === p.user_id ? "Sending…" : "Email reset"}
                       </Button>
                       {isAdminLike && isSuperAdmin && currentRole !== "super_admin" && (
                         <Button variant="outline" size="sm" onClick={() => openAdminLabel(p)} className="min-h-10 rounded-xl gap-1">

@@ -96,6 +96,9 @@ const AdminLogin = () => {
             <Button type="submit" className="w-full h-12 rounded-xl text-base bg-brand-primary hover:bg-brand-primary-dark text-white" disabled={loading}>
               {loading ? "Signing in..." : "Sign In"}
             </Button>
+            <div className="text-center text-xs pt-1">
+              <a href="/forgot-password" className="text-brand-warm-grey hover:text-brand-primary underline">Forgot password?</a>
+            </div>
           </form>
         </div>
       </motion.div>

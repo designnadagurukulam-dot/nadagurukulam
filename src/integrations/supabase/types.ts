@@ -1510,12 +1510,47 @@ export type Database = {
           },
         ]
       }
+      profile_change_requests: {
+        Row: {
+          created_at: string
+          id: string
+          note: string | null
+          requested_changes: Json
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          note?: string | null
+          requested_changes: Json
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          note?: string | null
+          requested_changes?: Json
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
+          aadhar_number: string | null
           address: string | null
           admin_label: string | null
           avatar_url: string | null
           bio: string | null
+          blood_group: string | null
           city: string | null
           course_name: string | null
           created_at: string
@@ -1523,17 +1558,30 @@ export type Database = {
           department: string | null
           designation: string | null
           display_name: string | null
+          email: string | null
           emergency_contact_name: string | null
           emergency_contact_phone: string | null
           employee_id: string | null
           enrollment_id: string | null
+          family_notes: string | null
+          father_email: string | null
+          father_name: string | null
+          father_occupation: string | null
+          father_phone: string | null
           gender: string | null
           id: string
+          instructor_type: string | null
           is_verified: boolean
           kyc_document_number: string | null
           kyc_document_type: string | null
           kyc_document_url: string | null
           meet_link: string | null
+          mother_email: string | null
+          mother_name: string | null
+          mother_occupation: string | null
+          mother_phone: string | null
+          pan_number: string | null
+          passport_number: string | null
           phone: string | null
           pincode: string | null
           qualifications: string | null
@@ -1547,10 +1595,12 @@ export type Database = {
           zoom_link: string | null
         }
         Insert: {
+          aadhar_number?: string | null
           address?: string | null
           admin_label?: string | null
           avatar_url?: string | null
           bio?: string | null
+          blood_group?: string | null
           city?: string | null
           course_name?: string | null
           created_at?: string
@@ -1558,17 +1608,30 @@ export type Database = {
           department?: string | null
           designation?: string | null
           display_name?: string | null
+          email?: string | null
           emergency_contact_name?: string | null
           emergency_contact_phone?: string | null
           employee_id?: string | null
           enrollment_id?: string | null
+          family_notes?: string | null
+          father_email?: string | null
+          father_name?: string | null
+          father_occupation?: string | null
+          father_phone?: string | null
           gender?: string | null
           id?: string
+          instructor_type?: string | null
           is_verified?: boolean
           kyc_document_number?: string | null
           kyc_document_type?: string | null
           kyc_document_url?: string | null
           meet_link?: string | null
+          mother_email?: string | null
+          mother_name?: string | null
+          mother_occupation?: string | null
+          mother_phone?: string | null
+          pan_number?: string | null
+          passport_number?: string | null
           phone?: string | null
           pincode?: string | null
           qualifications?: string | null
@@ -1582,10 +1645,12 @@ export type Database = {
           zoom_link?: string | null
         }
         Update: {
+          aadhar_number?: string | null
           address?: string | null
           admin_label?: string | null
           avatar_url?: string | null
           bio?: string | null
+          blood_group?: string | null
           city?: string | null
           course_name?: string | null
           created_at?: string
@@ -1593,17 +1658,30 @@ export type Database = {
           department?: string | null
           designation?: string | null
           display_name?: string | null
+          email?: string | null
           emergency_contact_name?: string | null
           emergency_contact_phone?: string | null
           employee_id?: string | null
           enrollment_id?: string | null
+          family_notes?: string | null
+          father_email?: string | null
+          father_name?: string | null
+          father_occupation?: string | null
+          father_phone?: string | null
           gender?: string | null
           id?: string
+          instructor_type?: string | null
           is_verified?: boolean
           kyc_document_number?: string | null
           kyc_document_type?: string | null
           kyc_document_url?: string | null
           meet_link?: string | null
+          mother_email?: string | null
+          mother_name?: string | null
+          mother_occupation?: string | null
+          mother_phone?: string | null
+          pan_number?: string | null
+          passport_number?: string | null
           phone?: string | null
           pincode?: string | null
           qualifications?: string | null
