@@ -11,6 +11,7 @@ import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell } from "rechar
 import BatchRosterDialog from "@/components/dashboard/BatchRosterDialog";
 import TodayClassesDialog from "@/components/dashboard/TodayClassesDialog";
 import CourseProgressDialog from "@/components/dashboard/CourseProgressDialog";
+import LiveClassesBlock from "@/components/overview/LiveClassesBlock";
 
 const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const todayIdx = (new Date().getDay() + 6) % 7;
@@ -26,6 +27,7 @@ const DashboardOverview = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [batchId, setBatchId] = useState<string | null>(null);
+  const [batchIds, setBatchIds] = useState<string[]>([]);
   const [batchName, setBatchName] = useState("Not assigned");
   const [todayClasses, setTodayClasses] = useState<any[]>([]);
   const [todayOnlineClasses, setTodayOnlineClasses] = useState<any[]>([]);
@@ -61,6 +63,7 @@ const DashboardOverview = () => {
       const batchIds = (batchEnrollments || []).map((b: any) => b.batch_id);
       const firstBatch = batchEnrollments?.[0]?.batches as any;
       setBatchId(firstBatch?.id || null);
+      setBatchIds(batchIds);
       setBatchName(firstBatch?.name || "Not assigned");
 
       // Today's classes (for tile + dialog) — batch-specific or audience='all'
@@ -357,67 +360,8 @@ const DashboardOverview = () => {
 
         {/* Online Classes (Today) */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
-          className="lg:col-span-3 bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] overflow-hidden">
-          <div className="bg-gradient-to-r from-brand-primary/5 to-brand-gold/5 px-3 sm:px-5 pt-3 sm:pt-5 pb-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-primary/20 to-brand-primary/5 flex items-center justify-center">
-                  <Video className="w-4 h-4 text-brand-primary" />
-                </div>
-                <h3 className="font-serif text-base sm:text-lg font-semibold text-brand-primary">Online Classes</h3>
-              </div>
-              <Link to="/dashboard/student/live-classes" className="text-xs text-brand-gold hover:text-brand-primary font-semibold flex items-center gap-1">
-                See All <ArrowRight className="w-3 h-3" />
-              </Link>
-            </div>
-          </div>
-          <div className="px-3 sm:px-5 pb-3 sm:pb-5">
-            {loading ? (
-              <div className="space-y-3 pt-2">{[1,2,3].map(i => <Skeleton key={i} className="h-14 sm:h-16 rounded-xl" />)}</div>
-            ) : todayOnlineClasses.length === 0 ? (
-              <div className="py-6 sm:py-8 text-center">
-                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 mx-auto flex items-center justify-center mb-3">
-                  <Video className="w-6 h-6 sm:w-7 sm:h-7 text-brand-gold" />
-                </div>
-                <p className="font-serif text-brand-charcoal-mid text-sm">No online classes today</p>
-              </div>
-            ) : (
-              <div className="space-y-2 pt-2">
-                {todayOnlineClasses.map((cls) => {
-                  const live = isClassLive(cls.scheduled_at, cls.duration_minutes);
-                  const faculty = cls.profiles?.display_name || "Faculty";
-                  return (
-                    <div key={cls.id}
-                      className={`flex items-center gap-2.5 sm:gap-3 p-2.5 sm:p-3 rounded-xl hover:bg-brand-cream transition-all duration-200 border ${live ? "border-green-200 bg-green-50/30" : "border-transparent hover:border-brand-gold/30"}`}>
-                      <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-brand-gold/30 to-brand-gold/10 flex items-center justify-center text-brand-primary font-bold text-[10px] sm:text-xs shrink-0 border border-brand-gold/20">
-                        {getInitials(faculty)}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs sm:text-sm font-semibold text-brand-charcoal truncate">{cls.title}</p>
-                        <p className="text-[10px] sm:text-xs text-brand-warm-grey truncate">{faculty}</p>
-                        <p className="text-[10px] text-brand-warm-grey">
-                          {format(new Date(cls.scheduled_at), "h:mm a")} · {cls.duration_minutes ?? 60} min
-                        </p>
-                      </div>
-                      <div className="shrink-0">
-                        {live ? (
-                          <a href={cls.meeting_link} target="_blank" rel="noopener noreferrer">
-                            <Button size="sm" className="h-7 text-[10px] bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg px-3">
-                              Join →
-                            </Button>
-                          </a>
-                        ) : (
-                          <Button size="sm" disabled className="h-7 text-[10px] rounded-lg px-3" title="Available 10 min before start">
-                            Join
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
+          className="lg:col-span-3">
+          <LiveClassesBlock scope={{ kind: "student", batchIds }} seeAllLink="/dashboard/student/live-classes" />
         </motion.div>
       </div>
 
