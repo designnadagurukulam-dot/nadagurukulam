@@ -57,7 +57,8 @@ const AdminSchedule = () => {
   const [filterMode, setFilterMode] = useState("all");
   const [filterValue, setFilterValue] = useState("all");
   const [semesterFilter, setSemesterFilter] = useState<string>("all");
-  const [viewMode, setViewMode] = useState<"grid" | "timeline">("grid");
+  const [viewMode, setViewMode] = useState<"grid" | "timeline" | "log">("grid");
+  const { user } = useAuth();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<ScheduleEntry | null>(null);
   const [form, setForm] = useState({ title: "", type: "Class", batchId: "", moduleId: "", instructorId: "", start: "", end: "", recurrence: "one_time", location: "" });
