@@ -236,7 +236,7 @@ const AdminTeachers = () => {
                   <span className="flex-1">
                     <span className="block text-sm font-semibold text-brand-primary">{mod.subject_name}</span>
                     <span className="block text-xs text-brand-warm-grey">{mod.course_code} · Semester {mod.semester}</span>
-                    {co.length > 0 && <span className="mt-1 block text-[11px] text-amber-700">Also assigned to: {co.map((p: any) => p.display_name).filter(Boolean).join(", ")}</span>}
+                    {co.length > 0 && <span className="mt-1 block text-[11px] text-amber-700">Assigned to: {co.map((p: any) => p.display_name).filter(Boolean).join(", ")}</span>}
                   </span>
                 </label>
               );
