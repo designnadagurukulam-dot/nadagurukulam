@@ -140,40 +140,36 @@ const TutorMessages = () => {
           <div>
             <h1 className="font-serif text-xl sm:text-2xl font-semibold text-brand-primary">Reach Out</h1>
             <div className="w-12 h-0.5 bg-gradient-to-r from-brand-gold to-transparent mt-0.5" />
-            <p className="text-brand-warm-grey text-xs sm:text-sm mt-0.5">Chat with your students</p>
+            <p className="text-brand-warm-grey text-xs sm:text-sm mt-0.5">Chat with students, faculty & admins</p>
           </div>
         </div>
 
         <div className="flex-1 flex gap-3 sm:gap-4 min-h-0">
-          {/* Desktop student list */}
+          {/* Desktop contact list */}
           <Card className="w-72 shrink-0 hidden md:flex flex-col bg-card rounded-2xl shadow-[0_2px_24px_hsl(var(--primary)/0.06)]">
             <div className="p-3 pb-0">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-warm-grey" />
-                <Input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search students..." className="pl-9 h-10 rounded-xl border-brand-parchment focus:border-brand-gold text-sm" />
+                <Input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search contacts..." className="pl-9 h-10 rounded-xl border-brand-parchment focus:border-brand-gold text-sm" />
               </div>
             </div>
-            <CardContent className="p-3 flex-1 overflow-y-auto space-y-1">
-              {filteredStudents.length === 0 ? (
-                <p className="text-sm text-brand-warm-grey text-center py-8">No students in your batches yet.</p>
-              ) : filteredStudents.map((s: any) => renderStudentItem(s))}
+            <CardContent className="p-3 flex-1 overflow-y-auto">
+              {renderContactList(false)}
             </CardContent>
           </Card>
 
-          {/* Mobile student list */}
+          {/* Mobile contact list */}
           <div className="md:hidden w-full">
             {!selectedStudent && (
               <Card className="flex-1 bg-card rounded-2xl shadow-[0_2px_24px_hsl(var(--primary)/0.06)]">
                 <div className="p-2 pb-0">
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-warm-grey" />
-                    <Input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search students..." className="pl-9 h-10 rounded-xl border-brand-parchment focus:border-brand-gold text-sm" />
+                    <Input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search contacts..." className="pl-9 h-10 rounded-xl border-brand-parchment focus:border-brand-gold text-sm" />
                   </div>
                 </div>
-                <CardContent className="p-2 space-y-1">
-                  {filteredStudents.length === 0 ? (
-                    <p className="text-sm text-brand-warm-grey text-center py-8">No students found.</p>
-                  ) : filteredStudents.map((s: any) => renderStudentItem(s, true))}
+                <CardContent className="p-2">
+                  {renderContactList(true)}
                 </CardContent>
               </Card>
             )}
