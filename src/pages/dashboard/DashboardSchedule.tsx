@@ -1,23 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Calendar, ChevronLeft, ChevronRight, Clock, MapPin, User, Layers, Plus, Download, FileText } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, Clock, MapPin, User, Layers } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { addDays, addWeeks, endOfWeek, format, isSameDay, isBefore, startOfWeek, subWeeks } from "date-fns";
-import { logActivity } from "@/lib/activityLogger";
-import { downloadTeachingLogPdf } from "@/lib/teachingLogPdf";
+import { addDays, addWeeks, endOfWeek, format, isSameDay, startOfWeek, subWeeks } from "date-fns";
 
 type UserRole = "admin" | "student" | "instructor" | "super_admin";
+
 
 
 interface ScheduleItem {
