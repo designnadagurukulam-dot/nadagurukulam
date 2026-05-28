@@ -47,7 +47,9 @@ const DashboardSchedule = () => {
   const [instructors, setInstructors] = useState<Record<string, string>>({});
   const [batches, setBatches] = useState<Record<string, { name: string; semester: number | null }>>({});
   const [modules, setModules] = useState<Record<string, { semester: number | null }>>({});
+  const [studentBatchIds, setStudentBatchIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+
 
   const weekEnd = useMemo(() => endOfWeek(weekStart, { weekStartsOn: 1 }), [weekStart]);
   const weekDays = useMemo(() => DAY_LABELS.map((_, i) => addDays(weekStart, i)), [weekStart]);
