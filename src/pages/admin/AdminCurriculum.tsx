@@ -46,6 +46,7 @@ type CourseForm = {
   see_exam_hours: string;
   course_objectives: string;
   pedagogy: string;
+  prerequisites: string;
 };
 const emptyCourse: CourseForm = {
   program_id: "", course_code: "", subject_name: "", module_name: "", description: "", semester: 1,
@@ -53,7 +54,7 @@ const emptyCourse: CourseForm = {
   instructor_id: "", batch_id: "",
   assessment_cie_marks: 20, assessment_see_marks: 30,
   exam_type: "Theory", cie_exam_hours: "", see_exam_hours: "",
-  course_objectives: "", pedagogy: "",
+  course_objectives: "", pedagogy: "", prerequisites: "",
 };
 
 const TO_BE_ASSIGNED = "__tba__";
@@ -146,6 +147,7 @@ const AdminCurriculum = () => {
         see_exam_hours: courseDraft.see_exam_hours || null,
         course_objectives: splitList(courseDraft.course_objectives),
         pedagogy: courseDraft.pedagogy || null,
+        prerequisites: courseDraft.prerequisites || null,
       };
       let moduleId = courseDraft.id;
       if (moduleId) {
@@ -262,6 +264,7 @@ const AdminCurriculum = () => {
       see_exam_hours: m.see_exam_hours || "",
       course_objectives: joinList(m.course_objectives),
       pedagogy: m.pedagogy || "",
+      prerequisites: m.prerequisites || "",
     });
     setShowCourseForm(true);
   };
@@ -461,6 +464,7 @@ const AdminCurriculum = () => {
             </div>
             <Field label="Course Objectives (one per line)"><Textarea rows={4} value={courseDraft.course_objectives} onChange={(e) => setCourseDraft({ ...courseDraft, course_objectives: e.target.value })} /></Field>
             <Field label="Pedagogy"><Textarea rows={3} value={courseDraft.pedagogy} onChange={(e) => setCourseDraft({ ...courseDraft, pedagogy: e.target.value })} /></Field>
+            <Field label="Prerequisites (if any)"><Textarea rows={3} value={courseDraft.prerequisites} onChange={(e) => setCourseDraft({ ...courseDraft, prerequisites: e.target.value })} placeholder="One per line" /></Field>
             <Field label="Description"><Textarea rows={3} value={courseDraft.description} onChange={(e) => setCourseDraft({ ...courseDraft, description: e.target.value })} /></Field>
           </div>
           <DialogFooter><Button variant="outline" onClick={() => setShowCourseForm(false)}>Cancel</Button><Button onClick={() => saveCourse.mutate()} disabled={!courseDraft.course_code || !courseDraft.subject_name || !courseDraft.program_id}><Save className="h-4 w-4" /> Save</Button></DialogFooter>

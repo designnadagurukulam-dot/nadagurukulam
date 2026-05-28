@@ -1,11 +1,22 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
-type LessonPlanPdfData = { plan: any; module: any; teacher?: any; outcomes?: any[]; sections?: any[]; entries?: any[] };
+type LessonPlanPdfData = {
+  plan: any;
+  module: any;
+  teacher?: any;
+  outcomes?: any[];
+  sections?: any[];
+  entries?: any[];
+  program?: any;
+  allocation?: any;
+  topics?: any[];
+};
 
 const listText = (value: unknown) => Array.isArray(value) ? value.filter(Boolean).join("; ") : value ? String(value) : "—";
+const semParity = (sem?: number) => (sem ? (sem % 2 === 1 ? "Odd Semester" : "Even Semester") : "—");
 
-export const downloadLessonPlanPdf = ({ plan, module, teacher, outcomes = [], sections = [], entries = [] }: LessonPlanPdfData) => {
+export const downloadLessonPlanPdf = ({ plan, module, teacher, outcomes = [], sections = [], entries = [], program, allocation, topics = [] }: LessonPlanPdfData) => {
   const doc = new jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
   const maroon: [number, number, number] = [125, 30, 36];
   const gold: [number, number, number] = [196, 154, 60];
@@ -21,26 +32,75 @@ export const downloadLessonPlanPdf = ({ plan, module, teacher, outcomes = [], se
   };
   header();
 
-  autoTable(doc, { startY: 62, theme: "grid", styles: { fontSize: 8, cellPadding: 4, textColor: ink, lineColor: [235, 227, 204] }, body: [
-    ["Department", teacher?.department || "Performing Arts", "Academic Semester", plan?.academic_semester || `Semester ${module?.semester || ""}`, "Section", plan?.section || "—"],
-    ["Course Code", module?.course_code || "—", "Course Name", module?.subject_name || module?.module_name || "—", "Module", module?.module_name || "—"],
-    ["Teacher", teacher?.display_name || "—", "Designation", teacher?.designation || "—", "Contact Hrs/week", String(plan?.contact_hours_per_week || 3)],
-    ["CIE Marks", String(module?.assessment_cie_marks ?? "—"), "SEE Marks", String(module?.assessment_see_marks ?? "—"), "Exam Hours", module?.exam_hours || "—"],
-  ] });
+  // Header table (2 cols of label/value pairs across 3 columns of pairs = 6 cells per row)
+  autoTable(doc, {
+    startY: 62, theme: "grid",
+    styles: { fontSize: 8, cellPadding: 4, textColor: ink, lineColor: [235, 227, 204] },
+    body: [
+      ["Academic Semester", semParity(module?.semester), "Academic Year", allocation?.academic_year || "—", "Semester No.", String(module?.semester ?? "—")],
+      ["Program", program?.name || "—", "Course Code", module?.course_code || "—", "Course Name", module?.subject_name || module?.module_name || "—"],
+      ["Contact Hrs/week", String(plan?.contact_hours_per_week ?? module?.teaching_hours ?? "—"), "No. of Credits", String(module?.credits ?? "—"), "Exam Hours", module?.exam_hours || module?.cie_exam_hours || module?.see_exam_hours || "—"],
+      ["Instructor Name", teacher?.display_name || "—", "Designation", teacher?.designation || "—", "CIE / SEE Marks", `${module?.assessment_cie_marks ?? "—"} / ${module?.assessment_see_marks ?? "—"}`],
+    ],
+  });
 
-  autoTable(doc, { startY: (doc as any).lastAutoTable.finalY + 10, theme: "grid", head: [["Course Objectives", "Pedagogy", "References"]], body: [[listText(module?.course_objectives), module?.pedagogy || "—", listText(module?.references_list)]], headStyles: { fillColor: maroon, textColor: cream }, styles: { fontSize: 8, cellPadding: 5, overflow: "linebreak" }, columnStyles: { 0: { cellWidth: 260 }, 1: { cellWidth: 220 }, 2: { cellWidth: 260 } } });
+  // Prerequisites + Content Delivery + Syllabus + COs as separate labeled sections
+  autoTable(doc, {
+    startY: (doc as any).lastAutoTable.finalY + 10, theme: "grid",
+    head: [["Prerequisites (if any)", "Content Delivery Methods"]],
+    body: [[module?.prerequisites || "—", plan?.content_delivery_methods || module?.pedagogy || "—"]],
+    headStyles: { fillColor: maroon, textColor: cream },
+    styles: { fontSize: 8, cellPadding: 5, overflow: "linebreak" },
+  });
 
-  autoTable(doc, { startY: (doc as any).lastAutoTable.finalY + 10, head: [["CO#", "Description", "RBT Levels", "Hours"]], body: outcomes.length ? outcomes.map((o) => [`CO${o.co_number}`, o.description, o.rbt_levels || "—", String(o.hours || "—")]) : [["—", "No course outcomes recorded", "—", "—"]], headStyles: { fillColor: maroon, textColor: cream }, styles: { fontSize: 8, cellPadding: 4, overflow: "linebreak" }, columnStyles: { 1: { cellWidth: 520 } } });
+  const syllabusParts: string[] = [];
+  if (module?.description) syllabusParts.push(module.description);
+  if (Array.isArray(module?.course_objectives) && module.course_objectives.length) syllabusParts.push("Objectives: " + module.course_objectives.join("; "));
+  if (topics.length) syllabusParts.push("Topics: " + topics.map((t: any) => t.title).join("; "));
+
+  autoTable(doc, {
+    startY: (doc as any).lastAutoTable.finalY + 6, theme: "grid",
+    head: [["Course Syllabus (As prescribed by SSSUHE)"]],
+    body: [[syllabusParts.join("\n") || "—"]],
+    headStyles: { fillColor: maroon, textColor: cream },
+    styles: { fontSize: 8, cellPadding: 5, overflow: "linebreak" },
+  });
+
+  autoTable(doc, {
+    startY: (doc as any).lastAutoTable.finalY + 6,
+    head: [["CO#", "Description", "RBT Levels", "Hours"]],
+    body: outcomes.length ? outcomes.map((o) => [`CO${o.co_number}`, o.description, o.rbt_levels || "—", String(o.hours || "—")]) : [["—", "No course outcomes recorded", "—", "—"]],
+    headStyles: { fillColor: maroon, textColor: cream },
+    styles: { fontSize: 8, cellPadding: 4, overflow: "linebreak" },
+    columnStyles: { 1: { cellWidth: 520 } },
+  });
 
   const sectionMap = new Map(sections.map((s) => [s.id, s]));
   const rows = Array.from({ length: plan?.total_periods || 60 }, (_, index) => {
     const lecture = index + 1;
-    const entry = entries.find((e) => e.lecture_number === lecture) || {};
+    const entry = entries.find((e) => e.lecture_number === lecture) || ({} as any);
     const section = sectionMap.get(entry.curriculum_section_id);
-    return [String(lecture), String(entry.module_number || module?.sort_order || ""), entry.topic_title || section?.title || "", entry.rbt_level || section?.rbt_levels || "", entry.co_mapping || section?.co_mapping || "", entry.actual_date || "", entry.faculty_remarks || "", ""];
+    return [
+      String(lecture),
+      module?.module_name || "",
+      entry.topic_title || section?.title || "",
+      entry.rbt_level || section?.rbt_levels || "",
+      entry.co_mapping || "",
+      entry.actual_date || "",
+      entry.actual_date ? (teacher?.display_name || "") : "",
+      entry.faculty_remarks || "",
+    ];
   });
 
-  autoTable(doc, { startY: (doc as any).lastAutoTable.finalY + 10, head: [["Period", "Module", "Topic", "RBT", "CO", "Actual Date", "Faculty Remarks", "Sign"]], body: rows, headStyles: { fillColor: maroon, textColor: cream }, styles: { fontSize: 7, cellPadding: 3, overflow: "linebreak" }, columnStyles: { 2: { cellWidth: 190 }, 6: { cellWidth: 135 } }, didDrawPage: (data) => { if (data.pageNumber > 1) header(); } });
+  autoTable(doc, {
+    startY: (doc as any).lastAutoTable.finalY + 10,
+    head: [["Period", "Module Name", "Topic", "RBT Levels", "CO Mapping", "Actual Date", "Faculty Sign", "Remarks"]],
+    body: rows,
+    headStyles: { fillColor: maroon, textColor: cream },
+    styles: { fontSize: 7, cellPadding: 3, overflow: "linebreak" },
+    columnStyles: { 2: { cellWidth: 180 }, 7: { cellWidth: 135 } },
+    didDrawPage: (data) => { if (data.pageNumber > 1) header(); },
+  });
 
   const pageCount = doc.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) { doc.setPage(i); doc.setTextColor(...maroon); doc.setFontSize(9); doc.text(`Page ${i} of ${pageCount}`, pageWidth - 90, pageHeight - 20); }

@@ -1,66 +1,87 @@
-# Instructor Courses & Curriculum — restructure
+# Lesson Plans tab redesign (Instructor view)
 
-## 1. Fix: allocated curriculum not showing for instructor
+Rebuild `src/pages/instructor/TutorLessonPlans.tsx` to match the SSSUHE Lesson Plan format. All admin-set data is read-only; only specific cells are instructor-editable.
 
-**Problem**: `TutorCurriculum.tsx` currently decides "my modules" by matching `curriculum_modules.batch_id` against batches where the instructor is the batch's `instructor_id`. Subject allocations made by Super Admin live in the `subject_allocations` table (`instructor_id` ↔ `curriculum_module_id`) and are never read here, so allocated subjects don't appear.
+## 1. Header table (read-only, one row, all from curriculum + allocation)
 
-**Fix**:
-- Query `subject_allocations` for the logged-in instructor, get the allocated `curriculum_module_id` set.
-- "My Curriculum" = union of: modules from that allocation set + modules whose `instructor_id` already equals the user + modules tied to a batch they instruct.
-- Same change applied wherever the instructor's curriculum is listed (Courses tab "My Curriculum" card, Lesson Plans already uses `subject_allocations` correctly — keep as reference).
+Single info table at the top with these fields:
 
-## 2. Sidebar + entry-point consolidation
+| Field | Source |
+|---|---|
+| Academic Semester (Odd/Even) | derived from `curriculum_modules.semester` (odd → Odd Sem, even → Even Sem) |
+| Academic Year | `subject_allocations.academic_year` for this instructor + module |
+| Semester No. | `curriculum_modules.semester` |
+| Program | `categories.name` joined via `curriculum_modules.program_id` (label changed from "Section" → "Program") |
+| Course Code | `curriculum_modules.course_code` |
+| Contact Hrs / Week | `curriculum_modules.teaching_hours` (fallback `periods`) |
+| Course Name | `curriculum_modules.subject_name` |
+| No. of Credits | `curriculum_modules.credits` |
+| Instructor Name | `profiles.display_name` (current user) |
+| Designation | `profiles.designation` (current user) |
+| CIE Marks | `curriculum_modules.assessment_cie_marks` |
+| SEE Marks | `curriculum_modules.assessment_see_marks` |
+| Exam Hours | `curriculum_modules.exam_hours` |
 
-- Remove the "Update Curriculum" item from `DashboardSidebar` for instructors.
-- `My Courses & Curriculum` page becomes the single hub:
-  - When there are **no courses**, keep the current empty-state card with the central "Create Course" CTA.
-  - When there **are courses**, move "Create Course" to the **top-right** of the page header.
-  - "Create Course" navigates to the existing `/dashboard/tutor/create` route, which keeps its back button to return here.
-- The "My Curriculum" tab on this page becomes the place to manage allocated curriculum (today it lives at `/dashboard/tutor/curriculum`). The TutorCurriculum view is embedded as that tab's content; the standalone route can stay reachable but is no longer linked from the sidebar.
+Existing free-text inputs for academic_semester / section / contact_hours / total_periods are removed from the instructor UI — these come from admin data.
 
-## 3. Simplify the Create Course flow
+## 2. Four supplementary tables (under header)
 
-In `CreateCourse.tsx` step "Details":
+All non-editable for instructor, except Content Delivery Methods.
 
-- **Remove** the "New course vs Add to existing curriculum" block.
-- **Remove** the "Course Placement" (semester/subject pickers) block.
-- Course is always created as instructor extra-learning material (`instructor_id = user.id`, not linked to a curriculum module).
+1. **Prerequisites if any** — new admin field `curriculum_modules.prerequisites text`. Read-only here.
+2. **Content Delivery Methods** — defaults to `curriculum_modules.pedagogy`. Instructor can override per lesson plan: store in `lesson_plans.content_delivery_methods text` (new column). Editable textarea, saved with header.
+3. **Course Syllabus (As prescribed by SSSUHE)** — read-only list rendered from `curriculum_modules.description` + `curriculum_topics` (module → topics, grouped).
+4. **Course Outcomes** — read-only list from `course_outcomes` rows (CO1..COn with description, RBT level, hours).
 
-New **Course Details** fields:
-- Course title
-- Course outcomes (repeatable list — stored as `course_outcomes` rows attached to the new course / or a `text[]` on the course; use a simple textarea list for v1)
-- Description
-- Total hours (number)
+## 3. Lesson Plan grid (one row per period)
 
-**Next → Modules** step, for each module:
-- Module title
-- Teaching outcomes (textarea list)
-- Description
-- Hours — validated so `sum(module hours) ≤ course total hours`; show inline error and disable Next when exceeded.
+Columns:
 
-Within each module, **Add Topic** collects:
-- Topic name
-- Description
-- Material type: Video / Audio / Document / Text (drives which upload/url input shows — reuse existing lesson_type handling, extend with `audio`).
+| Column | Editable by instructor? | Source / behavior |
+|---|---|---|
+| Period | No | row index (1..total_periods) |
+| Module Name | No | `curriculum_modules.module_name` for the selected topic's parent module (auto-filled when Topic picked) |
+| Topic | **Yes** | dropdown of `curriculum_topics` rows belonging to that module (and/or `curriculum_sections.title`). On change, auto-fills Module Name + RBT |
+| RBT Levels | No | from selected topic/section (`rbt_levels`) |
+| Course Outcome Mapping | **Yes** | dropdown of `CO1..COn` (n = count of `course_outcomes` for this curriculum module) — replaces free-text Input |
+| Actual Date | No | auto-populated from `class_logs` matching `instructor_id + curriculum_section_id/topic` (see §4) |
+| Faculty Sign | No | display `profiles.display_name` once `actual_date` is present |
+| Remarks | **Yes** | textarea (`faculty_remarks`) |
 
-**Add Module** button after every module. **Next → Review → Submit for Review** (unchanged submission pipeline; status stays `pending`).
+Mobile card view mirrors the same edit restrictions.
 
-## 4. Add to existing curriculum from inside Courses
+## 4. Actual Date auto-fill from Teaching Logs
 
-Inside the "My Curriculum" tab (the embedded TutorCurriculum):
-- Per allocated subject (curriculum_module), add an **ADD MODULE** button — instructor creates an additional sub-module under that subject.
-- Each module keeps its existing **Add Topic** action.
-- **Visual distinction**: anything created by the instructor (vs. created by admin) shows a gold left-border ribbon + small "Added by you" badge, while admin-original items keep the maroon ribbon. Detection:
-  - `curriculum_sections.created_by = auth.uid()` → instructor-added topic.
-  - `curriculum_modules.created_by = auth.uid()` → instructor-added module (requires adding a `created_by uuid` column to `curriculum_modules`, default null, backfilled null = admin).
-- **Edit/Delete** controls are only enabled on rows the instructor created. Admin-created rows are read-only for the instructor (UI hides edit/delete buttons; RLS already permits writes but we enforce in UI for now and tighten RLS later if needed).
+Already partially wired (`class_logs` query exists). Tighten the match:
+- Lookup `class_logs` where `instructor_id = user.id` AND (`curriculum_section_id = row.curriculum_section_id` OR `topic_covered = row.topic_title`).
+- If a confirmed log exists, lock `actual_date` to that date (no manual input).
+- Super Admin override is handled in `AdminLessonPlans.tsx` (out of scope here — already exists).
 
-## Technical notes
+## 5. Database migration
 
-- **DB migration**: add `created_by uuid` to `public.curriculum_modules` (nullable). No RLS change required for this step.
-- **Files touched**:
-  - `src/components/DashboardSidebar.tsx` — remove "Update Curriculum" entry.
-  - `src/pages/instructor/InstructorCourses.tsx` — top-right Create button when list non-empty; embed TutorCurriculum into the "My Curriculum" tab; fix allocated-curriculum query.
-  - `src/pages/instructor/TutorCurriculum.tsx` — include `subject_allocations` in "my modules" logic; render per-module "Add Module" button; color-code instructor-vs-admin items; gate edit/delete by `created_by`.
-  - `src/pages/instructor/CreateCourse.tsx` — drop placement/type sections; add course outcomes + total hours fields; per-module teaching outcomes + hours with sum-validation; extend topic types to include audio.
-- **Out of scope** (call out, do not build): tightening RLS so instructors literally cannot mutate admin curriculum rows server-side; richer drag/drop reorder of new modules.
+Add the missing fields:
+
+```sql
+ALTER TABLE public.curriculum_modules
+  ADD COLUMN IF NOT EXISTS prerequisites text;
+
+ALTER TABLE public.lesson_plans
+  ADD COLUMN IF NOT EXISTS content_delivery_methods text;
+```
+
+(All other header fields already exist on `curriculum_modules` / `profiles` / `subject_allocations`.)
+
+Admin-side UI to set `prerequisites` will be added to `AdminCurriculum` form (one-line change: add a textarea bound to the new column).
+
+## 6. Files touched
+
+- `supabase/migrations/<new>.sql` — two ALTERs above
+- `src/pages/instructor/TutorLessonPlans.tsx` — full rewrite of header + 4 tables + restricted grid
+- `src/pages/admin/AdminCurriculum.tsx` (or equivalent module editor) — add Prerequisites field
+- `src/lib/lessonPlanPdf.ts` — mirror the new header fields + 4 tables in the PDF export
+- `src/integrations/supabase/types.ts` — auto-regenerated after migration
+
+## Out of scope (separate request)
+
+- Admin override of Actual Date and other locked columns (Super Admin editor lives in `AdminLessonPlans.tsx`; will address when you reach the Teaching Logs section).
+- Any changes to how `class_logs` are created by the instructor.
