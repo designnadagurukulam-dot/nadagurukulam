@@ -336,6 +336,8 @@ const AdminSchedule = () => {
 
       {loading ? (
         <div className="flex justify-center py-20"><div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" /></div>
+      ) : viewMode === "log" ? (
+        user ? <WeeklyTeachingLogGrid role="admin" userId={user.id} weekStart={weekStart} /> : null
       ) : viewMode === "grid" ? (
         <div className="overflow-x-auto rounded-2xl bg-card p-2 shadow-[0_2px_16px_hsl(var(--primary)/0.06)]">
           <table className="min-w-[920px] w-full border-separate border-spacing-0">
