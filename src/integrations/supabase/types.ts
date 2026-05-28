@@ -1989,6 +1989,16 @@ export type Database = {
         Returns: boolean
       }
       is_super_or_admin: { Args: { _user_id: string }; Returns: boolean }
+      validate_coupon: {
+        Args: { _code: string }
+        Returns: {
+          code: string
+          discount_type: string
+          discount_value: number
+          id: string
+          valid_until: string
+        }[]
+      }
     }
     Enums: {
       app_role: "admin" | "student" | "instructor" | "super_admin"
