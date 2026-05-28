@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import {
   Search,
@@ -48,6 +49,11 @@ type BatchEnrollment = {
 
 const AdminStudents = () => {
   const { role: currentUserRole, user } = useAuth();
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    localStorage.setItem("lastViewed:users", new Date().toISOString());
+    queryClient.invalidateQueries({ queryKey: ["sidebar-counts"] });
+  }, [queryClient]);
   const isSuperAdmin = currentUserRole === "super_admin";
 
   const [profiles, setProfiles] = useState<any[]>([]);

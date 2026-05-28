@@ -76,16 +76,43 @@ const About = () => {
           >
             <div className="md:col-span-2 flex justify-center">
               <div className="relative vignette-gold">
-                <div className="w-56 h-64 sm:w-64 sm:h-72 md:w-80 md:h-96 rounded-2xl overflow-hidden shadow-2xl golden-frame">
+                {/* Rotating chakra behind founder photo */}
+                <motion.div
+                  aria-hidden
+                  className="absolute -inset-6 pointer-events-none opacity-40"
+                  animate={{ rotate: 360 }}
+                  transition={{ repeat: Infinity, duration: 40, ease: "linear" }}
+                >
+                  <svg viewBox="0 0 200 200" fill="none" className="w-full h-full">
+                    <circle cx="100" cy="100" r="96" stroke="hsl(var(--primary))" strokeWidth="1.5" />
+                    <circle cx="100" cy="100" r="88" stroke="hsl(var(--primary))" strokeWidth="0.5" strokeDasharray="2 4" />
+                    {Array.from({ length: 24 }).map((_, i) => (
+                      <line
+                        key={i}
+                        x1="100" y1="6" x2="100" y2="22"
+                        stroke="hsl(var(--primary))"
+                        strokeWidth="1.5"
+                        transform={`rotate(${i * 15} 100 100)`}
+                      />
+                    ))}
+                  </svg>
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 1.4, ease: "easeOut" }}
+                  className="relative w-56 h-64 sm:w-64 sm:h-72 md:w-80 md:h-96 rounded-2xl overflow-hidden shadow-2xl golden-frame"
+                >
                   <img
                     src={founderImg}
                     alt="Sadguru Sri Madhusudan Sai"
                     className="w-full h-full object-cover object-[center_15%]"
                     loading="lazy"
                   />
-                </div>
+                </motion.div>
                 <motion.span
-                  className="absolute -top-6 -left-4 font-serif text-[7rem] leading-none text-secondary/12 pointer-events-none select-none"
+                  className="absolute -top-6 -left-4 font-serif text-[7rem] leading-none text-secondary/20 pointer-events-none select-none z-10"
                   initial={{ opacity: 0 }}
                   whileInView={{ opacity: 1 }}
                   viewport={{ once: true }}
@@ -105,15 +132,15 @@ const About = () => {
                 <span className="text-secondary text-xs tracking-[0.3em] uppercase font-semibold">
                   Founder's Message
                 </span>
-                <h2 className="font-serif text-2xl md:text-3xl font-bold mt-3 mb-1">Sadguru Sri Madhusudan Sai</h2>
+                <h2 className="font-serif text-2xl md:text-3xl font-bold mt-3 mb-1 text-brand-primary">Sadguru Sri Madhusudan Sai</h2>
                 <p className="text-muted-foreground text-sm mb-3">Founder, Nada Gurukulam</p>
                 <div className="w-16 h-0.5 bg-secondary rounded-full mb-6" />
-                <blockquote className="border-l-4 border-secondary/40 pl-5 italic text-foreground/70 mb-4 leading-relaxed text-sm md:text-base">
+                <blockquote className="border-l-4 border-secondary pl-5 italic text-foreground mb-4 leading-relaxed text-sm md:text-base">
                   "nāda brahma, says our scriptures. Sound is divine or 'parameṣṭi', as it is called. And while the
                   seven notes of music have been inspired by various sounds in creation or 'sṛṣṭi', it is the singular
                   privilege of humans or 'vyaṣṭi' to sing and play music."
                 </blockquote>
-                <blockquote className="border-l-4 border-secondary/40 pl-5 italic text-foreground/55 leading-relaxed text-sm">
+                <blockquote className="border-l-4 border-secondary pl-5 italic text-foreground/90 leading-relaxed text-sm md:text-base">
                   "To practise, promote and propagate this rich cultural and spiritual Indian music tradition is the
                   purpose of establishing the Department of Music and Performing Arts at the Sri Sathya Sai University
                   for Human Excellence."

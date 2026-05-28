@@ -107,6 +107,7 @@ const marqueeItems = [
   "Tabla", "✦", "Sitar", "✦", "Guru-Shishya Parampara", "✦", "नाद ब्रह्म", "✦",
   "रसो वै सः", "✦", "Classical Dance", "✦", "Indian Heritage", "✦",
 ];
+const marqueeItemsReversed = [...marqueeItems].reverse();
 
 /* ─── Mandala SVG Ornament ─── */
 const GoldenMandala = () => (
@@ -190,9 +191,6 @@ const Index = () => {
         {/* Grain */}
         <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E\")" }} />
 
-        {/* Rotating mandala */}
-        <GoldenMandala />
-
         {/* Floating ornamental shapes */}
         <FloatingOrnament style={{ top: "15%", left: "8%" }} delay={0} />
         <FloatingOrnament style={{ top: "25%", right: "10%" }} delay={2} />
@@ -217,42 +215,57 @@ const Index = () => {
         </div>
 
         <motion.div style={{ opacity: heroOpacity }} className="relative z-10 text-center px-4 max-w-5xl mx-auto">
-          {/* Sanskrit in golden pill badge */}
+          {/* Brand lockup: circular logo + wordmark, with mandala behind logo */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
+            initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8 }}
-            className="inline-flex items-center gap-3 px-6 py-2 rounded-full border border-secondary/40 bg-background/95 backdrop-blur-2xl shadow-xl mb-8 ring-2 ring-secondary/20"
+            className="inline-flex items-center gap-4 mb-8"
           >
-            <img src={logo} alt="Nada Gurukulam" className="h-12 md:h-16 w-auto object-contain" />
+            <div className="relative flex items-center justify-center">
+              {/* Mandala behind logo only */}
+              <motion.div
+                className="absolute pointer-events-none opacity-[0.18]"
+                style={{ width: 220, height: 220 }}
+                animate={{ rotate: 360 }}
+                transition={{ repeat: Infinity, duration: 60, ease: "linear" }}
+              >
+                <svg viewBox="0 0 200 200" fill="none" className="w-full h-full text-secondary">
+                  <circle cx="100" cy="100" r="95" stroke="currentColor" strokeWidth="0.4" />
+                  <circle cx="100" cy="100" r="75" stroke="currentColor" strokeWidth="0.4" />
+                  <circle cx="100" cy="100" r="55" stroke="currentColor" strokeWidth="0.4" />
+                  <circle cx="100" cy="100" r="35" stroke="currentColor" strokeWidth="0.4" />
+                  {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((angle) => (
+                    <line key={angle} x1="100" y1="5" x2="100" y2="40" stroke="currentColor" strokeWidth="0.5" transform={`rotate(${angle} 100 100)`} />
+                  ))}
+                  {[0, 45, 90, 135, 180, 225, 270, 315].map((angle) => (
+                    <path key={`p-${angle}`} d="M100 10 L103 45 L100 38 L97 45 Z" fill="currentColor" opacity="0.6" transform={`rotate(${angle} 100 100)`} />
+                  ))}
+                </svg>
+              </motion.div>
+              <div className="relative h-20 w-20 md:h-24 md:w-24 rounded-full overflow-hidden border-2 border-secondary/60 ring-2 ring-secondary/30 shadow-xl bg-background/95">
+                <img src={logo} alt="Nada Gurukulam" className="absolute inset-0 w-full h-full object-cover" />
+              </div>
+            </div>
+            <span className="font-serif text-xl md:text-2xl font-semibold text-primary-foreground tracking-wide hidden sm:inline">
+              Nada Gurukulam
+            </span>
           </motion.div>
 
-          <motion.h1 className="font-serif text-3xl sm:text-6xl md:text-8xl lg:text-[7rem] font-extrabold text-primary-foreground leading-[0.95] mb-8" style={{ textShadow: "0 6px 60px hsl(0 0% 0% / 0.6)" }}>
-            {"Nada".split("").map((char, i) => (
-              <motion.span
-                key={i}
-                initial={{ opacity: 0, y: 60, filter: "blur(12px)" }}
-                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                transition={{ delay: 0.4 + i * 0.06, duration: 0.7, ease: "easeOut" }}
-                className="inline-block"
-              >
-                {char}
-              </motion.span>
-            ))}
+          <motion.h1
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 2.5, ease: "easeOut" }}
+            className="font-serif text-3xl sm:text-6xl md:text-8xl lg:text-[7rem] font-extrabold text-primary-foreground leading-[0.95] mb-8"
+            style={{ textShadow: "0 6px 60px hsl(0 0% 0% / 0.6)" }}
+          >
+            <span className="inline-block">Nada</span>
             <br className="sm:hidden" />
-            <span className="inline-block sm:ml-6">
-              {"Gurukulam".split("").map((char, i) => (
-                <motion.span
-                  key={`g-${i}`}
-                  initial={{ opacity: 0, y: 60, filter: "blur(12px)" }}
-                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                  transition={{ delay: 0.7 + i * 0.05, duration: 0.7, ease: "easeOut" }}
-                  className="inline-block text-outline-gold"
-                  style={{ WebkitTextStroke: "2px hsl(33 62% 58% / 0.6)", color: "transparent" }}
-                >
-                  {char}
-                </motion.span>
-              ))}
+            <span
+              className="inline-block sm:ml-6 text-outline-gold"
+              style={{ WebkitTextStroke: "2px hsl(33 62% 58% / 0.6)", color: "transparent" }}
+            >
+              Gurukulam
             </span>
           </motion.h1>
 
@@ -261,10 +274,10 @@ const Index = () => {
           </motion.p>
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.8, duration: 0.6 }} className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 text-base px-12 shadow-2xl hover:shadow-secondary/30 transition-all hover:-translate-y-1 h-14 animate-glow-pulse font-semibold">
+            <Button asChild size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 text-base px-12 shadow-2xl hover:shadow-secondary/30 transition-all hover:-translate-y-1 h-14 font-semibold">
               <Link to="/courses"><Sparkles className="h-4 w-4 mr-2" />Explore Courses</Link>
             </Button>
-            <Button asChild size="lg" className="bg-background text-foreground hover:bg-background/90 text-base px-12 h-14 font-medium shadow-lg">
+            <Button asChild size="lg" className="bg-background text-foreground hover:bg-background/90 text-base px-12 h-14 font-medium shadow-lg hover:shadow-xl transition-all hover:-translate-y-1">
               <Link to="/contact">Contact Us</Link>
             </Button>
           </motion.div>
@@ -302,7 +315,7 @@ const Index = () => {
       <div className="bg-primary/95 py-2.5 overflow-hidden border-t border-primary-foreground/5">
         <div className="marquee-strip">
           <div className="marquee-content-reverse">
-            {[...marqueeItems.reverse(), ...marqueeItems].map((item, i) => (
+            {[...marqueeItemsReversed, ...marqueeItemsReversed].map((item, i) => (
               <span key={i} className={`mx-4 text-xs whitespace-nowrap ${item === "✦" ? "text-secondary/60 text-[10px]" : "text-primary-foreground/50 tracking-widest uppercase"}`}>
                 {item}
               </span>

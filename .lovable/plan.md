@@ -1,83 +1,57 @@
 
+# Phase 5 — Landing page polish, About animations, sidebar badge cleanup
 
-# Phase 4 — Users Tab Consolidation + Detail Spacing Fix
+Small, scoped UI/animation pass. No DB changes, no new features.
 
-Two focused changes based on your feedback. No new features, no destructive DB changes.
+---
+
+## 1. Sidebar badge "unviewed only" (Users, Assignments, Feedback)
+
+**Problem:** Badges always show counts even after admin has reviewed the section.
+
+**Fix:** Track "last viewed" timestamp per section in `localStorage`. Only show badge when there are items created/updated after that timestamp.
+
+- In `DashboardSidebar.tsx` `useQuery`, for `Users` / `Assignments` / `Feedback`, also pass `?gt(created_at, lastViewedAt)` filter using the stored timestamp (default = epoch so first load still shows).
+- On the matching pages (`AdminStudents`, `AdminAssignments`, `AdminFeedback`), write `localStorage[lastViewed:<key>] = new Date().toISOString()` on mount + refetch sidebar counts.
+- Other badges (Course Approvals, Messages, Reach Out) keep existing behavior.
+
+## 2. Label rename
+
+`src/pages/admin/AdminTeachers.tsx:239` — change "Also assigned to:" → "Assigned to:".
+
+## 3. Landing page (`src/pages/Index.tsx`)
+
+1. **Circular logo** — wrap hero logo `<img>` in `rounded-full overflow-hidden` container, crop to circle.
+2. **Mandala behind logo, not behind "Nada Gurukulam"** — move `<GoldenMandala />` so it's centered on the logo badge (offset upward), and constrain its size/position so it doesn't overlap the heading text. Likely: render mandala absolutely positioned to logo wrapper instead of section center.
+3. **Equal glow on both buttons** — the "Explore Courses" button uses `animate-glow-pulse`; "Contact Us" doesn't. Decision: **remove glow from both** for consistency (keep shadow only). If you prefer glow on both, say so.
+4. **Smooth marquee** — current `marquee-content` likely uses `translateX(-50%)` with duplicated items. The jerk is from a gap between the end and restart. Fix by ensuring exact duplication (already done) and using `animation: marquee Xs linear infinite` with `transform: translateX(0) → translateX(-50%)` and `will-change: transform`. Audit `.marquee-content` / `.marquee-content-reverse` in `index.css` and adjust keyframes for seamless loop.
+5. **Slow fade-in for "Nada Gurukulam" heading** — replace the per-letter blur-in animation with a single slow opacity fade (`initial opacity:0 → 1`, duration ~2.5s, ease-out). Keep the gradient/outline styling.
+6. **Logo zoom area** — the logo badge has hover zoom but isn't a link. Remove the zoom animation, and add "Nada Gurukulam" wordmark text next to the logo inside the badge so it reads as a brand lockup rather than a button.
+
+## 4. About page (`src/pages/About.tsx`)
+
+1. **Sadguru photo fade-in** — current image has no animation. Wrap the founder `<img>` container in `motion.div` with `initial={{opacity:0}} whileInView={{opacity:1}} transition={{duration:1.5}} viewport={{once:true}}`.
+2. **Founder's message visibility** — current blockquote uses `text-foreground/70` (low contrast on cream). Bump to a darker maroon/charcoal: `text-foreground` or `text-brand-primary` for the body, keep gold accent on the heading. Same for second blockquote (currently `/55`).
+3. **Rotating chakra (red circle)** — wrap the existing red ornament/timeline-dot circle in `motion.div` with `animate={{rotate:360}} transition={{repeat:Infinity, duration:30, ease:"linear"}}`. (Need to confirm which red circle — likely the decorative one near the Foundation timeline or vision section. I'll target the most prominent red circular element on the page.)
 
 ---
 
-## 1) Consolidate Verification → unified "Users" tab
+## Technical notes
 
-**Current state:** `AdminUserVerification.tsx` is a separate sidebar entry showing only pending users. `AdminStudents.tsx` and `AdminTeachers.tsx` show verified users by role. This split is confusing — you want one place to manage everyone.
-
-**New structure — single sidebar entry "Users"** (replacing the three current entries: Verification, Students, Teachers):
-
-- New page: `src/pages/admin/AdminUsers.tsx`
-- Top-level tabs inside the page:
-  - **All** (everyone)
-  - **Students**
-  - **Teachers**
-  - **Admins** (super_admin + admin)
-- Inside each tab, a status filter pill row: **All / Verified / Pending**
-- Default landing view: "All" tab → "Pending" filter (so verification work is the first thing you see).
-- Pending count badge on the sidebar "Users" entry stays the same (uses existing `is_verified=false` count).
-- All existing actions kept:
-  - Approve / Revoke verification
-  - Change role (dropdown directly in the Role column — already done in Phase 1)
-  - Edit profile
-  - Reset password / suspend (existing)
-- Bulk actions row (select multiple → bulk verify) preserved from `AdminUserVerification.tsx`.
-
-**Sidebar changes (`DashboardSidebar.tsx`):**
-- Remove: `Verification`, `Students`, `Teachers` entries.
-- Add single `Users` entry → `/dashboard/admin/users`.
-- Keep the same badge logic (pending count).
-
-**Routing (`App.tsx`):**
-- Add new `/dashboard/admin/users` route.
-- Keep old routes (`/admin/students`, `/admin/teachers`, `/admin/verification`) as redirects to the new Users page so existing bookmarks don't break.
-
-## 2) Detail panel spacing fix
-
-The user-detail expand panel currently has cramped single-line statements. Apply consistent spacing:
-
-- Wrap each detail line in a row with `py-2` and `border-b border-brand-warm-grey/10` for visual separation.
-- Group related fields into labeled sections with `space-y-4`:
-  - **Account** (email, role, verification status, joined date)
-  - **Profile** (display name, phone, designation/program)
-  - **Academic** (roll number / employee id, batch, year of commencement, semester) — only relevant fields per role
-  - **Activity** (last login, total assignments, etc.)
-- Section headers use `text-sm font-semibold text-brand-primary uppercase tracking-wide mb-2`.
-- Empty fields render as muted "—" instead of being hidden, so layout stays consistent.
-- Mobile: stack sections vertically with `gap-4` instead of side-by-side grid.
-
-This applies to the detail panel inside the new `AdminUsers.tsx` (consolidated from current Students/Teachers/Verification detail views).
-
----
+- `localStorage` key format: `lastViewed:users`, `lastViewed:assignments`, `lastViewed:feedback`.
+- Sidebar query already invalidated on route change is not automatic — add `queryClient.invalidateQueries(["sidebar-counts"])` from the admin pages after stamping localStorage.
+- All color changes use semantic tokens from `index.css` (no raw hex).
+- No changes to `tailwind.config.ts`, no new packages.
 
 ## Files touched
 
-- **New:** `src/pages/admin/AdminUsers.tsx` (consolidated page)
-- **Edited:** `src/components/DashboardSidebar.tsx` (single Users entry)
-- **Edited:** `src/App.tsx` (new route + legacy redirects)
-- **Possibly removed/kept-as-stub:** `AdminStudents.tsx`, `AdminTeachers.tsx`, `AdminUserVerification.tsx` — keep files for reference but only the consolidated route is linked from the sidebar.
-
-## Database
-
-No changes. Reuses existing `profiles`, `user_roles`, `is_verified`.
-
-## Implementation order
-
-1. Build `AdminUsers.tsx` combining the three pages with tabs + status filter
-2. Apply the new spaced detail panel layout
-3. Update sidebar (remove three entries, add one)
-4. Add route + redirects in `App.tsx`
-5. Verify pending badge still works
-6. TS check
+- `src/components/DashboardSidebar.tsx`
+- `src/pages/admin/AdminStudents.tsx`, `AdminAssignments.tsx`, `AdminFeedback.tsx` (mount-time stamp)
+- `src/pages/admin/AdminTeachers.tsx` (label)
+- `src/pages/Index.tsx` (hero logo, mandala, buttons, heading fade, brand lockup)
+- `src/pages/About.tsx` (founder fade, message contrast, rotating chakra)
+- `src/index.css` (marquee keyframe smoothing if needed)
 
 ## Open question
 
-**Should the old Verification / Students / Teachers sidebar entries be removed entirely**, or **kept as quick-filter shortcuts** that open the Users tab pre-filtered (e.g. clicking "Teachers" opens Users → Teachers tab)?
-
-Default if you don't answer: **remove entirely** — the Users tab handles everything.
-
+For the **chakra rotation** on About — there isn't an obvious single "red circle" in the source. Do you mean (a) the maroon timeline dots in the Foundation section, (b) a decorative element I should add, or (c) something else visible on screen I should screenshot first? Default if unanswered: I'll add a rotating decorative chakra SVG behind the founder photo.

@@ -10,6 +10,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -28,6 +29,11 @@ const RATING_OPTIONS = [
 
 const AdminFeedback = () => {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    localStorage.setItem("lastViewed:feedback", new Date().toISOString());
+    queryClient.invalidateQueries({ queryKey: ["sidebar-counts"] });
+  }, [queryClient]);
   const [feedback, setFeedback] = useState<any[]>([]);
   const [profiles, setProfiles] = useState<Record<string, string>>({});
   const [instructorProfiles, setInstructorProfiles] = useState<Record<string, string>>({});
