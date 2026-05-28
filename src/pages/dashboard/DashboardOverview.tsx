@@ -11,6 +11,7 @@ import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell } from "rechar
 import BatchRosterDialog from "@/components/dashboard/BatchRosterDialog";
 import TodayClassesDialog from "@/components/dashboard/TodayClassesDialog";
 import CourseProgressDialog from "@/components/dashboard/CourseProgressDialog";
+import LiveClassesBlock from "@/components/overview/LiveClassesBlock";
 
 const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const todayIdx = (new Date().getDay() + 6) % 7;
