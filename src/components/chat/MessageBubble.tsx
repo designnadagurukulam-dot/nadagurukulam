@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { FileText, Download, Play, Pause } from "lucide-react";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface MessageBubbleProps {
