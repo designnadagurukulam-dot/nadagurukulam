@@ -87,7 +87,7 @@ const TutorMessages = () => {
   const handleSent = () => queryClient.invalidateQueries({ queryKey: ["chat-messages"] });
 
   const getInitials = (name: string) => name?.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase() || "?";
-  const selectedProfile = students.find((s: any) => s.user_id === selectedStudent);
+  const selectedProfile = allContacts.find((s: any) => s.user_id === selectedStudent);
 
   const renderStudentItem = (s: any, isMobile = false) => (
     <button key={s.user_id} onClick={() => setSelectedStudent(s.user_id)}
