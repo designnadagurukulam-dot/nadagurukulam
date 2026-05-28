@@ -12,6 +12,7 @@ import campusVault from "@/assets/campus/NGVaultPassage.jpg";
 import campusVerandah from "@/assets/campus/NGVerandah.jpg";
 import campusReception from "@/assets/campus/NGReception.jpg";
 import campusAmphyEntry from "@/assets/campus/NGAmphyEntry.jpg";
+import heroPerformance from "@/assets/gallery/NGR6_M1630.webp";
 
 const campusGrid = [
   { src: campusAerial, alt: "Campus Aerial View", className: "col-span-2 row-span-2" },
@@ -32,8 +33,8 @@ const About = () => {
       {/* ══════ HERO ══════ */}
       <section ref={heroRef} className="relative min-h-[55vh] flex items-center justify-center overflow-hidden">
         <motion.img
-          src={campusAerial}
-          alt="Campus"
+          src={heroPerformance}
+          alt="Classical performance at Nada Gurukulam"
           className="absolute inset-0 w-full h-full object-cover"
           style={{ y: heroImgY }}
         />
@@ -154,7 +155,7 @@ const About = () => {
       <SectionDivider />
 
       {/* ══════ VISION & MISSION — Timeline style ══════ */}
-      <section className="py-24 section-glass overflow-hidden">
+      <section className="py-24 bg-background overflow-hidden">
         <div className="container mx-auto px-4 max-w-4xl">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
