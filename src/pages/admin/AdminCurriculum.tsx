@@ -464,6 +464,7 @@ const AdminCurriculum = () => {
             </div>
             <Field label="Course Objectives (one per line)"><Textarea rows={4} value={courseDraft.course_objectives} onChange={(e) => setCourseDraft({ ...courseDraft, course_objectives: e.target.value })} /></Field>
             <Field label="Pedagogy"><Textarea rows={3} value={courseDraft.pedagogy} onChange={(e) => setCourseDraft({ ...courseDraft, pedagogy: e.target.value })} /></Field>
+            <Field label="Prerequisites (if any)"><Textarea rows={3} value={courseDraft.prerequisites} onChange={(e) => setCourseDraft({ ...courseDraft, prerequisites: e.target.value })} placeholder="One per line" /></Field>
             <Field label="Description"><Textarea rows={3} value={courseDraft.description} onChange={(e) => setCourseDraft({ ...courseDraft, description: e.target.value })} /></Field>
           </div>
           <DialogFooter><Button variant="outline" onClick={() => setShowCourseForm(false)}>Cancel</Button><Button onClick={() => saveCourse.mutate()} disabled={!courseDraft.course_code || !courseDraft.subject_name || !courseDraft.program_id}><Save className="h-4 w-4" /> Save</Button></DialogFooter>
