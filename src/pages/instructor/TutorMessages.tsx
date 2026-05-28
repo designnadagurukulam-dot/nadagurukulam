@@ -173,24 +173,15 @@ const TutorMessages = () => {
                       <p className="text-brand-warm-grey text-sm">No messages yet. Say hello! 👋</p>
                     </div>
                   ) :
-                    messages.map((msg: any) => {
-                      const isMine = msg.sender_id === user?.id;
-                      return (
-                        <div key={msg.id} className={`flex ${isMine ? "justify-end" : "justify-start"}`}>
-                          <div className={`max-w-[85%] sm:max-w-[75%] px-3.5 sm:px-4 py-2.5 rounded-2xl text-sm shadow-sm ${isMine ? "bg-gradient-to-br from-brand-primary to-brand-primary-dark text-primary-foreground rounded-br-md" : "bg-brand-cream-dark text-brand-charcoal-mid rounded-bl-md border border-brand-parchment"}`}>
-                            <p>{msg.content}</p>
-                            <p className={`text-[10px] mt-1 ${isMine ? "text-primary-foreground/50" : "text-brand-warm-grey"}`}>{format(new Date(msg.created_at), "h:mm a")}</p>
-                          </div>
-                        </div>
-                      );
-                    })}
+                    messages.map((msg: any) => (
+                      <MessageBubble key={msg.id} message={msg} isMine={msg.sender_id === user?.id} />
+                    ))}
                   <div ref={messagesEndRef} />
                 </div>
               </ScrollArea>
-              <div className="p-2.5 sm:p-3 border-t border-brand-parchment flex gap-2 bg-card">
-                <Input value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Type a message..." className="rounded-xl border-brand-parchment focus:border-brand-gold focus:ring-brand-gold/20 h-11" onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()} />
-                <Button onClick={handleSend} disabled={!message.trim() || sending} size="icon" className="bg-gradient-to-r from-brand-primary to-brand-primary-dark hover:from-brand-primary-dark hover:to-brand-primary shrink-0 rounded-xl w-11 h-11 shadow-lg"><Send className="h-4 w-4" /></Button>
-              </div>
+              {user && (
+                <ChatComposer userId={user.id} receiverId={selectedStudent} onSent={handleSent} />
+              )}
             </Card>
           )}
 
