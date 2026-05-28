@@ -21,10 +21,22 @@ import AudioPlayer from "@/components/AudioPlayer";
 const TutorCurriculum = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const [searchParams] = useSearchParams();
+  const focusModuleId = searchParams.get("module");
+  const [openModules, setOpenModules] = useState<string[]>([]);
   const [createModuleOpen, setCreateModuleOpen] = useState(false);
   const [addTopicOpen, setAddTopicOpen] = useState<string | null>(null);
   const [moduleForm, setModuleForm] = useState({ name: "", courseCode: "", semester: "9", batchId: "", description: "" });
   const [topicForm, setTopicForm] = useState({ title: "", type: "text", textContent: "", youtubeUrl: "", audioFile: null as File | null, pdfFile: null as File | null, linkUrl: "", rbtLevels: "", coMapping: "", hoursAllocated: "1", teachingMethodology: "" });
+
+  useEffect(() => {
+    if (focusModuleId) {
+      setOpenModules((prev) => prev.includes(focusModuleId) ? prev : [...prev, focusModuleId]);
+      setTimeout(() => {
+        document.getElementById(`mod-${focusModuleId}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 300);
+    }
+  }, [focusModuleId]);
 
   const { data: batches = [] } = useQuery({
     queryKey: ["tutor-batches", user?.id],
