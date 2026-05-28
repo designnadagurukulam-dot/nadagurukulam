@@ -70,13 +70,7 @@ const TutorMessages = () => {
 
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
 
-  const handleSend = async () => {
-    if (!message.trim() || !selectedStudent || !user) return;
-    setSending(true);
-    await supabase.from("messages").insert({ sender_id: user.id, receiver_id: selectedStudent, content: message.trim() });
-    setMessage(""); setSending(false);
-    queryClient.invalidateQueries({ queryKey: ["chat-messages"] });
-  };
+  const handleSent = () => queryClient.invalidateQueries({ queryKey: ["chat-messages"] });
 
   const getInitials = (name: string) => name?.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase() || "?";
   const selectedProfile = students.find((s: any) => s.user_id === selectedStudent);
