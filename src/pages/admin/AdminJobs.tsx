@@ -206,7 +206,7 @@ const AdminJobs = () => {
           <div className="w-12 h-0.5 bg-brand-gold mt-1" />
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setShowDeptManager(true)} className="gap-2 rounded-xl"><Settings2 className="h-4 w-4" /> Manage Departments</Button>
+          <Button variant="outline" onClick={() => setShowDeptManager(true)} className="gap-2 rounded-xl"><Settings2 className="h-4 w-4" /> Manage Programs</Button>
           <Button onClick={() => { resetForm(); setShowForm(true); }} className="bg-brand-primary hover:bg-brand-primary-dark text-white rounded-xl gap-2"><Plus className="h-4 w-4" /> Post Job</Button>
         </div>
       </div>
@@ -264,11 +264,11 @@ const AdminJobs = () => {
             <div><label className="text-[11px] uppercase tracking-widest text-brand-warm-grey font-semibold mb-1 block">Job Title *</label><Input required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="border-brand-parchment rounded-xl" /></div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-[11px] uppercase tracking-widest text-brand-warm-grey font-semibold mb-1 block">Department</label>
+                <label className="text-[11px] uppercase tracking-widest text-brand-warm-grey font-semibold mb-1 block">Program</label>
                 <Select value={form.department} onValueChange={(v) => setForm({ ...form, department: v })}>
-                  <SelectTrigger className="border-brand-parchment rounded-xl"><SelectValue placeholder="Select" /></SelectTrigger>
+                  <SelectTrigger className="border-brand-parchment rounded-xl"><SelectValue placeholder="Select program" /></SelectTrigger>
                   <SelectContent>
-                    {departments.map((d: any) => <SelectItem key={d.id} value={d.name}>{d.name}</SelectItem>)}
+                    {programs.map((p) => <SelectItem key={p.id} value={p.name}>{p.name}{p.source === "curriculum" ? "" : " (custom)"}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
@@ -306,21 +306,38 @@ const AdminJobs = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Departments manager */}
+      {/* Programs manager (custom programs only) */}
       <Dialog open={showDeptManager} onOpenChange={setShowDeptManager}>
         <DialogContent className="max-w-md rounded-2xl">
-          <DialogHeader><DialogTitle className="font-serif text-brand-primary">Manage Departments</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle className="font-serif text-brand-primary">Manage Programs</DialogTitle></DialogHeader>
+          <p className="text-xs text-brand-warm-grey">Curriculum programs appear automatically. Add custom programs here for non-academic roles (e.g. Operations, Communications).</p>
           <div className="flex gap-2">
-            <Input value={newDept} onChange={(e) => setNewDept(e.target.value)} placeholder="New department" />
+            <Input value={newDept} onChange={(e) => setNewDept(e.target.value)} placeholder="New custom program" />
             <Button onClick={() => newDept.trim() && addDept.mutate(newDept.trim())} disabled={!newDept.trim()} className="bg-brand-primary text-white"><Plus className="h-4 w-4" /></Button>
           </div>
           <div className="space-y-2 max-h-72 overflow-y-auto">
-            {departments.map((d: any) => (
-              <div key={d.id} className="flex items-center justify-between bg-brand-cream rounded-xl px-3 py-2">
-                <span className="text-sm">{d.name}</span>
-                <Button variant="ghost" size="sm" onClick={() => removeDept.mutate(d.id)} className="text-destructive"><Trash2 className="h-3.5 w-3.5" /></Button>
+            {curriculumPrograms.length > 0 && (
+              <div>
+                <p className="text-[10px] uppercase tracking-widest text-brand-warm-grey font-bold mb-1">From Curriculum</p>
+                {curriculumPrograms.map((p: any) => (
+                  <div key={p.id} className="flex items-center justify-between bg-brand-gold-pale/40 rounded-xl px-3 py-2 mb-1">
+                    <span className="text-sm">{p.name}</span>
+                    <span className="text-[10px] text-brand-warm-grey">Auto</span>
+                  </div>
+                ))}
               </div>
-            ))}
+            )}
+            {customPrograms.length > 0 && (
+              <div className="pt-2">
+                <p className="text-[10px] uppercase tracking-widest text-brand-warm-grey font-bold mb-1">Custom</p>
+                {customPrograms.map((d: any) => (
+                  <div key={d.id} className="flex items-center justify-between bg-brand-cream rounded-xl px-3 py-2 mb-1">
+                    <span className="text-sm">{d.name}</span>
+                    <Button variant="ghost" size="sm" onClick={() => removeDept.mutate(d.id)} className="text-destructive"><Trash2 className="h-3.5 w-3.5" /></Button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </DialogContent>
       </Dialog>
