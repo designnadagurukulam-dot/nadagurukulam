@@ -452,7 +452,7 @@ const AdminCurriculum = () => {
                 <Field label={<span className="flex items-center gap-1">Teaching hours {!isSuperAdmin && <Lock className="h-3 w-3" />}</span> as any}><Input type="number" value={courseDraft.teaching_hours} readOnly={!isSuperAdmin} onChange={(e) => setCourseDraft({ ...courseDraft, teaching_hours: Number(e.target.value) })} /></Field>
                 <Field label={<span className="flex items-center gap-1">Periods {!isSuperAdmin && <Lock className="h-3 w-3" />}</span> as any}><Input type="number" value={courseDraft.periods} readOnly={!isSuperAdmin} onChange={(e) => setCourseDraft({ ...courseDraft, periods: Number(e.target.value) })} /></Field>
               </div>
-              <Field label="Assigned Instructor"><Select value={courseDraft.instructor_id || TO_BE_ASSIGNED} onValueChange={(instructor_id) => setCourseDraft({ ...courseDraft, instructor_id })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value={TO_BE_ASSIGNED}>To be assigned</SelectItem>{instructors.map((i: any) => <SelectItem key={i.user_id} value={i.user_id}>{i.display_name || i.user_id.slice(0, 8)}</SelectItem>)}</SelectContent></Select></Field>
+              <Field label="Assigned Faculty"><Select value={courseDraft.instructor_id || TO_BE_ASSIGNED} onValueChange={(instructor_id) => setCourseDraft({ ...courseDraft, instructor_id })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value={TO_BE_ASSIGNED}>To be assigned</SelectItem>{instructors.map((i: any) => <SelectItem key={i.user_id} value={i.user_id}>{i.display_name || i.user_id.slice(0, 8)}</SelectItem>)}</SelectContent></Select></Field>
               <Field label="Assigned Batch"><Select value={courseDraft.batch_id} onValueChange={(batch_id) => setCourseDraft({ ...courseDraft, batch_id })}><SelectTrigger><SelectValue placeholder="None" /></SelectTrigger><SelectContent>{batches.map((b: any) => <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>)}</SelectContent></Select></Field>
               <Field label="CIE marks"><Input type="number" value={courseDraft.assessment_cie_marks} onChange={(e) => setCourseDraft({ ...courseDraft, assessment_cie_marks: Number(e.target.value) })} /></Field>
               <Field label="SEE marks"><Input type="number" value={courseDraft.assessment_see_marks} onChange={(e) => setCourseDraft({ ...courseDraft, assessment_see_marks: Number(e.target.value) })} /></Field>
@@ -540,7 +540,7 @@ const CourseDetail = ({ course, programs, instructors, batches, outcomes, getOut
               <h3 className="font-display text-xl text-brand-primary">{course.subject_name}</h3>
               <Badge className="bg-accent/15 text-accent-foreground">{course.course_code}</Badge>
             </div>
-            <p className="mt-1 text-xs text-muted-foreground">Instructor: {tutor} · Batch: {batchName} · Sem {course.semester}</p>
+            <p className="mt-1 text-xs text-muted-foreground">Faculty: {tutor} · Batch: {batchName} · Sem {course.semester}</p>
             <p className="mt-1 text-xs text-muted-foreground">Credits: {course.credits || "—"} · Hours: {course.teaching_hours || course.hours || "—"} · Periods: {course.periods || "—"} · CIE/SEE: {course.assessment_cie_marks || "—"}/{course.assessment_see_marks || "—"} · {course.exam_type || "—"}</p>
             {courseOutcomes.length > 0 && (
               <div className="mt-3">

@@ -107,7 +107,7 @@ const AdminLiveClasses = () => {
     if (!editInstructor) return;
     const { error } = await db.from("profiles").update({ zoom_link: linkForm.zoom_link || null, meet_link: linkForm.meet_link || null }).eq("user_id", editInstructor.user_id);
     if (error) return toast.error(error.message);
-    toast.success("Instructor meeting links saved");
+    toast.success("Faculty meeting links saved");
     setEditInstructor(null);
     fetchAll();
   };
@@ -128,7 +128,7 @@ const AdminLiveClasses = () => {
             <TableHeader>
               <TableRow className="bg-gradient-to-r from-brand-primary-dark to-brand-primary hover:bg-brand-primary-dark">
                 <TableHead className="text-[11px] font-semibold uppercase tracking-widest text-brand-gold-light">Title</TableHead>
-                <TableHead className="text-[11px] font-semibold uppercase tracking-widest text-brand-gold-light">Instructor</TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase tracking-widest text-brand-gold-light">Faculty</TableHead>
                 <TableHead className="text-[11px] font-semibold uppercase tracking-widest text-brand-gold-light">Audience</TableHead>
                 <TableHead className="text-[11px] font-semibold uppercase tracking-widest text-brand-gold-light">Batch</TableHead>
                 <TableHead className="text-[11px] font-semibold uppercase tracking-widest text-brand-gold-light">Date &amp; Time</TableHead>
@@ -169,7 +169,7 @@ const AdminLiveClasses = () => {
   }
 
   const tiles = [
-    { key: "instructors", label: "Instructors", value: instructors.length, icon: Users, gradient: "from-brand-gold to-brand-primary", onClick: () => setShowInstructorList((v) => !v) },
+    { key: "instructors", label: "Faculty", value: instructors.length, icon: Users, gradient: "from-brand-gold to-brand-primary", onClick: () => setShowInstructorList((v) => !v) },
     { key: "total", label: "Total Online Classes", value: filteredOnline.length, icon: Video, gradient: "from-brand-primary to-brand-primary-dark", onClick: () => {} },
     { key: "today", label: "Online Today", value: onlineToday.length, icon: Radio, gradient: "from-red-500 to-red-700", onClick: () => {} },
     { key: "hours", label: "Total Online Hours", value: totalOnlineHours.toFixed(1), icon: Clock, gradient: "from-emerald-500 to-emerald-700", onClick: () => setHoursOpen(true) },
@@ -197,8 +197,8 @@ const AdminLiveClasses = () => {
       {/* Filters */}
       <div className="grid gap-3 rounded-2xl bg-card p-4 shadow-[0_2px_16px_hsl(var(--primary)/0.06)] sm:grid-cols-2 lg:grid-cols-4">
         <Select value={filterInstructor} onValueChange={setFilterInstructor}>
-          <SelectTrigger className="rounded-xl"><SelectValue placeholder="Instructor" /></SelectTrigger>
-          <SelectContent><SelectItem value="all">All Instructors</SelectItem>{instructors.map((t) => <SelectItem key={t.user_id} value={t.user_id}>{t.display_name || "Unnamed"}</SelectItem>)}</SelectContent>
+          <SelectTrigger className="rounded-xl"><SelectValue placeholder="Faculty" /></SelectTrigger>
+          <SelectContent><SelectItem value="all">All Faculty</SelectItem>{instructors.map((t) => <SelectItem key={t.user_id} value={t.user_id}>{t.display_name || "Unnamed"}</SelectItem>)}</SelectContent>
         </Select>
         <Select value={filterBatch} onValueChange={setFilterBatch}>
           <SelectTrigger className="rounded-xl"><SelectValue placeholder="Batch" /></SelectTrigger>
@@ -217,7 +217,7 @@ const AdminLiveClasses = () => {
       {showInstructorList && (
         <div className="space-y-2 rounded-2xl border border-brand-parchment bg-white p-4 shadow-[0_2px_24px_rgba(125,30,36,0.06)]">
           <div className="flex items-center justify-between">
-            <h3 className="font-display text-brand-primary">Instructors — Meeting Links</h3>
+            <h3 className="font-display text-brand-primary">Faculty — Meeting Links</h3>
             <Button size="sm" variant="ghost" onClick={() => setShowInstructorList(false)}><X className="h-4 w-4" /></Button>
           </div>
           {instructors.map((t) => {
@@ -268,11 +268,11 @@ const AdminLiveClasses = () => {
       {/* Hours breakdown dialog */}
       <Dialog open={hoursOpen} onOpenChange={setHoursOpen}>
         <DialogContent className="max-w-lg rounded-2xl">
-          <DialogHeader><DialogTitle className="font-display text-brand-primary">Online Hours by Instructor</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle className="font-display text-brand-primary">Online Hours by Faculty</DialogTitle></DialogHeader>
           <div className="max-h-[60vh] overflow-y-auto">
             <Table>
               <TableHeader>
-                <TableRow><TableHead>Instructor</TableHead><TableHead className="text-right">Classes</TableHead><TableHead className="text-right">Total Hours</TableHead></TableRow>
+                <TableRow><TableHead>Faculty</TableHead><TableHead className="text-right">Classes</TableHead><TableHead className="text-right">Total Hours</TableHead></TableRow>
               </TableHeader>
               <TableBody>
                 {instructorHoursBreakdown.length === 0 ? (

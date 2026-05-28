@@ -132,7 +132,7 @@ const StudentFeedback = () => {
         <Card className="bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] overflow-hidden">
           <div className="h-1.5 bg-gradient-to-r from-brand-primary via-brand-gold to-brand-primary" />
           <CardContent className="p-4 sm:p-6 space-y-5 sm:space-y-6">
-            {/* Tutor selector */}
+            {/* Faculty selector */}
             <div>
               <label className="text-[11px] uppercase tracking-widest font-semibold text-brand-warm-grey mb-2 block">Which tutor is this about?</label>
               <Select value={tutorId} onValueChange={setTutorId}>

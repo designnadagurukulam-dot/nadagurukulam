@@ -126,7 +126,7 @@ const AdminUserProfile = () => {
   if (loading) return <div className="flex justify-center py-20"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" /></div>;
   if (!profile) return <div className="py-20 text-center text-muted-foreground">User not found.</div>;
 
-  const roleLabel = userRole === "super_admin" ? "Super Admin" : userRole === "admin" ? "Admin" : userRole === "instructor" ? "Instructor" : "Student";
+  const roleLabel = userRole === "super_admin" ? "Super Admin" : userRole === "admin" ? "Admin" : userRole === "instructor" ? "Faculty" : "Student";
   const initials = (profile.display_name || "?")[0].toUpperCase();
 
   return (
@@ -249,7 +249,7 @@ const AdminUserProfile = () => {
                 <Field label="Employee ID" value={form.employee_id} onChange={(v: string) => update("employee_id", v)} />
                 <Field label="Designation" value={form.designation} onChange={(v: string) => update("designation", v)} />
                 <div>
-                  <Label className="text-[10px] uppercase tracking-wide text-muted-foreground">Instructor Type</Label>
+                  <Label className="text-[10px] uppercase tracking-wide text-muted-foreground">Faculty Type</Label>
                   <Select value={form.instructor_type || "regular"} onValueChange={(v) => update("instructor_type", v)}>
                     <SelectTrigger className="mt-1 rounded-xl"><SelectValue /></SelectTrigger>
                     <SelectContent>

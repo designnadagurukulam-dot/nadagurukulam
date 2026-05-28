@@ -84,7 +84,7 @@ const DashboardProfile = () => {
       return;
     }
 
-    // Instructors / admins update directly
+    // Faculty / admins update directly
     const updateData: Record<string, any> = {};
     Object.assign(updateData, diff);
     if (role === "instructor") {
@@ -115,7 +115,7 @@ const DashboardProfile = () => {
   };
 
   const initials = formData.display_name ? formData.display_name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase() : "NG";
-  const roleLabel = role === "admin" || role === "super_admin" ? "Admin" : role === "instructor" ? "Tutor" : "Student";
+  const roleLabel = role === "admin" || role === "super_admin" ? "Admin" : role === "instructor" ? "Faculty" : "Student";
   const maskValue = (val: string) => { if (!val || val.length < 8) return val; return val.slice(0, 4) + "****" + val.slice(-4); };
 
   const Field = ({ label, icon: Icon, value, onChange, disabled, type = "text", placeholder = "" }: any) => (

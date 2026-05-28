@@ -110,7 +110,7 @@ const StudentChat = () => {
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium text-brand-charcoal-mid truncate">{staff.display_name}</p>
-        <p className="text-xs text-brand-warm-grey truncate">{staff.designation || staff.department || (staff.role === 'admin' ? 'Admin' : 'Tutor')}</p>
+        <p className="text-xs text-brand-warm-grey truncate">{staff.designation || staff.department || (staff.role === 'admin' ? 'Admin' : 'Faculty')}</p>
       </div>
       {(unreadCounts as any)[staff.user_id] > 0 && (
         <Badge className="bg-gradient-to-r from-brand-primary to-brand-primary-dark text-primary-foreground text-[10px] h-5 min-w-[20px] flex items-center justify-center border-0">
@@ -198,7 +198,7 @@ const StudentChat = () => {
                 </div>
                 <div>
                   <p className="font-semibold text-sm text-primary-foreground truncate">{selectedStaffProfile?.display_name}</p>
-                  <p className="text-[10px] text-primary-foreground/50">{selectedStaffProfile?.designation || selectedStaffProfile?.department || (selectedStaffProfile?.role === 'admin' ? 'Admin' : 'Tutor')} · Online</p>
+                  <p className="text-[10px] text-primary-foreground/50">{selectedStaffProfile?.designation || selectedStaffProfile?.department || (selectedStaffProfile?.role === 'admin' ? 'Admin' : 'Faculty')} · Online</p>
                 </div>
               </div>
               <ScrollArea className="flex-1 p-3 sm:p-4">

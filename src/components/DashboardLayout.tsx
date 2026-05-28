@@ -4,7 +4,7 @@ import DashboardSidebar from "./DashboardSidebar";
 import { useAuth } from "@/hooks/useAuth";
 
 const roleLabel = (role: string | null | undefined): string => {
-  if (role === "instructor") return "Tutor";
+  if (role === "instructor") return "Faculty";
   if (role === "admin" || role === "super_admin") return "Admin";
   return "Student";
 };

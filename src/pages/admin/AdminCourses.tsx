@@ -40,7 +40,7 @@ const AdminCourses = () => {
       const ids = (instrRoles || []).map(r => r.user_id);
       const { data: profs } = await supabase.from("profiles").select("user_id, display_name").in("user_id", ids);
       const map: Record<string, string> = {};
-      (profs || []).forEach(p => { map[p.user_id] = p.display_name || "Tutor"; });
+      (profs || []).forEach(p => { map[p.user_id] = p.display_name || "Faculty"; });
       setTutors(map);
     }
     setCourses(rows || []);
@@ -112,7 +112,7 @@ const AdminCourses = () => {
             <BookOpen className="h-5 w-5 text-white" />
           </div>
           <div>
-            <h1 className="font-serif text-2xl font-semibold text-brand-primary">Tutor's Courses</h1>
+            <h1 className="font-serif text-2xl font-semibold text-brand-primary">Faculty's Courses</h1>
             <div className="w-12 h-0.5 bg-gradient-to-r from-brand-gold to-transparent mt-1" />
           </div>
         </div>
@@ -154,9 +154,9 @@ const AdminCourses = () => {
             <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by course, tutor, program…" className="pl-10 border-brand-parchment rounded-xl focus:border-brand-gold" />
           </div>
           <Select value={tutorFilter} onValueChange={setTutorFilter}>
-            <SelectTrigger className="w-44 border-brand-parchment rounded-xl"><SelectValue placeholder="Tutor" /></SelectTrigger>
+            <SelectTrigger className="w-44 border-brand-parchment rounded-xl"><SelectValue placeholder="Faculty" /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Tutors</SelectItem>
+              <SelectItem value="all">All Faculty</SelectItem>
               {tutorOptions.map(([id, name]) => <SelectItem key={id} value={id}>{name}</SelectItem>)}
             </SelectContent>
           </Select>

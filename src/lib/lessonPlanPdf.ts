@@ -40,7 +40,7 @@ export const downloadLessonPlanPdf = ({ plan, module, teacher, outcomes = [], se
       ["Academic Semester", semParity(module?.semester), "Academic Year", allocation?.academic_year || "—", "Semester No.", String(module?.semester ?? "—")],
       ["Program", program?.name || "—", "Course Code", module?.course_code || "—", "Course Name", module?.subject_name || module?.module_name || "—"],
       ["Contact Hrs/week", String(plan?.contact_hours_per_week ?? module?.teaching_hours ?? "—"), "No. of Credits", String(module?.credits ?? "—"), "Exam Hours", module?.exam_hours || module?.cie_exam_hours || module?.see_exam_hours || "—"],
-      ["Instructor Name", teacher?.display_name || "—", "Designation", teacher?.designation || "—", "CIE / SEE Marks", `${module?.assessment_cie_marks ?? "—"} / ${module?.assessment_see_marks ?? "—"}`],
+      ["Faculty Name", teacher?.display_name || "—", "Designation", teacher?.designation || "—", "CIE / SEE Marks", `${module?.assessment_cie_marks ?? "—"} / ${module?.assessment_see_marks ?? "—"}`],
     ],
   });
 
