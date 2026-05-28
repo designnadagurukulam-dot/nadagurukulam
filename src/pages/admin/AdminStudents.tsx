@@ -444,7 +444,7 @@ const AdminStudents = ({ lockedRole }: { lockedRole?: AppRole } = {}) => {
                           Revoke
                         </Button>
                       )}
-                      {canChangeRole ? (
+                      {!lockedRole && canChangeRole ? (
                         <Select value={currentRole} onValueChange={(val) => changeRole(p.user_id, val as AppRole)}>
                           <SelectTrigger className="min-h-10 w-[140px] rounded-xl text-xs"><SelectValue /></SelectTrigger>
                           <SelectContent>
@@ -453,11 +453,17 @@ const AdminStudents = ({ lockedRole }: { lockedRole?: AppRole } = {}) => {
                             <SelectItem value="admin">Admin</SelectItem>
                           </SelectContent>
                         </Select>
-                      ) : (
+                      ) : !lockedRole ? (
                         <Badge variant="outline" className="min-h-10 rounded-xl px-3 text-xs text-muted-foreground">
                           {currentRole === "super_admin" ? "Protected role" : "Role locked"}
                         </Badge>
-                      )}
+                      ) : null}
+                      <Button variant="outline" size="sm" onClick={() => openEditDialog(p)} className="min-h-10 rounded-xl gap-1">
+                        <Edit3 className="h-4 w-4" /> Edit
+                      </Button>
+                      <Button variant="outline" size="sm" disabled={resettingFor === p.user_id || !p.email} onClick={() => resetPassword(p)} className="min-h-10 rounded-xl gap-1">
+                        <KeyRound className="h-4 w-4" /> {resettingFor === p.user_id ? "Sending…" : "Reset password"}
+                      </Button>
                       {isAdminLike && isSuperAdmin && currentRole !== "super_admin" && (
                         <Button variant="outline" size="sm" onClick={() => openAdminLabel(p)} className="min-h-10 rounded-xl gap-1">
                           <Pencil className="h-4 w-4" /> Label
