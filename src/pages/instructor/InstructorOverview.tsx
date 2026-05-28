@@ -150,6 +150,17 @@ const InstructorOverview = () => {
         return { day, teaching, online: Math.round(online * 10) / 10 };
       });
 
+      // Today's events
+      const { data: events } = await supabase
+        .from("events")
+        .select("id, title, event_date, location, event_type")
+        .eq("approval_status", "approved")
+        .eq("is_active", true)
+        .gte("event_date", todayStart.toISOString())
+        .lte("event_date", todayEnd.toISOString())
+        .order("event_date");
+      setTodayEvents(events || []);
+
       setStats({
         students: studentRows.length,
         todayClassesCount: (todayCls || []).length,
