@@ -71,21 +71,21 @@ const DashboardAnalytics = () => {
       const courseStats: CourseStat[] = [];
 
       if (courseIds.length > 0) {
-        // 2. Modules for these courses (curriculum_modules uses course_code; map via courses.course_code if exists)
-        // Simpler: fetch modules whose batch_id is in student's batches OR fallback via course_code
         const { data: coursesData } = await supabase
-          .from("courses").select("id, title, course_code").in("id", courseIds);
+          .from("courses").select("id, title").in("id", courseIds);
 
         for (const c of coursesData || []) {
-          const courseCode = (c as any).course_code;
-          let modulesQuery = supabase
-            .from("curriculum_modules")
-            .select("id, subject_name, module_name");
-          if (courseCode) modulesQuery = modulesQuery.eq("course_code", courseCode);
-          else modulesQuery = modulesQuery.in("batch_id", allBatchIds.length ? allBatchIds : ["00000000-0000-0000-0000-000000000000"]);
-          const { data: modules } = await modulesQuery;
+          const cBatchIds = courseMap.get(c.id)?.batchIds || [];
+          let modules: any[] = [];
+          if (cBatchIds.length > 0) {
+            const { data: m } = await supabase
+              .from("curriculum_modules")
+              .select("id, subject_name, module_name")
+              .in("batch_id", cBatchIds);
+            modules = m || [];
+          }
 
-          const moduleIds = (modules || []).map((m: any) => m.id);
+          const moduleIds = modules.map((m: any) => m.id);
           let sections: any[] = [];
           if (moduleIds.length > 0) {
             const { data: secs } = await supabase
@@ -95,7 +95,7 @@ const DashboardAnalytics = () => {
             sections = secs || [];
           }
 
-          // 3. Completed sections = curriculum_section_id in class_logs where confirmed by student
+          // Completed sections = curriculum_section_id in class_logs confirmed by student
           const sectionIds = sections.map((s) => s.id);
           let completedIds = new Set<string>();
           if (sectionIds.length > 0) {
@@ -110,7 +110,7 @@ const DashboardAnalytics = () => {
             });
           }
 
-          const moduleStats: ModuleStat[] = (modules || []).map((m: any) => {
+          const moduleStats: ModuleStat[] = modules.map((m: any) => {
             const modSections = sections.filter((s) => s.module_id === m.id);
             const completedSecs = modSections.filter((s) => completedIds.has(s.id));
             return {
