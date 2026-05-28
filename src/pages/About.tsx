@@ -70,7 +70,7 @@ const About = () => {
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            viewport={{ once: false, amount: 0.2 }}
             transition={{ duration: 0.8 }}
             className="grid md:grid-cols-5 gap-12 items-center"
           >
@@ -100,7 +100,7 @@ const About = () => {
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
                   whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
+                  viewport={{ once: false, amount: 0.2 }}
                   transition={{ duration: 1.4, ease: "easeOut" }}
                   className="relative w-56 h-64 sm:w-64 sm:h-72 md:w-80 md:h-96 rounded-2xl overflow-hidden shadow-2xl golden-frame"
                 >
@@ -115,7 +115,7 @@ const About = () => {
                   className="absolute -top-6 -left-4 font-serif text-[7rem] leading-none text-secondary/20 pointer-events-none select-none z-10"
                   initial={{ opacity: 0 }}
                   whileInView={{ opacity: 1 }}
-                  viewport={{ once: true }}
+                  viewport={{ once: false, amount: 0.2 }}
                 >
                   "
                 </motion.span>
@@ -126,7 +126,7 @@ const About = () => {
                 className="card-glass-gold rounded-2xl p-8 md:p-10"
                 initial={{ opacity: 0, x: 30 }}
                 whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
+                viewport={{ once: false, amount: 0.2 }}
                 transition={{ delay: 0.2, duration: 0.7 }}
               >
                 <span className="text-secondary text-xs tracking-[0.3em] uppercase font-semibold">
@@ -159,7 +159,7 @@ const About = () => {
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            viewport={{ once: false, amount: 0.2 }}
             className="font-serif text-3xl sm:text-4xl md:text-5xl font-extrabold text-center mb-16"
           >
             Our <span className="text-gradient-gold">Foundation</span>
@@ -200,7 +200,7 @@ const About = () => {
                 key={item.title}
                 initial={{ opacity: 0, x: i % 2 === 0 ? -40 : 40 }}
                 whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
+                viewport={{ once: false, amount: 0.2 }}
                 transition={{ delay: i * 0.2, duration: 0.7 }}
                 className={`relative flex items-start gap-6 mb-16 last:mb-0 ${i % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"} flex-row`}
               >
@@ -234,7 +234,7 @@ const About = () => {
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            viewport={{ once: false, amount: 0.2 }}
             transition={{ duration: 0.8 }}
             className="grid md:grid-cols-5 gap-12 items-center"
           >
@@ -243,7 +243,7 @@ const About = () => {
                 className="card-glass-gold rounded-2xl p-8 md:p-10"
                 initial={{ opacity: 0, x: -30 }}
                 whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
+                viewport={{ once: false, amount: 0.2 }}
                 transition={{ delay: 0.2, duration: 0.7 }}
               >
                 <span className="text-primary text-xs tracking-[0.3em] uppercase font-semibold">Director</span>
@@ -282,7 +282,7 @@ const About = () => {
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            viewport={{ once: false, amount: 0.2 }}
             transition={{ duration: 0.8 }}
             className="grid md:grid-cols-5 gap-12 items-center"
           >
@@ -303,7 +303,7 @@ const About = () => {
                 className="card-glass-gold rounded-2xl p-8 md:p-10"
                 initial={{ opacity: 0, x: 30 }}
                 whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
+                viewport={{ once: false, amount: 0.2 }}
                 transition={{ delay: 0.2, duration: 0.7 }}
               >
                 <span className="text-secondary text-xs tracking-[0.3em] uppercase font-semibold">
@@ -344,7 +344,7 @@ const About = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            viewport={{ once: false, amount: 0.2 }}
             className="text-center mb-16"
           >
             <div className="flex items-center justify-center gap-3 mb-3">
@@ -362,7 +362,7 @@ const About = () => {
                 key={img.alt}
                 initial={{ opacity: 0, scale: 0.9 }}
                 whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
+                viewport={{ once: false, amount: 0.2 }}
                 transition={{ delay: i * 0.1, duration: 0.5 }}
                 className={`${img.className} rounded-2xl overflow-hidden shadow-xl group relative cursor-pointer`}
               >
@@ -398,7 +398,7 @@ const About = () => {
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            viewport={{ once: false, amount: 0.2 }}
             transition={{ duration: 0.7 }}
           >
             <div className="w-16 h-0.5 bg-secondary mx-auto mb-6 rounded-full" />
