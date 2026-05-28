@@ -157,7 +157,14 @@ const AdminApprovals = () => {
           ))}
         </div>
       )}
+        </TabsContent>
+
+        <TabsContent value="profiles" className="mt-4">
+          <ProfileChangeRequestsTab />
+        </TabsContent>
+      </Tabs>
     </div>
+
   );
 };
 
