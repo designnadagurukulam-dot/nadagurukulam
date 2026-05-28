@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Video, Plus, Clock, ExternalLink, X, Tv, Building2, AlertTriangle, History } from "lucide-react";
+import { Video, Plus, Clock, ExternalLink, X, Tv, AlertTriangle, History } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -48,21 +48,8 @@ const TutorLiveClasses = () => {
     enabled: !!user,
   });
 
-  // Fetch offline schedules (admin-created)
-  const { data: offlineSchedules = [] } = useQuery({
-    queryKey: ["tutor-offline-schedules", user?.id],
-    queryFn: async () => {
-      const { data } = await supabase.from("schedules").select("*").eq("instructor_id", user!.id).order("start_time", { ascending: true });
-      return data || [];
-    },
-    enabled: !!user,
-  });
-
-  const now = new Date();
   const onlineUpcoming = classes.filter((c: any) => (c.class_type === "online" || !c.class_type) && !isLiveClassPast(c));
-  const pastOnline = classes.filter((c: any) => isLiveClassPast(c));
-  const upcomingOffline = offlineSchedules.filter((s: any) => new Date(s.start_time) >= now);
-  const pastOffline = offlineSchedules.filter((s: any) => new Date(s.start_time) < now);
+  const pastOnline = classes.filter((c: any) => isLiveClassPast(c) && (c.class_type === "online" || !c.class_type));
 
   const masterLink = form.platform === "zoom" ? tutorProfile?.zoom_link : tutorProfile?.meet_link;
   const hasMasterLink = !!masterLink;
@@ -156,32 +143,6 @@ const TutorLiveClasses = () => {
     );
   };
 
-  const renderOfflineCard = (schedule: any, isPast: boolean) => (
-    <Card key={schedule.id} className={`bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] overflow-hidden transition-all hover:shadow-lg duration-300 ${isPast ? "opacity-70" : ""}`}>
-      <div className="h-1 bg-gradient-to-r from-brand-cream-dark to-brand-parchment" />
-      <CardContent className="p-5">
-        <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-full bg-brand-cream flex items-center justify-center shrink-0">
-            <Building2 className="h-5 w-5 text-brand-primary" />
-          </div>
-          <div className="flex-1">
-            <h3 className="font-serif font-bold text-brand-charcoal-mid">{schedule.event_title}</h3>
-            <p className="text-xs text-brand-warm-grey mt-1">{schedule.event_type}</p>
-          </div>
-        </div>
-        <div className="mt-3 space-y-1 ml-13">
-          <p className="text-sm text-brand-charcoal-mid">{format(new Date(schedule.start_time), "EEEE, dd MMMM yyyy")}</p>
-          <p className="text-xs text-brand-warm-grey">{format(new Date(schedule.start_time), "h:mm a")} — {format(new Date(schedule.end_time), "h:mm a")}</p>
-        </div>
-        <div className="flex items-center gap-2 mt-4 ml-13">
-          <span className="bg-brand-cream text-brand-primary text-[9px] px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
-            <Building2 className="h-2.5 w-2.5" /> CLASSROOM · Scheduled by Admin
-          </span>
-          {isPast && <Badge className="bg-green-50 text-green-700 border-0 text-[10px]">Completed</Badge>}
-        </div>
-      </CardContent>
-    </Card>
-  );
 
   const canSave = form.title && form.date && form.time && hasMasterLink && (form.audience === "all_batches" || form.batch_id);
 
@@ -206,11 +167,8 @@ const TutorLiveClasses = () => {
           <TabsTrigger value="online" className="rounded-lg data-[state=active]:bg-brand-primary data-[state=active]:text-white text-brand-warm-grey gap-1.5">
             <Video className="h-3.5 w-3.5" /> Online ({onlineUpcoming.length})
           </TabsTrigger>
-          <TabsTrigger value="offline" className="rounded-lg data-[state=active]:bg-brand-primary data-[state=active]:text-white text-brand-warm-grey gap-1.5">
-            <Building2 className="h-3.5 w-3.5" /> Offline ({upcomingOffline.length})
-          </TabsTrigger>
           <TabsTrigger value="past" className="rounded-lg data-[state=active]:bg-brand-primary data-[state=active]:text-white text-brand-warm-grey gap-1.5">
-            <History className="h-3.5 w-3.5" /> Past ({pastOnline.length + pastOffline.length})
+            <History className="h-3.5 w-3.5" /> Past ({pastOnline.length})
           </TabsTrigger>
         </TabsList>
 
@@ -224,25 +182,17 @@ const TutorLiveClasses = () => {
           )}
         </TabsContent>
 
-        <TabsContent value="offline" className="mt-4">
-          {upcomingOffline.length === 0 ? (
-            <Card className="bg-white rounded-2xl border border-brand-parchment"><CardContent className="py-12 text-center"><div className="w-14 h-14 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 flex items-center justify-center mx-auto mb-3"><Building2 className="h-6 w-6 text-brand-gold" /></div><p className="font-serif text-brand-primary font-semibold">No classroom classes scheduled</p><p className="text-xs text-brand-warm-grey mt-1">Your classroom timetable will appear here once the admin schedules your classes.</p></CardContent></Card>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">{upcomingOffline.map((s) => renderOfflineCard(s, false))}</div>
-          )}
-        </TabsContent>
-
         <TabsContent value="past" className="mt-4">
-          {pastOnline.length === 0 && pastOffline.length === 0 ? (
-            <Card className="bg-white rounded-2xl border border-brand-parchment"><CardContent className="py-12 text-center"><p className="font-serif text-brand-primary font-semibold">No past classes.</p></CardContent></Card>
+          {pastOnline.length === 0 ? (
+            <Card className="bg-white rounded-2xl border border-brand-parchment"><CardContent className="py-12 text-center"><p className="font-serif text-brand-primary font-semibold">No past online classes.</p></CardContent></Card>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {pastOnline.map((cls) => renderOnlineCard(cls, true))}
-              {pastOffline.map((s) => renderOfflineCard(s, true))}
             </div>
           )}
         </TabsContent>
       </Tabs>
+
 
       {/* Schedule Online Class Modal */}
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
