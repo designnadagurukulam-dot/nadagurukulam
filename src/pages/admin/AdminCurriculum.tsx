@@ -2,15 +2,17 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { BookOpen, Clock, Plus, Trash2, PlayCircle, Type, X, Save, Link as LinkIcon, Target, Edit3, FolderTree, ArrowLeft } from "lucide-react";
+import {
+  BookOpen, Clock, Plus, Trash2, PlayCircle, Type, X, Save, Link as LinkIcon, Target, Edit3, FolderTree, ArrowLeft, Pencil,
+  Lock,
+} from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { logActivity } from "@/lib/activityLogger";
@@ -24,66 +26,155 @@ type LinkEntry = { url: string; label: string };
 type SectionForm = { title: string; contentType: "youtube" | "text"; textContent: string; rbt_levels: string; co_mapping: string; hours_allocated: number; teaching_methodology: string; links: LinkEntry[]; topic_id: string };
 const emptySection: SectionForm = { title: "", contentType: "youtube", textContent: "", rbt_levels: "", co_mapping: "", hours_allocated: 1, teaching_methodology: "", links: [{ url: "", label: "" }], topic_id: "" };
 
-type CourseForm = { course_code: string; subject_name: string; module_name: string; description: string; hours: number; semester: number };
+type CourseForm = {
+  id?: string;
+  program_id: string;
+  course_code: string;
+  subject_name: string;
+  module_name: string;
+  description: string;
+  semester: number;
+  credits: number;
+  teaching_hours: number;
+  periods: number;
+  instructor_id: string;
+  batch_id: string;
+  assessment_cie_marks: number;
+  assessment_see_marks: number;
+  exam_type: string;
+  cie_exam_hours: string;
+  see_exam_hours: string;
+  course_objectives: string;
+  pedagogy: string;
+};
+const emptyCourse: CourseForm = {
+  program_id: "", course_code: "", subject_name: "", module_name: "", description: "", semester: 1,
+  credits: 0, teaching_hours: 0, periods: 0,
+  instructor_id: "", batch_id: "",
+  assessment_cie_marks: 20, assessment_see_marks: 30,
+  exam_type: "Theory", cie_exam_hours: "", see_exam_hours: "",
+  course_objectives: "", pedagogy: "",
+};
+
+const TO_BE_ASSIGNED = "__tba__";
 
 const AdminCurriculum = () => {
-  const { user } = useAuth();
+  const { user, role } = useAuth();
+  const isSuperAdmin = role === "super_admin";
   const queryClient = useQueryClient();
-  const [addingTo, setAddingTo] = useState<{ moduleId: string; topicId: string } | null>(null);
-  const [sectionForm, setSectionForm] = useState<SectionForm>(emptySection);
+
+  // Program navigation
+  const [activeProgramId, setActiveProgramId] = useState<string | null>(null);
+
+  // Program CRUD
+  const [showProgramForm, setShowProgramForm] = useState(false);
+  const [programDraft, setProgramDraft] = useState({ id: "", name: "", slug: "", description: "", total_semesters: 8 });
+
+  // Course CRUD
+  const [showCourseForm, setShowCourseForm] = useState(false);
+  const [courseDraft, setCourseDraft] = useState<CourseForm>(emptyCourse);
+
+  // Other state
+  const [activeCourse, setActiveCourse] = useState<string | null>(null);
   const [editingModule, setEditingModule] = useState<any>(null);
   const [moduleForm, setModuleForm] = useState<any>({});
   const [coDraft, setCoDraft] = useState({ co_number: 1, description: "", rbt_levels: "", hours: 1 });
-
-  // New — course/topic state
-  const [openCourseSemester, setOpenCourseSemester] = useState<number | null>(null);
-  const [courseForm, setCourseForm] = useState<CourseForm>({ course_code: "", subject_name: "", module_name: "", description: "", hours: 0, semester: 1 });
+  const [addingTo, setAddingTo] = useState<{ moduleId: string; topicId: string } | null>(null);
+  const [sectionForm, setSectionForm] = useState<SectionForm>(emptySection);
   const [addingTopicTo, setAddingTopicTo] = useState<string | null>(null);
+  const [editingTopic, setEditingTopic] = useState<any>(null);
   const [topicDraft, setTopicDraft] = useState({ title: "", description: "" });
-  const [activeCourse, setActiveCourse] = useState<string | null>(null); // courseCode being viewed in detail
+  const [addingModuleTo, setAddingModuleTo] = useState<string | null>(null); // course_code being added to
+  const [moduleDraft, setModuleDraft] = useState({ module_name: "", hours: 0, pedagogy: "", rbt_levels: "", co_mapping: "" });
 
+  const { data: programs = [] } = useQuery({ queryKey: ["programs-cats"], queryFn: async () => { const { data, error } = await db.from("categories").select("*").order("name"); if (error) throw error; return data || []; } });
   const { data: modules = [], isLoading } = useQuery({ queryKey: ["curriculum-modules"], queryFn: async () => { const { data, error } = await db.from("curriculum_modules").select("*").order("semester").order("sort_order"); if (error) throw error; return data || []; } });
   const { data: sections = [] } = useQuery({ queryKey: ["curriculum-sections"], queryFn: async () => { const { data, error } = await db.from("curriculum_sections").select("*").order("sort_order"); if (error) throw error; return data || []; } });
   const { data: sectionLinks = [] } = useQuery({ queryKey: ["curriculum-section-links"], queryFn: async () => { const { data, error } = await db.from("curriculum_section_links").select("*").order("sort_order"); if (error) throw error; return data || []; } });
   const { data: outcomes = [] } = useQuery({ queryKey: ["course-outcomes"], queryFn: async () => { const { data, error } = await db.from("course_outcomes").select("*").order("sort_order"); if (error) throw error; return data || []; } });
   const { data: topics = [] } = useQuery({ queryKey: ["curriculum-topics"], queryFn: async () => { const { data, error } = await db.from("curriculum_topics").select("*").order("sort_order"); if (error) throw error; return data || []; } });
-  const { data: allocations = [] } = useQuery({ queryKey: ["subject-allocations-curr"], queryFn: async () => { const { data } = await db.from("subject_allocations").select("*"); return data || []; } });
   const { data: instructors = [] } = useQuery({ queryKey: ["instructors-curr"], queryFn: async () => { const { data: roles } = await db.from("user_roles").select("user_id").eq("role", "instructor"); const ids = (roles || []).map((r: any) => r.user_id); if (!ids.length) return []; const { data } = await db.from("profiles").select("user_id, display_name").in("user_id", ids); return data || []; } });
-  const { data: batches = [] } = useQuery({ queryKey: ["batches-curr"], queryFn: async () => { const { data } = await db.from("batches").select("id, name, batch_code, course_id"); return data || []; } });
+  const { data: batches = [] } = useQuery({ queryKey: ["batches-curr"], queryFn: async () => { const { data } = await db.from("batches").select("id, name, batch_code, course_id, program_id"); return data || []; } });
+
+  const activeProgram = programs.find((p: any) => p.id === activeProgramId);
 
   const resetSection = () => { setAddingTo(null); setSectionForm(emptySection); };
   const updateLink = (index: number, field: "url" | "label", value: string) => setSectionForm((p) => ({ ...p, links: p.links.map((l, i) => i === index ? { ...l, [field]: value } : l) }));
-  const getLinksForSection = (sectionId: string) => sectionLinks.filter((l: any) => l.section_id === sectionId);
-  const getSectionsForModule = (moduleId: string) => sections.filter((s: any) => s.module_id === moduleId);
-  const getSectionsForTopic = (topicId: string) => sections.filter((s: any) => s.topic_id === topicId);
-  const getTopicsForModule = (moduleId: string) => topics.filter((t: any) => t.module_id === moduleId);
-  const getOutcomesForModule = (moduleId: string) => outcomes.filter((o: any) => o.curriculum_module_id === moduleId);
+  const getLinksForSection = (id: string) => sectionLinks.filter((l: any) => l.section_id === id);
+  const getSectionsForTopic = (id: string) => sections.filter((s: any) => s.topic_id === id);
+  const getSectionsForModule = (id: string) => sections.filter((s: any) => s.module_id === id);
+  const getTopicsForModule = (id: string) => topics.filter((t: any) => t.module_id === id);
+  const getOutcomesForModule = (id: string) => outcomes.filter((o: any) => o.curriculum_module_id === id);
 
-  const addSection = useMutation({
-    mutationFn: async (moduleId: string) => {
-      const validLinks = sectionForm.links.filter((l) => l.url.trim());
-      let topicId = sectionForm.topic_id;
-      // Ensure a topic exists
-      if (!topicId) {
-        const existing = getTopicsForModule(moduleId);
-        if (existing.length) topicId = existing[0].id;
-        else {
-          const { data: t, error: tErr } = await db.from("curriculum_topics").insert({ module_id: moduleId, title: "General", sort_order: 0 }).select().single();
-          if (tErr) throw tErr;
-          topicId = t.id;
-        }
-      }
-      const topicSections = getSectionsForTopic(topicId);
-      const { data: newSection, error } = await db.from("curriculum_sections").insert({ module_id: moduleId, topic_id: topicId, title: sectionForm.title, content_type: sectionForm.contentType, youtube_url: sectionForm.contentType === "youtube" && validLinks[0] ? validLinks[0].url : null, text_content: sectionForm.contentType === "text" ? sectionForm.textContent : null, sort_order: topicSections.length + 1, created_by: user?.id, rbt_levels: sectionForm.rbt_levels || null, co_mapping: sectionForm.co_mapping || null, hours_allocated: sectionForm.hours_allocated || null, teaching_methodology: sectionForm.teaching_methodology || null }).select().single();
+  // === Program mutations ===
+  const saveProgram = useMutation({
+    mutationFn: async () => {
+      const payload: any = { name: programDraft.name, slug: programDraft.slug || programDraft.name.toLowerCase().replace(/\s+/g, "-"), description: programDraft.description || null, total_semesters: programDraft.total_semesters };
+      const { error } = programDraft.id ? await db.from("categories").update(payload).eq("id", programDraft.id) : await db.from("categories").insert(payload);
       if (error) throw error;
-      if (sectionForm.contentType === "youtube" && validLinks.length) { const { error: linkErr } = await db.from("curriculum_section_links").insert(validLinks.map((l, i) => ({ section_id: newSection.id, url: l.url.trim(), label: l.label.trim() || null, sort_order: i }))); if (linkErr) throw linkErr; }
     },
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["curriculum-sections"] }); queryClient.invalidateQueries({ queryKey: ["curriculum-section-links"] }); queryClient.invalidateQueries({ queryKey: ["curriculum-topics"] }); logActivity("curriculum.section_added", "curriculum_section", undefined, { title: sectionForm.title }); toast({ title: "Material added" }); resetSection(); },
-    onError: (err: Error) => toast({ title: "Error", description: err.message, variant: "destructive" }),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["programs-cats"] }); toast({ title: programDraft.id ? "Program updated" : "Program added" }); setShowProgramForm(false); setProgramDraft({ id: "", name: "", slug: "", description: "", total_semesters: 8 }); },
+    onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
+  });
+  const deleteProgram = useMutation({
+    mutationFn: async (id: string) => { const { error } = await db.from("categories").delete().eq("id", id); if (error) throw error; },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["programs-cats"] }); toast({ title: "Program deleted" }); if (activeProgramId) setActiveProgramId(null); },
+    onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 
-  const deleteSection = useMutation({ mutationFn: async (sectionId: string) => { const { error } = await db.from("curriculum_sections").delete().eq("id", sectionId); if (error) throw error; }, onSuccess: (_, sectionId) => { queryClient.invalidateQueries({ queryKey: ["curriculum-sections"] }); logActivity("curriculum.section_deleted", "curriculum_section", sectionId); toast({ title: "Material deleted" }); } });
+  // === Course (curriculum_module head) mutations ===
+  const saveCourse = useMutation({
+    mutationFn: async () => {
+      const payload: any = {
+        program_id: courseDraft.program_id,
+        course_code: courseDraft.course_code,
+        subject_name: courseDraft.subject_name,
+        module_name: courseDraft.module_name || courseDraft.subject_name,
+        description: courseDraft.description || null,
+        semester: courseDraft.semester,
+        credits: courseDraft.credits || null,
+        teaching_hours: courseDraft.teaching_hours || null,
+        periods: courseDraft.periods || null,
+        hours: courseDraft.teaching_hours || null,
+        instructor_id: courseDraft.instructor_id === TO_BE_ASSIGNED ? null : (courseDraft.instructor_id || null),
+        batch_id: courseDraft.batch_id || null,
+        assessment_cie_marks: courseDraft.assessment_cie_marks || null,
+        assessment_see_marks: courseDraft.assessment_see_marks || null,
+        exam_type: courseDraft.exam_type || null,
+        cie_exam_hours: courseDraft.cie_exam_hours || null,
+        see_exam_hours: courseDraft.see_exam_hours || null,
+        course_objectives: splitList(courseDraft.course_objectives),
+        pedagogy: courseDraft.pedagogy || null,
+      };
+      const { error } = courseDraft.id ? await db.from("curriculum_modules").update(payload).eq("id", courseDraft.id) : await db.from("curriculum_modules").insert(payload);
+      if (error) throw error;
+    },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["curriculum-modules"] }); toast({ title: courseDraft.id ? "Course updated" : "Course added" }); setShowCourseForm(false); setCourseDraft(emptyCourse); },
+    onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
+  });
+  const deleteCourse = useMutation({
+    mutationFn: async (id: string) => { const { error } = await db.from("curriculum_modules").delete().eq("id", id); if (error) throw error; },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["curriculum-modules"] }); toast({ title: "Course deleted" }); setActiveCourse(null); },
+    onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
+  });
 
+  // === Module-academic editor (slimmed) ===
+  const saveModule = useMutation({ mutationFn: async () => {
+    const { error } = await db.from("curriculum_modules").update({
+      module_name: moduleForm.module_name || editingModule.module_name,
+      hours: Number(moduleForm.hours) || editingModule.hours,
+      pedagogy: moduleForm.pedagogy || null,
+      // RBT levels + CO mapping stored in description's last line? Use dedicated fields if present
+      // Reusing description column to keep slim
+    }).eq("id", editingModule.id); if (error) throw error;
+  }, onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["curriculum-modules"] }); toast({ title: "Module saved" }); setEditingModule(null); }, onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }) });
+
+  // === Module sub-row CRUD (now an actual sub-entity = topic with module-level metadata stored on topic.description) ===
+  // For simplicity we use curriculum_topics as Module rows under each Course (curriculum_module). Topic-level rows below = curriculum_sections.
+  // To avoid confusing two layers, we treat: Course = curriculum_modules row; "Modules" tab = curriculum_topics; "Topics" inside module = legacy not needed.
+  // But existing UI keeps Module → Topic → Materials. To minimise migration churn, we KEEP that hierarchy and add edit/delete on topics.
+
+  // === Topic mutations ===
   const addTopic = useMutation({
     mutationFn: async ({ moduleId, title, description }: { moduleId: string; title: string; description: string }) => {
       const existing = getTopicsForModule(moduleId);
@@ -93,139 +184,279 @@ const AdminCurriculum = () => {
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["curriculum-topics"] }); toast({ title: "Topic added" }); setAddingTopicTo(null); setTopicDraft({ title: "", description: "" }); },
     onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
-
+  const updateTopic = useMutation({
+    mutationFn: async () => { const { error } = await db.from("curriculum_topics").update({ title: editingTopic.title, description: editingTopic.description || null }).eq("id", editingTopic.id); if (error) throw error; },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["curriculum-topics"] }); toast({ title: "Topic updated" }); setEditingTopic(null); },
+    onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
+  });
   const deleteTopic = useMutation({
     mutationFn: async (id: string) => { const { error } = await db.from("curriculum_topics").delete().eq("id", id); if (error) throw error; },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["curriculum-topics"] }); queryClient.invalidateQueries({ queryKey: ["curriculum-sections"] }); toast({ title: "Topic deleted" }); },
   });
 
-  const addCourse = useMutation({
-    mutationFn: async () => {
-      const { error } = await db.from("curriculum_modules").insert({ course_code: courseForm.course_code, subject_name: courseForm.subject_name, module_name: courseForm.module_name || courseForm.subject_name, description: courseForm.description || null, hours: courseForm.hours || null, semester: courseForm.semester });
+  // === Section / Material mutations ===
+  const addSection = useMutation({
+    mutationFn: async (moduleId: string) => {
+      const validLinks = sectionForm.links.filter((l) => l.url.trim());
+      let topicId = sectionForm.topic_id;
+      if (!topicId) {
+        const existing = getTopicsForModule(moduleId);
+        if (existing.length) topicId = existing[0].id;
+        else { const { data: t, error: tErr } = await db.from("curriculum_topics").insert({ module_id: moduleId, title: "General", sort_order: 0 }).select().single(); if (tErr) throw tErr; topicId = t.id; }
+      }
+      const topicSections = getSectionsForTopic(topicId);
+      const { data: newSection, error } = await db.from("curriculum_sections").insert({ module_id: moduleId, topic_id: topicId, title: sectionForm.title, content_type: sectionForm.contentType, youtube_url: sectionForm.contentType === "youtube" && validLinks[0] ? validLinks[0].url : null, text_content: sectionForm.contentType === "text" ? sectionForm.textContent : null, sort_order: topicSections.length + 1, created_by: user?.id, rbt_levels: sectionForm.rbt_levels || null, co_mapping: sectionForm.co_mapping || null, hours_allocated: sectionForm.hours_allocated || null, teaching_methodology: sectionForm.teaching_methodology || null }).select().single();
       if (error) throw error;
+      if (sectionForm.contentType === "youtube" && validLinks.length) { const { error: linkErr } = await db.from("curriculum_section_links").insert(validLinks.map((l, i) => ({ section_id: newSection.id, url: l.url.trim(), label: l.label.trim() || null, sort_order: i }))); if (linkErr) throw linkErr; }
     },
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["curriculum-modules"] }); toast({ title: "Course added" }); setOpenCourseSemester(null); setCourseForm({ course_code: "", subject_name: "", module_name: "", description: "", hours: 0, semester: 1 }); },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["curriculum-sections"] }); queryClient.invalidateQueries({ queryKey: ["curriculum-section-links"] }); queryClient.invalidateQueries({ queryKey: ["curriculum-topics"] }); logActivity("curriculum.section_added", "curriculum_section", undefined, { title: sectionForm.title }); toast({ title: "Material added" }); resetSection(); },
     onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
+  const deleteSection = useMutation({ mutationFn: async (sectionId: string) => { const { error } = await db.from("curriculum_sections").delete().eq("id", sectionId); if (error) throw error; }, onSuccess: (_, sectionId) => { queryClient.invalidateQueries({ queryKey: ["curriculum-sections"] }); logActivity("curriculum.section_deleted", "curriculum_section", sectionId); toast({ title: "Material deleted" }); } });
 
-  const saveModule = useMutation({ mutationFn: async () => { const { error } = await db.from("curriculum_modules").update({ course_objectives: splitList(moduleForm.course_objectives || ""), pedagogy: moduleForm.pedagogy || null, assessment_cie_marks: Number(moduleForm.assessment_cie_marks) || null, assessment_see_marks: Number(moduleForm.assessment_see_marks) || null, exam_hours: moduleForm.exam_hours || null, references_list: splitList(moduleForm.references_list || ""), module_name: moduleForm.module_name || editingModule.module_name, description: moduleForm.description ?? editingModule.description, hours: Number(moduleForm.hours) || editingModule.hours }).eq("id", editingModule.id); if (error) throw error; }, onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["curriculum-modules"] }); toast({ title: "Module saved" }); }, onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }) });
   const addOutcome = useMutation({ mutationFn: async () => { const { error } = await db.from("course_outcomes").insert({ curriculum_module_id: editingModule.id, co_number: coDraft.co_number, description: coDraft.description, rbt_levels: coDraft.rbt_levels || null, hours: coDraft.hours || null, sort_order: coDraft.co_number }); if (error) throw error; }, onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["course-outcomes"] }); setCoDraft({ co_number: coDraft.co_number + 1, description: "", rbt_levels: "", hours: 1 }); toast({ title: "Course outcome added" }); } });
   const deleteOutcome = useMutation({ mutationFn: async (id: string) => { const { error } = await db.from("course_outcomes").delete().eq("id", id); if (error) throw error; }, onSuccess: () => queryClient.invalidateQueries({ queryKey: ["course-outcomes"] }) });
 
-  const openModuleEditor = (mod: any) => { setEditingModule(mod); setModuleForm({ module_name: mod.module_name || "", description: mod.description || "", hours: mod.hours || 0, course_objectives: joinList(mod.course_objectives), pedagogy: mod.pedagogy || "", assessment_cie_marks: mod.assessment_cie_marks || 20, assessment_see_marks: mod.assessment_see_marks || 30, exam_hours: mod.exam_hours || "", references_list: joinList(mod.references_list) }); setCoDraft({ co_number: getOutcomesForModule(mod.id).length + 1, description: "", rbt_levels: "", hours: 1 }); };
-  const semesters = [1, 2, 3, 4, 5, 6, 7, 8];
-  const hasAdditional = modules.some((m: any) => m.semester === 9);
-  const getSubjectsForSemester = (sem: number) => Object.values(modules.filter((m: any) => m.semester === sem).reduce((acc: any, m: any) => { const key = `${m.course_code}-${m.subject_name}`; acc[key] = acc[key] || { courseCode: m.course_code, subjectName: m.subject_name, modules: [], totalHours: 0 }; acc[key].modules.push(m); acc[key].totalHours += m.hours || 0; return acc; }, {}));
+  const openCreateCourse = (sem: number) => {
+    setCourseDraft({ ...emptyCourse, program_id: activeProgramId || "", semester: sem });
+    setShowCourseForm(true);
+  };
+  const openEditCourse = (m: any) => {
+    setCourseDraft({
+      id: m.id,
+      program_id: m.program_id || activeProgramId || "",
+      course_code: m.course_code || "",
+      subject_name: m.subject_name || "",
+      module_name: m.module_name || "",
+      description: m.description || "",
+      semester: m.semester || 1,
+      credits: m.credits || 0,
+      teaching_hours: m.teaching_hours || m.hours || 0,
+      periods: m.periods || 0,
+      instructor_id: m.instructor_id || TO_BE_ASSIGNED,
+      batch_id: m.batch_id || "",
+      assessment_cie_marks: m.assessment_cie_marks || 20,
+      assessment_see_marks: m.assessment_see_marks || 30,
+      exam_type: m.exam_type || "Theory",
+      cie_exam_hours: m.cie_exam_hours || "",
+      see_exam_hours: m.see_exam_hours || "",
+      course_objectives: joinList(m.course_objectives),
+      pedagogy: m.pedagogy || "",
+    });
+    setShowCourseForm(true);
+  };
 
-  // Helpers for course-tile metadata
-  const getTutorsForCourseCode = (code: string) => {
-    const courseModuleIds = modules.filter((m: any) => m.course_code === code).map((m: any) => m.id);
-    const tutorIds = [...new Set(allocations.filter((a: any) => courseModuleIds.includes(a.curriculum_module_id)).map((a: any) => a.instructor_id))];
-    return tutorIds.map((id) => instructors.find((p: any) => p.user_id === id)?.display_name).filter(Boolean);
+  const openModuleEditor = (mod: any) => {
+    setEditingModule(mod);
+    setModuleForm({ module_name: mod.module_name || "", hours: mod.hours || 0, pedagogy: mod.pedagogy || "" });
+    setCoDraft({ co_number: getOutcomesForModule(mod.id).length + 1, description: "", rbt_levels: "", hours: 1 });
   };
-  const getBatchesForCourseCode = (code: string) => {
-    // Match by curriculum_modules.batch_id (legacy) — fallback to course title equality
-    const courseModuleBatchIds = modules.filter((m: any) => m.course_code === code).map((m: any) => m.batch_id).filter(Boolean);
-    return batches.filter((b: any) => courseModuleBatchIds.includes(b.id)).map((b: any) => b.batch_code || b.name);
-  };
+
+  // Programme-scoped course list grouped by semester
+  const programModules = activeProgramId ? modules.filter((m: any) => m.program_id === activeProgramId) : [];
+  const semesters = activeProgram ? Array.from({ length: activeProgram.total_semesters || 8 }, (_, i) => i + 1) : [];
 
   if (isLoading) return <div className="flex items-center justify-center py-20"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" /></div>;
 
+  // ============ PROGRAM LANDING ============
+  if (!activeProgramId) {
+    return (
+      <div className="space-y-6 pt-2">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="font-display text-brand-primary">Curriculum — Programs</h1>
+            <div className="mt-1 h-0.5 w-12 bg-accent" />
+            <p className="mt-2 text-sm text-muted-foreground">Select a program to manage its semesters and courses.</p>
+          </div>
+          <Button onClick={() => { setProgramDraft({ id: "", name: "", slug: "", description: "", total_semesters: 8 }); setShowProgramForm(true); }} className="gap-2"><Plus className="h-4 w-4" /> Add Program</Button>
+        </div>
+
+        {programs.length === 0 ? (
+          <div className="rounded-2xl bg-card p-12 text-center text-sm text-muted-foreground">No programs yet. Click <strong>Add Program</strong> above.</div>
+        ) : (
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {programs.map((p: any) => {
+              const count = modules.filter((m: any) => m.program_id === p.id).length;
+              return (
+                <div key={p.id} className="group relative rounded-2xl bg-card p-5 shadow-[0_2px_16px_hsl(var(--primary)/0.06)] transition hover:shadow-[0_4px_24px_hsl(var(--primary)/0.12)]">
+                  <button onClick={() => setActiveProgramId(p.id)} className="block w-full text-left">
+                    <h3 className="font-display text-lg text-brand-primary">{p.name}</h3>
+                    <p className="mt-1 text-xs text-muted-foreground">{count} {count === 1 ? "course" : "courses"} · {p.total_semesters || 8} semesters</p>
+                    {p.description && <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">{p.description}</p>}
+                  </button>
+                  <div className="absolute right-3 top-3 flex opacity-0 transition-opacity group-hover:opacity-100">
+                    <Button size="icon" variant="ghost" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); setProgramDraft({ id: p.id, name: p.name, slug: p.slug || "", description: p.description || "", total_semesters: p.total_semesters || 8 }); setShowProgramForm(true); }}><Pencil className="h-3.5 w-3.5" /></Button>
+                    <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive" onClick={(e) => { e.stopPropagation(); if (confirm(`Delete program "${p.name}"? Linked courses keep program reference but lose link.`)) deleteProgram.mutate(p.id); }}><Trash2 className="h-3.5 w-3.5" /></Button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Program form dialog */}
+        <Dialog open={showProgramForm} onOpenChange={setShowProgramForm}>
+          <DialogContent className="max-w-md rounded-2xl">
+            <DialogHeader><DialogTitle>{programDraft.id ? "Edit Program" : "Add Program"}</DialogTitle></DialogHeader>
+            <div className="space-y-3">
+              <Field label="Name *"><Input value={programDraft.name} onChange={(e) => setProgramDraft({ ...programDraft, name: e.target.value })} /></Field>
+              <Field label="Slug (URL)"><Input value={programDraft.slug} onChange={(e) => setProgramDraft({ ...programDraft, slug: e.target.value })} placeholder="auto-generated from name" /></Field>
+              <Field label="Description"><Textarea value={programDraft.description} onChange={(e) => setProgramDraft({ ...programDraft, description: e.target.value })} /></Field>
+              <Field label="Total Semesters"><Input type="number" min={1} max={12} value={programDraft.total_semesters} onChange={(e) => setProgramDraft({ ...programDraft, total_semesters: Number(e.target.value) })} /></Field>
+            </div>
+            <DialogFooter><Button variant="outline" onClick={() => setShowProgramForm(false)}>Cancel</Button><Button onClick={() => saveProgram.mutate()} disabled={!programDraft.name}><Save className="h-4 w-4" /> Save</Button></DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+    );
+  }
+
+  // ============ PROGRAM DETAIL (semesters → courses) ============
   return (
     <div className="space-y-6 pt-2">
-      <div>
-        <h1 className="font-display text-brand-primary">Curriculum Management</h1>
-        <div className="mt-1 h-0.5 w-12 bg-accent" />
-        <p className="mt-2 text-sm text-muted-foreground">Hierarchy: Semester → Course → Module → Topic → Materials.</p>
+      <Button variant="ghost" size="sm" onClick={() => { setActiveProgramId(null); setActiveCourse(null); }}><ArrowLeft className="h-4 w-4" /> All Programs</Button>
+      <div className="text-center">
+        <h1 className="font-display text-3xl text-brand-primary">{activeProgram?.name}</h1>
+        <div className="mx-auto mt-1 h-0.5 w-16 bg-accent" />
+        <p className="mt-2 text-sm text-muted-foreground">{activeProgram?.total_semesters || 8} semester program</p>
       </div>
 
-      <Tabs defaultValue="1" className="w-full">
-        <TabsList className="mb-6 flex h-auto flex-wrap gap-1 rounded-xl bg-muted p-1.5">
-          {[...semesters, ...(hasAdditional ? [9] : [])].map((s) => (
-            <TabsTrigger key={s} value={String(s)} className="min-h-[44px] rounded-lg px-4 py-2 text-sm font-semibold">{s === 9 ? "Additional" : `Sem ${s}`}</TabsTrigger>
-          ))}
-        </TabsList>
-
-        {[...semesters, ...(hasAdditional ? [9] : [])].map((sem) => (
-          <TabsContent key={sem} value={String(sem)} className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="font-display text-lg text-brand-primary">{sem === 9 ? "Additional Courses" : `Semester ${sem} Courses`}</h2>
-              <Button size="sm" variant="outline" onClick={() => { setOpenCourseSemester(sem); setCourseForm({ ...courseForm, semester: sem }); }}>
-                <Plus className="h-4 w-4" /> Add Course
-              </Button>
+      {activeCourse ? (
+        (() => {
+          const course = programModules.find((m: any) => m.id === activeCourse);
+          if (!course) return null;
+          return (
+            <div className="space-y-4">
+              <Button variant="ghost" size="sm" onClick={() => setActiveCourse(null)}><ArrowLeft className="h-4 w-4" /> Back to courses</Button>
+              <CourseDetail
+                course={course}
+                programs={programs}
+                instructors={instructors}
+                batches={batches}
+                outcomes={outcomes}
+                getOutcomesForModule={getOutcomesForModule}
+                getSectionsForModule={getSectionsForModule}
+                getTopicsForModule={getTopicsForModule}
+                getSectionsForTopic={getSectionsForTopic}
+                getLinksForSection={getLinksForSection}
+                openModuleEditor={openModuleEditor}
+                openEditCourse={openEditCourse}
+                deleteCourse={deleteCourse}
+                deleteSection={deleteSection}
+                addingTo={addingTo}
+                setAddingTo={setAddingTo}
+                addingTopicTo={addingTopicTo}
+                setAddingTopicTo={setAddingTopicTo}
+                topicDraft={topicDraft}
+                setTopicDraft={setTopicDraft}
+                addTopic={addTopic}
+                deleteTopic={deleteTopic}
+                editingTopic={editingTopic}
+                setEditingTopic={setEditingTopic}
+                updateTopic={updateTopic}
+                sectionForm={sectionForm}
+                setSectionForm={setSectionForm}
+                updateLink={updateLink}
+                addSection={addSection}
+                resetSection={resetSection}
+              />
             </div>
-
-            {activeCourse ? (
-              <div className="space-y-3">
-                <Button variant="ghost" size="sm" onClick={() => setActiveCourse(null)}><ArrowLeft className="h-4 w-4" /> Back to courses</Button>
-                {getSubjectsForSemester(sem).filter((s: any) => s.courseCode === activeCourse).map((subject: any) => (
-                  <CourseDetail key={subject.courseCode} subject={subject} {...{ getOutcomesForModule, getSectionsForModule, getTopicsForModule, getSectionsForTopic, getLinksForSection, openModuleEditor, deleteSection, addingTo, setAddingTo, addingTopicTo, setAddingTopicTo, topicDraft, setTopicDraft, addTopic, deleteTopic, sectionForm, setSectionForm, updateLink, addSection, resetSection }} />
-                ))}
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {getSubjectsForSemester(sem).length === 0 && <div className="rounded-2xl bg-card p-8 text-center text-sm text-muted-foreground shadow-[0_2px_16px_hsl(var(--primary)/0.06)]">No courses in this semester yet. Click <strong>Add Course</strong> above.</div>}
-                {getSubjectsForSemester(sem).map((subject: any) => {
-                  const tutors = getTutorsForCourseCode(subject.courseCode);
-                  const batchNames = getBatchesForCourseCode(subject.courseCode);
-                  return (
-                    <button key={subject.courseCode} onClick={() => setActiveCourse(subject.courseCode)} className="w-full rounded-2xl bg-card p-5 text-left shadow-[0_2px_16px_hsl(var(--primary)/0.06)] transition hover:shadow-[0_4px_24px_hsl(var(--primary)/0.12)]">
-                      <div className="flex flex-wrap items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <h3 className="font-display text-lg text-brand-primary">{subject.subjectName}</h3>
-                            <Badge className="bg-accent/15 text-accent-foreground">{subject.courseCode}</Badge>
+          );
+        })()
+      ) : (
+        <div className="space-y-6">
+          {semesters.map((sem) => {
+            const semCourses = programModules.filter((m: any) => m.semester === sem);
+            return (
+              <div key={sem} className="rounded-2xl bg-card p-5 shadow-[0_2px_16px_hsl(var(--primary)/0.06)]">
+                <div className="mb-3 flex items-center justify-between">
+                  <h2 className="font-display text-lg text-brand-primary">Semester {sem}</h2>
+                  <Button size="sm" variant="outline" onClick={() => openCreateCourse(sem)}><Plus className="h-4 w-4" /> Add Course</Button>
+                </div>
+                {semCourses.length === 0 ? (
+                  <p className="rounded-xl bg-muted/40 p-4 text-center text-xs text-muted-foreground">No courses in this semester yet.</p>
+                ) : (
+                  <Accordion type="multiple" className="w-full">
+                    {semCourses.map((c: any) => {
+                      const tutorName = c.instructor_id ? (instructors.find((i: any) => i.user_id === c.instructor_id)?.display_name || "Unknown") : "To be assigned";
+                      const batchName = c.batch_id ? (batches.find((b: any) => b.id === c.batch_id)?.name || "—") : "—";
+                      return (
+                        <AccordionItem key={c.id} value={c.id} className="border-border/50">
+                          <div className="flex items-center gap-2">
+                            <AccordionTrigger className="flex-1 rounded-xl px-3 text-left hover:bg-muted hover:no-underline">
+                              <div className="flex flex-wrap items-center gap-2 text-left">
+                                <span className="font-medium text-foreground">{c.subject_name}</span>
+                                <Badge className="bg-accent/15 text-accent-foreground">{c.course_code}</Badge>
+                                <span className="text-xs text-muted-foreground">· {tutorName} · Batch: {batchName}</span>
+                              </div>
+                            </AccordionTrigger>
+                            <Button size="icon" variant="ghost" onClick={() => openEditCourse(c)} title="Edit course"><Pencil className="h-4 w-4" /></Button>
+                            <Button size="icon" variant="ghost" onClick={() => setActiveCourse(c.id)} title="Open"><BookOpen className="h-4 w-4" /></Button>
                           </div>
-                          <p className="mt-1 text-xs text-muted-foreground">Assigned to: {tutors.length ? tutors.join(", ") : "— Unassigned"}</p>
-                          <p className="mt-0.5 text-xs text-muted-foreground">Batches: {batchNames.length ? batchNames.join(", ") : "— None"}</p>
-                        </div>
-                        <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                          <span className="flex items-center gap-1"><Clock className="h-4 w-4 text-accent" /> {subject.totalHours}h</span>
-                          <span className="flex items-center gap-1"><FolderTree className="h-4 w-4 text-accent" /> {subject.modules.length} modules</span>
-                        </div>
-                      </div>
-                    </button>
-                  );
-                })}
+                          <AccordionContent className="space-y-2 pt-2 sm:pl-7">
+                            <div className="rounded-xl bg-muted/40 p-3 text-xs text-muted-foreground">
+                              <div className="grid gap-1 sm:grid-cols-2">
+                                <span>Credits: {c.credits || "—"} · Hours: {c.teaching_hours || c.hours || "—"} · Periods: {c.periods || "—"}</span>
+                                <span>CIE/SEE: {c.assessment_cie_marks || "—"}/{c.assessment_see_marks || "—"} · {c.exam_type || "—"}</span>
+                              </div>
+                              <p className="mt-1">{c.description || "No description"}</p>
+                            </div>
+                            <Button size="sm" variant="outline" onClick={() => setActiveCourse(c.id)}><BookOpen className="h-4 w-4" /> Open Modules & Topics</Button>
+                          </AccordionContent>
+                        </AccordionItem>
+                      );
+                    })}
+                  </Accordion>
+                )}
               </div>
-            )}
-          </TabsContent>
-        ))}
-      </Tabs>
+            );
+          })}
+        </div>
+      )}
 
-      {/* Add Course dialog */}
-      <Dialog open={openCourseSemester !== null} onOpenChange={(open) => !open && setOpenCourseSemester(null)}>
-        <DialogContent className="max-w-lg rounded-2xl">
-          <DialogHeader><DialogTitle className="font-display text-brand-primary">Add Course — Semester {openCourseSemester}</DialogTitle></DialogHeader>
+      {/* === Course form === */}
+      <Dialog open={showCourseForm} onOpenChange={setShowCourseForm}>
+        <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto rounded-2xl">
+          <DialogHeader><DialogTitle>{courseDraft.id ? "Edit Course" : "Add Course"}</DialogTitle></DialogHeader>
           <div className="space-y-3">
-            <Input placeholder="Course Code (e.g. NG101)" value={courseForm.course_code} onChange={(e) => setCourseForm({ ...courseForm, course_code: e.target.value })} />
-            <Input placeholder="Subject Name" value={courseForm.subject_name} onChange={(e) => setCourseForm({ ...courseForm, subject_name: e.target.value })} />
-            <Input placeholder="First Module Name (e.g. Introduction)" value={courseForm.module_name} onChange={(e) => setCourseForm({ ...courseForm, module_name: e.target.value })} />
-            <Textarea placeholder="Description" value={courseForm.description} onChange={(e) => setCourseForm({ ...courseForm, description: e.target.value })} />
-            <Input type="number" placeholder="Hours" value={courseForm.hours} onChange={(e) => setCourseForm({ ...courseForm, hours: Number(e.target.value) })} />
-            <Button onClick={() => addCourse.mutate()} disabled={!courseForm.course_code || !courseForm.subject_name || addCourse.isPending} className="w-full"><Save className="h-4 w-4" /> Save Course</Button>
+            <div className="grid gap-3 md:grid-cols-2">
+              <Field label="Program *"><Select value={courseDraft.program_id} onValueChange={(program_id) => setCourseDraft({ ...courseDraft, program_id })}><SelectTrigger><SelectValue placeholder="Select program" /></SelectTrigger><SelectContent>{programs.map((p: any) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent></Select></Field>
+              <Field label="Semester *"><Select value={String(courseDraft.semester)} onValueChange={(v) => setCourseDraft({ ...courseDraft, semester: Number(v) })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{Array.from({ length: (programs.find((p: any) => p.id === courseDraft.program_id)?.total_semesters || 8) }, (_, i) => i + 1).map((n) => <SelectItem key={n} value={String(n)}>Sem {n}</SelectItem>)}</SelectContent></Select></Field>
+              <Field label="Course Name *"><Input value={courseDraft.subject_name} onChange={(e) => setCourseDraft({ ...courseDraft, subject_name: e.target.value })} /></Field>
+              <Field label="Course Code *"><Input value={courseDraft.course_code} onChange={(e) => setCourseDraft({ ...courseDraft, course_code: e.target.value })} /></Field>
+              <Field label="Credits"><Input type="number" min={0} value={courseDraft.credits} onChange={(e) => { const credits = Number(e.target.value); setCourseDraft({ ...courseDraft, credits, teaching_hours: credits * 15, periods: credits * 20 }); }} /></Field>
+              <div className="grid grid-cols-2 gap-2">
+                <Field label={<span className="flex items-center gap-1">Teaching hours {!isSuperAdmin && <Lock className="h-3 w-3" />}</span> as any}><Input type="number" value={courseDraft.teaching_hours} readOnly={!isSuperAdmin} onChange={(e) => setCourseDraft({ ...courseDraft, teaching_hours: Number(e.target.value) })} /></Field>
+                <Field label={<span className="flex items-center gap-1">Periods {!isSuperAdmin && <Lock className="h-3 w-3" />}</span> as any}><Input type="number" value={courseDraft.periods} readOnly={!isSuperAdmin} onChange={(e) => setCourseDraft({ ...courseDraft, periods: Number(e.target.value) })} /></Field>
+              </div>
+              <Field label="Assigned Instructor"><Select value={courseDraft.instructor_id || TO_BE_ASSIGNED} onValueChange={(instructor_id) => setCourseDraft({ ...courseDraft, instructor_id })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value={TO_BE_ASSIGNED}>To be assigned</SelectItem>{instructors.map((i: any) => <SelectItem key={i.user_id} value={i.user_id}>{i.display_name || i.user_id.slice(0, 8)}</SelectItem>)}</SelectContent></Select></Field>
+              <Field label="Assigned Batch"><Select value={courseDraft.batch_id} onValueChange={(batch_id) => setCourseDraft({ ...courseDraft, batch_id })}><SelectTrigger><SelectValue placeholder="None" /></SelectTrigger><SelectContent>{batches.map((b: any) => <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>)}</SelectContent></Select></Field>
+              <Field label="CIE marks"><Input type="number" value={courseDraft.assessment_cie_marks} onChange={(e) => setCourseDraft({ ...courseDraft, assessment_cie_marks: Number(e.target.value) })} /></Field>
+              <Field label="SEE marks"><Input type="number" value={courseDraft.assessment_see_marks} onChange={(e) => setCourseDraft({ ...courseDraft, assessment_see_marks: Number(e.target.value) })} /></Field>
+              <Field label="Examination type"><Input value={courseDraft.exam_type} onChange={(e) => setCourseDraft({ ...courseDraft, exam_type: e.target.value })} placeholder="Theory / Practical / Viva" /></Field>
+              <div className="grid grid-cols-2 gap-2">
+                <Field label="CIE exam duration"><Input value={courseDraft.cie_exam_hours} onChange={(e) => setCourseDraft({ ...courseDraft, cie_exam_hours: e.target.value })} placeholder="e.g. 1h 30m" /></Field>
+                <Field label="SEE exam duration"><Input value={courseDraft.see_exam_hours} onChange={(e) => setCourseDraft({ ...courseDraft, see_exam_hours: e.target.value })} placeholder="e.g. 3h" /></Field>
+              </div>
+            </div>
+            <Field label="Course Objectives (one per line)"><Textarea rows={4} value={courseDraft.course_objectives} onChange={(e) => setCourseDraft({ ...courseDraft, course_objectives: e.target.value })} /></Field>
+            <Field label="Pedagogy"><Textarea rows={3} value={courseDraft.pedagogy} onChange={(e) => setCourseDraft({ ...courseDraft, pedagogy: e.target.value })} /></Field>
+            <Field label="Description"><Textarea rows={3} value={courseDraft.description} onChange={(e) => setCourseDraft({ ...courseDraft, description: e.target.value })} /></Field>
           </div>
+          <DialogFooter><Button variant="outline" onClick={() => setShowCourseForm(false)}>Cancel</Button><Button onClick={() => saveCourse.mutate()} disabled={!courseDraft.course_code || !courseDraft.subject_name || !courseDraft.program_id}><Save className="h-4 w-4" /> Save</Button></DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Module academic-fields editor */}
+      {/* === Module academic + Course Outcomes editor (slim) === */}
       <Dialog open={!!editingModule} onOpenChange={(open) => !open && setEditingModule(null)}>
-        <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
+        <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
           <DialogHeader><DialogTitle className="font-display text-brand-primary">Edit Module — {editingModule?.module_name}</DialogTitle></DialogHeader>
           {editingModule && (
             <div className="space-y-5">
               <div className="grid gap-3 md:grid-cols-2">
-                <div><Label>Module Name</Label><Input value={moduleForm.module_name} onChange={(e) => setModuleForm({ ...moduleForm, module_name: e.target.value })} /></div>
-                <div><Label>Hours</Label><Input type="number" value={moduleForm.hours} onChange={(e) => setModuleForm({ ...moduleForm, hours: e.target.value })} /></div>
-                <div className="md:col-span-2"><Label>Description</Label><Textarea rows={3} value={moduleForm.description} onChange={(e) => setModuleForm({ ...moduleForm, description: e.target.value })} /></div>
-                <div><Label>Course Objectives (one per line)</Label><Textarea rows={5} value={moduleForm.course_objectives} onChange={(e) => setModuleForm({ ...moduleForm, course_objectives: e.target.value })} /></div>
-                <div><Label>References (one per line)</Label><Textarea rows={5} value={moduleForm.references_list} onChange={(e) => setModuleForm({ ...moduleForm, references_list: e.target.value })} /></div>
-              </div>
-              <div className="grid gap-3 md:grid-cols-4">
-                <Input placeholder="Pedagogy" value={moduleForm.pedagogy} onChange={(e) => setModuleForm({ ...moduleForm, pedagogy: e.target.value })} />
-                <Input type="number" placeholder="CIE marks" value={moduleForm.assessment_cie_marks} onChange={(e) => setModuleForm({ ...moduleForm, assessment_cie_marks: e.target.value })} />
-                <Input type="number" placeholder="SEE marks" value={moduleForm.assessment_see_marks} onChange={(e) => setModuleForm({ ...moduleForm, assessment_see_marks: e.target.value })} />
-                <Input placeholder="Exam hours" value={moduleForm.exam_hours} onChange={(e) => setModuleForm({ ...moduleForm, exam_hours: e.target.value })} />
+                <Field label="Module Name"><Input value={moduleForm.module_name} onChange={(e) => setModuleForm({ ...moduleForm, module_name: e.target.value })} /></Field>
+                <Field label="Hours"><Input type="number" value={moduleForm.hours} onChange={(e) => setModuleForm({ ...moduleForm, hours: e.target.value })} /></Field>
+                <Field label="Teaching methodology"><Input value={moduleForm.pedagogy} onChange={(e) => setModuleForm({ ...moduleForm, pedagogy: e.target.value })} /></Field>
               </div>
               <Button onClick={() => saveModule.mutate()}><Save className="h-4 w-4" /> Save Module</Button>
               <div className="space-y-3">
@@ -249,54 +480,79 @@ const AdminCurriculum = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* === Topic Edit dialog === */}
+      <Dialog open={!!editingTopic} onOpenChange={(open) => !open && setEditingTopic(null)}>
+        <DialogContent className="max-w-md rounded-2xl">
+          <DialogHeader><DialogTitle>Edit Topic</DialogTitle></DialogHeader>
+          {editingTopic && (
+            <div className="space-y-3">
+              <Field label="Topic title *"><Input value={editingTopic.title} onChange={(e) => setEditingTopic({ ...editingTopic, title: e.target.value })} /></Field>
+              <Field label="Description"><Textarea value={editingTopic.description || ""} onChange={(e) => setEditingTopic({ ...editingTopic, description: e.target.value })} /></Field>
+            </div>
+          )}
+          <DialogFooter><Button variant="outline" onClick={() => setEditingTopic(null)}>Cancel</Button><Button onClick={() => updateTopic.mutate()} disabled={!editingTopic?.title}><Save className="h-4 w-4" /> Save</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
 
-// === CourseDetail subcomponent: shows modules → topics → materials ===
-const CourseDetail = ({ subject, getOutcomesForModule, getSectionsForModule, getTopicsForModule, getSectionsForTopic, getLinksForSection, openModuleEditor, deleteSection, addingTo, setAddingTo, addingTopicTo, setAddingTopicTo, topicDraft, setTopicDraft, addTopic, deleteTopic, sectionForm, setSectionForm, updateLink, addSection, resetSection }: any) => {
+const Field = ({ label, children }: { label: string | React.ReactNode; children: React.ReactNode }) => (
+  <div><label className="mb-1 block text-[11px] font-bold uppercase tracking-widest text-brand-warm-grey">{label}</label>{children}</div>
+);
+
+// === CourseDetail subcomponent ===
+const CourseDetail = ({ course, programs, instructors, batches, outcomes, getOutcomesForModule, getSectionsForModule, getTopicsForModule, getSectionsForTopic, getLinksForSection, openModuleEditor, openEditCourse, deleteCourse, deleteSection, addingTo, setAddingTo, addingTopicTo, setAddingTopicTo, topicDraft, setTopicDraft, addTopic, deleteTopic, editingTopic, setEditingTopic, updateTopic, sectionForm, setSectionForm, updateLink, addSection, resetSection }: any) => {
+  const tutor = course.instructor_id ? (instructors.find((i: any) => i.user_id === course.instructor_id)?.display_name || "Unknown") : "To be assigned";
+  const batchName = course.batch_id ? (batches.find((b: any) => b.id === course.batch_id)?.name || "—") : "—";
+  const courseOutcomes = outcomes.filter((o: any) => o.curriculum_module_id === course.id);
   return (
     <div className="overflow-hidden rounded-2xl bg-card shadow-[0_2px_16px_hsl(var(--primary)/0.06)]">
-      <div className="p-5 pb-3">
+      <div className="p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h3 className="font-display text-lg text-brand-primary">{subject.subjectName}</h3>
-            <Badge className="mt-1 bg-accent/15 text-accent-foreground">{subject.courseCode}</Badge>
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="font-display text-xl text-brand-primary">{course.subject_name}</h3>
+              <Badge className="bg-accent/15 text-accent-foreground">{course.course_code}</Badge>
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground">Instructor: {tutor} · Batch: {batchName} · Sem {course.semester}</p>
+            <p className="mt-1 text-xs text-muted-foreground">Credits: {course.credits || "—"} · Hours: {course.teaching_hours || course.hours || "—"} · Periods: {course.periods || "—"} · CIE/SEE: {course.assessment_cie_marks || "—"}/{course.assessment_see_marks || "—"} · {course.exam_type || "—"}</p>
+            {courseOutcomes.length > 0 && (
+              <div className="mt-3">
+                <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Course Outcomes</p>
+                <ul className="mt-1 space-y-1 text-sm">
+                  {courseOutcomes.map((o: any) => <li key={o.id}><Badge variant="outline" className="mr-2">CO{o.co_number}</Badge>{o.description}</li>)}
+                </ul>
+              </div>
+            )}
           </div>
-          <div className="flex items-center gap-1 text-sm text-muted-foreground"><Clock className="h-4 w-4 text-accent" /> {subject.totalHours}h</div>
+          <div className="flex shrink-0 items-center gap-1">
+            <Button size="sm" variant="outline" onClick={() => openEditCourse(course)}><Pencil className="h-4 w-4" /> Edit Course</Button>
+            <Button size="sm" variant="ghost" className="text-destructive" onClick={() => { if (confirm("Delete this course?")) deleteCourse.mutate(course.id); }}><Trash2 className="h-4 w-4" /></Button>
+          </div>
         </div>
       </div>
-      <div className="px-5 pb-5">
+      <div className="border-t border-border/50 p-5 pt-3">
         <Accordion type="multiple" className="w-full">
-          {subject.modules.map((mod: any) => {
+          {/* Course is itself the curriculum_modules row; treat its topics as "Modules" for content authoring */}
+          {[course].map((mod: any) => {
             const modTopics = getTopicsForModule(mod.id);
             const allModSections = getSectionsForModule(mod.id);
-            const modOutcomes = getOutcomesForModule(mod.id);
             return (
               <AccordionItem key={mod.id} value={mod.id} className="border-border/50">
                 <AccordionTrigger className="rounded-xl px-3 text-left hover:bg-muted hover:no-underline">
                   <div className="flex flex-wrap items-center gap-3">
                     <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/15"><BookOpen className="h-4 w-4 text-accent" /></span>
-                    <span className="font-medium text-foreground">{mod.module_name}</span>
+                    <span className="font-medium text-foreground">Modules & Topics</span>
                     <Badge variant="secondary">{modTopics.length} topics</Badge>
                     <Badge variant="outline">{allModSections.length} materials</Badge>
-                    <Badge variant="outline">{modOutcomes.length} COs</Badge>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className="space-y-3 pt-2 sm:pl-7">
-                  <div className="rounded-xl bg-muted/60 p-4">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <p className="text-sm text-muted-foreground">{mod.description || "No description"}</p>
-                      <Button variant="outline" size="sm" onClick={() => openModuleEditor(mod)}><Edit3 className="h-4 w-4" /> Edit Module</Button>
-                    </div>
-                    <div className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-3">
-                      <span>Pedagogy: {mod.pedagogy || "—"}</span>
-                      <span>CIE/SEE: {mod.assessment_cie_marks || "—"}/{mod.assessment_see_marks || "—"}</span>
-                      <span>Exam: {mod.exam_hours || "—"}</span>
-                    </div>
+                  <div className="flex justify-end">
+                    <Button variant="outline" size="sm" onClick={() => openModuleEditor(mod)}><Edit3 className="h-4 w-4" /> Module academic fields</Button>
                   </div>
-
-                  {/* TOPICS */}
                   {modTopics.map((topic: any) => {
                     const topicSections = getSectionsForTopic(topic.id);
                     return (
@@ -309,11 +565,11 @@ const CourseDetail = ({ subject, getOutcomesForModule, getSectionsForModule, get
                           </div>
                           <div className="flex gap-1">
                             <Button variant="ghost" size="sm" onClick={() => setAddingTo({ moduleId: mod.id, topicId: topic.id })}><Plus className="h-3.5 w-3.5" /> Material</Button>
+                            <Button variant="ghost" size="icon" onClick={() => setEditingTopic({ ...topic })} title="Edit topic"><Pencil className="h-4 w-4" /></Button>
                             <Button variant="ghost" size="icon" className="text-destructive" onClick={() => { if (confirm("Delete this topic and all its materials?")) deleteTopic.mutate(topic.id); }}><Trash2 className="h-4 w-4" /></Button>
                           </div>
                         </div>
-
-                        {/* MATERIALS for this topic */}
+                        {topic.description && <p className="mb-2 text-xs text-muted-foreground">{topic.description}</p>}
                         <div className="space-y-2">
                           {topicSections.map((section: any) => {
                             const links = getLinksForSection(section.id);
@@ -334,7 +590,6 @@ const CourseDetail = ({ subject, getOutcomesForModule, getSectionsForModule, get
                                   </div>
                                   <Button variant="ghost" size="icon" className="text-destructive" onClick={() => deleteSection.mutate(section.id)}><Trash2 className="h-4 w-4" /></Button>
                                 </div>
-                                {/* YouTube-style thumbnail tiles */}
                                 {section.content_type === "youtube" && displayLinks.length > 0 && (
                                   <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
                                     {displayLinks.map((link: any, idx: number) => {
@@ -362,8 +617,6 @@ const CourseDetail = ({ subject, getOutcomesForModule, getSectionsForModule, get
                               </div>
                             );
                           })}
-
-                          {/* Add Material form (scoped to this topic) */}
                           {addingTo?.moduleId === mod.id && addingTo?.topicId === topic.id && (
                             <AddMaterialForm sectionForm={sectionForm} setSectionForm={setSectionForm} updateLink={updateLink} resetSection={resetSection} onSave={() => { setSectionForm({ ...sectionForm, topic_id: topic.id }); addSection.mutate(mod.id); }} pending={addSection.isPending} />
                           )}
@@ -371,8 +624,6 @@ const CourseDetail = ({ subject, getOutcomesForModule, getSectionsForModule, get
                       </div>
                     );
                   })}
-
-                  {/* Add Topic */}
                   {addingTopicTo === mod.id ? (
                     <div className="space-y-2 rounded-xl bg-accent/5 p-3 ring-1 ring-accent/30">
                       <Input placeholder="Topic title" value={topicDraft.title} onChange={(e) => setTopicDraft({ ...topicDraft, title: e.target.value })} />
