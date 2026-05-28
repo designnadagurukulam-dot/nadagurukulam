@@ -165,7 +165,7 @@ const DashboardAssignments = () => {
   const renderAssignment = (a: any) => (
     <Card
       key={a.id}
-      onClick={() => openDetail(a)}
+      onClick={() => navigate(`/dashboard/student/assignments/${a.id}`)}
       className={`bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] hover:shadow-[0_4px_30px_rgba(196,154,60,0.15)] transition-all duration-300 border-l-4 ${getLeftBorder(a.due_date, a.status)} cursor-pointer hover:-translate-y-0.5`}
     >
       <CardContent className="p-3 sm:p-4">
@@ -179,7 +179,12 @@ const DashboardAssignments = () => {
             </div>
             <p className="text-[10px] sm:text-xs text-brand-warm-grey mt-1 ml-9">Program: {a.courses?.category || "—"}</p>
             <p className="text-[10px] sm:text-xs text-brand-warm-grey ml-9">Course: {a.courses?.title || "—"}</p>
-            {a.description && <p className="text-[10px] sm:text-xs text-brand-warm-grey mt-1 ml-9 line-clamp-2">{a.description}</p>}
+            <p className="text-[10px] sm:text-xs text-brand-warm-grey ml-9">Faculty: {a.faculty_name}</p>
+            {a.due_date && (
+              <p className="text-[10px] sm:text-xs text-brand-warm-grey ml-9 flex items-center gap-1 mt-0.5">
+                <Calendar className="h-3 w-3" /> Due: {format(new Date(a.due_date), "MMM dd, yyyy HH:mm")}
+              </p>
+            )}
           </div>
           <div className="flex sm:flex-col items-center sm:items-end gap-2 shrink-0 ml-9 sm:ml-0">
             {a.due_date && (
@@ -189,7 +194,7 @@ const DashboardAssignments = () => {
             )}
             {a.status === "submitted" && <Badge className="bg-amber-50 text-amber-700 border-0 text-[10px] sm:text-xs">Awaiting Grade</Badge>}
             {a.status === "graded" && <Badge className="bg-green-50 text-green-700 border-0 text-[10px] sm:text-xs">Graded</Badge>}
-            <Button variant="ghost" size="sm" className="h-7 gap-1 text-[10px] sm:text-xs text-brand-primary hover:bg-brand-gold-pale rounded-lg" onClick={(e) => { e.stopPropagation(); openDetail(a); }}>
+            <Button variant="ghost" size="sm" className="h-7 gap-1 text-[10px] sm:text-xs text-brand-primary hover:bg-brand-gold-pale rounded-lg" onClick={(e) => { e.stopPropagation(); navigate(`/dashboard/student/assignments/${a.id}`); }}>
               <Eye className="h-3 w-3" /> View
             </Button>
           </div>
@@ -197,6 +202,7 @@ const DashboardAssignments = () => {
       </CardContent>
     </Card>
   );
+
 
   const renderEmpty = (msg: string, icon: any) => {
     const Icon = icon;
