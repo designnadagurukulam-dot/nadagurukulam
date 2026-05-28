@@ -11,64 +11,103 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { logActivity } from "@/lib/activityLogger";
 
+const PERSONAL_KEYS = ["display_name","phone","date_of_birth","gender","blood_group","address","city","state","pincode","emergency_contact_name","emergency_contact_phone","bio"];
+const FAMILY_KEYS = ["father_name","father_occupation","father_email","father_phone","mother_name","mother_occupation","mother_email","mother_phone","family_notes"];
+
 const DashboardProfile = () => {
   const { user, role } = useAuth();
   const { toast } = useToast();
+  const [original, setOriginal] = useState<Record<string, any>>({});
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
   const [passwords, setPasswords] = useState({ current: "", new: "", confirm: "" });
+  const [pendingRequestNote, setPendingRequestNote] = useState<string | null>(null);
+
+  const isStudent = role === "student";
 
   useEffect(() => {
     if (!user) return;
     supabase.from("profiles").select("*").eq("user_id", user.id).single().then(({ data }) => {
       if (data) {
-        setFormData({
+        const init: Record<string, string> = {
           display_name: data.display_name || "", phone: data.phone || "", bio: data.bio || "",
-          date_of_birth: data.date_of_birth || "", gender: data.gender || "", address: data.address || "",
-          city: data.city || "", state: data.state || "", pincode: data.pincode || "",
+          date_of_birth: data.date_of_birth || "", gender: data.gender || "", blood_group: (data as any).blood_group || "",
+          address: data.address || "", city: data.city || "", state: data.state || "", pincode: data.pincode || "",
+          emergency_contact_name: data.emergency_contact_name || "", emergency_contact_phone: data.emergency_contact_phone || "",
+          father_name: (data as any).father_name || "", father_occupation: (data as any).father_occupation || "", father_email: (data as any).father_email || "", father_phone: (data as any).father_phone || "",
+          mother_name: (data as any).mother_name || "", mother_occupation: (data as any).mother_occupation || "", mother_email: (data as any).mother_email || "", mother_phone: (data as any).mother_phone || "",
+          family_notes: (data as any).family_notes || "",
           roll_number: data.roll_number || "", course_name: data.course_name || "",
           year_of_commencement: data.year_of_commencement?.toString() || "", enrollment_id: data.enrollment_id || "",
-          kyc_document_type: data.kyc_document_type || "", kyc_document_number: data.kyc_document_number || "",
           employee_id: data.employee_id || "", designation: data.designation || "", department: data.department || "",
           qualifications: data.qualifications || "", specialization: data.specialization || "",
-        });
+        };
+        setFormData(init);
+        setOriginal(init);
       }
     });
-  }, [user]);
+    // Check for pending request (students)
+    if (isStudent) {
+      (supabase.from("profile_change_requests" as any) as any).select("id, created_at").eq("user_id", user.id).eq("status", "pending").order("created_at", { ascending: false }).limit(1).then((r: any) => {
+        if (r.data && r.data.length) setPendingRequestNote(`Your previous edits (submitted ${new Date(r.data[0].created_at).toLocaleString()}) are awaiting admin approval.`);
+      });
+    }
+  }, [user, isStudent]);
 
   const update = (key: string, val: string) => setFormData((p) => ({ ...p, [key]: val }));
 
   const handleSave = async () => {
     if (!user) return;
     setSaving(true);
-    const updateData: Record<string, any> = {
-      display_name: formData.display_name, phone: formData.phone, bio: formData.bio,
-      date_of_birth: formData.date_of_birth || null, gender: formData.gender || null,
-      address: formData.address || null, city: formData.city || null, state: formData.state || null, pincode: formData.pincode || null,
-    };
-    if (role === "student") {
-      updateData.roll_number = formData.roll_number || null;
-      updateData.course_name = formData.course_name || null;
-      updateData.year_of_commencement = formData.year_of_commencement ? parseInt(formData.year_of_commencement) : null;
+    // Build diff of personal/family fields
+    const editableKeys = [...PERSONAL_KEYS, ...(isStudent ? FAMILY_KEYS : [])];
+    const diff: Record<string, any> = {};
+    editableKeys.forEach((k) => {
+      const v = formData[k] ?? "";
+      const orig = original[k] ?? "";
+      if (String(v) !== String(orig)) diff[k] = v === "" ? null : v;
+    });
+
+    if (isStudent && Object.keys(diff).length > 0) {
+      // Submit for approval
+      const { error } = await (supabase.from("profile_change_requests" as any) as any).insert({
+        user_id: user.id,
+        requested_changes: diff,
+        status: "pending",
+      });
+      setSaving(false);
+      if (error) { toast({ title: "Could not submit for approval", description: error.message, variant: "destructive" }); return; }
+      logActivity("profile.change_requested", "profile_change_request", undefined, { fields: Object.keys(diff) });
+      toast({ title: "Submitted for admin approval", description: "Your edits will appear once an admin approves them." });
+      setPendingRequestNote("Your latest edits are awaiting admin approval.");
+      return;
     }
+
+    // Instructors / admins update directly
+    const updateData: Record<string, any> = {};
+    Object.assign(updateData, diff);
     if (role === "instructor") {
-      updateData.employee_id = formData.employee_id || null;
-      updateData.designation = formData.designation || null;
-      updateData.department = formData.department || null;
-      updateData.qualifications = formData.qualifications || null;
-      updateData.specialization = formData.specialization || null;
+      ["qualifications","specialization"].forEach((k) => {
+        if ((formData[k] ?? "") !== (original[k] ?? "")) updateData[k] = formData[k] || null;
+      });
     }
+    if (Object.keys(updateData).length === 0) { setSaving(false); toast({ title: "Nothing to save" }); return; }
     const { error } = await supabase.from("profiles").update(updateData).eq("user_id", user.id);
     setSaving(false);
     if (error) { toast({ title: "Failed to update profile", description: error.message, variant: "destructive" }); }
-    else { logActivity("profile.updated", "profile"); toast({ title: "Profile updated!" }); }
+    else { logActivity("profile.updated", "profile"); toast({ title: "Profile updated!" }); setOriginal({ ...original, ...formData }); }
   };
 
   const handlePasswordChange = async () => {
+    if (!user?.email) return;
+    if (!passwords.current) { toast({ title: "Enter your current password", variant: "destructive" }); return; }
     if (passwords.new !== passwords.confirm) { toast({ title: "Passwords don't match", variant: "destructive" }); return; }
-    if (passwords.new.length < 6) { toast({ title: "Password must be at least 6 characters", variant: "destructive" }); return; }
+    if (passwords.new.length < 8) { toast({ title: "Use at least 8 characters", variant: "destructive" }); return; }
     setChangingPassword(true);
+    // Re-authenticate with current password
+    const { error: signInErr } = await supabase.auth.signInWithPassword({ email: user.email, password: passwords.current });
+    if (signInErr) { setChangingPassword(false); toast({ title: "Current password is incorrect", variant: "destructive" }); return; }
     const { error } = await supabase.auth.updateUser({ password: passwords.new });
     setChangingPassword(false);
     if (error) { toast({ title: "Failed to change password", description: error.message, variant: "destructive" }); }
@@ -129,6 +168,12 @@ const DashboardProfile = () => {
           </div>
         </CardContent>
       </Card>
+
+      {pendingRequestNote && (
+        <div className="rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-sm p-3">
+          {pendingRequestNote}
+        </div>
+      )}
 
       <Tabs defaultValue="personal">
         <TabsList className="bg-brand-cream-dark rounded-xl p-1 w-full overflow-x-auto flex">
@@ -236,11 +281,13 @@ const DashboardProfile = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4 sm:p-6 pt-0 space-y-4 sm:space-y-5">
+              <Field label="Current Password" icon={Lock} type="password" value={passwords.current}
+                onChange={(v: string) => setPasswords((p) => ({ ...p, current: v }))} placeholder="Enter current password" />
               <Field label="New Password" icon={Lock} type="password" value={passwords.new}
-                onChange={(v: string) => setPasswords((p) => ({ ...p, new: v }))} placeholder="Enter new password" />
+                onChange={(v: string) => setPasswords((p) => ({ ...p, new: v }))} placeholder="At least 8 characters" />
               <Field label="Confirm Password" icon={Lock} type="password" value={passwords.confirm}
                 onChange={(v: string) => setPasswords((p) => ({ ...p, confirm: v }))} placeholder="Confirm new password" />
-              <Button onClick={handlePasswordChange} disabled={changingPassword || !passwords.new} className="gap-2 bg-gradient-to-r from-brand-primary to-brand-primary-dark text-white rounded-xl w-full sm:w-auto min-h-[44px] shadow-lg">
+              <Button onClick={handlePasswordChange} disabled={changingPassword || !passwords.new || !passwords.current} className="gap-2 bg-gradient-to-r from-brand-primary to-brand-primary-dark text-white rounded-xl w-full sm:w-auto min-h-[44px] shadow-lg">
                 <Shield className="h-4 w-4" /> {changingPassword ? "Changing..." : "Change Password"}
               </Button>
             </CardContent>

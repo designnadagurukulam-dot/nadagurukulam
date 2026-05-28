@@ -125,6 +125,7 @@ const AdminCurriculum = () => {
   // === Course (curriculum_module head) mutations ===
   const saveCourse = useMutation({
     mutationFn: async () => {
+      const instr = courseDraft.instructor_id === TO_BE_ASSIGNED ? null : (courseDraft.instructor_id || null);
       const payload: any = {
         program_id: courseDraft.program_id,
         course_code: courseDraft.course_code,
@@ -136,7 +137,7 @@ const AdminCurriculum = () => {
         teaching_hours: courseDraft.teaching_hours || null,
         periods: courseDraft.periods || null,
         hours: courseDraft.teaching_hours || null,
-        instructor_id: courseDraft.instructor_id === TO_BE_ASSIGNED ? null : (courseDraft.instructor_id || null),
+        instructor_id: instr,
         batch_id: courseDraft.batch_id || null,
         assessment_cie_marks: courseDraft.assessment_cie_marks || null,
         assessment_see_marks: courseDraft.assessment_see_marks || null,
@@ -146,8 +147,27 @@ const AdminCurriculum = () => {
         course_objectives: splitList(courseDraft.course_objectives),
         pedagogy: courseDraft.pedagogy || null,
       };
-      const { error } = courseDraft.id ? await db.from("curriculum_modules").update(payload).eq("id", courseDraft.id) : await db.from("curriculum_modules").insert(payload);
-      if (error) throw error;
+      let moduleId = courseDraft.id;
+      if (moduleId) {
+        const { error } = await db.from("curriculum_modules").update(payload).eq("id", moduleId);
+        if (error) throw error;
+      } else {
+        const { data: inserted, error } = await db.from("curriculum_modules").insert(payload).select().single();
+        if (error) throw error;
+        moduleId = inserted.id;
+      }
+      // Mirror allocation to subject_allocations: replace any existing rows for this module with current instructor (or none)
+      if (moduleId) {
+        await db.from("subject_allocations").delete().eq("curriculum_module_id", moduleId);
+        if (instr) {
+          await db.from("subject_allocations").insert({
+            instructor_id: instr,
+            curriculum_module_id: moduleId,
+            semester: courseDraft.semester || 1,
+            academic_year: new Date().getFullYear().toString(),
+          });
+        }
+      }
     },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["curriculum-modules"] }); toast({ title: courseDraft.id ? "Course updated" : "Course added" }); setShowCourseForm(false); setCourseDraft(emptyCourse); },
     onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
