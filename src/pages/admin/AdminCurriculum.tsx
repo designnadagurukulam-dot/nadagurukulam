@@ -46,6 +46,7 @@ type CourseForm = {
   see_exam_hours: string;
   course_objectives: string;
   pedagogy: string;
+  prerequisites: string;
 };
 const emptyCourse: CourseForm = {
   program_id: "", course_code: "", subject_name: "", module_name: "", description: "", semester: 1,
@@ -53,7 +54,7 @@ const emptyCourse: CourseForm = {
   instructor_id: "", batch_id: "",
   assessment_cie_marks: 20, assessment_see_marks: 30,
   exam_type: "Theory", cie_exam_hours: "", see_exam_hours: "",
-  course_objectives: "", pedagogy: "",
+  course_objectives: "", pedagogy: "", prerequisites: "",
 };
 
 const TO_BE_ASSIGNED = "__tba__";
