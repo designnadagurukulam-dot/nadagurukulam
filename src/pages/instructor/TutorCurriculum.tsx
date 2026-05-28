@@ -192,68 +192,77 @@ const TutorCurriculum = () => {
             <FolderOpen className="h-7 w-7 text-accent" />
           </div>
           <h3 className="font-serif text-lg text-brand-primary mb-1">{isOwn ? "No Modules Yet" : "No Institution Modules"}</h3>
-          <p className="text-sm text-muted-foreground">{isOwn ? "Click '+ New Module' to get started." : "No institution modules available."}</p>
+          <p className="text-sm text-muted-foreground">{isOwn ? "Click '+ New Module' to add extra learning material." : "No institution modules available."}</p>
         </motion.div>
       ) : (
         <Accordion type="multiple" value={openModules} onValueChange={setOpenModules} className="space-y-3">
           {mods.map((mod, idx) => {
             const modSections = getSectionsForModule(mod.id);
+            const instructorMade = isInstructorCreatedModule(mod);
+            const ribbonClass = instructorMade
+              ? "border-l-4 border-l-brand-gold"
+              : "border-l-4 border-l-brand-primary";
             return (
               <motion.div id={`mod-${mod.id}`} key={mod.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05 }}>
-                <AccordionItem value={mod.id} className={`bg-white rounded-2xl border ${focusModuleId === mod.id ? "border-brand-gold ring-2 ring-brand-gold/30" : "border-border"} shadow-[0_2px_24px_rgba(125,30,36,0.06)] overflow-hidden`}>
+                <AccordionItem value={mod.id} className={`bg-white rounded-2xl border ${focusModuleId === mod.id ? "border-brand-gold ring-2 ring-brand-gold/30" : "border-border"} ${ribbonClass} shadow-[0_2px_24px_rgba(125,30,36,0.06)] overflow-hidden`}>
                   <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-muted transition-colors">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 flex-wrap">
                       <div className="w-8 h-8 rounded-full bg-accent/15 flex items-center justify-center">
                         <BookOpen className="h-4 w-4 text-accent" />
                       </div>
                       <span className="font-serif font-medium text-sm text-foreground">{mod.module_name}</span>
                       <Badge className="bg-primary/10 text-brand-primary border-0 text-[10px] font-semibold">{mod.course_code}</Badge>
                       {modSections.length > 0 && <Badge className="bg-accent/15 text-muted-foreground border-0 text-[10px]">{modSections.length} topics</Badge>}
+                      {instructorMade && <Badge className="bg-brand-gold/20 text-brand-gold-dark border-0 text-[10px] uppercase tracking-wider">Added by you</Badge>}
                     </div>
                   </AccordionTrigger>
                   <AccordionContent className="px-5 pb-5 space-y-3">
                     {mod.description && <p className="text-sm text-muted-foreground pl-11">{mod.description}</p>}
                     {modSections.length === 0 ? (
                       <p className="text-sm text-muted-foreground italic pl-11">No content yet.</p>
-                    ) : modSections.map(section => (
-                      <div key={section.id} className="bg-muted rounded-xl p-4 space-y-2">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            {typeIcon(section.content_type)}
-                            <span className="font-medium text-sm text-foreground">{section.title}</span>
-                            <Badge className="bg-white text-muted-foreground border-border text-[10px] capitalize">{section.content_type}</Badge>
+                    ) : modSections.map(section => {
+                      const sectionMine = canEditSection(section);
+                      return (
+                        <div key={section.id} className={`bg-muted rounded-xl p-4 space-y-2 ${sectionMine ? "border-l-4 border-l-brand-gold" : "border-l-4 border-l-brand-primary/30"}`}>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              {typeIcon(section.content_type)}
+                              <span className="font-medium text-sm text-foreground">{section.title}</span>
+                              <Badge className="bg-white text-muted-foreground border-border text-[10px] capitalize">{section.content_type}</Badge>
+                              {sectionMine && <Badge className="bg-brand-gold/20 text-brand-gold-dark border-0 text-[10px] uppercase tracking-wider">Added by you</Badge>}
+                            </div>
+                            {sectionMine && (
+                              <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-700 hover:bg-red-50 h-7" onClick={() => deleteSection(section.id)}>
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            )}
                           </div>
-                          {canEditSection(section) && (
-                            <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-700 hover:bg-red-50 h-7" onClick={() => deleteSection(section.id)}>
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
+                          {section.content_type === "text" && section.text_content && (
+                            <p className="text-sm text-muted-foreground whitespace-pre-wrap">{section.text_content}</p>
+                          )}
+                          <div className="flex flex-wrap gap-1 pt-1">
+                            <Badge variant="outline" className="text-[10px]">{section.rbt_levels || "RBT —"}</Badge>
+                            <Badge variant="outline" className="text-[10px]">{section.co_mapping || "CO —"}</Badge>
+                            <Badge variant="outline" className="text-[10px]">{section.hours_allocated || 0}h</Badge>
+                            {section.teaching_methodology && <Badge variant="secondary" className="text-[10px]">{section.teaching_methodology}</Badge>}
+                          </div>
+                          {section.content_type === "audio" && section.audio_url && (
+                            <AudioPlayer src={section.audio_url} title={section.title} />
+                          )}
+                          {section.pdf_url && (
+                            <a href={section.pdf_url} target="_blank" rel="noopener noreferrer" className="text-sm text-brand-primary underline flex items-center gap-1 hover:text-[#5C1219]">
+                              <FileText className="h-3 w-3" /> View PDF
+                            </a>
+                          )}
+                          {section.youtube_url && (
+                            <div className="aspect-video rounded-xl overflow-hidden bg-[#EDE3CC]">
+                              <iframe src={`https://www.youtube.com/embed/${section.youtube_url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/))([^&?\s]+)/)?.[1] || ""}`}
+                                className="w-full h-full" allowFullScreen />
+                            </div>
                           )}
                         </div>
-                        {section.content_type === "text" && section.text_content && (
-                          <p className="text-sm text-muted-foreground whitespace-pre-wrap">{section.text_content}</p>
-                        )}
-                        <div className="flex flex-wrap gap-1 pt-1">
-                          <Badge variant="outline" className="text-[10px]">{section.rbt_levels || "RBT —"}</Badge>
-                          <Badge variant="outline" className="text-[10px]">{section.co_mapping || "CO —"}</Badge>
-                          <Badge variant="outline" className="text-[10px]">{section.hours_allocated || 0}h</Badge>
-                          {section.teaching_methodology && <Badge variant="secondary" className="text-[10px]">{section.teaching_methodology}</Badge>}
-                        </div>
-                        {section.content_type === "audio" && section.audio_url && (
-                          <AudioPlayer src={section.audio_url} title={section.title} />
-                        )}
-                        {section.pdf_url && (
-                          <a href={section.pdf_url} target="_blank" rel="noopener noreferrer" className="text-sm text-brand-primary underline flex items-center gap-1 hover:text-[#5C1219]">
-                            <FileText className="h-3 w-3" /> View PDF
-                          </a>
-                        )}
-                        {section.youtube_url && (
-                          <div className="aspect-video rounded-xl overflow-hidden bg-[#EDE3CC]">
-                            <iframe src={`https://www.youtube.com/embed/${section.youtube_url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/))([^&?\s]+)/)?.[1] || ""}`}
-                              className="w-full h-full" allowFullScreen />
-                          </div>
-                        )}
-                      </div>
-                    ))}
+                      );
+                    })}
                     {isOwn && (
                       <Button onClick={() => setAddTopicOpen(mod.id)} className="gap-1.5 text-xs bg-accent hover:bg-accent/90 text-foreground rounded-xl">
                         <Plus className="h-3 w-3" /> Add Topic
