@@ -566,6 +566,29 @@ const DashboardCurriculum = () => {
     },
   });
 
+  const { data: facultyBySubject = {} } = useQuery({
+    queryKey: ["curriculum-faculty-by-subject"],
+    queryFn: async () => {
+      const { data: allocs } = await supabase
+        .from("subject_allocations")
+        .select("instructor_id, curriculum_modules(course_code, subject_name)");
+      const instructorIds = [...new Set((allocs || []).map((a: any) => a.instructor_id).filter(Boolean))];
+      let nameMap: Record<string, string> = {};
+      if (instructorIds.length) {
+        const { data: profs } = await supabase.from("profiles").select("user_id, display_name").in("user_id", instructorIds);
+        (profs || []).forEach((p: any) => { nameMap[p.user_id] = p.display_name || "Faculty"; });
+      }
+      const result: Record<string, string> = {};
+      (allocs || []).forEach((a: any) => {
+        const m = a.curriculum_modules;
+        if (!m) return;
+        const key = `${m.course_code}-${m.subject_name}`;
+        if (!result[key]) result[key] = nameMap[a.instructor_id] || "Faculty";
+      });
+      return result;
+    },
+  });
+
   const semesters = [1, 2, 3, 4, 5, 6, 7, 8];
   const hasAdditional = modules.some((m) => m.semester === 9);
 
@@ -661,6 +684,7 @@ const DashboardCurriculum = () => {
                 subject={subject}
                 sections={sections}
                 sectionLinks={sectionLinks}
+                facultyName={(facultyBySubject as Record<string, string>)[`${subject.courseCode}-${subject.subjectName}`]}
               />
             ))}
           </TabsContent>
