@@ -19,7 +19,7 @@ const AdminAssignments = () => {
   const [assignments, setAssignments] = useState<any[]>([]);
   const [submissions, setSubmissions] = useState<any[]>([]);
   const [profiles, setProfiles] = useState<Record<string, string>>({});
-  const [courses, setCourses] = useState<Record<string, string>>({});
+  const [courses, setCourses] = useState<Record<string, { title: string; category: string | null }>>({});
   const [batches, setBatches] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -29,7 +29,7 @@ const AdminAssignments = () => {
       const [aRes, sRes, cRes, bRes] = await Promise.all([
         supabase.from("assignments").select("*").order("created_at", { ascending: false }),
         supabase.from("assignment_submissions").select("*").order("submitted_at", { ascending: false }),
-        supabase.from("courses").select("id, title"),
+        supabase.from("courses").select("id, title, category"),
         supabase.from("batches").select("id, name"),
       ]);
 
@@ -38,8 +38,8 @@ const AdminAssignments = () => {
       setAssignments(items);
       setSubmissions(subs);
 
-      const cm: Record<string, string> = {};
-      (cRes.data || []).forEach(c => { cm[c.id] = c.title; });
+      const cm: Record<string, { title: string; category: string | null }> = {};
+      (cRes.data || []).forEach(c => { cm[c.id] = { title: c.title, category: c.category }; });
       setCourses(cm);
 
       const bm: Record<string, string> = {};
@@ -128,7 +128,8 @@ const AdminAssignments = () => {
                       )}
                     </div>
                     <div className="flex items-center gap-3 text-xs text-brand-warm-grey flex-wrap">
-                      <span>{courses[a.course_id] || "—"}</span>
+                      <span>Program: {courses[a.course_id]?.category || "—"}</span>
+                      <span>· Course: {courses[a.course_id]?.title || "—"}</span>
                       {a.batch_id && <span>• {batches[a.batch_id] || "—"}</span>}
                       <span>• {profiles[a.instructor_id] || "—"}</span>
                       {a.due_date && <span>• Due: {new Date(a.due_date).toLocaleDateString()}</span>}
@@ -144,8 +145,8 @@ const AdminAssignments = () => {
                       <div className="flex items-start gap-2 text-xs">
                         <BookOpen className="h-3.5 w-3.5 text-brand-gold mt-0.5 shrink-0" />
                         <div>
-                          <p className="font-semibold uppercase tracking-widest text-brand-warm-grey text-[10px]">Course / Topic</p>
-                          <p className="text-brand-charcoal mt-0.5">{courses[a.course_id] || "Other / Standalone"}</p>
+                          <p className="font-semibold uppercase tracking-widest text-brand-warm-grey text-[10px]">Program / Course</p>
+                          <p className="text-brand-charcoal mt-0.5">{courses[a.course_id]?.category || "—"} · {courses[a.course_id]?.title || "Other / Standalone"}</p>
                         </div>
                       </div>
                       <div className="flex items-start gap-2 text-xs">

@@ -81,7 +81,7 @@ const InstructorAssignments = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("assignments")
-        .select("*, courses(title), batches(name)")
+        .select("*, courses(title, category), batches(name)")
         .eq("instructor_id", user!.id)
         .order("created_at", { ascending: false });
       if (error) throw error;

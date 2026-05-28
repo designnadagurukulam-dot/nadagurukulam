@@ -39,7 +39,7 @@ const DashboardAssignments = () => {
       if (!enrollments?.length) return [];
       const courseIds = enrollments.map((e) => e.course_id);
       const { data: assignments, error } = await supabase
-        .from("assignments").select("*, courses(title)").in("course_id", courseIds).order("due_date", { ascending: true });
+        .from("assignments").select("*, courses(title, category)").in("course_id", courseIds).order("due_date", { ascending: true });
       if (error) throw error;
       const assignmentIds = (assignments || []).map((a) => a.id);
       const { data: submissions } = assignmentIds.length > 0
