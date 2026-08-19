@@ -61,6 +61,7 @@ const AdminTeachers = () => {
     setAllocations(allocationData || []);
     setCourses(courseData || []);
     setFacultyTypes(await fetchFacultyTypes());
+    setDesignationList(await fetchDesignations());
     setLoading(false);
   };
 
