@@ -169,7 +169,10 @@ const AdminTeachers = () => {
         </div>
         <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-brand-warm-grey">Allocate subjects to teachers, balance load across semesters, and link batches.</p>
-          <Button variant="outline" size="sm" onClick={() => setTypesOpen(true)}><Settings2 className="h-4 w-4" /> Manage Faculty Types</Button>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" size="sm" onClick={() => setTypesOpen(true)}><Settings2 className="h-4 w-4" /> Manage Faculty Types</Button>
+            <Button variant="outline" size="sm" onClick={() => setDesignationsOpen(true)}><Settings2 className="h-4 w-4" /> Manage Designations</Button>
+          </div>
         </div>
       </motion.div>
 
