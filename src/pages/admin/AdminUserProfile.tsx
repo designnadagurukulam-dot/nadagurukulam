@@ -261,7 +261,22 @@ const AdminUserProfile = () => {
                 <SelectContent><SelectItem value="Male">Male</SelectItem><SelectItem value="Female">Female</SelectItem><SelectItem value="Other">Other</SelectItem></SelectContent>
               </Select>
             </div>
-            <Field label="Blood Group" value={form.blood_group} onChange={(v: string) => update("blood_group", v)} placeholder="O+, A−, etc." />
+            <div>
+              <Label className="text-[10px] uppercase tracking-wide text-muted-foreground">Blood Group</Label>
+              <Select value={form.blood_group || ""} onValueChange={(v) => update("blood_group", v)}>
+                <SelectTrigger className="mt-1 rounded-xl"><SelectValue placeholder="Select" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="A+">A+</SelectItem>
+                  <SelectItem value="A-">A-</SelectItem>
+                  <SelectItem value="B+">B+</SelectItem>
+                  <SelectItem value="B-">B-</SelectItem>
+                  <SelectItem value="AB+">AB+</SelectItem>
+                  <SelectItem value="AB-">AB-</SelectItem>
+                  <SelectItem value="O+">O+</SelectItem>
+                  <SelectItem value="O-">O-</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <div className="sm:col-span-2">
               <Label className="text-[10px] uppercase tracking-wide text-muted-foreground">Address</Label>
               <Textarea value={form.address || ""} onChange={(e) => update("address", e.target.value)} rows={2} className="mt-1 rounded-xl" />
