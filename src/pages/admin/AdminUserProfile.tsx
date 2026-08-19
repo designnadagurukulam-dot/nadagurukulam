@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SearchableSelect } from "@/components/ui/searchable-select";
 import FacultyTypeSelect from "@/components/admin/FacultyTypeSelect";
+import DesignationSelect from "@/components/admin/DesignationSelect";
 
 import { INDIAN_STATES, citiesForState } from "@/data/indiaLocations";
 
