@@ -276,6 +276,7 @@ const AdminTeachers = () => {
         </DialogContent>
       </Dialog>
       <FacultyTypesDialog open={typesOpen} onOpenChange={setTypesOpen} onChanged={fetchAll} />
+      <DesignationsDialog open={designationsOpen} onOpenChange={setDesignationsOpen} onChanged={fetchAll} />
     </div>
   );
 };
