@@ -171,7 +171,7 @@ const DashboardSidebar = () => {
       </div>
 
       {/* Nav items */}
-      <nav className="flex-1 p-2 space-y-0.5 overflow-y-auto">
+      <nav className={`flex-1 p-2 space-y-0.5 overflow-y-auto ${role === "admin" || role === "super_admin" ? "admin-sidebar-scrollbar" : ""}`}>
         {navItems.map((item) => (
           <Link
             key={item.to}
