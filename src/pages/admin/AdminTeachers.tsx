@@ -35,6 +35,8 @@ const AdminTeachers = () => {
   const [facultyTypes, setFacultyTypes] = useState<FacultyType[]>([]);
   const [typeFilter, setTypeFilter] = useState("all");
   const [typesOpen, setTypesOpen] = useState(false);
+  const [designationList, setDesignationList] = useState<Designation[]>([]);
+  const [designationsOpen, setDesignationsOpen] = useState(false);
 
   const fetchAll = async () => {
     setLoading(true);
