@@ -13,6 +13,8 @@ import { toast } from "sonner";
 import { logActivity } from "@/lib/activityLogger";
 import FacultyTypesDialog from "@/components/admin/FacultyTypesDialog";
 import { fetchFacultyTypes, type FacultyType } from "@/components/admin/FacultyTypeSelect";
+import DesignationsDialog from "@/components/admin/DesignationsDialog";
+import { fetchDesignations, type Designation } from "@/components/admin/DesignationSelect";
 
 const db = supabase as any;
 
