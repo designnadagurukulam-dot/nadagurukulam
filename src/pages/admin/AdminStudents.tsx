@@ -19,6 +19,7 @@ import {
   KeyRound,
   Edit3,
   UserPlus,
+  Trash2,
 } from "lucide-react";
 import DesignationSelect from "@/components/admin/DesignationSelect";
 import { Textarea } from "@/components/ui/textarea";
@@ -27,6 +28,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -84,6 +86,10 @@ const AdminStudents = ({ lockedRole }: { lockedRole?: AppRole } = {}) => {
   const [editForm, setEditForm] = useState<Record<string, any>>({});
   const [savingEdit, setSavingEdit] = useState(false);
   const [resettingFor, setResettingFor] = useState<string | null>(null);
+
+  // Delete user confirmation
+  const [deleteTarget, setDeleteTarget] = useState<any>(null);
+  const [deleting, setDeleting] = useState(false);
 
   // Create user dialog
   const [createOpen, setCreateOpen] = useState(false);
@@ -298,6 +304,26 @@ const AdminStudents = ({ lockedRole }: { lockedRole?: AppRole } = {}) => {
       toast.error(err.message || "Failed to create user");
     } finally {
       setCreating(false);
+    }
+  };
+
+  const deleteUser = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("admin-delete-user", {
+        body: { target_user_id: deleteTarget.user_id },
+      });
+      if (error) throw new Error(error.message || "Failed to delete user");
+      if ((data as any)?.error) throw new Error((data as any).error);
+      toast.success("User deleted permanently");
+      logActivity("user.deleted_by_admin", "user", deleteTarget.user_id, { email: deleteTarget.email });
+      setDeleteTarget(null);
+      fetchData();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to delete user");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -538,6 +564,11 @@ const AdminStudents = ({ lockedRole }: { lockedRole?: AppRole } = {}) => {
                           <Pencil className="h-4 w-4" /> Label
                         </Button>
                       )}
+                      {!lockedRole && (
+                        <Button variant="outline" size="sm" onClick={() => setDeleteTarget(p)} className="min-h-10 rounded-xl gap-1 text-destructive border-destructive/30 hover:bg-destructive/10">
+                          <Trash2 className="h-4 w-4" /> Delete
+                        </Button>
+                      )}
                     </div>
                   </div>
 
@@ -763,6 +794,30 @@ const AdminStudents = ({ lockedRole }: { lockedRole?: AppRole } = {}) => {
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Delete user confirmation */}
+      <AlertDialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
+        <AlertDialogContent className="rounded-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-serif text-primary">Delete user?</AlertDialogTitle>
+            <AlertDialogDescription>
+              You are about to permanently delete{" "}
+              <span className="font-semibold text-foreground">{deleteTarget?.display_name || "this user"}</span>
+              {deleteTarget?.email ? ` (${deleteTarget.email})` : ""}. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel asChild>
+              <Button variant="outline" className="rounded-xl" onClick={() => setDeleteTarget(null)} disabled={deleting}>Cancel</Button>
+            </AlertDialogCancel>
+            <AlertDialogAction asChild>
+              <Button className="rounded-xl gap-2 bg-destructive text-destructive-foreground hover:bg-destructive/90" disabled={deleting} onClick={deleteUser}>
+                <Trash2 className="h-4 w-4" /> {deleting ? "Deleting..." : "Delete"}
+              </Button>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
