@@ -47,7 +47,11 @@ const DEFAULT_BLOCKS = [
   "activity", "quickActions", "liveClassesList",
 ];
 
+const DEFAULT_ACTIONS = ["verification", "assignments", "inquiries", "batches", "users", "messages"];
+
 const storageKey = (uid?: string) => `admin-overview-blocks:${uid || "anon"}`;
+const actionsStorageKey = (uid?: string) => `admin-overview-actions:${uid || "anon"}`;
+
 
 const AdminOverview = () => {
   const { role, user } = useAuth();
@@ -175,15 +179,26 @@ const AdminOverview = () => {
 
   const statCards = allStatCards.filter(c => isVisible(c.id));
 
-  // Quick actions show ONLY unread / pending counts (not totals)
-  const quickActions = [
-    { label: "Verification", icon: ShieldCheck, to: "/dashboard/admin/verification", count: stats.pendingVerifications },
-    { label: "Assignments", icon: ClipboardList, to: "/dashboard/admin/assignments", count: stats.ungradedSubmissions },
-    { label: "Inquiries", icon: Mail, to: "/dashboard/admin/inquiries", count: stats.pendingInquiries },
-    { label: "Manage Batches", icon: Layers, to: "/dashboard/admin/batches", count: 0 },
-    { label: "Manage Users", icon: Users, to: "/dashboard/admin/students", count: 0 },
-    ...(isSuperAdmin ? [{ label: "Message Monitor", icon: Mail, to: "/dashboard/admin/messages", count: stats.unreadMessages }] : []),
-  ];
+  // Quick actions registry — counts shown only for unread/pending items
+  const allQuickActions = useMemo(() => ([
+    { id: "verification", label: "Verification", icon: ShieldCheck, to: "/dashboard/admin/verification", count: stats.pendingVerifications },
+    { id: "assignments", label: "Assignments", icon: ClipboardList, to: "/dashboard/admin/assignments", count: stats.ungradedSubmissions },
+    { id: "inquiries", label: "Inquiries", icon: Mail, to: "/dashboard/admin/inquiries", count: stats.pendingInquiries },
+    { id: "batches", label: "Manage Batches", icon: Layers, to: "/dashboard/admin/batches", count: 0 },
+    { id: "users", label: "Manage Users", icon: Users, to: "/dashboard/admin/students", count: 0 },
+    { id: "faculty", label: "Manage Faculty", icon: GraduationCap, to: "/dashboard/admin/teachers", count: 0 },
+    { id: "curriculum", label: "Manage Curriculum", icon: LayoutGrid, to: "/dashboard/admin/curriculum", count: 0 },
+    { id: "liveClasses", label: "Live Classes", icon: Video, to: "/dashboard/admin/live-classes", count: 0 },
+    { id: "events", label: "Events", icon: Star, to: "/dashboard/admin/events", count: 0 },
+    { id: "feedback", label: "Feedback", icon: Star, to: "/dashboard/admin/feedback", count: 0 },
+    { id: "approvals", label: "Review Submissions", icon: Clock, to: "/dashboard/admin/approvals", count: 0 },
+    { id: "schedule", label: "Schedule", icon: Clock, to: "/dashboard/admin/schedule", count: 0 },
+    ...(isSuperAdmin ? [{ id: "messages", label: "Message Monitor", icon: Mail, to: "/dashboard/admin/messages", count: stats.unreadMessages }] : []),
+  ]), [stats, isSuperAdmin]);
+
+  const quickActions = allQuickActions.filter(a => visibleActions.includes(a.id));
+  const availableActions = allQuickActions.filter(a => !visibleActions.includes(a.id));
+
 
   const RemoveButton = ({ id, label }: { id: string; label: string }) => (
     <button
