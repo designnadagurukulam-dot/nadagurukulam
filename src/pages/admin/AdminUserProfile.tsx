@@ -19,7 +19,7 @@ const db = supabase as any;
 
 type ProfileRecord = Record<string, any>;
 
-const PERSONAL_FIELDS = ["display_name","phone","date_of_birth","gender","blood_group","address","city","state","pincode","emergency_contact_name","emergency_contact_phone","bio"];
+const PERSONAL_FIELDS = ["display_name","phone","alternate_email","date_of_birth","gender","blood_group","address","city","state","pincode","emergency_contact_name","emergency_contact_phone","bio"];
 const FAMILY_FIELDS = ["father_name","father_occupation","father_email","father_phone","mother_name","mother_occupation","mother_email","mother_phone","family_notes"];
 const ACADEMIC_STUDENT = ["roll_number","enrollment_id","course_name","year_of_commencement"];
 const ACADEMIC_INSTRUCTOR = ["employee_id","designation","department","specialization","qualifications","years_of_experience","instructor_type","zoom_link","meet_link"];
