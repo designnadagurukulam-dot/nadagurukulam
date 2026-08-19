@@ -709,6 +709,57 @@ const AdminStudents = ({ lockedRole }: { lockedRole?: AppRole } = {}) => {
           </Button>
         </DialogContent>
       </Dialog>
+
+      {/* Create user dialog */}
+      {canCreateUsers && (
+        <Dialog open={createOpen} onOpenChange={(o) => { setCreateOpen(o); if (!o) setCreateForm({ display_name: "", email: "", password: "", phone: "", role: "student", designation: "" }); }}>
+          <DialogContent className="sm:max-w-lg rounded-2xl">
+            <DialogHeader>
+              <DialogTitle className="font-serif text-primary">Create User</DialogTitle>
+              <DialogDescription>Create an account directly. The user can sign in immediately with these credentials.</DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-1.5 sm:col-span-2">
+                <Label htmlFor="cu-name">Full Name *</Label>
+                <Input id="cu-name" value={createForm.display_name} maxLength={100} onChange={(e) => setCreateForm({ ...createForm, display_name: e.target.value })} placeholder="Full name" className="rounded-xl" />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="cu-email">Email *</Label>
+                <Input id="cu-email" type="email" value={createForm.email} maxLength={255} onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })} placeholder="name@example.com" className="rounded-xl" />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="cu-phone">Phone Number</Label>
+                <Input id="cu-phone" value={createForm.phone} maxLength={20} onChange={(e) => setCreateForm({ ...createForm, phone: e.target.value })} placeholder="Optional" className="rounded-xl" />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="cu-password">Temporary Password *</Label>
+                <Input id="cu-password" type="text" value={createForm.password} maxLength={72} onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })} placeholder="Min 8 characters" className="rounded-xl" />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Role *</Label>
+                <Select value={createForm.role} onValueChange={(val) => setCreateForm({ ...createForm, role: val as AppRole })}>
+                  <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="student">Student</SelectItem>
+                    <SelectItem value="instructor">Faculty</SelectItem>
+                    {isSuperAdmin && <SelectItem value="admin">Admin</SelectItem>}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5 sm:col-span-2">
+                <Label htmlFor="cu-designation">Designation</Label>
+                <Input id="cu-designation" value={createForm.designation} maxLength={100} onChange={(e) => setCreateForm({ ...createForm, designation: e.target.value })} placeholder="Optional (e.g. Principal, Guest Faculty)" className="rounded-xl" />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" className="rounded-xl" onClick={() => setCreateOpen(false)}>Cancel</Button>
+              <Button className="rounded-xl gap-2" disabled={creating} onClick={createUser}>
+                <UserPlus className="h-4 w-4" /> {creating ? "Creating..." : "Create Account"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };
