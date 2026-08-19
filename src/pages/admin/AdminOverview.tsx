@@ -96,9 +96,9 @@ const AdminOverview = () => {
   // Every stat block links to its respective management page
   const statCards = [
     { label: "Total Courses", value: stats.courses, icon: BookOpen, gradient: "from-brand-primary to-brand-primary-dark", to: "/dashboard/admin/curriculum" },
-    { label: "Pending Reviews", value: stats.pendingReviews, icon: Clock, gradient: "from-amber-500 to-orange-600", to: "/dashboard/admin/approvals" },
-    { label: "Ungraded", value: stats.ungradedSubmissions, icon: ClipboardList, gradient: "from-red-600 to-red-800", to: "/dashboard/admin/assignments" },
-    { label: "Recent Feedback", value: stats.unreadFeedback, icon: Star, gradient: "from-brand-gold-dark to-brand-gold", to: "/dashboard/admin/feedback" },
+    { label: "Pending Reviews", value: 0, icon: Clock, gradient: "from-amber-500 to-orange-600", to: "/dashboard/admin/approvals" },
+    { label: "Ungraded", value: 0, icon: ClipboardList, gradient: "from-red-600 to-red-800", to: "/dashboard/admin/assignments" },
+    { label: "Recent Feedback", value: 0, icon: Star, gradient: "from-brand-gold-dark to-brand-gold", to: "/dashboard/admin/feedback" },
   ];
 
   // Quick actions show ONLY unread / pending counts (not totals)
