@@ -200,6 +200,58 @@ const AdminUserVerification = () => {
         </div>
       </div>
 
+      {canCreateUsers && (
+        <Dialog open={createOpen} onOpenChange={(o) => { setCreateOpen(o); if (!o) setForm({ ...emptyForm }); }}>
+          <DialogContent className="sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle className="font-serif text-primary">Create User</DialogTitle>
+              <DialogDescription>Create an account directly. The user can sign in immediately with these credentials.</DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-1.5 sm:col-span-2">
+                <Label htmlFor="cu-name">Full Name *</Label>
+                <Input id="cu-name" value={form.display_name} maxLength={100} onChange={(e) => setForm({ ...form, display_name: e.target.value })} placeholder="Full name" />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="cu-email">Email *</Label>
+                <Input id="cu-email" type="email" value={form.email} maxLength={255} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="name@example.com" />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="cu-phone">Phone Number</Label>
+                <Input id="cu-phone" value={form.phone} maxLength={20} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="Optional" />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="cu-password">Temporary Password *</Label>
+                <Input id="cu-password" type="text" value={form.password} maxLength={72} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="Min 8 characters" />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Role *</Label>
+                <Select value={form.role} onValueChange={(val) => setForm({ ...form, role: val as typeof form.role })}>
+                  <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="student">Student</SelectItem>
+                    <SelectItem value="instructor">Faculty</SelectItem>
+                    {isSuperAdmin && <SelectItem value="admin">Admin</SelectItem>}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5 sm:col-span-2">
+                <Label htmlFor="cu-designation">Designation</Label>
+                <Input id="cu-designation" value={form.designation} maxLength={100} onChange={(e) => setForm({ ...form, designation: e.target.value })} placeholder="Optional (e.g. Principal, Guest Faculty)" />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" className="rounded-xl" onClick={() => setCreateOpen(false)}>Cancel</Button>
+              <Button className="rounded-xl gap-2" disabled={createUserMutation.isPending} onClick={() => createUserMutation.mutate(form)}>
+                <UserPlus className="h-4 w-4" /> {createUserMutation.isPending ? "Creating..." : "Create Account"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+
+
+
       {unverifiedUsers.length > 0 && (
         <div className="bg-card rounded-2xl shadow-[0_2px_24px_hsl(var(--primary)/0.06)] overflow-hidden">
           <div className="p-5 pb-3 flex items-center gap-2">
