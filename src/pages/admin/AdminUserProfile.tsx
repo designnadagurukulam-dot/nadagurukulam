@@ -231,6 +231,25 @@ const AdminUserProfile = () => {
 
         <TabsContent value="personal" className="mt-4">
           <div className="grid gap-3 rounded-2xl bg-card p-5 shadow-[0_2px_16px_hsl(var(--primary)/0.06)] sm:grid-cols-2">
+            <div className="sm:col-span-2 flex flex-wrap items-center gap-4 rounded-xl bg-muted/30 p-3">
+              {profile.avatar_url ? (
+                <img src={profile.avatar_url} alt={`${profile.display_name || "User"} profile photo`} className="h-14 w-14 rounded-full object-cover" />
+              ) : (
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-secondary/20 text-xl font-bold text-primary">{initials}</div>
+              )}
+              <div className="flex flex-wrap items-center gap-2">
+                <label>
+                  <span className="inline-flex min-h-9 cursor-pointer items-center gap-1.5 rounded-xl border border-input bg-background px-3 text-sm hover:bg-accent">
+                    <Camera className="h-4 w-4" /> {uploadingAvatar ? "Uploading…" : profile.avatar_url ? "Replace image" : "Upload image"}
+                  </span>
+                  <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" className="sr-only" disabled={uploadingAvatar} onChange={(e) => handleAvatarUpload(e.target.files?.[0] ?? null)} />
+                </label>
+                {profile.avatar_url && (
+                  <Button size="sm" variant="outline" className="gap-1 text-destructive rounded-xl" disabled={uploadingAvatar} onClick={handleAvatarRemove}><Trash2 className="h-4 w-4" /> Remove</Button>
+                )}
+                <p className="w-full text-[11px] text-muted-foreground">JPG, PNG, WEBP or GIF · max 5 MB. Without an image, the first letter of the name is shown.</p>
+              </div>
+            </div>
             <Field label="Full Name" value={form.display_name} onChange={(v: string) => update("display_name", v)} />
             <Field label="Email" value={form.email} disabled />
             <Field label="Phone" value={form.phone} onChange={(v: string) => update("phone", v)} />
