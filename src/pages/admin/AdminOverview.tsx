@@ -46,9 +46,9 @@ const AdminOverview = () => {
       const [
         coursesRes, studentRes, instructorRes,
         batchRes, liveRes,
-        pendingVerifRes, pendingReviewsRes,
+        pendingVerifRes,
         ungradedRes, unreadRes,
-        pendingInquiriesRes, recentFeedbackRes,
+        pendingInquiriesRes,
         weekActivityRes,
       ] = await Promise.all([
         supabase.from("courses").select("id", { count: "exact", head: true }),
@@ -57,11 +57,9 @@ const AdminOverview = () => {
         supabase.from("batches").select("id", { count: "exact", head: true }).eq("is_active", true),
         supabase.from("live_classes").select("id", { count: "exact", head: true }).eq("status", "scheduled"),
         supabase.from("profiles").select("id", { count: "exact", head: true }).eq("is_verified", false),
-        supabase.from("content_reviews").select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("assignment_submissions").select("id", { count: "exact", head: true }).is("grade", null),
         supabase.from("messages").select("id", { count: "exact", head: true }).eq("is_read", false),
         supabase.from("program_inquiries").select("id", { count: "exact", head: true }).eq("status", "pending"),
-        supabase.from("feedback").select("id", { count: "exact", head: true }).gte("submitted_at", sevenDaysAgo.toISOString()),
         supabase.from("activity_logs").select("created_at").gte("created_at", weekStart.toISOString()),
       ]);
 
