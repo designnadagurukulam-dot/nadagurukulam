@@ -73,6 +73,8 @@ const AdminOverview = () => {
   const [activityData, setActivityData] = useState<{ day: string; actions: number }[]>([]);
   const [visibleBlocks, setVisibleBlocks] = useState<string[]>(DEFAULT_BLOCKS);
   const [addOpen, setAddOpen] = useState(false);
+  const [visibleActions, setVisibleActions] = useState<string[]>(DEFAULT_ACTIONS);
+  const [actionsOpen, setActionsOpen] = useState(false);
 
   // Load persisted layout for this admin
   useEffect(() => {
@@ -85,6 +87,11 @@ const AdminOverview = () => {
           setVisibleBlocks(parsed.filter((id: string) => BLOCK_REGISTRY.some(b => b.id === id)));
         }
       }
+      const rawActions = localStorage.getItem(actionsStorageKey(user.id));
+      if (rawActions) {
+        const parsed = JSON.parse(rawActions);
+        if (Array.isArray(parsed)) setVisibleActions(parsed.filter((id: unknown) => typeof id === "string"));
+      }
     } catch { /* ignore malformed layout */ }
   }, [user]);
 
@@ -95,12 +102,26 @@ const AdminOverview = () => {
     } catch { /* storage unavailable */ }
   };
 
+  const persistActions = (next: string[]) => {
+    setVisibleActions(next);
+    try {
+      localStorage.setItem(actionsStorageKey(user?.id), JSON.stringify(next));
+    } catch { /* storage unavailable */ }
+  };
+
+  const addAction = (id: string) => {
+    if (visibleActions.includes(id)) return;
+    persistActions([...visibleActions, id]);
+  };
+  const removeAction = (id: string) => persistActions(visibleActions.filter(a => a !== id));
+
   const addBlock = (id: string) => {
     if (visibleBlocks.includes(id)) return;
     persist([...visibleBlocks, id]);
   };
   const removeBlock = (id: string) => persist(visibleBlocks.filter(b => b !== id));
   const isVisible = (id: string) => visibleBlocks.includes(id);
+
 
   useEffect(() => {
     const fetchAll = async () => {
