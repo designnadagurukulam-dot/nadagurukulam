@@ -98,10 +98,6 @@ const AdminOverview = () => {
   // Every stat block links to its respective management page
   const statCards = [
     { label: "Total Courses", value: stats.courses, icon: BookOpen, gradient: "from-brand-primary to-brand-primary-dark", to: "/dashboard/admin/curriculum" },
-    { label: "Students", value: stats.students, icon: GraduationCap, gradient: "from-brand-gold to-amber-600", to: "/dashboard/admin/students" },
-    { label: "Faculty", value: stats.instructors, icon: Users, gradient: "from-brand-primary-dark to-rose-900", to: "/dashboard/admin/teachers" },
-    { label: "Active Batches", value: stats.batches, icon: Layers, gradient: "from-brand-gold to-yellow-700", to: "/dashboard/admin/batches" },
-    { label: "Live Classes", value: stats.liveClasses, icon: Video, gradient: "from-blue-500 to-blue-700", to: "/dashboard/admin/live-classes" },
     { label: "Pending Reviews", value: stats.pendingReviews, icon: Clock, gradient: "from-amber-500 to-orange-600", to: "/dashboard/admin/approvals" },
     { label: "Ungraded", value: stats.ungradedSubmissions, icon: ClipboardList, gradient: "from-red-600 to-red-800", to: "/dashboard/admin/assignments" },
     { label: "Recent Feedback", value: stats.unreadFeedback, icon: Star, gradient: "from-brand-gold-dark to-brand-gold", to: "/dashboard/admin/feedback" },
