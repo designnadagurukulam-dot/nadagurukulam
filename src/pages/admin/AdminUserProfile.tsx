@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, KeyRound, Save, Shield, ShieldCheck, Lock, User as UserIcon, GraduationCap, Briefcase, Heart, Users as UsersIcon, BookOpen } from "lucide-react";
+import { ArrowLeft, KeyRound, Save, Shield, ShieldCheck, Lock, User as UserIcon, GraduationCap, Briefcase, Heart, Users as UsersIcon, BookOpen, Camera, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
