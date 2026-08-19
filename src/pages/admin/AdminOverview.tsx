@@ -1,12 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import {
   BookOpen, Users, Clock,
   ShieldCheck, Layers,
-  Sparkles, Crown, Zap, TrendingUp, ClipboardList, Mail, Star
+  Sparkles, Crown, Zap, TrendingUp, ClipboardList, Mail, Star,
+  Plus, X, GraduationCap, Video, Check, LayoutGrid
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger,
+} from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
@@ -14,8 +19,38 @@ import LiveClassesBlock from "@/components/overview/LiveClassesBlock";
 
 const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
+type BlockDef = {
+  id: string;
+  label: string;
+  group: "Stat Cards" | "Sections";
+  icon: any;
+};
+
+const BLOCK_REGISTRY: BlockDef[] = [
+  { id: "courses", label: "Total Courses", group: "Stat Cards", icon: BookOpen },
+  { id: "students", label: "Students", group: "Stat Cards", icon: Users },
+  { id: "faculty", label: "Faculty", group: "Stat Cards", icon: GraduationCap },
+  { id: "liveClasses", label: "Live Classes", group: "Stat Cards", icon: Video },
+  { id: "batches", label: "Active Batches", group: "Stat Cards", icon: Layers },
+  { id: "pendingReviews", label: "Pending Reviews", group: "Stat Cards", icon: Clock },
+  { id: "ungraded", label: "Ungraded", group: "Stat Cards", icon: ClipboardList },
+  { id: "feedback", label: "Recent Feedback", group: "Stat Cards", icon: Star },
+  { id: "facultyCourses", label: "Faculty's Courses", group: "Stat Cards", icon: BookOpen },
+  { id: "curriculum", label: "Curriculum", group: "Stat Cards", icon: LayoutGrid },
+  { id: "activity", label: "Platform Activity", group: "Sections", icon: Zap },
+  { id: "quickActions", label: "Quick Actions", group: "Sections", icon: Sparkles },
+  { id: "liveClassesList", label: "Live Classes (Schedule)", group: "Sections", icon: Video },
+];
+
+const DEFAULT_BLOCKS = [
+  "courses", "pendingReviews", "ungraded", "feedback",
+  "activity", "quickActions", "liveClassesList",
+];
+
+const storageKey = (uid?: string) => `admin-overview-blocks:${uid || "anon"}`;
+
 const AdminOverview = () => {
-  const { role } = useAuth();
+  const { role, user } = useAuth();
   const isSuperAdmin = role === "super_admin";
   const navigate = useNavigate();
 
@@ -28,9 +63,40 @@ const AdminOverview = () => {
     unreadMessages: 0,
     pendingInquiries: 0,
     unreadFeedback: 0,
+    curriculumModules: 0,
   });
   const [loading, setLoading] = useState(true);
   const [activityData, setActivityData] = useState<{ day: string; actions: number }[]>([]);
+  const [visibleBlocks, setVisibleBlocks] = useState<string[]>(DEFAULT_BLOCKS);
+  const [addOpen, setAddOpen] = useState(false);
+
+  // Load persisted layout for this admin
+  useEffect(() => {
+    if (!user) return;
+    try {
+      const raw = localStorage.getItem(storageKey(user.id));
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          setVisibleBlocks(parsed.filter((id: string) => BLOCK_REGISTRY.some(b => b.id === id)));
+        }
+      }
+    } catch { /* ignore malformed layout */ }
+  }, [user]);
+
+  const persist = (next: string[]) => {
+    setVisibleBlocks(next);
+    try {
+      localStorage.setItem(storageKey(user?.id), JSON.stringify(next));
+    } catch { /* storage unavailable */ }
+  };
+
+  const addBlock = (id: string) => {
+    if (visibleBlocks.includes(id)) return;
+    persist([...visibleBlocks, id]);
+  };
+  const removeBlock = (id: string) => persist(visibleBlocks.filter(b => b !== id));
+  const isVisible = (id: string) => visibleBlocks.includes(id);
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -40,15 +106,13 @@ const AdminOverview = () => {
       weekStart.setDate(now.getDate() - dayOfWeek);
       weekStart.setHours(0, 0, 0, 0);
 
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
       const [
         coursesRes, studentRes, instructorRes,
         batchRes, liveRes,
         pendingVerifRes,
         ungradedRes, unreadRes,
         pendingInquiriesRes,
+        curriculumRes,
         weekActivityRes,
       ] = await Promise.all([
         supabase.from("courses").select("id", { count: "exact", head: true }),
@@ -60,6 +124,7 @@ const AdminOverview = () => {
         supabase.from("assignment_submissions").select("id", { count: "exact", head: true }).is("grade", null),
         supabase.from("messages").select("id", { count: "exact", head: true }).eq("is_read", false),
         supabase.from("program_inquiries").select("id", { count: "exact", head: true }).eq("status", "pending"),
+        supabase.from("curriculum_modules").select("id", { count: "exact", head: true }),
         supabase.from("activity_logs").select("created_at").gte("created_at", weekStart.toISOString()),
       ]);
 
@@ -75,6 +140,7 @@ const AdminOverview = () => {
         unreadMessages: unreadRes.count || 0,
         pendingInquiries: pendingInquiriesRes.count || 0,
         unreadFeedback: 0,
+        curriculumModules: curriculumRes.count || 0,
       });
 
       const dayCounts: Record<string, number> = {};
@@ -94,12 +160,20 @@ const AdminOverview = () => {
   const todayIdx = (new Date().getDay() + 6) % 7;
 
   // Every stat block links to its respective management page
-  const statCards = [
-    { label: "Total Courses", value: stats.courses, icon: BookOpen, gradient: "from-brand-primary to-brand-primary-dark", to: "/dashboard/admin/curriculum" },
-    { label: "Pending Reviews", value: 0, icon: Clock, gradient: "from-amber-500 to-orange-600", to: "/dashboard/admin/approvals" },
-    { label: "Ungraded", value: 0, icon: ClipboardList, gradient: "from-red-600 to-red-800", to: "/dashboard/admin/assignments" },
-    { label: "Recent Feedback", value: 0, icon: Star, gradient: "from-brand-gold-dark to-brand-gold", to: "/dashboard/admin/feedback" },
-  ];
+  const allStatCards = useMemo(() => [
+    { id: "courses", label: "Total Courses", value: stats.courses, icon: BookOpen, gradient: "from-brand-primary to-brand-primary-dark", to: "/dashboard/admin/curriculum" },
+    { id: "students", label: "Students", value: stats.students, icon: Users, gradient: "from-blue-600 to-blue-800", to: "/dashboard/admin/students" },
+    { id: "faculty", label: "Faculty", value: stats.instructors, icon: GraduationCap, gradient: "from-emerald-500 to-emerald-700", to: "/dashboard/admin/teachers" },
+    { id: "liveClasses", label: "Live Classes", value: stats.liveClasses, icon: Video, gradient: "from-purple-600 to-purple-800", to: "/dashboard/admin/live-classes" },
+    { id: "batches", label: "Active Batches", value: stats.batches, icon: Layers, gradient: "from-sky-600 to-sky-800", to: "/dashboard/admin/batches" },
+    { id: "pendingReviews", label: "Pending Reviews", value: 0, icon: Clock, gradient: "from-amber-500 to-orange-600", to: "/dashboard/admin/approvals" },
+    { id: "ungraded", label: "Ungraded", value: 0, icon: ClipboardList, gradient: "from-red-600 to-red-800", to: "/dashboard/admin/assignments" },
+    { id: "feedback", label: "Recent Feedback", value: 0, icon: Star, gradient: "from-brand-gold-dark to-brand-gold", to: "/dashboard/admin/feedback" },
+    { id: "facultyCourses", label: "Faculty's Courses", value: stats.courses, icon: BookOpen, gradient: "from-teal-600 to-teal-800", to: "/dashboard/admin/curriculum?tab=faculty-courses" },
+    { id: "curriculum", label: "Curriculum", value: stats.curriculumModules, icon: LayoutGrid, gradient: "from-indigo-600 to-indigo-800", to: "/dashboard/admin/curriculum" },
+  ], [stats]);
+
+  const statCards = allStatCards.filter(c => isVisible(c.id));
 
   // Quick actions show ONLY unread / pending counts (not totals)
   const quickActions = [
@@ -111,6 +185,18 @@ const AdminOverview = () => {
     ...(isSuperAdmin ? [{ label: "Message Monitor", icon: Mail, to: "/dashboard/admin/messages", count: stats.unreadMessages }] : []),
   ];
 
+  const RemoveButton = ({ id, label }: { id: string; label: string }) => (
+    <button
+      type="button"
+      onClick={(e) => { e.preventDefault(); e.stopPropagation(); removeBlock(id); }}
+      aria-label={`Remove ${label} from Overview`}
+      title={`Remove ${label} from Overview`}
+      className="absolute top-2 right-2 z-20 w-6 h-6 rounded-full bg-white/90 border border-brand-parchment text-brand-warm-grey hover:text-brand-primary hover:border-brand-gold/60 flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity shadow-sm"
+    >
+      <X className="w-3.5 h-3.5" />
+    </button>
+  );
+
   if (loading) {
     return (
       <div className="space-y-6 pt-2">
@@ -121,6 +207,8 @@ const AdminOverview = () => {
       </div>
     );
   }
+
+  const availableBlocks = BLOCK_REGISTRY.filter(b => !isVisible(b.id));
 
   return (
     <div className="space-y-6 pt-2">
@@ -153,85 +241,176 @@ const AdminOverview = () => {
         </div>
       </motion.div>
 
-      {/* Stats Grid — every card is now clickable */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-        {statCards.map((s, i) => (
-          <motion.div key={s.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
-            <button
-              type="button"
-              onClick={() => navigate(s.to)}
-              className="w-full text-left group relative bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-5 hover:-translate-y-0.5 hover:shadow-[0_4px_30px_rgba(196,154,60,0.15)] transition-all duration-300 overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold"
-              aria-label={`Open ${s.label}`}
-            >
-              <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-brand-gold/5 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${s.gradient} flex items-center justify-center shadow-lg`}>
-                <s.icon className="w-4 h-4 text-white" />
-              </div>
-              <p className="font-serif text-3xl font-bold text-brand-primary mt-3">{s.value}</p>
-              <p className="text-[11px] text-brand-warm-grey uppercase tracking-wider mt-1">{s.label}</p>
-            </button>
-          </motion.div>
-        ))}
+      {/* Customize bar */}
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <p className="text-[11px] text-brand-warm-grey uppercase tracking-wider">
+          {visibleBlocks.length} block{visibleBlocks.length !== 1 ? "s" : ""} on your overview
+        </p>
+        <Dialog open={addOpen} onOpenChange={setAddOpen}>
+          <DialogTrigger asChild>
+            <Button variant="outline" size="sm" className="rounded-xl border-brand-gold/50 text-brand-primary hover:bg-brand-cream">
+              <Plus className="w-4 h-4 mr-1.5" /> Add Block
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle className="font-serif text-brand-primary">Customize Overview</DialogTitle>
+              <DialogDescription>
+                Add blocks to your Overview page. Removing a block only hides it here — the section stays available in the Admin panel.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="max-h-[60vh] overflow-y-auto space-y-4 pr-1">
+              {(["Stat Cards", "Sections"] as const).map(group => {
+                const groupBlocks = BLOCK_REGISTRY.filter(b => b.group === group);
+                if (groupBlocks.length === 0) return null;
+                return (
+                  <div key={group}>
+                    <p className="text-[10px] uppercase tracking-widest text-brand-warm-grey font-semibold mb-2">{group}</p>
+                    <div className="space-y-1.5">
+                      {groupBlocks.map(b => {
+                        const added = isVisible(b.id);
+                        return (
+                          <div key={b.id}
+                            className="flex items-center gap-3 p-2.5 rounded-xl border border-brand-parchment">
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 flex items-center justify-center shrink-0">
+                              <b.icon className="w-3.5 h-3.5 text-brand-gold" />
+                            </div>
+                            <span className="text-sm font-medium text-brand-charcoal-mid flex-1 min-w-0 truncate">{b.label}</span>
+                            {added ? (
+                              <div className="flex items-center gap-2">
+                                <span className="text-[10px] uppercase tracking-wider text-emerald-600 font-bold flex items-center gap-1">
+                                  <Check className="w-3 h-3" /> Added
+                                </span>
+                                <Button variant="ghost" size="sm" className="h-7 text-xs text-brand-warm-grey hover:text-brand-primary"
+                                  onClick={() => removeBlock(b.id)}>
+                                  Remove
+                                </Button>
+                              </div>
+                            ) : (
+                              <Button size="sm" className="h-7 text-xs rounded-lg" onClick={() => addBlock(b.id)}>
+                                <Plus className="w-3 h-3 mr-1" /> Add
+                              </Button>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+              {availableBlocks.length === 0 && (
+                <p className="text-xs text-brand-warm-grey text-center py-2">All available blocks are already on your Overview.</p>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
+
+      {visibleBlocks.length === 0 && (
+        <div className="bg-white rounded-2xl border border-dashed border-brand-parchment p-10 text-center">
+          <div className="w-12 h-12 rounded-full bg-brand-cream mx-auto flex items-center justify-center mb-3">
+            <LayoutGrid className="w-5 h-5 text-brand-gold" />
+          </div>
+          <p className="font-serif text-brand-primary">Your Overview is empty</p>
+          <p className="text-xs text-brand-warm-grey mt-1">Use “Add Block” to bring sections back.</p>
+        </div>
+      )}
+
+      {/* Stats Grid — every card is clickable */}
+      {statCards.length > 0 && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+          {statCards.map((s, i) => (
+            <motion.div key={s.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
+              className="relative group">
+              <RemoveButton id={s.id} label={s.label} />
+              <button
+                type="button"
+                onClick={() => navigate(s.to)}
+                className="w-full text-left group relative bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-5 hover:-translate-y-0.5 hover:shadow-[0_4px_30px_rgba(196,154,60,0.15)] transition-all duration-300 overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold"
+                aria-label={`Open ${s.label}`}
+              >
+                <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-brand-gold/5 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${s.gradient} flex items-center justify-center shadow-lg`}>
+                  <s.icon className="w-4 h-4 text-white" />
+                </div>
+                <p className="font-serif text-3xl font-bold text-brand-primary mt-3">{s.value}</p>
+                <p className="text-[11px] text-brand-warm-grey uppercase tracking-wider mt-1">{s.label}</p>
+              </button>
+            </motion.div>
+          ))}
+        </div>
+      )}
 
       {/* Middle row */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
-        {/* Platform Activity */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-          className="lg:col-span-2 bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-5 hover:shadow-[0_4px_30px_rgba(196,154,60,0.15)] transition-all duration-300">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-primary to-brand-primary-dark flex items-center justify-center">
-                <Zap className="h-3.5 w-3.5 text-white" />
-              </div>
-              <h3 className="font-serif text-lg font-semibold text-brand-primary">Platform Activity</h3>
-            </div>
-            <span className="text-[11px] text-brand-warm-grey uppercase tracking-wider">This Week</span>
-          </div>
-          <ResponsiveContainer width="100%" height={120}>
-            <BarChart data={activityData} barCategoryGap="25%">
-              <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#8C7B6B' }} />
-              <Tooltip formatter={(v: number) => [`${v}`, 'Actions']} cursor={false}
-                contentStyle={{ borderRadius: 12, border: '1px solid #EDE3CC', fontSize: 12 }} />
-              <Bar dataKey="actions" radius={[6, 6, 0, 0]}>
-                {activityData.map((_, i) => (
-                  <Cell key={i} fill={i === todayIdx ? '#7D1E24' : '#C49A3C'} />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        </motion.div>
-
-        {/* Quick Actions — counts shown only for unread/pending items */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
-          className="lg:col-span-3 bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-5 hover:shadow-[0_4px_30px_rgba(196,154,60,0.15)] transition-all duration-300">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-gold to-amber-600 flex items-center justify-center">
-              <Sparkles className="h-3.5 w-3.5 text-white" />
-            </div>
-            <h3 className="font-serif text-lg font-semibold text-brand-primary">Quick Actions</h3>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-            {quickActions.map((action) => (
-              <Link key={action.label} to={action.to}
-                className="flex items-center gap-2.5 p-3 rounded-xl border border-brand-parchment hover:bg-brand-cream hover:border-brand-gold/40 hover:-translate-y-0.5 transition-all duration-200 group">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 flex items-center justify-center group-hover:from-brand-gold/30 group-hover:to-brand-gold/10 transition-all">
-                  <action.icon className="w-3.5 h-3.5 text-brand-gold" />
+      {(isVisible("activity") || isVisible("quickActions")) && (
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+          {/* Platform Activity */}
+          {isVisible("activity") && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+              className={`${isVisible("quickActions") ? "lg:col-span-2" : "lg:col-span-5"} relative group bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-5 hover:shadow-[0_4px_30px_rgba(196,154,60,0.15)] transition-all duration-300`}>
+              <RemoveButton id="activity" label="Platform Activity" />
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-primary to-brand-primary-dark flex items-center justify-center">
+                    <Zap className="h-3.5 w-3.5 text-white" />
+                  </div>
+                  <h3 className="font-serif text-lg font-semibold text-brand-primary">Platform Activity</h3>
                 </div>
-                <span className="text-xs font-semibold text-brand-charcoal-mid group-hover:text-brand-primary transition-colors">{action.label}</span>
-                {action.count > 0 && (
-                  <span className="ml-auto text-[10px] bg-gradient-to-r from-brand-primary to-brand-primary-dark text-white px-1.5 py-0.5 rounded-full font-bold">{action.count}</span>
-                )}
-              </Link>
-            ))}
-          </div>
-        </motion.div>
-      </div>
+                <span className="text-[11px] text-brand-warm-grey uppercase tracking-wider mr-7">This Week</span>
+              </div>
+              <ResponsiveContainer width="100%" height={120}>
+                <BarChart data={activityData} barCategoryGap="25%">
+                  <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#8C7B6B' }} />
+                  <Tooltip formatter={(v: number) => [`${v}`, 'Actions']} cursor={false}
+                    contentStyle={{ borderRadius: 12, border: '1px solid #EDE3CC', fontSize: 12 }} />
+                  <Bar dataKey="actions" radius={[6, 6, 0, 0]}>
+                    {activityData.map((_, i) => (
+                      <Cell key={i} fill={i === todayIdx ? '#7D1E24' : '#C49A3C'} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </motion.div>
+          )}
+
+          {/* Quick Actions — counts shown only for unread/pending items */}
+          {isVisible("quickActions") && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
+              className={`${isVisible("activity") ? "lg:col-span-3" : "lg:col-span-5"} relative group bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-5 hover:shadow-[0_4px_30px_rgba(196,154,60,0.15)] transition-all duration-300`}>
+              <RemoveButton id="quickActions" label="Quick Actions" />
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-gold to-amber-600 flex items-center justify-center">
+                  <Sparkles className="h-3.5 w-3.5 text-white" />
+                </div>
+                <h3 className="font-serif text-lg font-semibold text-brand-primary">Quick Actions</h3>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                {quickActions.map((action) => (
+                  <Link key={action.label} to={action.to}
+                    className="flex items-center gap-2.5 p-3 rounded-xl border border-brand-parchment hover:bg-brand-cream hover:border-brand-gold/40 hover:-translate-y-0.5 transition-all duration-200 group">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 flex items-center justify-center group-hover:from-brand-gold/30 group-hover:to-brand-gold/10 transition-all">
+                      <action.icon className="w-3.5 h-3.5 text-brand-gold" />
+                    </div>
+                    <span className="text-xs font-semibold text-brand-charcoal-mid group-hover:text-brand-primary transition-colors">{action.label}</span>
+                    {action.count > 0 && (
+                      <span className="ml-auto text-[10px] bg-gradient-to-r from-brand-primary to-brand-primary-dark text-white px-1.5 py-0.5 rounded-full font-bold">{action.count}</span>
+                    )}
+                  </Link>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </div>
+      )}
 
       {/* Live Classes — All */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-        <LiveClassesBlock scope={{ kind: "admin" }} seeAllLink="/dashboard/admin/live-classes" />
-      </motion.div>
+      {isVisible("liveClassesList") && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
+          className="relative group">
+          <RemoveButton id="liveClassesList" label="Live Classes" />
+          <LiveClassesBlock scope={{ kind: "admin" }} seeAllLink="/dashboard/admin/live-classes" />
+        </motion.div>
+      )}
     </div>
   );
 };
