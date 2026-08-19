@@ -88,6 +88,35 @@ const AdminUserVerification = () => {
     onError: (err: Error) => toast.error(err.message || "Failed to update role"),
   });
 
+  const createUserMutation = useMutation({
+    mutationFn: async (values: typeof emptyForm) => {
+      const parsed = createUserSchema.safeParse(values);
+      if (!parsed.success) throw new Error(parsed.error.errors[0].message);
+      if (parsed.data.role === "admin" && !isSuperAdmin) throw new Error("Only a Super Admin can create Admin accounts");
+      const { data, error } = await supabase.functions.invoke("admin-create-user", {
+        body: {
+          email: parsed.data.email,
+          password: parsed.data.password,
+          display_name: parsed.data.display_name,
+          role: parsed.data.role,
+          phone: parsed.data.phone || null,
+          designation: parsed.data.designation || null,
+        },
+      });
+      if (error) throw new Error(error.message || "Failed to create user");
+      if ((data as any)?.error) throw new Error((data as any).error);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-all-users"] });
+      toast.success("User created successfully");
+      setCreateOpen(false);
+      setForm({ ...emptyForm });
+    },
+    onError: (err: Error) => toast.error(err.message || "Failed to create user"),
+  });
+
+
+
   const roleColors: Record<string, string> = {
     super_admin: "bg-primary/10 text-primary border border-primary/20",
     admin: "bg-primary/10 text-primary border border-primary/20",
