@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
-  BookOpen, Users, Clock, GraduationCap,
-  ShieldCheck, Layers, CheckSquare,
-  Sparkles, Crown, Zap, TrendingUp, ClipboardList, Mail, Star, Video
+  BookOpen, Users, Clock,
+  ShieldCheck, Layers,
+  Sparkles, Crown, Zap, TrendingUp, ClipboardList, Mail, Star
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
