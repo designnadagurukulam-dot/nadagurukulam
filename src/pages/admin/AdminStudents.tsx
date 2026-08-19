@@ -18,13 +18,14 @@ import {
   ChevronUp,
   KeyRound,
   Edit3,
+  UserPlus,
 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -33,6 +34,7 @@ import { useAuth } from "@/hooks/useAuth";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
+import { z } from "zod";
 
 type AppRole = "super_admin" | "admin" | "student" | "instructor";
 
@@ -81,6 +83,29 @@ const AdminStudents = ({ lockedRole }: { lockedRole?: AppRole } = {}) => {
   const [editForm, setEditForm] = useState<Record<string, any>>({});
   const [savingEdit, setSavingEdit] = useState(false);
   const [resettingFor, setResettingFor] = useState<string | null>(null);
+
+  // Create user dialog
+  const [createOpen, setCreateOpen] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [createForm, setCreateForm] = useState({
+    display_name: "",
+    email: "",
+    password: "",
+    phone: "",
+    role: "student" as AppRole,
+    designation: "",
+  });
+
+  const createUserSchema = z.object({
+    display_name: z.string().trim().min(1, "Full name is required").max(100, "Full name must be under 100 characters"),
+    email: z.string().trim().email("Enter a valid email address").max(255),
+    password: z.string().min(8, "Password must be at least 8 characters").max(72),
+    phone: z.string().trim().max(20, "Phone number is too long").optional().or(z.literal("")),
+    designation: z.string().trim().max(100).optional().or(z.literal("")),
+    role: z.enum(["student", "instructor", "admin"]),
+  });
+
+  const canCreateUsers = currentUserRole === "super_admin" || currentUserRole === "admin";
 
   const fetchData = async () => {
     setLoading(true);
@@ -241,6 +266,40 @@ const AdminStudents = ({ lockedRole }: { lockedRole?: AppRole } = {}) => {
     toast.success(`Password reset email sent to ${p.email}`);
   };
 
+  const createUser = async () => {
+    if (!canCreateUsers) return;
+    const parsed = createUserSchema.safeParse(createForm);
+    if (!parsed.success) {
+      return toast.error(parsed.error.errors[0].message);
+    }
+    if (parsed.data.role === "admin" && !isSuperAdmin) {
+      return toast.error("Only a Super Admin can create Admin accounts");
+    }
+    setCreating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("admin-create-user", {
+        body: {
+          email: parsed.data.email,
+          password: parsed.data.password,
+          display_name: parsed.data.display_name,
+          role: parsed.data.role,
+          phone: parsed.data.phone || null,
+          designation: parsed.data.designation || null,
+        },
+      });
+      if (error) throw new Error(error.message || "Failed to create user");
+      if ((data as any)?.error) throw new Error((data as any).error);
+      toast.success("User created successfully");
+      setCreateOpen(false);
+      setCreateForm({ display_name: "", email: "", password: "", phone: "", role: "student", designation: "" });
+      fetchData();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to create user");
+    } finally {
+      setCreating(false);
+    }
+  };
+
   const getContextLabel = (p: any, currentRole: string) => {
     if (currentRole === "student") return getStudentBatchNames(p.user_id);
     if (currentRole === "instructor") return p.course_name || p.department || "Programme not set";
@@ -327,6 +386,11 @@ const AdminStudents = ({ lockedRole }: { lockedRole?: AppRole } = {}) => {
               <div className="mt-1 h-0.5 w-12 bg-secondary" />
             </div>
           </div>
+          {canCreateUsers && !lockedRole && (
+            <Button onClick={() => setCreateOpen(true)} className="gap-2 rounded-xl h-11 w-full sm:w-auto">
+              <UserPlus className="h-4 w-4" /> Create User
+            </Button>
+          )}
         </div>
         <p className="mt-2 text-sm text-muted-foreground">{visibleProfiles.length} managed users • {filtered.length} shown.{lockedRole ? "" : " Roles can be changed inline; batch and subject assignment moved to their own pages."}</p>
       </motion.div>
@@ -645,6 +709,57 @@ const AdminStudents = ({ lockedRole }: { lockedRole?: AppRole } = {}) => {
           </Button>
         </DialogContent>
       </Dialog>
+
+      {/* Create user dialog */}
+      {canCreateUsers && (
+        <Dialog open={createOpen} onOpenChange={(o) => { setCreateOpen(o); if (!o) setCreateForm({ display_name: "", email: "", password: "", phone: "", role: "student", designation: "" }); }}>
+          <DialogContent className="sm:max-w-lg rounded-2xl">
+            <DialogHeader>
+              <DialogTitle className="font-serif text-primary">Create User</DialogTitle>
+              <DialogDescription>Create an account directly. The user can sign in immediately with these credentials.</DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-1.5 sm:col-span-2">
+                <Label htmlFor="cu-name">Full Name *</Label>
+                <Input id="cu-name" value={createForm.display_name} maxLength={100} onChange={(e) => setCreateForm({ ...createForm, display_name: e.target.value })} placeholder="Full name" className="rounded-xl" />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="cu-email">Email *</Label>
+                <Input id="cu-email" type="email" value={createForm.email} maxLength={255} onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })} placeholder="name@example.com" className="rounded-xl" />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="cu-phone">Phone Number</Label>
+                <Input id="cu-phone" value={createForm.phone} maxLength={20} onChange={(e) => setCreateForm({ ...createForm, phone: e.target.value })} placeholder="Optional" className="rounded-xl" />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="cu-password">Temporary Password *</Label>
+                <Input id="cu-password" type="text" value={createForm.password} maxLength={72} onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })} placeholder="Min 8 characters" className="rounded-xl" />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Role *</Label>
+                <Select value={createForm.role} onValueChange={(val) => setCreateForm({ ...createForm, role: val as AppRole })}>
+                  <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="student">Student</SelectItem>
+                    <SelectItem value="instructor">Faculty</SelectItem>
+                    {isSuperAdmin && <SelectItem value="admin">Admin</SelectItem>}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5 sm:col-span-2">
+                <Label htmlFor="cu-designation">Designation</Label>
+                <Input id="cu-designation" value={createForm.designation} maxLength={100} onChange={(e) => setCreateForm({ ...createForm, designation: e.target.value })} placeholder="Optional (e.g. Principal, Guest Faculty)" className="rounded-xl" />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" className="rounded-xl" onClick={() => setCreateOpen(false)}>Cancel</Button>
+              <Button className="rounded-xl gap-2" disabled={creating} onClick={createUser}>
+                <UserPlus className="h-4 w-4" /> {creating ? "Creating..." : "Create Account"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };
