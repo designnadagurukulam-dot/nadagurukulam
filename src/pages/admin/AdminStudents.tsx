@@ -266,6 +266,40 @@ const AdminStudents = ({ lockedRole }: { lockedRole?: AppRole } = {}) => {
     toast.success(`Password reset email sent to ${p.email}`);
   };
 
+  const createUser = async () => {
+    if (!canCreateUsers) return;
+    const parsed = createUserSchema.safeParse(createForm);
+    if (!parsed.success) {
+      return toast.error(parsed.error.errors[0].message);
+    }
+    if (parsed.data.role === "admin" && !isSuperAdmin) {
+      return toast.error("Only a Super Admin can create Admin accounts");
+    }
+    setCreating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("admin-create-user", {
+        body: {
+          email: parsed.data.email,
+          password: parsed.data.password,
+          display_name: parsed.data.display_name,
+          role: parsed.data.role,
+          phone: parsed.data.phone || null,
+          designation: parsed.data.designation || null,
+        },
+      });
+      if (error) throw new Error(error.message || "Failed to create user");
+      if ((data as any)?.error) throw new Error((data as any).error);
+      toast.success("User created successfully");
+      setCreateOpen(false);
+      setCreateForm({ display_name: "", email: "", password: "", phone: "", role: "student", designation: "" });
+      fetchData();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to create user");
+    } finally {
+      setCreating(false);
+    }
+  };
+
   const getContextLabel = (p: any, currentRole: string) => {
     if (currentRole === "student") return getStudentBatchNames(p.user_id);
     if (currentRole === "instructor") return p.course_name || p.department || "Programme not set";
