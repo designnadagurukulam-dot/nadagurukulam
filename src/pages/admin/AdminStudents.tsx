@@ -687,7 +687,7 @@ const AdminStudents = ({ lockedRole }: { lockedRole?: AppRole } = {}) => {
             {editForm.__role === "instructor" && (
               <>
                 <EditField label="Employee ID" value={editForm.employee_id} onChange={(v) => setEditForm({ ...editForm, employee_id: v })} />
-                <EditField label="Designation" value={editForm.designation} onChange={(v) => setEditForm({ ...editForm, designation: v })} />
+                <DesignationSelect value={editForm.designation} onChange={(v) => setEditForm({ ...editForm, designation: v })} />
                 <EditField label="Department" value={editForm.department} onChange={(v) => setEditForm({ ...editForm, department: v })} />
                 <EditField label="Specialization" value={editForm.specialization} onChange={(v) => setEditForm({ ...editForm, specialization: v })} />
                 <EditField label="Qualifications" value={editForm.qualifications} onChange={(v) => setEditForm({ ...editForm, qualifications: v })} />
