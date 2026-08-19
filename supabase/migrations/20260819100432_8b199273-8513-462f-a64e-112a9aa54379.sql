@@ -1,0 +1,3 @@
+CREATE POLICY "Admins can upload any avatar" ON storage.objects FOR INSERT TO authenticated WITH CHECK (bucket_id = 'profile-avatars' AND public.is_super_or_admin(auth.uid()));
+CREATE POLICY "Admins can update any avatar" ON storage.objects FOR UPDATE TO authenticated USING (bucket_id = 'profile-avatars' AND public.is_super_or_admin(auth.uid()));
+CREATE POLICY "Admins can delete any avatar" ON storage.objects FOR DELETE TO authenticated USING (bucket_id = 'profile-avatars' AND public.is_super_or_admin(auth.uid()));
