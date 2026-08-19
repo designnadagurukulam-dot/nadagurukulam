@@ -70,11 +70,11 @@ const AdminOverview = () => {
         batches: batchRes.count || 0,
         liveClasses: liveRes.count || 0,
         pendingVerifications: pendingVerifRes.count || 0,
-        pendingReviews: pendingReviewsRes.count || 0,
+        pendingReviews: 0,
         ungradedSubmissions: ungradedRes.count || 0,
         unreadMessages: unreadRes.count || 0,
         pendingInquiries: pendingInquiriesRes.count || 0,
-        unreadFeedback: recentFeedbackRes.count || 0,
+        unreadFeedback: 0,
       });
 
       const dayCounts: Record<string, number> = {};
