@@ -251,7 +251,7 @@ const AdminUserProfile = () => {
               </div>
             </div>
             <Field label="Full Name" value={form.display_name} onChange={(v: string) => update("display_name", v)} />
-            <Field label="Email" value={form.email} disabled />
+            <Field label={userRole === "instructor" ? "Backup Email (required)" : "Backup Email"} value={form.alternate_email} onChange={(v: string) => update("alternate_email", v)} placeholder="Alternate email for resets / verification" />
             <Field label="Phone" value={form.phone} onChange={(v: string) => update("phone", v)} />
             <Field label="Date of Birth" type="date" value={form.date_of_birth} onChange={(v: string) => update("date_of_birth", v)} />
             <div>
