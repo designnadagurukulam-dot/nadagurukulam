@@ -170,7 +170,17 @@ const AdminUserProfile = () => {
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl bg-card p-5 shadow-[0_2px_16px_hsl(var(--primary)/0.06)]">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-secondary/20 text-2xl font-bold text-primary">{initials}</div>
+            <div className="relative h-16 w-16 shrink-0">
+              {profile.avatar_url ? (
+                <img src={profile.avatar_url} alt={`${profile.display_name || "User"} profile photo`} className="h-16 w-16 rounded-full object-cover" />
+              ) : (
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-secondary/20 text-2xl font-bold text-primary">{initials}</div>
+              )}
+              <label className="absolute -bottom-1 -right-1 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md" title="Upload profile image">
+                <Camera className="h-3.5 w-3.5" />
+                <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" className="sr-only" disabled={uploadingAvatar} onChange={(e) => handleAvatarUpload(e.target.files?.[0] ?? null)} />
+              </label>
+            </div>
             <div>
               <h1 className="font-serif text-2xl text-primary">{profile.display_name || "Unnamed"}</h1>
               <div className="mt-1 flex flex-wrap gap-2">
