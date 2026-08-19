@@ -10,6 +10,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { SearchableSelect } from "@/components/ui/searchable-select";
+import { INDIAN_STATES, citiesForState } from "@/data/indiaLocations";
+
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -281,8 +284,28 @@ const AdminUserProfile = () => {
               <Label className="text-[10px] uppercase tracking-wide text-muted-foreground">Address</Label>
               <Textarea value={form.address || ""} onChange={(e) => update("address", e.target.value)} rows={2} className="mt-1 rounded-xl" />
             </div>
-            <Field label="City" value={form.city} onChange={(v: string) => update("city", v)} />
-            <Field label="State" value={form.state} onChange={(v: string) => update("state", v)} />
+            <div>
+              <Label className="text-[10px] uppercase tracking-wide text-muted-foreground">State</Label>
+              <SearchableSelect
+                value={form.state}
+                options={INDIAN_STATES}
+                placeholder="Select state"
+                searchPlaceholder="Search state…"
+                onChange={(v) => setForm((f: ProfileRecord) => ({ ...f, state: v, city: "" }))}
+              />
+            </div>
+            <div>
+              <Label className="text-[10px] uppercase tracking-wide text-muted-foreground">City</Label>
+              <SearchableSelect
+                value={form.city}
+                options={citiesForState(form.state)}
+                disabled={!form.state}
+                placeholder={form.state ? "Select city" : "Select a state first"}
+                searchPlaceholder="Search city…"
+                onChange={(v) => update("city", v)}
+              />
+            </div>
+
             <Field label="Pincode" value={form.pincode} onChange={(v: string) => update("pincode", v)} />
             <Field label="Emergency Contact Name" value={form.emergency_contact_name} onChange={(v: string) => update("emergency_contact_name", v)} />
             <Field label="Emergency Contact Phone" value={form.emergency_contact_phone} onChange={(v: string) => update("emergency_contact_phone", v)} />
