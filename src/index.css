@@ -487,6 +487,33 @@
   .sidebar-scrollbar::-webkit-scrollbar-corner {
     background: transparent;
   }
+
+  /* ─── Admin sidebar scrollbar (maroon/burgundy themed) ─── */
+  .admin-sidebar-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(1 57% 30%) transparent;
+  }
+
+  .admin-sidebar-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .admin-sidebar-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .admin-sidebar-scrollbar::-webkit-scrollbar-thumb {
+    background: hsl(1 57% 30%);
+    border-radius: 3px;
+  }
+
+  .admin-sidebar-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: hsl(1 57% 38%);
+  }
+
+  .admin-sidebar-scrollbar::-webkit-scrollbar-corner {
+    background: transparent;
+  }
 }
 
 /* ─── Keyframes ─── */
