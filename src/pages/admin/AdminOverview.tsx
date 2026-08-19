@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
-  BookOpen, Users, Clock, GraduationCap,
-  ShieldCheck, Layers, CheckSquare,
-  Sparkles, Crown, Zap, TrendingUp, ClipboardList, Mail, Star, Video
+  BookOpen, Users, Clock,
+  ShieldCheck, Layers,
+  Sparkles, Crown, Zap, TrendingUp, ClipboardList, Mail, Star
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -98,10 +98,6 @@ const AdminOverview = () => {
   // Every stat block links to its respective management page
   const statCards = [
     { label: "Total Courses", value: stats.courses, icon: BookOpen, gradient: "from-brand-primary to-brand-primary-dark", to: "/dashboard/admin/curriculum" },
-    { label: "Students", value: stats.students, icon: GraduationCap, gradient: "from-brand-gold to-amber-600", to: "/dashboard/admin/students" },
-    { label: "Faculty", value: stats.instructors, icon: Users, gradient: "from-brand-primary-dark to-rose-900", to: "/dashboard/admin/teachers" },
-    { label: "Active Batches", value: stats.batches, icon: Layers, gradient: "from-brand-gold to-yellow-700", to: "/dashboard/admin/batches" },
-    { label: "Live Classes", value: stats.liveClasses, icon: Video, gradient: "from-blue-500 to-blue-700", to: "/dashboard/admin/live-classes" },
     { label: "Pending Reviews", value: stats.pendingReviews, icon: Clock, gradient: "from-amber-500 to-orange-600", to: "/dashboard/admin/approvals" },
     { label: "Ungraded", value: stats.ungradedSubmissions, icon: ClipboardList, gradient: "from-red-600 to-red-800", to: "/dashboard/admin/assignments" },
     { label: "Recent Feedback", value: stats.unreadFeedback, icon: Star, gradient: "from-brand-gold-dark to-brand-gold", to: "/dashboard/admin/feedback" },
@@ -122,7 +118,7 @@ const AdminOverview = () => {
       <div className="space-y-6 pt-2">
         <Skeleton className="h-32 rounded-2xl" />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} className="h-28 rounded-2xl" />)}
+          {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-28 rounded-2xl" />)}
         </div>
       </div>
     );
