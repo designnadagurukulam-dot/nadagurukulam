@@ -364,16 +364,8 @@ const AdminUserProfile = () => {
               <>
                 <Field label="Employee ID" value={form.employee_id} onChange={(v: string) => update("employee_id", v)} />
                 <Field label="Designation" value={form.designation} onChange={(v: string) => update("designation", v)} />
-                <div>
-                  <Label className="text-[10px] uppercase tracking-wide text-muted-foreground">Faculty Type</Label>
-                  <Select value={form.instructor_type || "regular"} onValueChange={(v) => update("instructor_type", v)}>
-                    <SelectTrigger className="mt-1 rounded-xl"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="regular">Regular Staff</SelectItem>
-                      <SelectItem value="guest">Guest Faculty</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                <FacultyTypeSelect value={form.instructor_type} onChange={(v) => update("instructor_type", v)} />
+
                 <Field label="Department / Program" value={form.department} onChange={(v: string) => update("department", v)} />
                 <Field label="Specialization" value={form.specialization} onChange={(v: string) => update("specialization", v)} />
                 <Field label="Years of Experience" type="number" value={form.years_of_experience} onChange={(v: string) => update("years_of_experience", v)} />
