@@ -46,6 +46,8 @@ const AdminLiveClasses = () => {
 
   // Hours breakdown dialog
   const [hoursOpen, setHoursOpen] = useState(false);
+  const [typeLabels, setTypeLabels] = useState<Record<string, string>>({});
+  const facultyTypeLabel = (slug?: string | null) => typeLabels[slug || "regular"] || (slug ? slug.replace(/_/g, " ") : "Regular Staff");
 
   const fetchAll = async () => {
     setLoading(true);
@@ -64,6 +66,10 @@ const AdminLiveClasses = () => {
     (bch || []).forEach((b: any) => { bm[b.id] = b.name; });
     setBatches(bm);
     setBatchList((bch || []) as any);
+    const { data: ftypes } = await db.from("faculty_types").select("slug, name");
+    const tl: Record<string, string> = {};
+    (ftypes || []).forEach((t: any) => { tl[t.slug] = t.name; });
+    setTypeLabels(tl);
     setLoading(false);
   };
 
@@ -227,7 +233,7 @@ const AdminLiveClasses = () => {
                 <div>
                   <p className="font-semibold text-brand-primary">{t.display_name || "Unnamed"}</p>
                   <p className="text-xs text-brand-warm-grey">
-                    Emp ID: {t.employee_id || "—"} · {t.department || "No program"} · {t.designation || "—"} · {t.instructor_type === "guest" ? "Guest Faculty" : "Regular Staff"}
+                    Emp ID: {t.employee_id || "—"} · {t.department || "No program"} · {t.designation || "—"} · {facultyTypeLabel(t.instructor_type)}
                   </p>
                   {!hasLink && (isAdmin
                     ? <Badge variant="outline" className="mt-1 text-[10px]">No meeting links created</Badge>
@@ -255,7 +261,7 @@ const AdminLiveClasses = () => {
         <DialogContent className="max-w-md rounded-2xl">
           <DialogHeader><DialogTitle className="font-display text-brand-primary">{editInstructor?.display_name} — Meeting Links</DialogTitle></DialogHeader>
           <p className="text-xs text-brand-warm-grey">
-            Emp ID: {editInstructor?.employee_id || "—"} · {editInstructor?.department || "No program"} · {editInstructor?.designation || "—"} · {editInstructor?.instructor_type === "guest" ? "Guest Faculty" : "Regular Staff"}
+            Emp ID: {editInstructor?.employee_id || "—"} · {editInstructor?.department || "No program"} · {editInstructor?.designation || "—"} · {facultyTypeLabel(editInstructor?.instructor_type)}
           </p>
           <div className="space-y-3">
             <div><label className="mb-1 block text-[11px] font-bold uppercase tracking-widest text-brand-warm-grey">Zoom Link</label><Input value={linkForm.zoom_link} onChange={(e) => setLinkForm({ ...linkForm, zoom_link: e.target.value })} placeholder="https://zoom.us/j/..." /></div>

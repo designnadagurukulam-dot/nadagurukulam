@@ -11,6 +11,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SearchableSelect } from "@/components/ui/searchable-select";
+import FacultyTypeSelect from "@/components/admin/FacultyTypeSelect";
+
 import { INDIAN_STATES, citiesForState } from "@/data/indiaLocations";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -364,16 +366,8 @@ const AdminUserProfile = () => {
               <>
                 <Field label="Employee ID" value={form.employee_id} onChange={(v: string) => update("employee_id", v)} />
                 <Field label="Designation" value={form.designation} onChange={(v: string) => update("designation", v)} />
-                <div>
-                  <Label className="text-[10px] uppercase tracking-wide text-muted-foreground">Faculty Type</Label>
-                  <Select value={form.instructor_type || "regular"} onValueChange={(v) => update("instructor_type", v)}>
-                    <SelectTrigger className="mt-1 rounded-xl"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="regular">Regular Staff</SelectItem>
-                      <SelectItem value="guest">Guest Faculty</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                <FacultyTypeSelect value={form.instructor_type} onChange={(v) => update("instructor_type", v)} />
+
                 <Field label="Department / Program" value={form.department} onChange={(v: string) => update("department", v)} />
                 <Field label="Specialization" value={form.specialization} onChange={(v: string) => update("specialization", v)} />
                 <Field label="Years of Experience" type="number" value={form.years_of_experience} onChange={(v: string) => update("years_of_experience", v)} />

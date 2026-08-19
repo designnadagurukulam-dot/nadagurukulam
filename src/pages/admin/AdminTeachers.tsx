@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { AlertTriangle, BookCheck, GraduationCap, Layers, Save, Search, UserPlus, Users } from "lucide-react";
+import { AlertTriangle, BookCheck, GraduationCap, Layers, Save, Search, Settings2, UserPlus, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { logActivity } from "@/lib/activityLogger";
+import FacultyTypesDialog from "@/components/admin/FacultyTypesDialog";
+import { fetchFacultyTypes, type FacultyType } from "@/components/admin/FacultyTypeSelect";
 
 const db = supabase as any;
 
@@ -30,6 +32,9 @@ const AdminTeachers = () => {
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
   const [selectedBatch, setSelectedBatch] = useState("");
   const [showTeachersList, setShowTeachersList] = useState(true);
+  const [facultyTypes, setFacultyTypes] = useState<FacultyType[]>([]);
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [typesOpen, setTypesOpen] = useState(false);
 
   const fetchAll = async () => {
     setLoading(true);
@@ -51,6 +56,7 @@ const AdminTeachers = () => {
     setModules(moduleData || []);
     setAllocations(allocationData || []);
     setCourses(courseData || []);
+    setFacultyTypes(await fetchFacultyTypes());
     setLoading(false);
   };
 
@@ -84,7 +90,8 @@ const AdminTeachers = () => {
     const teacherProgram = teacher.specialization || teacher.department;
     const matchesProgram = programFilter === "all" || teacherProgram === programFilter;
     const matchesDesignation = designationFilter === "all" || teacher.designation === designationFilter;
-    return matchesSearch && matchesProgram && matchesDesignation;
+    const matchesType = typeFilter === "all" || (teacher.instructor_type || "regular") === typeFilter;
+    return matchesSearch && matchesProgram && matchesDesignation && matchesType;
   });
 
   const getTeacherSubjects = (userId: string) => allocations.filter((a) => a.instructor_id === userId).map((a) => modules.find((m) => m.id === a.curriculum_module_id)).filter(Boolean);
@@ -152,7 +159,10 @@ const AdminTeachers = () => {
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-brand-gold to-brand-primary"><GraduationCap className="h-5 w-5 text-primary-foreground" /></div>
           <div><h1 className="font-display text-brand-primary">Subject Allocation</h1><div className="mt-1 h-0.5 w-12 bg-gradient-to-r from-brand-gold to-transparent" /></div>
         </div>
-        <p className="mt-2 text-sm text-brand-warm-grey">Allocate subjects to teachers, balance load across semesters, and link batches.</p>
+        <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-brand-warm-grey">Allocate subjects to teachers, balance load across semesters, and link batches.</p>
+          <Button variant="outline" size="sm" onClick={() => setTypesOpen(true)}><Settings2 className="h-4 w-4" /> Manage Faculty Types</Button>
+        </div>
       </motion.div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -180,6 +190,7 @@ const AdminTeachers = () => {
             <div className="relative flex-1"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-brand-warm-grey" /><Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search name, employee ID, program..." className="pl-10" /></div>
             <Select value={programFilter} onValueChange={setProgramFilter}><SelectTrigger className="lg:w-52"><SelectValue placeholder="Program" /></SelectTrigger><SelectContent><SelectItem value="all">All Programs</SelectItem>{programs.map((program) => <SelectItem key={program} value={program}>{program}</SelectItem>)}</SelectContent></Select>
             <Select value={designationFilter} onValueChange={setDesignationFilter}><SelectTrigger className="lg:w-52"><SelectValue placeholder="Designation" /></SelectTrigger><SelectContent><SelectItem value="all">All Designations</SelectItem>{designations.map((designation) => <SelectItem key={designation} value={designation}>{designation}</SelectItem>)}</SelectContent></Select>
+            <Select value={typeFilter} onValueChange={setTypeFilter}><SelectTrigger className="lg:w-52"><SelectValue placeholder="Faculty Type" /></SelectTrigger><SelectContent><SelectItem value="all">All Faculty Types</SelectItem>{facultyTypes.map((t) => <SelectItem key={t.id} value={t.slug}>{t.name}</SelectItem>)}</SelectContent></Select>
           </div>
 
           {loading ? <div className="py-16 text-center text-brand-warm-grey">Loading teachers…</div> : filtered.length === 0 ? <div className="rounded-2xl bg-card py-16 text-center text-brand-warm-grey shadow-[0_2px_16px_hsl(var(--primary)/0.06)]">No teachers found.</div> : (
@@ -194,7 +205,7 @@ const AdminTeachers = () => {
                         <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-accent/20 font-display text-brand-primary">{(teacher.display_name || "T")[0].toUpperCase()}</div>
                         <div>
                           <h3 className="font-display text-lg text-brand-primary">{teacher.display_name || "Unnamed Teacher"}</h3>
-                          <p className="text-sm text-brand-warm-grey">{teacher.employee_id || "No employee ID"} · {teacher.specialization || teacher.department || "No program"} · {teacher.designation || "No designation"}</p>
+                          <p className="text-sm text-brand-warm-grey">{teacher.employee_id || "No employee ID"} · {teacher.specialization || teacher.department || "No program"} · {teacher.designation || "No designation"} · {facultyTypes.find((t) => t.slug === (teacher.instructor_type || "regular"))?.name || "Regular Staff"}</p>
                           <div className="mt-2 space-y-1">
                             {subjects.slice(0, 6).map((subject: any) => {
                               const co = getCoInstructorsForModule(subject.id, teacher.user_id);
@@ -253,6 +264,7 @@ const AdminTeachers = () => {
           <Button onClick={saveBatch} disabled={!selectedBatch} className="bg-brand-primary text-primary-foreground hover:bg-brand-primary-dark"><Users className="h-4 w-4" /> Assign Batch</Button>
         </DialogContent>
       </Dialog>
+      <FacultyTypesDialog open={typesOpen} onOpenChange={setTypesOpen} onChanged={fetchAll} />
     </div>
   );
 };
