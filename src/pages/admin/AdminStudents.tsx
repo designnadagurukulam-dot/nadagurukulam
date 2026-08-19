@@ -747,8 +747,7 @@ const AdminStudents = ({ lockedRole }: { lockedRole?: AppRole } = {}) => {
                 </Select>
               </div>
               <div className="space-y-1.5 sm:col-span-2">
-                <Label htmlFor="cu-designation">Designation</Label>
-                <Input id="cu-designation" value={createForm.designation} maxLength={100} onChange={(e) => setCreateForm({ ...createForm, designation: e.target.value })} placeholder="Optional (e.g. Principal, Guest Faculty)" className="rounded-xl" />
+                <DesignationSelect value={createForm.designation} onChange={(v) => setCreateForm({ ...createForm, designation: v })} label="Designation" />
               </div>
             </div>
             <DialogFooter>
