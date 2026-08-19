@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchDesignations, type Designation } from "@/components/admin/DesignationSelect";
 import logo from "@/assets/logo.png";
 import campusVerandah from "@/assets/campus/NGVerandah.jpg";
 
