@@ -794,6 +794,30 @@ const AdminStudents = ({ lockedRole }: { lockedRole?: AppRole } = {}) => {
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Delete user confirmation */}
+      <AlertDialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
+        <AlertDialogContent className="rounded-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-serif text-primary">Delete user?</AlertDialogTitle>
+            <AlertDialogDescription>
+              You are about to permanently delete{" "}
+              <span className="font-semibold text-foreground">{deleteTarget?.display_name || "this user"}</span>
+              {deleteTarget?.email ? ` (${deleteTarget.email})` : ""}. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel asChild>
+              <Button variant="outline" className="rounded-xl" onClick={() => setDeleteTarget(null)} disabled={deleting}>Cancel</Button>
+            </AlertDialogCancel>
+            <AlertDialogAction asChild>
+              <Button className="rounded-xl gap-2 bg-destructive text-destructive-foreground hover:bg-destructive/90" disabled={deleting} onClick={deleteUser}>
+                <Trash2 className="h-4 w-4" /> {deleting ? "Deleting..." : "Delete"}
+              </Button>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
