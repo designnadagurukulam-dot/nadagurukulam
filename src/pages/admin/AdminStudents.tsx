@@ -20,6 +20,7 @@ import {
   Edit3,
   UserPlus,
 } from "lucide-react";
+import DesignationSelect from "@/components/admin/DesignationSelect";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
