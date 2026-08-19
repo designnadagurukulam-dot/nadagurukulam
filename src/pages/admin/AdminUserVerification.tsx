@@ -191,6 +191,12 @@ const AdminUserVerification = () => {
           <div className="bg-card rounded-2xl shadow-[0_2px_24px_hsl(var(--primary)/0.06)] px-4 py-2 flex items-center gap-2">
             <Users className="h-4 w-4 text-primary" /><span className="text-sm font-medium text-foreground">{unverifiedUsers.length} Pending</span>
           </div>
+          {canCreateUsers && (
+            <Button onClick={() => setCreateOpen(true)} className="gap-2 rounded-xl h-11">
+              <UserPlus className="h-4 w-4" /> Create User
+            </Button>
+          )}
+
         </div>
       </div>
 
