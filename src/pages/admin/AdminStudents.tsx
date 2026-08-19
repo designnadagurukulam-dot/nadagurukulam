@@ -84,6 +84,29 @@ const AdminStudents = ({ lockedRole }: { lockedRole?: AppRole } = {}) => {
   const [savingEdit, setSavingEdit] = useState(false);
   const [resettingFor, setResettingFor] = useState<string | null>(null);
 
+  // Create user dialog
+  const [createOpen, setCreateOpen] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [createForm, setCreateForm] = useState({
+    display_name: "",
+    email: "",
+    password: "",
+    phone: "",
+    role: "student" as AppRole,
+    designation: "",
+  });
+
+  const createUserSchema = z.object({
+    display_name: z.string().trim().min(1, "Full name is required").max(100, "Full name must be under 100 characters"),
+    email: z.string().trim().email("Enter a valid email address").max(255),
+    password: z.string().min(8, "Password must be at least 8 characters").max(72),
+    phone: z.string().trim().max(20, "Phone number is too long").optional().or(z.literal("")),
+    designation: z.string().trim().max(100).optional().or(z.literal("")),
+    role: z.enum(["student", "instructor", "admin"]),
+  });
+
+  const canCreateUsers = currentUserRole === "super_admin" || currentUserRole === "admin";
+
   const fetchData = async () => {
     setLoading(true);
     const [profilesRes, rolesRes, batchesRes, batchEnrollRes] = await Promise.all([
