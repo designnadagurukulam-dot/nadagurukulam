@@ -1,17 +1,37 @@
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { CheckCircle, XCircle, UserCheck, Users, Shield } from "lucide-react";
+import { CheckCircle, XCircle, UserCheck, Users, Shield, UserPlus } from "lucide-react";
 import { toast } from "sonner";
+import { z } from "zod";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+const createUserSchema = z.object({
+  display_name: z.string().trim().min(1, "Full name is required").max(100, "Full name must be under 100 characters"),
+  email: z.string().trim().email("Enter a valid email address").max(255),
+  password: z.string().min(8, "Password must be at least 8 characters").max(72),
+  phone: z.string().trim().max(20, "Phone number is too long").optional().or(z.literal("")),
+  designation: z.string().trim().max(100).optional().or(z.literal("")),
+  role: z.enum(["student", "instructor", "admin"]),
+});
+
+const emptyForm = { display_name: "", email: "", password: "", phone: "", designation: "", role: "student" as const };
 
 const AdminUserVerification = () => {
   const { role, user } = useAuth();
   const queryClient = useQueryClient();
   const isSuperAdmin = role === "super_admin";
+  const canCreateUsers = role === "super_admin" || role === "admin";
+  const [createOpen, setCreateOpen] = useState(false);
+  const [form, setForm] = useState<typeof emptyForm>({ ...emptyForm });
+
 
   const { data: users, isLoading } = useQuery({
     queryKey: ["admin-all-users"],
@@ -67,6 +87,35 @@ const AdminUserVerification = () => {
     },
     onError: (err: Error) => toast.error(err.message || "Failed to update role"),
   });
+
+  const createUserMutation = useMutation({
+    mutationFn: async (values: typeof emptyForm) => {
+      const parsed = createUserSchema.safeParse(values);
+      if (!parsed.success) throw new Error(parsed.error.errors[0].message);
+      if (parsed.data.role === "admin" && !isSuperAdmin) throw new Error("Only a Super Admin can create Admin accounts");
+      const { data, error } = await supabase.functions.invoke("admin-create-user", {
+        body: {
+          email: parsed.data.email,
+          password: parsed.data.password,
+          display_name: parsed.data.display_name,
+          role: parsed.data.role,
+          phone: parsed.data.phone || null,
+          designation: parsed.data.designation || null,
+        },
+      });
+      if (error) throw new Error(error.message || "Failed to create user");
+      if ((data as any)?.error) throw new Error((data as any).error);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-all-users"] });
+      toast.success("User created successfully");
+      setCreateOpen(false);
+      setForm({ ...emptyForm });
+    },
+    onError: (err: Error) => toast.error(err.message || "Failed to create user"),
+  });
+
+
 
   const roleColors: Record<string, string> = {
     super_admin: "bg-primary/10 text-primary border border-primary/20",
@@ -142,8 +191,66 @@ const AdminUserVerification = () => {
           <div className="bg-card rounded-2xl shadow-[0_2px_24px_hsl(var(--primary)/0.06)] px-4 py-2 flex items-center gap-2">
             <Users className="h-4 w-4 text-primary" /><span className="text-sm font-medium text-foreground">{unverifiedUsers.length} Pending</span>
           </div>
+          {canCreateUsers && (
+            <Button onClick={() => setCreateOpen(true)} className="gap-2 rounded-xl h-11">
+              <UserPlus className="h-4 w-4" /> Create User
+            </Button>
+          )}
+
         </div>
       </div>
+
+      {canCreateUsers && (
+        <Dialog open={createOpen} onOpenChange={(o) => { setCreateOpen(o); if (!o) setForm({ ...emptyForm }); }}>
+          <DialogContent className="sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle className="font-serif text-primary">Create User</DialogTitle>
+              <DialogDescription>Create an account directly. The user can sign in immediately with these credentials.</DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-1.5 sm:col-span-2">
+                <Label htmlFor="cu-name">Full Name *</Label>
+                <Input id="cu-name" value={form.display_name} maxLength={100} onChange={(e) => setForm({ ...form, display_name: e.target.value })} placeholder="Full name" />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="cu-email">Email *</Label>
+                <Input id="cu-email" type="email" value={form.email} maxLength={255} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="name@example.com" />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="cu-phone">Phone Number</Label>
+                <Input id="cu-phone" value={form.phone} maxLength={20} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="Optional" />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="cu-password">Temporary Password *</Label>
+                <Input id="cu-password" type="text" value={form.password} maxLength={72} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="Min 8 characters" />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Role *</Label>
+                <Select value={form.role} onValueChange={(val) => setForm({ ...form, role: val as typeof form.role })}>
+                  <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="student">Student</SelectItem>
+                    <SelectItem value="instructor">Faculty</SelectItem>
+                    {isSuperAdmin && <SelectItem value="admin">Admin</SelectItem>}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5 sm:col-span-2">
+                <Label htmlFor="cu-designation">Designation</Label>
+                <Input id="cu-designation" value={form.designation} maxLength={100} onChange={(e) => setForm({ ...form, designation: e.target.value })} placeholder="Optional (e.g. Principal, Guest Faculty)" />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" className="rounded-xl" onClick={() => setCreateOpen(false)}>Cancel</Button>
+              <Button className="rounded-xl gap-2" disabled={createUserMutation.isPending} onClick={() => createUserMutation.mutate(form)}>
+                <UserPlus className="h-4 w-4" /> {createUserMutation.isPending ? "Creating..." : "Create Account"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+
+
 
       {unverifiedUsers.length > 0 && (
         <div className="bg-card rounded-2xl shadow-[0_2px_24px_hsl(var(--primary)/0.06)] overflow-hidden">
