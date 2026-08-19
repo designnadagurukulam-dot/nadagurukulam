@@ -15,6 +15,8 @@ import FacultyTypeSelect from "@/components/admin/FacultyTypeSelect";
 import DesignationSelect from "@/components/admin/DesignationSelect";
 
 import { INDIAN_STATES, citiesForState } from "@/data/indiaLocations";
+import QualificationsList from "@/components/profile/QualificationsList";
+
 
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
