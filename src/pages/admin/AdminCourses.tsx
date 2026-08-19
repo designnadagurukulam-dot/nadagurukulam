@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { BookOpen, Search, Trash2, Eye, GraduationCap, IndianRupee, Layers, Archive, RotateCcw, Tag } from "lucide-react";
+import { BookOpen, Search, Trash2, Eye, GraduationCap, IndianRupee, Layers, Archive, RotateCcw, Tag, CheckSquare } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -105,7 +105,7 @@ const AdminCourses = () => {
   const tutorOptions = Object.entries(tutors).sort(([, a], [, b]) => a.localeCompare(b));
 
   return (
-    <div className="space-y-6 pt-2">
+    <div className="space-y-6">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
         <div className="flex items-center gap-2">
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-primary to-brand-primary-dark flex items-center justify-center">
@@ -224,7 +224,8 @@ const AdminCourses = () => {
                           </div>
                         </div>
                         <div className="flex gap-1 shrink-0">
-                          <Button variant="ghost" size="sm" className="hover:bg-brand-gold-pale text-brand-primary" onClick={() => navigate(`/course/${course.id}`)}><Eye className="h-4 w-4" /></Button>
+                          <Button variant="ghost" size="sm" className="hover:bg-brand-gold-pale text-brand-primary" onClick={() => navigate(`/course/${course.id}`)} title="View course"><Eye className="h-4 w-4" /></Button>
+                          <Button variant="ghost" size="sm" className="hover:bg-brand-gold-pale text-brand-primary" onClick={() => navigate(`/dashboard/admin/approvals?course=${course.id}`)} title="Review submission"><CheckSquare className="h-4 w-4" /></Button>
                           {tab === "active" ? (
                             <Button variant="ghost" size="sm" className="hover:bg-amber-50 text-amber-600" onClick={() => archive(course.id)}><Archive className="h-4 w-4" /></Button>
                           ) : (

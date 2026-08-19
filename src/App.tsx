@@ -37,7 +37,6 @@ import InstructorStudents from "./pages/instructor/InstructorStudents";
 import InstructorAnalytics from "./pages/instructor/InstructorAnalytics";
 import AdminOverview from "./pages/admin/AdminOverview";
 import AdminApprovals from "./pages/admin/AdminApprovals";
-import AdminCourses from "./pages/admin/AdminCourses";
 import AdminAssignments from "./pages/admin/AdminAssignments";
 import AdminStudents from "./pages/admin/AdminStudents";
 import AdminCategories from "./pages/admin/AdminCategories";
