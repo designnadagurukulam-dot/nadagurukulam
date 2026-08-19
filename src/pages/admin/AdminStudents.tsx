@@ -564,6 +564,11 @@ const AdminStudents = ({ lockedRole }: { lockedRole?: AppRole } = {}) => {
                           <Pencil className="h-4 w-4" /> Label
                         </Button>
                       )}
+                      {!lockedRole && (
+                        <Button variant="outline" size="sm" onClick={() => setDeleteTarget(p)} className="min-h-10 rounded-xl gap-1 text-destructive border-destructive/30 hover:bg-destructive/10">
+                          <Trash2 className="h-4 w-4" /> Delete
+                        </Button>
+                      )}
                     </div>
                   </div>
 
