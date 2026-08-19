@@ -355,25 +355,28 @@ const AdminOverview = () => {
       {/* Stats Grid — every card is clickable */}
       {statCards.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-          {statCards.map((s, i) => (
-            <motion.div key={s.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-              className="relative group">
-              <RemoveButton id={s.id} label={s.label} />
-              <button
-                type="button"
-                onClick={() => navigate(s.to)}
-                className="w-full text-left group relative bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-5 hover:-translate-y-0.5 hover:shadow-[0_4px_30px_rgba(196,154,60,0.15)] transition-all duration-300 overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold"
-                aria-label={`Open ${s.label}`}
-              >
-                <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-brand-gold/5 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${s.gradient} flex items-center justify-center shadow-lg`}>
-                  <s.icon className="w-4 h-4 text-white" />
-                </div>
-                <p className="font-serif text-3xl font-bold text-brand-primary mt-3">{s.value}</p>
-                <p className="text-[11px] text-brand-warm-grey uppercase tracking-wider mt-1">{s.label}</p>
-              </button>
-            </motion.div>
-          ))}
+          {statCards.map((s, i) => {
+            const isDisabled = ["pendingReviews", "ungraded", "feedback"].includes(s.id);
+            return (
+              <motion.div key={s.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
+                className="relative group">
+                <RemoveButton id={s.id} label={s.label} />
+                <button
+                  type="button"
+                  onClick={isDisabled ? () => {} : () => navigate(s.to)}
+                  className="w-full text-left group relative bg-white rounded-2xl border border-brand-parchment shadow-[0_2px_24px_rgba(125,30,36,0.06)] p-5 hover:-translate-y-0.5 hover:shadow-[0_4px_30px_rgba(196,154,60,0.15)] transition-all duration-300 overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold"
+                  aria-label={isDisabled ? s.label : `Open ${s.label}`}
+                >
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-brand-gold/5 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${s.gradient} flex items-center justify-center shadow-lg`}>
+                    <s.icon className="w-4 h-4 text-white" />
+                  </div>
+                  <p className="font-serif text-3xl font-bold text-brand-primary mt-3">{s.value}</p>
+                  <p className="text-[11px] text-brand-warm-grey uppercase tracking-wider mt-1">{s.label}</p>
+                </button>
+              </motion.div>
+            );
+          })}
         </div>
       )}
 
