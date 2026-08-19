@@ -2082,6 +2082,51 @@ export type Database = {
           },
         ]
       }
+      user_qualifications: {
+        Row: {
+          board_university: string | null
+          certificate_url: string | null
+          created_at: string
+          degree_name: string
+          grade: string | null
+          id: string
+          institution: string | null
+          notes: string | null
+          specialization: string | null
+          updated_at: string
+          user_id: string
+          year_of_completion: number | null
+        }
+        Insert: {
+          board_university?: string | null
+          certificate_url?: string | null
+          created_at?: string
+          degree_name: string
+          grade?: string | null
+          id?: string
+          institution?: string | null
+          notes?: string | null
+          specialization?: string | null
+          updated_at?: string
+          user_id: string
+          year_of_completion?: number | null
+        }
+        Update: {
+          board_university?: string | null
+          certificate_url?: string | null
+          created_at?: string
+          degree_name?: string
+          grade?: string | null
+          id?: string
+          institution?: string | null
+          notes?: string | null
+          specialization?: string | null
+          updated_at?: string
+          user_id?: string
+          year_of_completion?: number | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
