@@ -110,7 +110,6 @@ const AdminOverview = () => {
   // Quick actions show ONLY unread / pending counts (not totals)
   const quickActions = [
     { label: "Verification", icon: ShieldCheck, to: "/dashboard/admin/verification", count: stats.pendingVerifications },
-    { label: "Review Submissions", icon: CheckSquare, to: "/dashboard/admin/approvals", count: stats.pendingReviews },
     { label: "Assignments", icon: ClipboardList, to: "/dashboard/admin/assignments", count: stats.ungradedSubmissions },
     { label: "Inquiries", icon: Mail, to: "/dashboard/admin/inquiries", count: stats.pendingInquiries },
     { label: "Manage Batches", icon: Layers, to: "/dashboard/admin/batches", count: 0 },

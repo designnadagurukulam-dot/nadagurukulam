@@ -49,7 +49,6 @@ const adminNav = [
   { label: "Events", to: "/dashboard/admin/events", icon: CalendarDays },
   { label: "Messages", to: "/dashboard/admin/messages", icon: MessageSquare },
   { label: "Course Approvals", to: "/dashboard/admin/approvals", icon: CheckSquare },
-  { label: "Faculty's Courses", to: "/dashboard/admin/courses", icon: BookOpen },
   { label: "Programs", to: "/dashboard/admin/categories", icon: Tag },
   { label: "Jobs", to: "/dashboard/admin/jobs", icon: Briefcase },
   { label: "Inquiries", to: "/dashboard/admin/inquiries", icon: MessageSquare },
