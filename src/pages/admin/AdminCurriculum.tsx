@@ -16,6 +16,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { logActivity } from "@/lib/activityLogger";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import AdminCourses from "./AdminCourses";
 
 const getYouTubeId = (url: string): string | null => url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/))([^&?\s]+)/)?.[1] ?? null;
 const splitList = (v: string) => v.split("\n").map((x) => x.trim()).filter(Boolean);
@@ -59,7 +61,7 @@ const emptyCourse: CourseForm = {
 
 const TO_BE_ASSIGNED = "__tba__";
 
-const AdminCurriculum = () => {
+const CurriculumManager = () => {
   const { user, role } = useAuth();
   const isSuperAdmin = role === "super_admin";
   const queryClient = useQueryClient();
@@ -703,6 +705,23 @@ const AddMaterialForm = ({ sectionForm, setSectionForm, updateLink, resetSection
       <Textarea placeholder="Enter text content..." value={sectionForm.textContent} onChange={(e) => setSectionForm({ ...sectionForm, textContent: e.target.value })} rows={4} />
     )}
     <Button onClick={onSave} disabled={!sectionForm.title || pending}><Save className="h-4 w-4" /> {pending ? "Saving..." : "Save Material"}</Button>
+  </div>
+);
+
+const AdminCurriculum = () => (
+  <div className="space-y-4 pt-2">
+    <Tabs defaultValue="curriculum" className="w-full">
+      <TabsList className="rounded-xl border border-brand-parchment bg-brand-cream p-1">
+        <TabsTrigger value="curriculum" className="rounded-lg data-[state=active]:bg-brand-primary data-[state=active]:text-white">Curriculum</TabsTrigger>
+        <TabsTrigger value="faculty-courses" className="rounded-lg data-[state=active]:bg-brand-primary data-[state=active]:text-white">Faculty's Courses</TabsTrigger>
+      </TabsList>
+      <TabsContent value="curriculum" className="mt-2">
+        <CurriculumManager />
+      </TabsContent>
+      <TabsContent value="faculty-courses" className="mt-2">
+        <AdminCourses />
+      </TabsContent>
+    </Tabs>
   </div>
 );
 
