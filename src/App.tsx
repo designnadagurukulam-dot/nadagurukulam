@@ -160,6 +160,7 @@ const App = () => (
             <Route path="/dashboard/admin/students" element={<Navigate to="/dashboard/admin/users" replace />} />
             <Route path="/dashboard/admin/tutors" element={<Navigate to="/dashboard/admin/users" replace />} />
             <Route path="/dashboard/admin/teachers" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminStudents lockedRole="instructor" /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/admin/teachers/:userId" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminUserProfile /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/admin/verification" element={<Navigate to="/dashboard/admin/users" replace />} />
             <Route path="/dashboard/admin/subject-allocation" element={<Navigate to="/dashboard/admin/curriculum" replace />} />
             <Route path="/dashboard/admin/assignments" element={<RoleProtectedRoute allowedRoles={["super_admin", "admin"]}><DashboardLayout><AdminAssignments /></DashboardLayout></RoleProtectedRoute>} />
