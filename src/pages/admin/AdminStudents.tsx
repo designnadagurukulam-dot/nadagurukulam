@@ -386,6 +386,11 @@ const AdminStudents = ({ lockedRole }: { lockedRole?: AppRole } = {}) => {
               <div className="mt-1 h-0.5 w-12 bg-secondary" />
             </div>
           </div>
+          {canCreateUsers && !lockedRole && (
+            <Button onClick={() => setCreateOpen(true)} className="gap-2 rounded-xl h-11 w-full sm:w-auto">
+              <UserPlus className="h-4 w-4" /> Create User
+            </Button>
+          )}
         </div>
         <p className="mt-2 text-sm text-muted-foreground">{visibleProfiles.length} managed users • {filtered.length} shown.{lockedRole ? "" : " Roles can be changed inline; batch and subject assignment moved to their own pages."}</p>
       </motion.div>
