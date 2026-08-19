@@ -1,17 +1,37 @@
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { CheckCircle, XCircle, UserCheck, Users, Shield } from "lucide-react";
+import { CheckCircle, XCircle, UserCheck, Users, Shield, UserPlus } from "lucide-react";
 import { toast } from "sonner";
+import { z } from "zod";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+const createUserSchema = z.object({
+  display_name: z.string().trim().min(1, "Full name is required").max(100, "Full name must be under 100 characters"),
+  email: z.string().trim().email("Enter a valid email address").max(255),
+  password: z.string().min(8, "Password must be at least 8 characters").max(72),
+  phone: z.string().trim().max(20, "Phone number is too long").optional().or(z.literal("")),
+  designation: z.string().trim().max(100).optional().or(z.literal("")),
+  role: z.enum(["student", "instructor", "admin"]),
+});
+
+const emptyForm = { display_name: "", email: "", password: "", phone: "", designation: "", role: "student" as const };
 
 const AdminUserVerification = () => {
   const { role, user } = useAuth();
   const queryClient = useQueryClient();
   const isSuperAdmin = role === "super_admin";
+  const canCreateUsers = role === "super_admin" || role === "admin";
+  const [createOpen, setCreateOpen] = useState(false);
+  const [form, setForm] = useState<typeof emptyForm>({ ...emptyForm });
+
 
   const { data: users, isLoading } = useQuery({
     queryKey: ["admin-all-users"],
