@@ -365,7 +365,7 @@ const AdminUserProfile = () => {
             {userRole === "instructor" && (
               <>
                 <Field label="Employee ID" value={form.employee_id} onChange={(v: string) => update("employee_id", v)} />
-                <Field label="Designation" value={form.designation} onChange={(v: string) => update("designation", v)} />
+                <DesignationSelect value={form.designation} onChange={(v) => update("designation", v)} />
                 <FacultyTypeSelect value={form.instructor_type} onChange={(v) => update("instructor_type", v)} />
 
                 <Field label="Department / Program" value={form.department} onChange={(v: string) => update("department", v)} />
