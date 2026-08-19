@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchDesignations, type Designation } from "@/components/admin/DesignationSelect";
 import logo from "@/assets/logo.png";
 import campusVerandah from "@/assets/campus/NGVerandah.jpg";
 
@@ -49,6 +50,8 @@ const Register = ({ roleType = "student" }: RegisterProps) => {
   // Educator-specific
   const [employeeId, setEmployeeId] = useState("");
   const [designation, setDesignation] = useState("");
+  const [designationOptions, setDesignationOptions] = useState<Designation[]>([]);
+  useEffect(() => { fetchDesignations().then((d) => setDesignationOptions(d.filter((x) => x.is_active))); }, []);
   const [department, setDepartment] = useState("");
   const [qualifications, setQualifications] = useState("");
   const [yearsOfExperience, setYearsOfExperience] = useState("");
@@ -369,7 +372,12 @@ const Register = ({ roleType = "student" }: RegisterProps) => {
                   </div>
                   <div>
                     <label className="text-sm font-medium text-foreground mb-1.5 block">Designation</label>
-                    <Input placeholder="e.g. Senior Faculty – Carnatic Vocal" value={designation} onChange={(e) => setDesignation(e.target.value)} className={inputClass} />
+                    <Select value={designation} onValueChange={setDesignation}>
+                      <SelectTrigger className={inputClass}><SelectValue placeholder="Select designation" /></SelectTrigger>
+                      <SelectContent>
+                        {designationOptions.map((d) => <SelectItem key={d.id} value={d.name}>{d.name}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-foreground mb-1.5 block">Department</label>

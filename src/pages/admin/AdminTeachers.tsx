@@ -13,6 +13,8 @@ import { toast } from "sonner";
 import { logActivity } from "@/lib/activityLogger";
 import FacultyTypesDialog from "@/components/admin/FacultyTypesDialog";
 import { fetchFacultyTypes, type FacultyType } from "@/components/admin/FacultyTypeSelect";
+import DesignationsDialog from "@/components/admin/DesignationsDialog";
+import { fetchDesignations, type Designation } from "@/components/admin/DesignationSelect";
 
 const db = supabase as any;
 
@@ -35,6 +37,8 @@ const AdminTeachers = () => {
   const [facultyTypes, setFacultyTypes] = useState<FacultyType[]>([]);
   const [typeFilter, setTypeFilter] = useState("all");
   const [typesOpen, setTypesOpen] = useState(false);
+  const [designationList, setDesignationList] = useState<Designation[]>([]);
+  const [designationsOpen, setDesignationsOpen] = useState(false);
 
   const fetchAll = async () => {
     setLoading(true);
@@ -57,6 +61,7 @@ const AdminTeachers = () => {
     setAllocations(allocationData || []);
     setCourses(courseData || []);
     setFacultyTypes(await fetchFacultyTypes());
+    setDesignationList(await fetchDesignations());
     setLoading(false);
   };
 
@@ -71,7 +76,10 @@ const AdminTeachers = () => {
     });
     return [...set].sort();
   }, [teachers]);
-  const designations = useMemo(() => [...new Set(teachers.map((t) => t.designation).filter(Boolean))], [teachers]);
+  const designations = useMemo(
+    () => [...new Set([...designationList.filter((d) => d.is_active).map((d) => d.name), ...teachers.map((t) => t.designation).filter(Boolean)])],
+    [teachers, designationList],
+  );
 
   // Duplicate course-name detection (case-insensitive)
   const duplicateCourseTitles = useMemo(() => {
@@ -161,7 +169,10 @@ const AdminTeachers = () => {
         </div>
         <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-brand-warm-grey">Allocate subjects to teachers, balance load across semesters, and link batches.</p>
-          <Button variant="outline" size="sm" onClick={() => setTypesOpen(true)}><Settings2 className="h-4 w-4" /> Manage Faculty Types</Button>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" size="sm" onClick={() => setTypesOpen(true)}><Settings2 className="h-4 w-4" /> Manage Faculty Types</Button>
+            <Button variant="outline" size="sm" onClick={() => setDesignationsOpen(true)}><Settings2 className="h-4 w-4" /> Manage Designations</Button>
+          </div>
         </div>
       </motion.div>
 
@@ -265,6 +276,7 @@ const AdminTeachers = () => {
         </DialogContent>
       </Dialog>
       <FacultyTypesDialog open={typesOpen} onOpenChange={setTypesOpen} onChanged={fetchAll} />
+      <DesignationsDialog open={designationsOpen} onOpenChange={setDesignationsOpen} onChanged={fetchAll} />
     </div>
   );
 };

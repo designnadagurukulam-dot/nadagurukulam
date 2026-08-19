@@ -20,6 +20,7 @@ import {
   Edit3,
   UserPlus,
 } from "lucide-react";
+import DesignationSelect from "@/components/admin/DesignationSelect";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -687,7 +688,7 @@ const AdminStudents = ({ lockedRole }: { lockedRole?: AppRole } = {}) => {
             {editForm.__role === "instructor" && (
               <>
                 <EditField label="Employee ID" value={editForm.employee_id} onChange={(v) => setEditForm({ ...editForm, employee_id: v })} />
-                <EditField label="Designation" value={editForm.designation} onChange={(v) => setEditForm({ ...editForm, designation: v })} />
+                <DesignationSelect value={editForm.designation} onChange={(v) => setEditForm({ ...editForm, designation: v })} />
                 <EditField label="Department" value={editForm.department} onChange={(v) => setEditForm({ ...editForm, department: v })} />
                 <EditField label="Specialization" value={editForm.specialization} onChange={(v) => setEditForm({ ...editForm, specialization: v })} />
                 <EditField label="Qualifications" value={editForm.qualifications} onChange={(v) => setEditForm({ ...editForm, qualifications: v })} />
@@ -747,8 +748,7 @@ const AdminStudents = ({ lockedRole }: { lockedRole?: AppRole } = {}) => {
                 </Select>
               </div>
               <div className="space-y-1.5 sm:col-span-2">
-                <Label htmlFor="cu-designation">Designation</Label>
-                <Input id="cu-designation" value={createForm.designation} maxLength={100} onChange={(e) => setCreateForm({ ...createForm, designation: e.target.value })} placeholder="Optional (e.g. Principal, Guest Faculty)" className="rounded-xl" />
+                <DesignationSelect value={createForm.designation} onChange={(v) => setCreateForm({ ...createForm, designation: v })} label="Designation" />
               </div>
             </div>
             <DialogFooter>
