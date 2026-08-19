@@ -1641,6 +1641,7 @@ export type Database = {
           aadhar_number: string | null
           address: string | null
           admin_label: string | null
+          alternate_email: string | null
           avatar_url: string | null
           bio: string | null
           blood_group: string | null
@@ -1691,6 +1692,7 @@ export type Database = {
           aadhar_number?: string | null
           address?: string | null
           admin_label?: string | null
+          alternate_email?: string | null
           avatar_url?: string | null
           bio?: string | null
           blood_group?: string | null
@@ -1741,6 +1743,7 @@ export type Database = {
           aadhar_number?: string | null
           address?: string | null
           admin_label?: string | null
+          alternate_email?: string | null
           avatar_url?: string | null
           bio?: string | null
           blood_group?: string | null
