@@ -49,6 +49,8 @@ const Register = ({ roleType = "student" }: RegisterProps) => {
   // Educator-specific
   const [employeeId, setEmployeeId] = useState("");
   const [designation, setDesignation] = useState("");
+  const [designationOptions, setDesignationOptions] = useState<Designation[]>([]);
+  useEffect(() => { fetchDesignations().then((d) => setDesignationOptions(d.filter((x) => x.is_active))); }, []);
   const [department, setDepartment] = useState("");
   const [qualifications, setQualifications] = useState("");
   const [yearsOfExperience, setYearsOfExperience] = useState("");
