@@ -307,6 +307,26 @@ const AdminStudents = ({ lockedRole }: { lockedRole?: AppRole } = {}) => {
     }
   };
 
+  const deleteUser = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("admin-delete-user", {
+        body: { target_user_id: deleteTarget.user_id },
+      });
+      if (error) throw new Error(error.message || "Failed to delete user");
+      if ((data as any)?.error) throw new Error((data as any).error);
+      toast.success("User deleted permanently");
+      logActivity("user.deleted_by_admin", "user", deleteTarget.user_id, { email: deleteTarget.email });
+      setDeleteTarget(null);
+      fetchData();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to delete user");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   const getContextLabel = (p: any, currentRole: string) => {
     if (currentRole === "student") return getStudentBatchNames(p.user_id);
     if (currentRole === "instructor") return p.course_name || p.department || "Programme not set";
