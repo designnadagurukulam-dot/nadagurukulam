@@ -524,7 +524,7 @@ const AdminStudents = ({ lockedRole }: { lockedRole?: AppRole } = {}) => {
                         </Badge>
                       ) : null}
                       <Button variant="outline" size="sm" asChild className="min-h-10 rounded-xl gap-1">
-                        <Link to={`/dashboard/admin/users/${p.user_id}`}><UserCog className="h-4 w-4" /> View Profile</Link>
+                        <Link to={`${lockedRole === "instructor" ? "/dashboard/admin/teachers" : "/dashboard/admin/users"}/${p.user_id}`}><UserCog className="h-4 w-4" /> View Profile</Link>
                       </Button>
                       <Button variant="outline" size="sm" onClick={() => openEditDialog(p)} className="min-h-10 rounded-xl gap-1">
                         <Edit3 className="h-4 w-4" /> Quick Edit
