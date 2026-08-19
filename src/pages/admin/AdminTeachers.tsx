@@ -71,7 +71,10 @@ const AdminTeachers = () => {
     });
     return [...set].sort();
   }, [teachers]);
-  const designations = useMemo(() => [...new Set(teachers.map((t) => t.designation).filter(Boolean))], [teachers]);
+  const designations = useMemo(
+    () => [...new Set([...designationList.filter((d) => d.is_active).map((d) => d.name), ...teachers.map((t) => t.designation).filter(Boolean)])],
+    [teachers, designationList],
+  );
 
   // Duplicate course-name detection (case-insensitive)
   const duplicateCourseTitles = useMemo(() => {
