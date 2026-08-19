@@ -45,7 +45,41 @@ const AdminUserProfile = () => {
   const [resetPwd, setResetPwd] = useState("");
   const [resetting, setResetting] = useState(false);
   const [pendingRequests, setPendingRequests] = useState<any[]>([]);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const isSuperAdmin = callerRole === "super_admin";
+
+  const handleAvatarUpload = async (file: File | null) => {
+    if (!file || !userId) return;
+    const allowed = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+    if (!allowed.includes(file.type)) return toast.error("Use a JPG, PNG, WEBP or GIF image");
+    if (file.size > 5 * 1024 * 1024) return toast.error("Image must be under 5 MB");
+    setUploadingAvatar(true);
+    const ext = file.name.split(".").pop() || "jpg";
+    const path = `${userId}/avatar-${Date.now()}.${ext}`;
+    const { error: upErr } = await supabase.storage.from("profile-avatars").upload(path, file, { upsert: true });
+    if (upErr) { setUploadingAvatar(false); return toast.error(upErr.message); }
+    const { data: pub } = supabase.storage.from("profile-avatars").getPublicUrl(path);
+    const { error } = await db.from("profiles").update({ avatar_url: pub.publicUrl }).eq("user_id", userId);
+    setUploadingAvatar(false);
+    if (error) return toast.error(error.message);
+    setProfile((p: any) => ({ ...(p || {}), avatar_url: pub.publicUrl }));
+    setForm((p) => ({ ...p, avatar_url: pub.publicUrl }));
+    logActivity("user.avatar_updated_by_admin", "profile", userId);
+    toast.success("Profile image updated");
+  };
+
+  const handleAvatarRemove = async () => {
+    if (!userId) return;
+    setUploadingAvatar(true);
+    const { error } = await db.from("profiles").update({ avatar_url: null }).eq("user_id", userId);
+    setUploadingAvatar(false);
+    if (error) return toast.error(error.message);
+    setProfile((p: any) => ({ ...(p || {}), avatar_url: null }));
+    setForm((p) => ({ ...p, avatar_url: null }));
+    logActivity("user.avatar_removed_by_admin", "profile", userId);
+    toast.success("Profile image removed");
+  };
+
 
   const fetchAll = async () => {
     if (!userId) return;
