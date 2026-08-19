@@ -87,6 +87,10 @@ const AdminStudents = ({ lockedRole }: { lockedRole?: AppRole } = {}) => {
   const [savingEdit, setSavingEdit] = useState(false);
   const [resettingFor, setResettingFor] = useState<string | null>(null);
 
+  // Delete user confirmation
+  const [deleteTarget, setDeleteTarget] = useState<any>(null);
+  const [deleting, setDeleting] = useState(false);
+
   // Create user dialog
   const [createOpen, setCreateOpen] = useState(false);
   const [creating, setCreating] = useState(false);
