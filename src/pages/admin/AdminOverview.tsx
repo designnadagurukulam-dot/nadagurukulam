@@ -419,21 +419,82 @@ const AdminOverview = () => {
                   <Sparkles className="h-3.5 w-3.5 text-white" />
                 </div>
                 <h3 className="font-serif text-lg font-semibold text-brand-primary">Quick Actions</h3>
+                <Dialog open={actionsOpen} onOpenChange={setActionsOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="sm" className="ml-auto mr-7 h-7 text-xs rounded-xl border-brand-gold/50 text-brand-primary hover:bg-brand-cream">
+                      <Plus className="w-3.5 h-3.5 mr-1" /> Edit Actions
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-lg">
+                    <DialogHeader>
+                      <DialogTitle className="font-serif text-brand-primary">Customize Quick Actions</DialogTitle>
+                      <DialogDescription>
+                        Choose which actions appear here. Removing an action only hides it from this block — the section stays available in the Admin panel.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="max-h-[60vh] overflow-y-auto space-y-1.5 pr-1">
+                      {allQuickActions.map(a => {
+                        const added = visibleActions.includes(a.id);
+                        return (
+                          <div key={a.id} className="flex items-center gap-3 p-2.5 rounded-xl border border-brand-parchment">
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 flex items-center justify-center shrink-0">
+                              <a.icon className="w-3.5 h-3.5 text-brand-gold" />
+                            </div>
+                            <span className="text-sm font-medium text-brand-charcoal-mid flex-1 min-w-0 truncate">{a.label}</span>
+                            {added ? (
+                              <div className="flex items-center gap-2">
+                                <span className="text-[10px] uppercase tracking-wider text-emerald-600 font-bold flex items-center gap-1">
+                                  <Check className="w-3 h-3" /> Added
+                                </span>
+                                <Button variant="ghost" size="sm" className="h-7 text-xs text-brand-warm-grey hover:text-brand-primary"
+                                  onClick={() => removeAction(a.id)}>
+                                  Remove
+                                </Button>
+                              </div>
+                            ) : (
+                              <Button size="sm" className="h-7 text-xs rounded-lg" onClick={() => addAction(a.id)}>
+                                <Plus className="w-3 h-3 mr-1" /> Add
+                              </Button>
+                            )}
+                          </div>
+                        );
+                      })}
+                      {availableActions.length === 0 && (
+                        <p className="text-xs text-brand-warm-grey text-center py-2">All available actions are already added.</p>
+                      )}
+                    </div>
+                  </DialogContent>
+                </Dialog>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                 {quickActions.map((action) => (
-                  <Link key={action.label} to={action.to}
-                    className="flex items-center gap-2.5 p-3 rounded-xl border border-brand-parchment hover:bg-brand-cream hover:border-brand-gold/40 hover:-translate-y-0.5 transition-all duration-200 group">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 flex items-center justify-center group-hover:from-brand-gold/30 group-hover:to-brand-gold/10 transition-all">
-                      <action.icon className="w-3.5 h-3.5 text-brand-gold" />
-                    </div>
-                    <span className="text-xs font-semibold text-brand-charcoal-mid group-hover:text-brand-primary transition-colors">{action.label}</span>
-                    {action.count > 0 && (
-                      <span className="ml-auto text-[10px] bg-gradient-to-r from-brand-primary to-brand-primary-dark text-white px-1.5 py-0.5 rounded-full font-bold">{action.count}</span>
-                    )}
-                  </Link>
+                  <div key={action.id} className="relative group/action">
+                    <button
+                      type="button"
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); removeAction(action.id); }}
+                      aria-label={`Remove ${action.label} from Quick Actions`}
+                      title={`Remove ${action.label} from Quick Actions`}
+                      className="absolute -top-1.5 -right-1.5 z-20 w-5 h-5 rounded-full bg-white border border-brand-parchment text-brand-warm-grey hover:text-brand-primary hover:border-brand-gold/60 flex items-center justify-center opacity-0 group-hover/action:opacity-100 focus-visible:opacity-100 transition-opacity shadow-sm"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                    <Link to={action.to}
+                      className="flex items-center gap-2.5 p-3 rounded-xl border border-brand-parchment hover:bg-brand-cream hover:border-brand-gold/40 hover:-translate-y-0.5 transition-all duration-200 group">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 flex items-center justify-center group-hover:from-brand-gold/30 group-hover:to-brand-gold/10 transition-all">
+                        <action.icon className="w-3.5 h-3.5 text-brand-gold" />
+                      </div>
+                      <span className="text-xs font-semibold text-brand-charcoal-mid group-hover:text-brand-primary transition-colors">{action.label}</span>
+                      {action.count > 0 && (
+                        <span className="ml-auto text-[10px] bg-gradient-to-r from-brand-primary to-brand-primary-dark text-white px-1.5 py-0.5 rounded-full font-bold">{action.count}</span>
+                      )}
+                    </Link>
+                  </div>
                 ))}
+                {quickActions.length === 0 && (
+                  <p className="col-span-full text-xs text-brand-warm-grey text-center py-4">No actions selected. Use “Edit Actions” to add some.</p>
+                )}
               </div>
+
             </motion.div>
           )}
         </div>
