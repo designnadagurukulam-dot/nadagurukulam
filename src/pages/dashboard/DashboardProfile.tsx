@@ -10,6 +10,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { logActivity } from "@/lib/activityLogger";
+import QualificationsList from "@/components/profile/QualificationsList";
+
 
 const PERSONAL_KEYS = ["display_name","phone","date_of_birth","gender","blood_group","address","city","state","pincode","emergency_contact_name","emergency_contact_phone","bio"];
 const FAMILY_KEYS = ["father_name","father_occupation","father_email","father_phone","mother_name","mother_occupation","mother_email","mother_phone","family_notes"];
@@ -294,10 +296,8 @@ const DashboardProfile = () => {
                   <Field label="Employee ID" icon={Hash} value={formData.employee_id} disabled />
                   <Field label="Designation" value={formData.designation} disabled />
                   <Field label="Department" value={formData.department} disabled />
-                  <div>
-                    <label className="text-[11px] uppercase tracking-widest font-semibold text-brand-warm-grey mb-1.5 block">Qualifications</label>
-                    <Textarea value={formData.qualifications || ""} disabled className="rounded-xl bg-brand-cream border-brand-parchment" rows={3} />
-                  </div>
+                  {user && <QualificationsList userId={user.id} editable />}
+
                   <div>
                     <label className="text-[11px] uppercase tracking-widest font-semibold text-brand-warm-grey mb-1.5 block">Specialization</label>
                     <Textarea value={formData.specialization || ""} disabled className="rounded-xl bg-brand-cream border-brand-parchment" rows={3} />

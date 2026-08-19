@@ -15,6 +15,8 @@ import FacultyTypeSelect from "@/components/admin/FacultyTypeSelect";
 import DesignationSelect from "@/components/admin/DesignationSelect";
 
 import { INDIAN_STATES, citiesForState } from "@/data/indiaLocations";
+import QualificationsList from "@/components/profile/QualificationsList";
+
 
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -373,9 +375,9 @@ const AdminUserProfile = () => {
                 <Field label="Specialization" value={form.specialization} onChange={(v: string) => update("specialization", v)} />
                 <Field label="Years of Experience" type="number" value={form.years_of_experience} onChange={(v: string) => update("years_of_experience", v)} />
                 <div className="sm:col-span-2">
-                  <Label className="text-[10px] uppercase tracking-wide text-muted-foreground">Qualifications</Label>
-                  <Textarea value={form.qualifications || ""} onChange={(e) => update("qualifications", e.target.value)} rows={3} className="mt-1 rounded-xl" />
+                  <QualificationsList userId={profile.user_id} editable />
                 </div>
+
                 <Field label="Zoom Link" value={form.zoom_link} onChange={(v: string) => update("zoom_link", v)} />
                 <Field label="Google Meet Link" value={form.meet_link} onChange={(v: string) => update("meet_link", v)} />
               </>
