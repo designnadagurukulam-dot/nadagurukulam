@@ -104,6 +104,15 @@ const AdminUserProfile = () => {
 
   const handleSave = async () => {
     if (!userId) return;
+    const altEmail = (form.alternate_email || "").trim();
+    if (userRole === "instructor" && !altEmail) {
+      toast.error("Backup email is mandatory for faculty");
+      return;
+    }
+    if (altEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(altEmail)) {
+      toast.error("Enter a valid backup email address");
+      return;
+    }
     setSaving(true);
     const payload: ProfileRecord = {};
     [...PERSONAL_FIELDS, ...FAMILY_FIELDS, ...(userRole === "student" ? ACADEMIC_STUDENT : []), ...(userRole === "instructor" ? ACADEMIC_INSTRUCTOR : []), ...KYC_FIELDS].forEach((k) => {
