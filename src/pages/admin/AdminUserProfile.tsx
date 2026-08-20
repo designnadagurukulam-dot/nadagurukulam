@@ -209,7 +209,7 @@ const AdminUserProfile = () => {
               <p className="mt-2 text-xs text-muted-foreground">{profile.email || "—"}</p>
             </div>
           </div>
-          <p className="text-xs text-muted-foreground">Account actions are in the {userRole === "instructor" ? "Admin" : "Academic"} tab</p>
+          <p className="text-xs text-muted-foreground">Account actions are in the {userRole === "instructor" ? "Account & Access" : "Academic"} tab</p>
         </div>
       </motion.div>
 
