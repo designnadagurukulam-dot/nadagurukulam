@@ -71,7 +71,7 @@ const AdminStudents = ({ lockedRole }: { lockedRole?: AppRole } = {}) => {
   const [batchEnrollments, setBatchEnrollments] = useState<BatchEnrollment[]>([]);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>(lockedRole || "all");
-  const [statusFilter, setStatusFilter] = useState(lockedRole ? "all" : "pending");
+  const [statusFilter, setStatusFilter] = useState(lockedRole ? "all" : "verified");
   const [loading, setLoading] = useState(true);
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
 
