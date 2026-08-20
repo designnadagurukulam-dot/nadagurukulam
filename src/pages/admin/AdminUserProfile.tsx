@@ -387,7 +387,7 @@ const AdminUserProfile = () => {
               <div className="sm:col-span-2 flex flex-wrap gap-2">
                 {!profile.is_verified ? (
                   <Button size="sm" onClick={() => handleVerify(true)} className="gap-1"><ShieldCheck className="h-4 w-4" /> Verify</Button>
-                ) : userRole !== "super_admin" && (
+                ) : (
                   <Button size="sm" variant="outline" onClick={() => handleVerify(false)} className="gap-1 text-destructive">Revoke</Button>
                 )}
                 {!targetIsAdmin && (
