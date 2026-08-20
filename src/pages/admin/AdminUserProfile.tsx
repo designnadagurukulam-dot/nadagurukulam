@@ -343,21 +343,6 @@ const AdminUserProfile = () => {
 
         <TabsContent value="academic" className="mt-4 space-y-4">
           <div className="grid gap-3 rounded-2xl bg-card p-5 shadow-[0_2px_16px_hsl(var(--primary)/0.06)] sm:grid-cols-2">
-            <h3 className="sm:col-span-2 font-serif text-lg text-primary">Account &amp; Access</h3>
-            <Field label="Login Email" value={profile.email} disabled />
-            <Field label="Backup Email" value={form.alternate_email} disabled />
-            <div className="sm:col-span-2 flex flex-wrap gap-2">
-              {!profile.is_verified ? (
-                <Button size="sm" onClick={() => handleVerify(true)} className="gap-1"><ShieldCheck className="h-4 w-4" /> Verify</Button>
-              ) : userRole !== "super_admin" && (
-                <Button size="sm" variant="outline" onClick={() => handleVerify(false)} className="gap-1 text-destructive">Revoke</Button>
-              )}
-              {!targetIsAdmin && (
-                <Button size="sm" variant="outline" onClick={() => setResetOpen(true)} className="gap-1"><KeyRound className="h-4 w-4" /> Reset Password</Button>
-              )}
-            </div>
-          </div>
-          <div className="grid gap-3 rounded-2xl bg-card p-5 shadow-[0_2px_16px_hsl(var(--primary)/0.06)] sm:grid-cols-2">
             {userRole === "student" && (
               <>
                 <Field label="Roll Number" value={form.roll_number} onChange={(v: string) => update("roll_number", v)} />
@@ -368,6 +353,7 @@ const AdminUserProfile = () => {
             )}
             {userRole === "instructor" && (
               <>
+                <h3 className="sm:col-span-2 font-serif text-lg text-primary">Faculty Details</h3>
                 <Field label="Employee ID" value={form.employee_id} onChange={(v: string) => update("employee_id", v)} />
                 <DesignationSelect value={form.designation} onChange={(v) => update("designation", v)} />
                 <FacultyTypeSelect value={form.instructor_type} onChange={(v) => update("instructor_type", v)} />
@@ -391,6 +377,26 @@ const AdminUserProfile = () => {
             )}
           </div>
         </TabsContent>
+
+        {userRole === "instructor" && (
+          <TabsContent value="account" className="mt-4">
+            <div className="grid gap-3 rounded-2xl bg-card p-5 shadow-[0_2px_16px_hsl(var(--primary)/0.06)] sm:grid-cols-2">
+              <h3 className="sm:col-span-2 font-serif text-lg text-primary">Account &amp; Access</h3>
+              <Field label="Login Email" value={profile.email} disabled />
+              <Field label="Backup Email" value={form.alternate_email} disabled />
+              <div className="sm:col-span-2 flex flex-wrap gap-2">
+                {!profile.is_verified ? (
+                  <Button size="sm" onClick={() => handleVerify(true)} className="gap-1"><ShieldCheck className="h-4 w-4" /> Verify</Button>
+                ) : userRole !== "super_admin" && (
+                  <Button size="sm" variant="outline" onClick={() => handleVerify(false)} className="gap-1 text-destructive">Revoke</Button>
+                )}
+                {!targetIsAdmin && (
+                  <Button size="sm" variant="outline" onClick={() => setResetOpen(true)} className="gap-1"><KeyRound className="h-4 w-4" /> Reset Password</Button>
+                )}
+              </div>
+            </div>
+          </TabsContent>
+        )}
 
         <TabsContent value="kyc" className="mt-4">
           <div className="grid gap-3 rounded-2xl bg-card p-5 shadow-[0_2px_16px_hsl(var(--primary)/0.06)] sm:grid-cols-2">
