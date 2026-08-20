@@ -527,15 +527,6 @@ const AdminStudents = ({ lockedRole }: { lockedRole?: AppRole } = {}) => {
                       </div>
                     </button>
                     <div className="flex flex-wrap items-center gap-2 lg:justify-end">
-                      {!p.is_verified ? (
-                        <Button size="sm" onClick={() => toggleVerify(p.user_id, true)} className="min-h-10 rounded-xl gap-1 bg-primary text-primary-foreground">
-                          <ShieldCheck className="h-4 w-4" /> Approve
-                        </Button>
-                      ) : currentRole !== "super_admin" && (
-                        <Button size="sm" variant="outline" onClick={() => toggleVerify(p.user_id, false)} className="min-h-10 rounded-xl gap-1 text-destructive">
-                          Revoke
-                        </Button>
-                      )}
                       {!lockedRole && canChangeRole ? (
                         <Select value={currentRole} onValueChange={(val) => changeRole(p.user_id, val as AppRole)}>
                           <SelectTrigger className="min-h-10 w-[140px] rounded-xl text-xs"><SelectValue /></SelectTrigger>
