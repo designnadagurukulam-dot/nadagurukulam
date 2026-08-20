@@ -234,6 +234,7 @@ const AdminUserProfile = () => {
           <TabsTrigger value="personal" className="gap-1.5"><UserIcon className="h-4 w-4" /> Personal</TabsTrigger>
           {userRole === "student" && <TabsTrigger value="family" className="gap-1.5"><UsersIcon className="h-4 w-4" /> Family</TabsTrigger>}
           <TabsTrigger value="academic" className="gap-1.5">{userRole === "instructor" ? <Briefcase className="h-4 w-4" /> : <GraduationCap className="h-4 w-4" />} {userRole === "instructor" ? "Admin" : "Academic"}</TabsTrigger>
+          {userRole === "instructor" && <TabsTrigger value="account" className="gap-1.5"><Shield className="h-4 w-4" /> Account &amp; Access</TabsTrigger>}
           <TabsTrigger value="kyc" className="gap-1.5"><Lock className="h-4 w-4" /> KYC <Badge variant="outline" className="ml-1 text-[9px]">Admin only</Badge></TabsTrigger>
         </TabsList>
 
