@@ -1,0 +1,2 @@
+UPDATE public.user_roles SET role = 'super_admin' WHERE user_id = '3a3c1545-a30f-4875-a175-56664fd17317' AND role = 'admin';
+UPDATE public.profiles SET is_verified = true WHERE user_id = '3a3c1545-a30f-4875-a175-56664fd17317';
