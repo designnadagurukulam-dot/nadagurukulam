@@ -123,6 +123,34 @@ const Admission = () => {
         </div>
       </section>
 
+      <SectionDivider />
+
+      {/* Offline Admission Form */}
+      <section className="py-16 md:py-24">
+        <div className="container mx-auto px-4 max-w-3xl">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="rounded-2xl border border-border bg-card p-8 md:p-10 shadow-sm text-center"
+          >
+            <div className="h-14 w-14 rounded-2xl bg-secondary/10 flex items-center justify-center mx-auto mb-5">
+              <FileText className="h-7 w-7 text-secondary" />
+            </div>
+            <h2 className="font-serif text-2xl md:text-3xl font-bold mb-3">Offline Admission Form</h2>
+            <p className="text-muted-foreground text-sm md:text-base max-w-xl mx-auto mb-8 leading-relaxed">
+              Prefer to apply in person? Download the admission form, fill it out, and submit it directly at our center.
+            </p>
+            <Button asChild size="lg" className="px-8 font-semibold">
+              <a href="/admission-form.pdf" download>
+                <Download className="h-4 w-4 mr-2" /> Download Admission Form
+              </a>
+            </Button>
+          </motion.div>
+        </div>
+      </section>
+
       <InquiryFormDialog
         open={inquiryOpen}
         onOpenChange={setInquiryOpen}
