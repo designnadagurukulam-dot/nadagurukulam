@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { GraduationCap, FileText, UserCheck, CalendarCheck, Send } from "lucide-react";
+import { GraduationCap, FileText, UserCheck, CalendarCheck, Send, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SectionDivider from "@/components/SectionDivider";
 import InquiryFormDialog from "@/components/InquiryFormDialog";
