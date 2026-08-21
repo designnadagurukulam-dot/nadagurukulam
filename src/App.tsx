@@ -18,6 +18,7 @@ import LessonPlayer from "./pages/LessonPlayer";
 import Faculty from "./pages/Faculty";
 import FacultyDetail from "./pages/FacultyDetail";
 import Gallery from "./pages/Gallery";
+import Admission from "./pages/Admission";
 import Contact from "./pages/Contact";
 import Login from "./pages/Login";
 import AdminLogin from "./pages/AdminLogin";
@@ -97,6 +98,7 @@ const App = () => (
             <Route path="/faculty/:id" element={<Layout><FacultyDetail /></Layout>} />
             <Route path="/events" element={<Layout><Events /></Layout>} />
             <Route path="/gallery" element={<Layout><Gallery /></Layout>} />
+            <Route path="/admission" element={<Layout><Admission /></Layout>} />
             <Route path="/contact" element={<Layout><Contact /></Layout>} />
 
             {/* Auth pages */}
