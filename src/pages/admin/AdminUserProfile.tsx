@@ -16,6 +16,8 @@ import DesignationSelect from "@/components/admin/DesignationSelect";
 
 import { INDIAN_STATES, citiesForState } from "@/data/indiaLocations";
 import QualificationsList from "@/components/profile/QualificationsList";
+import KycDocumentsList from "@/components/profile/KycDocumentsList";
+
 
 
 import { supabase } from "@/integrations/supabase/client";
