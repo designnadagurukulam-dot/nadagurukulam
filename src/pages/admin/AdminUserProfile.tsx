@@ -16,6 +16,8 @@ import DesignationSelect from "@/components/admin/DesignationSelect";
 
 import { INDIAN_STATES, citiesForState } from "@/data/indiaLocations";
 import QualificationsList from "@/components/profile/QualificationsList";
+import KycDocumentsList from "@/components/profile/KycDocumentsList";
+
 
 
 import { supabase } from "@/integrations/supabase/client";
@@ -397,15 +399,12 @@ const AdminUserProfile = () => {
         </TabsContent>
 
         <TabsContent value="kyc" className="mt-4">
-          <div className="grid gap-3 rounded-2xl bg-card p-5 shadow-[0_2px_16px_hsl(var(--primary)/0.06)] sm:grid-cols-2">
-            <p className="sm:col-span-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-xl p-2">These fields are visible to admins only — never shown in the user's own profile view.</p>
-            <Field label="Aadhar Number" value={form.aadhar_number} onChange={(v: string) => update("aadhar_number", v)} />
-            <Field label="PAN Number" value={form.pan_number} onChange={(v: string) => update("pan_number", v)} />
-            <Field label="Passport Number" value={form.passport_number} onChange={(v: string) => update("passport_number", v)} />
-            <Field label="Other KYC Document Type" value={form.kyc_document_type} onChange={(v: string) => update("kyc_document_type", v)} />
-            <Field label="Other KYC Document Number" value={form.kyc_document_number} onChange={(v: string) => update("kyc_document_number", v)} />
+          <div className="grid gap-4 rounded-2xl bg-card p-5 shadow-[0_2px_16px_hsl(var(--primary)/0.06)]">
+            <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-xl p-2">These records are visible to admins only — never shown in the user's own profile view.</p>
+            {userId && <KycDocumentsList userId={userId} editable />}
           </div>
         </TabsContent>
+
       </Tabs>
 
       <div className="sticky bottom-0 bg-background/95 backdrop-blur-sm py-3">
