@@ -29,6 +29,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Link, useNavigate } from "react-router-dom";
+import ConfirmDialog from "@/components/ConfirmDialog";
 
 const db = supabase as any;
 
@@ -56,6 +57,7 @@ const AdminBatches = () => {
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editBatch, setEditBatch] = useState<any>(null);
+  const [deleteTarget, setDeleteTarget] = useState<any>(null);
   const [form, setForm] = useState({
     name: "",
     description: "",
@@ -181,10 +183,11 @@ const AdminBatches = () => {
     fetchAll();
   };
   const deleteBatch = async (id: string) => {
-    if (!confirm("Delete this batch?")) return;
     const { error } = await db.from("batches").delete().eq("id", id);
-    if (error) return toast({ title: "Error", description: error.message, variant: "destructive" });
+    if (error) return toast({ title: "Error deleting batch", description: error.message, variant: "destructive" });
     toast({ title: "Batch deleted" });
+    setDeleteTarget(null);
+    if (showEnroll?.id === id) setShowEnroll(null);
     fetchAll();
   };
 
@@ -498,7 +501,7 @@ const AdminBatches = () => {
                 </div>
                 <div className="flex shrink-0 items-center gap-1">
                   <Button size="icon" variant="ghost" onClick={() => openEdit(b)}><Pencil className="h-4 w-4" /></Button>
-                  <Button size="icon" variant="ghost" onClick={() => deleteBatch(b.id)} className="text-destructive"><Trash2 className="h-4 w-4" /></Button>
+                  <Button size="icon" variant="ghost" onClick={() => setDeleteTarget(b)} className="text-destructive"><Trash2 className="h-4 w-4" /></Button>
                 </div>
               </div>
               <div className="mt-4 space-y-2 text-sm text-brand-warm-grey">
@@ -557,6 +560,16 @@ const AdminBatches = () => {
       </Dialog>
 
       {renderManageDialog()}
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(o) => !o && setDeleteTarget(null)}
+        title="Delete this batch?"
+        description={`This permanently deletes "${deleteTarget?.name || ""}" along with its enrollments, subjects, and grades. This cannot be undone.`}
+        confirmLabel="Delete"
+        variant="destructive"
+        onConfirm={() => deleteTarget && deleteBatch(deleteTarget.id)}
+      />
     </div>
   );
 

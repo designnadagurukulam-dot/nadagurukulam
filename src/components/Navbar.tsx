@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { getRoleDashboardPath } from "@/components/RoleProtectedRoute";
+import ConfirmDialog from "@/components/ConfirmDialog";
 import logo from "@/assets/logo.png";
 
 const navLinks = [
@@ -21,6 +22,7 @@ const navLinks = [
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, role, signOut } = useAuth();
@@ -33,7 +35,7 @@ const Navbar = () => {
 
   const handleSignOut = async () => {
     await signOut();
-    navigate("/");
+    navigate("/", { replace: true });
   };
 
   const dashboardPath = getRoleDashboardPath(role);
@@ -84,7 +86,7 @@ const Navbar = () => {
               <Button variant="outline" size="sm" onClick={() => navigate(dashboardPath)} className="gap-1.5 border-secondary/30 hover:border-secondary hover:bg-secondary/5">
                 <LayoutDashboard className="h-4 w-4" /> Dashboard
               </Button>
-              <Button variant="ghost" size="sm" onClick={handleSignOut} className="gap-1.5 text-muted-foreground">
+              <Button variant="ghost" size="sm" onClick={() => setShowSignOutConfirm(true)} className="gap-1.5 text-muted-foreground">
                 <LogOut className="h-4 w-4" /> Sign Out
               </Button>
             </div>
@@ -153,7 +155,7 @@ const Navbar = () => {
                         <LayoutDashboard className="h-5 w-5" /> Dashboard
                       </Button>
                     </Link>
-                    <Button variant="ghost" className="w-full gap-1.5 h-12 text-base text-muted-foreground" onClick={() => { handleSignOut(); setMobileOpen(false); }}>
+                    <Button variant="ghost" className="w-full gap-1.5 h-12 text-base text-muted-foreground" onClick={() => setShowSignOutConfirm(true)}>
                       <LogOut className="h-5 w-5" /> Sign Out
                     </Button>
                   </div>
@@ -167,6 +169,16 @@ const Navbar = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <ConfirmDialog
+        open={showSignOutConfirm}
+        onOpenChange={setShowSignOutConfirm}
+        title="Sign Out"
+        description="Are you sure you want to sign out?"
+        confirmLabel="Sign Out"
+        variant="destructive"
+        onConfirm={() => { handleSignOut(); setMobileOpen(false); }}
+      />
     </header>
   );
 };

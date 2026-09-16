@@ -1,111 +1,27 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
-  LayoutDashboard, BookOpen, ClipboardList, Calendar, Award, User, LogOut,
-  ChevronLeft, ChevronRight, PlusCircle, Users, BarChart3, CheckSquare, Tag, Menu, X, MessageSquare, Briefcase, CalendarDays, GraduationCap, Activity, BookCheck, FolderOpen, Video, Star, ShieldCheck, Waves
+  LogOut, ChevronLeft, ChevronRight, Menu, X, Award, Waves
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
-import { useQuery } from "@tanstack/react-query";
+import { useDashboardCounts } from "@/hooks/useDashboardCounts";
+import { getNavItems } from "@/config/dashboardNav";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import ConfirmDialog from "@/components/ConfirmDialog";
 import logo from "@/assets/logo.png";
-
-const studentNav = [
-  { label: "Overview", to: "/dashboard/student", icon: LayoutDashboard },
-  { label: "My Courses", to: "/dashboard/student/courses", icon: BookOpen },
-  { label: "Assignments", to: "/dashboard/student/assignments", icon: ClipboardList },
-  { label: "Schedule", to: "/dashboard/student/schedule", icon: Calendar },
-  { label: "Events", to: "/dashboard/student/events", icon: CalendarDays },
-  { label: "Reach Out", to: "/dashboard/student/chat", icon: MessageSquare },
-  { label: "Feedback", to: "/dashboard/student/feedback", icon: Star },
-  { label: "Certificates", to: "/dashboard/student/certificates", icon: Award },
-  { label: "Analytics", to: "/dashboard/student/analytics", icon: BarChart3 },
-  { label: "Profile", to: "/dashboard/student/profile", icon: User },
-];
-
-const instructorNav = [
-  { label: "Overview", to: "/dashboard/tutor", icon: LayoutDashboard },
-  { label: "My Courses", to: "/dashboard/tutor/courses", icon: BookOpen },
-  { label: "Lesson Plans", to: "/dashboard/tutor/lesson-plans", icon: BookCheck },
-  { label: "Assignments", to: "/dashboard/tutor/assignments", icon: ClipboardList },
-  { label: "Schedule", to: "/dashboard/tutor/schedule", icon: Calendar },
-  { label: "Events", to: "/dashboard/tutor/events", icon: CalendarDays },
-  { label: "Reach Out", to: "/dashboard/tutor/messages", icon: MessageSquare },
-  { label: "Analytics", to: "/dashboard/tutor/analytics", icon: BarChart3 },
-  { label: "Profile", to: "/dashboard/tutor/profile", icon: User },
-];
-
-const adminNav = [
-  { label: "Overview", to: "/dashboard/admin", icon: LayoutDashboard },
-  { label: "Users", to: "/dashboard/admin/users", icon: Users },
-  { label: "Faculty", to: "/dashboard/admin/teachers", icon: GraduationCap },
-  { label: "Batches", to: "/dashboard/admin/batches", icon: FolderOpen },
-  { label: "Curriculum", to: "/dashboard/admin/curriculum", icon: BookOpen },
-  { label: "Lesson Plans", to: "/dashboard/admin/lesson-plans", icon: BookCheck },
-  { label: "Assignments", to: "/dashboard/admin/assignments", icon: ClipboardList },
-  { label: "Feedback", to: "/dashboard/admin/feedback", icon: Star },
-  { label: "Timetable", to: "/dashboard/admin/schedule", icon: Calendar },
-  { label: "Events", to: "/dashboard/admin/events", icon: CalendarDays },
-  { label: "Messages", to: "/dashboard/admin/messages", icon: MessageSquare },
-  { label: "Course Approvals", to: "/dashboard/admin/approvals", icon: CheckSquare },
-  { label: "Programs", to: "/dashboard/admin/categories", icon: Tag },
-  { label: "Jobs", to: "/dashboard/admin/jobs", icon: Briefcase },
-  { label: "Inquiries", to: "/dashboard/admin/inquiries", icon: MessageSquare },
-  { label: "Activity Log", to: "/dashboard/admin/activity", icon: Activity },
-  { label: "Analytics", to: "/dashboard/admin/analytics", icon: BarChart3 },
-];
-
-const superAdminNav = [
-  ...adminNav.map(item => item.label === "Messages" ? { ...item, label: "Message Monitor" } : item),
-];
 
 const DashboardSidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { signOut, profile, role, user } = useAuth();
+  const { signOut, profile, role } = useAuth();
 
-  const getLastViewed = (key: string) => {
-    if (typeof window === "undefined") return "1970-01-01T00:00:00Z";
-    return localStorage.getItem(`lastViewed:${key}`) || "1970-01-01T00:00:00Z";
-  };
+  const { data: counts = {} } = useDashboardCounts();
 
-  const { data: counts = {} } = useQuery({
-    queryKey: ["sidebar-counts", role, user?.id],
-    enabled: !!role,
-    refetchInterval: 30000,
-    queryFn: async () => {
-      const next: Record<string, number> = {};
-      if (role === "admin" || role === "super_admin") {
-        const usersSince = getLastViewed("users");
-        const assignSince = getLastViewed("assignments");
-        const feedbackSince = getLastViewed("feedback");
-        const profilesP = supabase.from("profiles").select("id", { count: "exact", head: true }).eq("is_verified", false).gt("created_at", usersSince);
-        const reviewsP = supabase.from("content_reviews").select("id", { count: "exact", head: true }).eq("status", "pending");
-        const submissionsP = supabase.from("assignment_submissions").select("id", { count: "exact", head: true }).is("grade", null).gt("submitted_at", assignSince);
-        const messagesP = supabase.from("messages").select("id", { count: "exact", head: true }).eq("is_read", false);
-        const feedbackP = (supabase.from("feedback") as any).select("id", { count: "exact", head: true }).eq("read_by_admin", false).gt("created_at", feedbackSince);
-        const [profiles, reviews, submissions, messages, feedback] = await Promise.all([profilesP, reviewsP, submissionsP, messagesP, feedbackP]);
-        next["Users"] = profiles.count || 0;
-        next["Course Approvals"] = reviews.count || 0;
-        next["Assignments"] = submissions.count || 0;
-        next[role === "super_admin" ? "Message Monitor" : "Messages"] = messages.count || 0;
-        next["Feedback"] = (feedback as any).count || 0;
-      } else if (user?.id) {
-        const [messages, submissions] = await Promise.all([
-          supabase.from("messages").select("id", { count: "exact", head: true }).eq("receiver_id", user.id).eq("is_read", false),
-          role === "student" ? supabase.from("assignment_submissions").select("id", { count: "exact", head: true }).eq("student_id", user.id).eq("status", "submitted") : Promise.resolve({ count: 0 }),
-        ]);
-        next["Reach Out"] = messages.count || 0;
-        next["Assignments"] = submissions.count || 0;
-      }
-      return next;
-    },
-  });
-
-  const navItems = role === "super_admin" ? superAdminNav : role === "admin" ? adminNav : role === "instructor" ? instructorNav : studentNav;
+  const navItems = getNavItems(role);
 
   useEffect(() => {
     setMobileOpen(false);
@@ -133,7 +49,7 @@ const DashboardSidebar = () => {
 
   const handleSignOut = async () => {
     await signOut();
-    navigate("/");
+    navigate("/", { replace: true });
   };
 
   const sidebarContent = (isMobile = false) => (
@@ -217,7 +133,7 @@ const DashboardSidebar = () => {
           variant="ghost"
           size="sm"
           className="w-full justify-start gap-3 text-brand-warm-grey-light hover:text-white hover:bg-brand-primary/60 rounded-xl text-[12px] min-h-[44px]"
-          onClick={handleSignOut}
+          onClick={() => setShowSignOutConfirm(true)}
         >
           <LogOut className="h-4 w-4 shrink-0" />
           {(!collapsed || isMobile) && <span>Sign Out</span>}
@@ -228,6 +144,16 @@ const DashboardSidebar = () => {
 
   return (
     <>
+      <ConfirmDialog
+        open={showSignOutConfirm}
+        onOpenChange={setShowSignOutConfirm}
+        title="Sign Out"
+        description="Are you sure you want to sign out?"
+        confirmLabel="Sign Out"
+        variant="destructive"
+        onConfirm={handleSignOut}
+      />
+
       {/* Mobile toggle — 44x44 tap target */}
       {!mobileOpen && (
         <button

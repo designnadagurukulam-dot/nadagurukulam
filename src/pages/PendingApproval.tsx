@@ -1,12 +1,15 @@
+import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Navigate, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Clock, LogOut } from "lucide-react";
 import { getRoleDashboardPath } from "@/components/RoleProtectedRoute";
+import ConfirmDialog from "@/components/ConfirmDialog";
 
 const PendingApproval = () => {
   const { user, role, loading, isVerified, profile, signOut } = useAuth();
   const navigate = useNavigate();
+  const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
 
   if (loading) {
     return (
@@ -21,7 +24,7 @@ const PendingApproval = () => {
 
   const handleSignOut = async () => {
     await signOut();
-    navigate("/");
+    navigate("/", { replace: true });
   };
 
   const userName = profile?.display_name || "there";
@@ -41,11 +44,21 @@ const PendingApproval = () => {
         <p className="text-sm text-brand-warm-grey">
           You will be able to sign in and access your dashboard once your account is approved.
         </p>
-        <Button variant="outline" onClick={handleSignOut} className="gap-2 border-brand-primary text-brand-primary hover:bg-brand-primary hover:text-white rounded-xl">
+        <Button variant="outline" onClick={() => setShowSignOutConfirm(true)} className="gap-2 border-brand-primary text-brand-primary hover:bg-brand-primary hover:text-white rounded-xl">
           <LogOut className="h-4 w-4" />
           Sign Out
         </Button>
       </div>
+
+      <ConfirmDialog
+        open={showSignOutConfirm}
+        onOpenChange={setShowSignOutConfirm}
+        title="Sign Out"
+        description="Are you sure you want to sign out?"
+        confirmLabel="Sign Out"
+        variant="destructive"
+        onConfirm={handleSignOut}
+      />
     </div>
   );
 };
