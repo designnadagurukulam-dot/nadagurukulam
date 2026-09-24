@@ -29,11 +29,14 @@ const CourseDetail = () => {
   const { data: course, isLoading } = useQuery({
     queryKey: ["course-detail", id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("courses")
-        .select("*, categories(name)")
-        .eq("id", id!)
-        .single();
+      const isUuid = !!id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+      let query = supabase.from("courses").select("*, categories(name)");
+      if (isUuid) {
+        query = query.eq("id", id!);
+      } else {
+        query = query.eq("slug", id!);
+      }
+      const { data, error } = await query.single();
       if (error) throw error;
       return data;
     },

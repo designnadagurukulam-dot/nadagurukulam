@@ -55,6 +55,8 @@ const programHighlights: Record<string, string[]> = {
   ],
 };
 
+const isUuid = (val?: string) => !!val && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val);
+
 const ProgramDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const [inquiryOpen, setInquiryOpen] = useState(false);
@@ -62,13 +64,19 @@ const ProgramDetail = () => {
   const { data: program, isLoading } = useQuery({
     queryKey: ["program-detail", slug],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from("courses")
         .select("*")
-        .eq("slug", slug!)
         .eq("status", "approved")
-        .is("archived_at", null)
-        .single();
+        .is("archived_at", null);
+
+      if (isUuid(slug)) {
+        query = query.eq("id", slug!);
+      } else {
+        query = query.eq("slug", slug!);
+      }
+
+      const { data, error } = await query.single();
       if (error) throw error;
       return data;
     },
@@ -94,7 +102,7 @@ const ProgramDetail = () => {
     );
   }
 
-  const highlights = (slug && programHighlights[slug]) || [];
+  const highlights = (program?.slug && programHighlights[program.slug]) || (slug && programHighlights[slug]) || [];
   const image = getCourseImage(program);
 
   return (
