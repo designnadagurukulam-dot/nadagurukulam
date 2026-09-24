@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Save, Plus, Trash2, GripVertical, Video, FileText, Type, Headphones, CheckCircle2, Layers, ClipboardList } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,6 +13,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { logActivity } from "@/lib/activityLogger";
+import { generateId } from "@/lib/utils";
 
 const steps = ["Details", "Modules & Topics", "Review"];
 const stepIcons = [ClipboardList, Layers, CheckCircle2];
@@ -44,8 +45,15 @@ const CreateCourse = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { id: courseId } = useParams<{ id: string }>();
+  const isEditMode = Boolean(courseId);
+
   const [step, setStep] = useState(0);
   const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(isEditMode);
+  const [notFound, setNotFound] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [courseStatus, setCourseStatus] = useState("draft");
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -53,15 +61,101 @@ const CreateCourse = () => {
   const [totalHours, setTotalHours] = useState<number>(0);
 
   const [modules, setModules] = useState<Module[]>([
-    { id: crypto.randomUUID(), title: "Module 1", description: "", teaching_outcomes: "", hours: 0, sort_order: 0, lessons: [] },
+    { id: generateId(), title: "Module 1", description: "", teaching_outcomes: "", hours: 0, sort_order: 0, lessons: [] },
   ]);
+
+  // Track which module/lesson IDs already exist in the database (loaded in edit mode)
+  // so saving can UPDATE those and INSERT only the new ones, instead of duplicating everything.
+  const existingModuleIdsRef = useRef<Set<string>>(new Set());
+  const existingLessonIdsRef = useRef<Set<string>>(new Set());
+  const deletedModuleIdsRef = useRef<Set<string>>(new Set());
+  const deletedLessonIdsRef = useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (!courseId) return;
+    let cancelled = false;
+
+    (async () => {
+      setLoading(true);
+      setNotFound(false);
+      setLoadError(null);
+      try {
+        const { data: courseData, error: courseErr } = await supabase
+          .from("courses")
+          .select("*")
+          .eq("id", courseId)
+          .maybeSingle();
+        if (courseErr) throw courseErr;
+        if (!courseData) {
+          if (!cancelled) setNotFound(true);
+          return;
+        }
+
+        const { data: modulesData, error: modulesErr } = await supabase
+          .from("course_modules")
+          .select("*, course_lessons(*)")
+          .eq("course_id", courseId)
+          .order("sort_order", { ascending: true });
+        if (modulesErr) throw modulesErr;
+
+        if (cancelled) return;
+
+        setTitle(courseData.title || "");
+        setDescription(courseData.description || "");
+        setCourseOutcomes((courseData.course_outcomes || []).join("\n"));
+        setTotalHours(courseData.total_hours || 0);
+        setCourseStatus(courseData.status || "draft");
+
+        const loadedModules: Module[] = (modulesData || []).map((m: any) => {
+          existingModuleIdsRef.current.add(m.id);
+          const lessons: Lesson[] = (m.course_lessons || [])
+            .slice()
+            .sort((a: any, b: any) => a.sort_order - b.sort_order)
+            .map((l: any) => {
+              existingLessonIdsRef.current.add(l.id);
+              return {
+                id: l.id,
+                title: l.title,
+                description: l.description || "",
+                lesson_type: l.lesson_type,
+                video_url: l.video_url || "",
+                pdf_url: l.pdf_url || "",
+                content_text: l.content_text || "",
+                sort_order: l.sort_order,
+              };
+            });
+          return {
+            id: m.id,
+            title: m.title,
+            description: m.description || "",
+            teaching_outcomes: m.teaching_outcomes || "",
+            hours: m.hours || 0,
+            sort_order: m.sort_order,
+            lessons,
+          };
+        });
+
+        if (loadedModules.length > 0) {
+          setModules(loadedModules);
+        }
+      } catch (err: any) {
+        if (!cancelled) setLoadError(err.message || "Failed to load course");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [courseId]);
 
   const sumModuleHours = modules.reduce((s, m) => s + (Number(m.hours) || 0), 0);
   const hoursExceeded = totalHours > 0 && sumModuleHours > totalHours;
 
   const addModule = () => {
     setModules([...modules, {
-      id: crypto.randomUUID(),
+      id: generateId(),
       title: `Module ${modules.length + 1}`,
       description: "",
       teaching_outcomes: "",
@@ -71,7 +165,13 @@ const CreateCourse = () => {
     }]);
   };
 
-  const removeModule = (idx: number) => setModules(modules.filter((_, i) => i !== idx));
+  const removeModule = (idx: number) => {
+    const mod = modules[idx];
+    if (existingModuleIdsRef.current.has(mod.id)) {
+      deletedModuleIdsRef.current.add(mod.id);
+    }
+    setModules(modules.filter((_, i) => i !== idx));
+  };
 
   const updateModule = (idx: number, field: keyof Module, value: any) => {
     const updated = [...modules];
@@ -82,7 +182,7 @@ const CreateCourse = () => {
   const addLesson = (modIdx: number) => {
     const updated = [...modules];
     updated[modIdx].lessons.push({
-      id: crypto.randomUUID(),
+      id: generateId(),
       title: `Topic ${updated[modIdx].lessons.length + 1}`,
       description: "",
       lesson_type: "video",
@@ -96,6 +196,10 @@ const CreateCourse = () => {
 
   const removeLesson = (modIdx: number, lesIdx: number) => {
     const updated = [...modules];
+    const les = updated[modIdx].lessons[lesIdx];
+    if (existingLessonIdsRef.current.has(les.id)) {
+      deletedLessonIdsRef.current.add(les.id);
+    }
     updated[modIdx].lessons = updated[modIdx].lessons.filter((_, i) => i !== lesIdx);
     setModules(updated);
   };
@@ -115,63 +219,134 @@ const CreateCourse = () => {
     setSaving(true);
     try {
       const outcomesArr = courseOutcomes.split("\n").map(s => s.trim()).filter(Boolean);
-      const { data: course, error: courseErr } = await supabase
-        .from("courses")
-        .insert({
-          title,
-          description,
-          total_hours: totalHours || null,
-          course_outcomes: outcomesArr,
-          price: 0,
-          discount_price: null,
-          instructor_id: user.id,
-          instructor_name: user.user_metadata?.display_name || user.email,
-          status: submitForReview ? "pending" : "draft",
-        } as any)
-        .select()
-        .single();
+      const newStatus = submitForReview ? "pending" : "draft";
+      let courseRowId = courseId as string | undefined;
 
-      if (courseErr) throw courseErr;
-
-      for (const mod of modules) {
-        const { data: dbModule, error: modErr } = await supabase
-          .from("course_modules")
+      if (isEditMode && courseRowId) {
+        const { error: updateErr } = await supabase
+          .from("courses")
+          .update({
+            title,
+            description,
+            total_hours: totalHours || null,
+            course_outcomes: outcomesArr,
+            status: newStatus,
+          } as any)
+          .eq("id", courseRowId);
+        if (updateErr) throw updateErr;
+      } else {
+        const { data: course, error: courseErr } = await supabase
+          .from("courses")
           .insert({
-            course_id: course.id,
-            title: mod.title,
-            description: mod.description,
-            teaching_outcomes: mod.teaching_outcomes || null,
-            hours: mod.hours || null,
-            sort_order: mod.sort_order,
+            title,
+            description,
+            total_hours: totalHours || null,
+            course_outcomes: outcomesArr,
+            price: 0,
+            discount_price: null,
+            instructor_id: user.id,
+            instructor_name: user.user_metadata?.display_name || user.email,
+            status: newStatus,
           } as any)
           .select()
           .single();
+        if (courseErr) throw courseErr;
+        courseRowId = course.id;
+      }
 
-        if (modErr) throw modErr;
+      // Remove modules/lessons the user deleted while editing before syncing the rest.
+      if (deletedLessonIdsRef.current.size > 0) {
+        const { error: delLesErr } = await supabase
+          .from("course_lessons")
+          .delete()
+          .in("id", Array.from(deletedLessonIdsRef.current));
+        if (delLesErr) throw delLesErr;
+      }
+      if (deletedModuleIdsRef.current.size > 0) {
+        const { error: delModErr } = await supabase
+          .from("course_modules")
+          .delete()
+          .in("id", Array.from(deletedModuleIdsRef.current));
+        if (delModErr) throw delModErr;
+      }
 
-        if (mod.lessons.length > 0) {
-          const lessonsToInsert = mod.lessons.map((les) => ({
-            module_id: dbModule.id,
-            title: les.title,
-            description: les.description || null,
-            lesson_type: les.lesson_type,
-            video_url: les.video_url || null,
-            pdf_url: les.pdf_url || null,
-            content_text: les.content_text || null,
-            is_preview: false,
-            sort_order: les.sort_order,
-          }));
-          const { error: lesErr } = await supabase.from("course_lessons").insert(lessonsToInsert as any);
-          if (lesErr) throw lesErr;
+      for (const mod of modules) {
+        let moduleDbId = mod.id;
+
+        if (existingModuleIdsRef.current.has(mod.id)) {
+          const { error: modErr } = await supabase
+            .from("course_modules")
+            .update({
+              title: mod.title,
+              description: mod.description,
+              teaching_outcomes: mod.teaching_outcomes || null,
+              hours: mod.hours || null,
+              sort_order: mod.sort_order,
+            } as any)
+            .eq("id", mod.id);
+          if (modErr) throw modErr;
+        } else {
+          const { data: dbModule, error: modErr } = await supabase
+            .from("course_modules")
+            .insert({
+              course_id: courseRowId,
+              title: mod.title,
+              description: mod.description,
+              teaching_outcomes: mod.teaching_outcomes || null,
+              hours: mod.hours || null,
+              sort_order: mod.sort_order,
+            } as any)
+            .select()
+            .single();
+          if (modErr) throw modErr;
+          moduleDbId = dbModule.id;
+        }
+
+        for (const les of mod.lessons) {
+          if (existingLessonIdsRef.current.has(les.id)) {
+            const { error: lesErr } = await supabase
+              .from("course_lessons")
+              .update({
+                title: les.title,
+                description: les.description || null,
+                lesson_type: les.lesson_type,
+                video_url: les.video_url || null,
+                pdf_url: les.pdf_url || null,
+                content_text: les.content_text || null,
+                sort_order: les.sort_order,
+              } as any)
+              .eq("id", les.id);
+            if (lesErr) throw lesErr;
+          } else {
+            const { error: lesErr } = await supabase
+              .from("course_lessons")
+              .insert({
+                module_id: moduleDbId,
+                title: les.title,
+                description: les.description || null,
+                lesson_type: les.lesson_type,
+                video_url: les.video_url || null,
+                pdf_url: les.pdf_url || null,
+                content_text: les.content_text || null,
+                is_preview: false,
+                sort_order: les.sort_order,
+              } as any);
+            if (lesErr) throw lesErr;
+          }
         }
       }
 
       if (submitForReview) {
-        await supabase.from("content_reviews").insert({ course_id: course.id, status: "pending" } as any);
+        await supabase.from("content_reviews").insert({ course_id: courseRowId, status: "pending" } as any);
       }
 
-      logActivity(submitForReview ? "course.submitted" : "course.created", "course", course.id, { title, status: submitForReview ? "pending" : "draft" });
-      toast({ title: submitForReview ? "Course submitted for review!" : "Course saved as draft!" });
+      logActivity(
+        isEditMode ? "course.updated" : submitForReview ? "course.submitted" : "course.created",
+        "course",
+        courseRowId!,
+        { title, status: newStatus }
+      );
+      toast({ title: isEditMode ? "Course updated!" : submitForReview ? "Course submitted for review!" : "Course saved as draft!" });
       navigate("/dashboard/tutor/courses");
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -184,15 +359,54 @@ const CreateCourse = () => {
   const brandInput = "rounded-xl border-[#EDE3CC] focus:border-[#C49A3C]";
   const brandCard = "bg-white rounded-2xl border border-[#EDE3CC] shadow-[0_2px_24px_rgba(125,30,36,0.06)]";
 
+  const backButton = (
+    <Button variant="ghost" onClick={() => navigate("/dashboard/tutor/courses")} className="gap-2 mb-2 text-[#8C7B6B] hover:text-[#7D1E24] hover:bg-[#FAF6EE] rounded-xl">
+      <ArrowLeft className="h-4 w-4" /> Back to My Courses
+    </Button>
+  );
+
+  if (isEditMode && loading) {
+    return (
+      <div className="max-w-4xl mx-auto pt-2">
+        {backButton}
+        <div className="flex justify-center py-16">
+          <div className="h-8 w-8 border-4 border-[#7D1E24] border-t-transparent rounded-full animate-spin" />
+        </div>
+      </div>
+    );
+  }
+
+  if (isEditMode && notFound) {
+    return (
+      <div className="max-w-4xl mx-auto pt-2">
+        {backButton}
+        <div className={`${brandCard} p-12 text-center`}>
+          <p className="text-lg font-serif text-[#7D1E24]">Course not found.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isEditMode && loadError) {
+    return (
+      <div className="max-w-4xl mx-auto pt-2">
+        {backButton}
+        <div className={`${brandCard} p-12 text-center`}>
+          <p className="text-red-600">{loadError}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 max-w-4xl mx-auto pt-2">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-        <Button variant="ghost" onClick={() => navigate("/dashboard/tutor/courses")} className="gap-2 mb-2 text-[#8C7B6B] hover:text-[#7D1E24] hover:bg-[#FAF6EE] rounded-xl">
-          <ArrowLeft className="h-4 w-4" /> Back to My Courses
-        </Button>
-        <h1 className="font-serif text-2xl font-semibold text-[#7D1E24]">Create New Course</h1>
+        {backButton}
+        <h1 className="font-serif text-2xl font-semibold text-[#7D1E24]">{isEditMode ? "Edit Course" : "Create New Course"}</h1>
         <div className="w-12 h-0.5 bg-[#C49A3C] mt-1" />
-        <p className="text-sm text-[#8C7B6B] mt-2">Extra learning material created by you</p>
+        <p className="text-sm text-[#8C7B6B] mt-2">
+          {isEditMode ? `Update the details of this course (currently ${courseStatus}).` : "Extra learning material created by you"}
+        </p>
       </motion.div>
 
       {/* Step Indicator */}
@@ -458,10 +672,10 @@ const CreateCourse = () => {
             </Button>
             <div className="flex gap-3">
               <Button variant="outline" onClick={() => handleSave(false)} disabled={saving || !title} className="gap-2 border-[#EDE3CC] text-[#7D1E24] hover:bg-[#FAF6EE] rounded-xl">
-                <Save className="h-4 w-4" /> Save Draft
+                <Save className="h-4 w-4" /> {isEditMode ? "Update Course" : "Save Draft"}
               </Button>
               <Button onClick={() => handleSave(true)} disabled={saving || !title} className="gap-2 bg-[#C49A3C] hover:bg-[#B08A2E] text-[#3D2E22] rounded-xl">
-                Submit for Review
+                {isEditMode ? "Update & Submit for Review" : "Submit for Review"}
               </Button>
             </div>
           </div>

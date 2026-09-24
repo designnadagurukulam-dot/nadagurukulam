@@ -240,7 +240,6 @@ const InstructorAssignments = () => {
                       return (
                         <TableRow
                           key={a.id}
-                          onClick={() => setDetailAssignment(a)}
                           className="cursor-pointer hover:bg-brand-gold-pale/30"
                         >
                           <TableCell className="font-medium text-brand-charcoal-mid">{a.title}</TableCell>
@@ -254,7 +253,7 @@ const InstructorAssignments = () => {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={(e) => { e.stopPropagation(); setSelectedAssignment(a.id); }}
+                              onClick={(e) => { e.stopPropagation(); setDetailAssignment(a); }}
                               className="hover:bg-brand-gold-pale text-xs text-brand-primary"
                             >
                               View

@@ -7,6 +7,7 @@ import { useDashboardCounts } from "@/hooks/useDashboardCounts";
 import { getNavItems } from "@/config/dashboardNav";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
+import { formatBadgeCount } from "@/lib/utils";
 
 const roleLabel = (role: string | null | undefined): string => {
   if (role === "instructor") return "Faculty";
@@ -112,7 +113,7 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => {
                   <Bell className="w-4 h-4 text-brand-warm-grey group-hover:text-brand-gold transition-colors" />
                   {totalCount > 0 && (
                     <Badge className="absolute -top-1 -right-1 h-4 min-w-4 rounded-full bg-brand-gold px-1 text-[9px] text-brand-primary-dark">
-                      {totalCount > 99 ? "99+" : totalCount}
+                      {formatBadgeCount(totalCount)}
                     </Badge>
                   )}
                 </button>
@@ -138,7 +139,7 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => {
                         </div>
                         <span className="flex-1 text-sm text-brand-charcoal">{n.label}</span>
                         <Badge className="h-5 min-w-5 rounded-full bg-brand-gold px-1.5 text-[10px] text-brand-primary-dark">
-                          {n.count > 99 ? "99+" : n.count}
+                          {formatBadgeCount(n.count)}
                         </Badge>
                       </Link>
                     ))}

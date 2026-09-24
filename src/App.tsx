@@ -33,6 +33,7 @@ import DashboardAnalytics from "./pages/dashboard/DashboardAnalytics";
 import DashboardProfile from "./pages/dashboard/DashboardProfile";
 import InstructorCourses from "./pages/instructor/InstructorCourses";
 import CreateCourse from "./pages/instructor/CreateCourse";
+import CourseDetails from "./pages/instructor/CourseDetails";
 import InstructorAssignments from "./pages/instructor/InstructorAssignments";
 import InstructorStudents from "./pages/instructor/InstructorStudents";
 import InstructorAnalytics from "./pages/instructor/InstructorAnalytics";
@@ -141,6 +142,7 @@ const App = () => (
             <Route path="/dashboard/tutor/courses" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><InstructorCourses /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/tutor/create" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><CreateCourse /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/tutor/edit/:id" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><CreateCourse /></DashboardLayout></RoleProtectedRoute>} />
+            <Route path="/dashboard/tutor/view/:id" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><CourseDetails /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/tutor/assignments" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><InstructorAssignments /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/tutor/students" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><InstructorStudents /></DashboardLayout></RoleProtectedRoute>} />
             <Route path="/dashboard/tutor/analytics" element={<RoleProtectedRoute allowedRoles={["instructor"]}><DashboardLayout><InstructorAnalytics /></DashboardLayout></RoleProtectedRoute>} />

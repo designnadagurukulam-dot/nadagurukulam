@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useDashboardCounts } from "@/hooks/useDashboardCounts";
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import LiveClassesBlock from "@/components/overview/LiveClassesBlock";
 
@@ -57,6 +58,9 @@ const AdminOverview = () => {
   const { role, user } = useAuth();
   const isSuperAdmin = role === "super_admin";
   const navigate = useNavigate();
+  // Reuses the same live, already-invalidated unread count the notification bell/sidebar use,
+  // instead of this page's own one-time fetch, so this badge updates immediately when read too.
+  const { data: dashboardCounts = {} } = useDashboardCounts();
 
   const [stats, setStats] = useState({
     courses: 0, students: 0, instructors: 0,
@@ -214,8 +218,8 @@ const AdminOverview = () => {
     { id: "feedback", label: "Feedback", icon: Star, to: "/dashboard/admin/feedback", count: 0 },
     { id: "approvals", label: "Review Submissions", icon: Clock, to: "/dashboard/admin/approvals", count: 0 },
     { id: "schedule", label: "Schedule", icon: Clock, to: "/dashboard/admin/schedule", count: 0 },
-    ...(isSuperAdmin ? [{ id: "messages", label: "Message Monitor", icon: Mail, to: "/dashboard/admin/messages", count: stats.unreadMessages }] : []),
-  ]), [stats, isSuperAdmin]);
+    ...(isSuperAdmin ? [{ id: "messages", label: "Message Monitor", icon: Mail, to: "/dashboard/admin/messages", count: dashboardCounts["Message Monitor"] || 0 }] : []),
+  ]), [stats, isSuperAdmin, dashboardCounts]);
 
   const quickActions = allQuickActions.filter(a => visibleActions.includes(a.id));
   const availableActions = allQuickActions.filter(a => !visibleActions.includes(a.id));

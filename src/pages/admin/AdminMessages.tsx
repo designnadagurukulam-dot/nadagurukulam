@@ -12,6 +12,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format, isToday } from "date-fns";
 import { ChatComposer } from "@/components/chat/ChatComposer";
 import { MessageBubble } from "@/components/chat/MessageBubble";
+import { formatBadgeCount } from "@/lib/utils";
 
 const AdminMessages = () => {
   const { user, role } = useAuth();
@@ -21,6 +22,16 @@ const AdminMessages = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedContact, setSelectedContact] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // super_admin can't flip is_read on messages it didn't receive (RLS), so Message Monitor
+  // tracks "seen" the same way this dashboard's other monitor-style badges do (Users,
+  // Assignments, Feedback): a lastViewed timestamp, advanced on open and on each conversation
+  // viewed, with the sidebar/bell badge refreshed immediately to match.
+  useEffect(() => {
+    if (!isSuperAdmin) return;
+    localStorage.setItem("lastViewed:messages", new Date().toISOString());
+    queryClient.invalidateQueries({ queryKey: ["sidebar-counts"] });
+  }, [isSuperAdmin, selectedContact, queryClient]);
 
   // For super_admin: load all conversations (read-only monitor)
   // For admin: load own conversations (can send)
@@ -104,6 +115,7 @@ const AdminMessages = () => {
       if (msg.sender_id === user.id || msg.receiver_id === user.id) {
         queryClient.invalidateQueries({ queryKey: ["admin-thread"] });
         queryClient.invalidateQueries({ queryKey: ["admin-chat-contacts"] });
+        queryClient.invalidateQueries({ queryKey: ["sidebar-counts"] });
       }
     }).subscribe();
     return () => { supabase.removeChannel(channel); };
@@ -113,7 +125,7 @@ const AdminMessages = () => {
   useEffect(() => {
     if (!user || !selectedContact || isSuperAdmin) return;
     supabase.from("messages").update({ is_read: true }).eq("receiver_id", user.id).eq("sender_id", selectedContact).eq("is_read", false)
-      .then(() => queryClient.invalidateQueries({ queryKey: ["admin-chat-contacts"] }));
+      .then(() => { queryClient.invalidateQueries({ queryKey: ["admin-chat-contacts"] }); queryClient.invalidateQueries({ queryKey: ["sidebar-counts"] }); });
   }, [selectedContact, user, isSuperAdmin, queryClient]);
 
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [thread]);
@@ -246,7 +258,7 @@ const AdminMessages = () => {
                       <Badge className={`${getRoleBadge(c.role)} text-[8px] px-1 py-0 h-4 mt-0.5`}>{c.role}</Badge>
                     </div>
                     {c.unread > 0 && (
-                      <Badge className="bg-gradient-to-r from-brand-primary to-brand-primary-dark text-primary-foreground text-[10px] h-5 min-w-[20px] flex items-center justify-center border-0">{c.unread}</Badge>
+                      <Badge className="bg-gradient-to-r from-brand-primary to-brand-primary-dark text-primary-foreground text-[10px] h-5 min-w-[20px] flex items-center justify-center border-0">{formatBadgeCount(c.unread)}</Badge>
                     )}
                   </button>
                 );
@@ -284,7 +296,7 @@ const AdminMessages = () => {
                         <p className="text-sm font-medium text-brand-charcoal-mid">{c.display_name}</p>
                         <Badge className={`${getRoleBadge(c.role)} text-[8px] px-1 py-0 h-4 mt-0.5`}>{c.role}</Badge>
                       </div>
-                      {c.unread > 0 && <Badge className="bg-brand-primary text-primary-foreground text-xs border-0">{c.unread}</Badge>}
+                      {c.unread > 0 && <Badge className="bg-brand-primary text-primary-foreground text-xs border-0">{formatBadgeCount(c.unread)}</Badge>}
                     </button>
                   );
                 })}

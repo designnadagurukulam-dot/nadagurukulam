@@ -16,6 +16,20 @@ import QualificationsList from "@/components/profile/QualificationsList";
 const PERSONAL_KEYS = ["display_name","phone","date_of_birth","gender","blood_group","address","city","state","pincode","emergency_contact_name","emergency_contact_phone","bio"];
 const FAMILY_KEYS = ["father_name","father_occupation","father_email","father_phone","mother_name","mother_occupation","mother_email","mother_phone","family_notes"];
 
+// Defined at module scope (not inside DashboardProfile) so it keeps a stable identity across
+// re-renders — otherwise every keystroke redefines this component, forcing React to remount
+// the underlying <input> and drop focus after a single character.
+const Field = ({ label, icon: Icon, value, onChange, disabled, type = "text", placeholder = "" }: any) => (
+  <div>
+    <label className="text-[11px] uppercase tracking-widest font-semibold text-brand-warm-grey mb-1.5 flex items-center gap-2">
+      {Icon && <Icon className="h-3.5 w-3.5 text-brand-gold" />} {label}
+    </label>
+    <Input type={type} value={value || ""} onChange={onChange ? (e: any) => onChange(e.target.value) : undefined}
+      disabled={disabled} placeholder={placeholder}
+      className={`h-11 rounded-xl border-brand-parchment focus:border-brand-gold focus:ring-brand-gold/20 ${disabled ? "bg-brand-cream" : ""}`} />
+  </div>
+);
+
 const DashboardProfile = () => {
   const { user, role } = useAuth();
   const { toast } = useToast();
@@ -119,17 +133,6 @@ const DashboardProfile = () => {
   const initials = formData.display_name ? formData.display_name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase() : "NG";
   const roleLabel = role === "admin" || role === "super_admin" ? "Admin" : role === "instructor" ? "Faculty" : "Student";
   const maskValue = (val: string) => { if (!val || val.length < 8) return val; return val.slice(0, 4) + "****" + val.slice(-4); };
-
-  const Field = ({ label, icon: Icon, value, onChange, disabled, type = "text", placeholder = "" }: any) => (
-    <div>
-      <label className="text-[11px] uppercase tracking-widest font-semibold text-brand-warm-grey mb-1.5 flex items-center gap-2">
-        {Icon && <Icon className="h-3.5 w-3.5 text-brand-gold" />} {label}
-      </label>
-      <Input type={type} value={value || ""} onChange={onChange ? (e: any) => onChange(e.target.value) : undefined}
-        disabled={disabled} placeholder={placeholder}
-        className={`h-11 rounded-xl border-brand-parchment focus:border-brand-gold focus:ring-brand-gold/20 ${disabled ? "bg-brand-cream" : ""}`} />
-    </div>
-  );
 
   return (
     <div className="space-y-4 sm:space-y-6 max-w-3xl pt-2">

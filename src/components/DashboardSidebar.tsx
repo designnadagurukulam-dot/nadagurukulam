@@ -9,6 +9,7 @@ import { getNavItems } from "@/config/dashboardNav";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import { formatBadgeCount } from "@/lib/utils";
 import logo from "@/assets/logo.png";
 
 const DashboardSidebar = () => {
@@ -101,7 +102,7 @@ const DashboardSidebar = () => {
           >
             <item.icon className="w-[18px] h-[18px] shrink-0" />
             {(!collapsed || isMobile) && <span className="flex-1 truncate">{item.label}</span>}
-            {(!collapsed || isMobile) && !!counts[item.label] && <Badge className="ml-auto h-5 min-w-5 rounded-full bg-brand-gold px-1.5 text-[10px] text-brand-primary-dark">{counts[item.label] > 99 ? "99+" : counts[item.label]}</Badge>}
+            {(!collapsed || isMobile) && !!counts[item.label] && <Badge className="ml-auto h-5 min-w-5 rounded-full bg-brand-gold px-1.5 text-[10px] text-brand-primary-dark">{formatBadgeCount(counts[item.label])}</Badge>}
           </Link>
         ))}
       </nav>

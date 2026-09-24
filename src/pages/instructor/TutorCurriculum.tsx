@@ -26,7 +26,7 @@ const TutorCurriculum = () => {
   const [openModules, setOpenModules] = useState<string[]>([]);
   const [createModuleOpen, setCreateModuleOpen] = useState(false);
   const [addTopicOpen, setAddTopicOpen] = useState<string | null>(null);
-  const [moduleForm, setModuleForm] = useState({ name: "", courseCode: "", semester: "9", batchId: "", description: "" });
+  const [moduleForm, setModuleForm] = useState({ name: "", courseCode: "", semester: "1", batchId: "", description: "" });
   const [topicForm, setTopicForm] = useState({ title: "", type: "text", textContent: "", youtubeUrl: "", audioFile: null as File | null, pdfFile: null as File | null, linkUrl: "", rbtLevels: "", coMapping: "", hoursAllocated: "1", teachingMethodology: "" });
 
   useEffect(() => {
@@ -104,7 +104,7 @@ const TutorCurriculum = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["curriculum-modules-all"] });
       setCreateModuleOpen(false);
-      setModuleForm({ name: "", courseCode: "", semester: "9", batchId: "", description: "" });
+      setModuleForm({ name: "", courseCode: "", semester: "1", batchId: "", description: "" });
       toast.success("Module created!");
     },
     onError: (err: any) => toast.error(err.message),

@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChatComposer } from "@/components/chat/ChatComposer";
 import { MessageBubble } from "@/components/chat/MessageBubble";
+import { formatBadgeCount } from "@/lib/utils";
 
 const TutorMessages = () => {
   const { user } = useAuth();
@@ -27,17 +28,34 @@ const TutorMessages = () => {
         .select("user_id, role")
         .in("role", ["student", "instructor", "admin"]);
       const filtered = (roles || []).filter((r) => r.user_id !== user!.id);
-      if (!filtered.length) return [];
-      const ids = filtered.map((r) => r.user_id);
+
+      // Anyone who has already messaged this faculty member (or been messaged by them) must
+      // keep showing up here even if their profile isn't verified yet — otherwise a message
+      // that was successfully sent and stored has nowhere to be opened from in this inbox.
+      const { data: threadRows } = await supabase
+        .from("messages")
+        .select("sender_id, receiver_id")
+        .or(`sender_id.eq.${user!.id},receiver_id.eq.${user!.id}`);
+      const threadPartnerIds = new Set(
+        (threadRows || [])
+          .map((m) => (m.sender_id === user!.id ? m.receiver_id : m.sender_id))
+          .filter((id) => id !== user!.id)
+      );
+
+      const roleMap = new Map(filtered.map((r) => [r.user_id, r.role]));
+      const ids = Array.from(new Set([...roleMap.keys(), ...threadPartnerIds]));
+      if (!ids.length) return [];
+
       const { data: profiles } = await supabase
         .from("profiles")
         .select("user_id, display_name, avatar_url, is_verified")
-        .in("user_id", ids)
-        .eq("is_verified", true);
-      return (profiles || []).map((p) => ({
-        ...p,
-        role: filtered.find((r) => r.user_id === p.user_id)?.role || "student",
-      }));
+        .in("user_id", ids);
+      return (profiles || [])
+        .filter((p) => p.is_verified || threadPartnerIds.has(p.user_id))
+        .map((p) => ({
+          ...p,
+          role: roleMap.get(p.user_id) || "student",
+        }));
     },
     enabled: !!user,
   });
@@ -71,7 +89,7 @@ const TutorMessages = () => {
     if (!user) return;
     const channel = supabase.channel("tutor-messages").on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, (payload) => {
       const msg = payload.new as any;
-      if (msg.sender_id === user.id || msg.receiver_id === user.id) { queryClient.invalidateQueries({ queryKey: ["chat-messages"] }); queryClient.invalidateQueries({ queryKey: ["tutor-unread-counts"] }); }
+      if (msg.sender_id === user.id || msg.receiver_id === user.id) { queryClient.invalidateQueries({ queryKey: ["chat-messages"] }); queryClient.invalidateQueries({ queryKey: ["tutor-unread-counts"] }); queryClient.invalidateQueries({ queryKey: ["tutor-chat-contacts"] }); queryClient.invalidateQueries({ queryKey: ["sidebar-counts"] }); }
     }).subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [user, queryClient]);
@@ -79,7 +97,7 @@ const TutorMessages = () => {
   useEffect(() => {
     if (!user || !selectedStudent) return;
     supabase.from("messages").update({ is_read: true }).eq("receiver_id", user.id).eq("sender_id", selectedStudent).eq("is_read", false)
-      .then(() => queryClient.invalidateQueries({ queryKey: ["tutor-unread-counts"] }));
+      .then(() => { queryClient.invalidateQueries({ queryKey: ["tutor-unread-counts"] }); queryClient.invalidateQueries({ queryKey: ["sidebar-counts"] }); });
   }, [selectedStudent, user, queryClient]);
 
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
@@ -104,7 +122,7 @@ const TutorMessages = () => {
       </div>
       {(unreadCounts as any)[s.user_id] > 0 && (
         <Badge className="bg-gradient-to-r from-brand-gold to-brand-gold-light text-primary-foreground text-[10px] h-5 min-w-[20px] flex items-center justify-center border-0 shadow-sm">
-          {(unreadCounts as any)[s.user_id]}
+          {formatBadgeCount((unreadCounts as any)[s.user_id])}
         </Badge>
       )}
     </button>

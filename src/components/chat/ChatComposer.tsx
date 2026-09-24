@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { generateId } from "@/lib/utils";
 
 interface ChatComposerProps {
   userId: string;
@@ -72,7 +73,7 @@ export const ChatComposer = ({ userId, receiverId, onSent }: ChatComposerProps) 
     }
     setSending(true);
     const ext = opts.name.split(".").pop() || "bin";
-    const path = `${userId}/${crypto.randomUUID()}.${ext}`;
+    const path = `${userId}/${generateId()}.${ext}`;
     const { error: upErr } = await supabase.storage
       .from("chat-attachments")
       .upload(path, file, { contentType: (file as any).type || undefined });

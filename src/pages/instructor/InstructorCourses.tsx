@@ -106,7 +106,9 @@ const InstructorCourses = () => {
                         <Link to={`/dashboard/tutor/edit/${course.id}`} className="flex-1">
                           <Button size="sm" className="w-full gap-1 border-2 border-brand-primary text-brand-primary bg-transparent hover:bg-brand-gold-pale rounded-xl text-xs font-semibold"><Edit className="h-3 w-3" /> Edit</Button>
                         </Link>
-                        <Button variant="ghost" size="sm" className="hover:bg-brand-gold-pale rounded-xl"><Eye className="h-3 w-3 text-brand-primary" /></Button>
+                        <Link to={`/dashboard/tutor/view/${course.id}`}>
+                          <Button variant="ghost" size="sm" className="hover:bg-brand-gold-pale rounded-xl"><Eye className="h-3 w-3 text-brand-primary" /></Button>
+                        </Link>
                       </div>
                     </CardContent>
                   </Card>

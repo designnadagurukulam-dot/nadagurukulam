@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChatComposer } from "@/components/chat/ChatComposer";
 import { MessageBubble } from "@/components/chat/MessageBubble";
+import { formatBadgeCount } from "@/lib/utils";
 
 const StudentChat = () => {
   const { user } = useAuth();
@@ -76,6 +77,7 @@ const StudentChat = () => {
       if (msg.sender_id === user.id || msg.receiver_id === user.id) {
         queryClient.invalidateQueries({ queryKey: ["chat-messages"] });
         queryClient.invalidateQueries({ queryKey: ["unread-counts"] });
+        queryClient.invalidateQueries({ queryKey: ["sidebar-counts"] });
       }
     }).subscribe();
     return () => { supabase.removeChannel(channel); };
@@ -84,7 +86,7 @@ const StudentChat = () => {
   useEffect(() => {
     if (!user || !selectedTutor) return;
     supabase.from("messages").update({ is_read: true }).eq("receiver_id", user.id).eq("sender_id", selectedTutor).eq("is_read", false)
-      .then(() => { queryClient.invalidateQueries({ queryKey: ["unread-counts"] }); });
+      .then(() => { queryClient.invalidateQueries({ queryKey: ["unread-counts"] }); queryClient.invalidateQueries({ queryKey: ["sidebar-counts"] }); });
   }, [selectedTutor, user, queryClient]);
 
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
@@ -114,7 +116,7 @@ const StudentChat = () => {
       </div>
       {(unreadCounts as any)[staff.user_id] > 0 && (
         <Badge className="bg-gradient-to-r from-brand-primary to-brand-primary-dark text-primary-foreground text-[10px] h-5 min-w-[20px] flex items-center justify-center border-0">
-          {(unreadCounts as any)[staff.user_id]}
+          {formatBadgeCount((unreadCounts as any)[staff.user_id])}
         </Badge>
       )}
     </button>
